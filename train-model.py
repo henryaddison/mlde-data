@@ -2,16 +2,12 @@ import argparse
 import logging
 import os
 from pathlib import Path
-import sys
 
 import torch
 import torch.nn as nn
-dir2 = os.path.abspath('unet/unet')
-dir1 = os.path.dirname(dir2)
-if not dir1 in sys.path: sys.path.append(dir1)
-import unet
+from ml_downscaling_emulator.unet import unet
 
-from training import train, load_data, log_epoch, track_run, checkpoint_model
+from ml_downscaling_emulator.training import train, load_data, log_epoch, track_run, checkpoint_model
 
 UNET_ARCHNAME = "u-net"
 SIMPLE_CONV_ARCHNAME = "simple-conv"

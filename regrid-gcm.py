@@ -2,7 +2,7 @@ import argparse
 import os
 from pathlib import Path
 
-from preprocessing.regrid import Regrid
+from ml_downscaling_emulator.preprocessing.regrid import Regrid
 
 def get_args():
     parser = argparse.ArgumentParser(description='Regrid GCM data to match the CPM data',
