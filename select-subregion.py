@@ -3,7 +3,7 @@ import logging
 import os
 from pathlib import Path
 
-from preprocessing.select_subregion import SelectSubregion
+from ml_downscaling_emulator.preprocessing.select_subregion import SelectSubregion
 
 def get_args():
     parser = argparse.ArgumentParser(description='Select a sub-region of a UKCP18 file',

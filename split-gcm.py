@@ -2,7 +2,7 @@ import argparse
 import os
 from pathlib import Path
 
-from preprocessing.split_by_year import SplitByYear
+from ml_downscaling_emulator.preprocessing.split_by_year import SplitByYear
 
 def get_args():
     parser = argparse.ArgumentParser(description='Regrid GCM data to match the CPM data',

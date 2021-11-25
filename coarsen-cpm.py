@@ -3,7 +3,7 @@ import logging
 import os
 from pathlib import Path
 
-from preprocessing.coarsen import Coarsen
+from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
 
 def get_args():
     parser = argparse.ArgumentParser(description='Coarsen a diectory hi-res files to a lower resolution',

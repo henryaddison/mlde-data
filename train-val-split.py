@@ -3,7 +3,7 @@ import logging
 import os
 from pathlib import Path
 
-from preprocessing.train_val_split import TrainValSplit
+from ml_downscaling_emulator.preprocessing.train_val_split import TrainValSplit
 
 def get_args():
     parser = argparse.ArgumentParser(description='Select a sub-region of a UKCP18 file',
