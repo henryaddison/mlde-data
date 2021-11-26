@@ -215,3 +215,59 @@ u-net-coarsened-4x-london-rcp85-01-pr-day-mse-200-epochs:
     --loss mse --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
   job_id: 126027
   submitted: 2021-11-23 11:03
+u-net-coarsened-2x-london-rcp85-01-pr-day-mse-200-epochs:
+  cmd: lsub_nonblock -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname
+    u-net-coarsened-2x-london-rcp85-01-pr-day-mse-200-epochs --workdir ~/code/ml-downscaling-emulation/
+    -- python train-model.py --arch u-net --data ${WORK}/pytorch-data/coarsened-2x-london-rcp85-01-pr-day
+    --loss mse --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
+  job_id: 170022
+  submitted: 2021-11-26 15:51
+u-net-coarsened-2x-london-rcp85-01-pr-day-l1-200-epochs:
+  cmd: lsub_nonblock -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname
+    u-net-coarsened-2x-london-rcp85-01-pr-day-l1-200-epochs --workdir ~/code/ml-downscaling-emulation/
+    -- python train-model.py --arch u-net --data ${WORK}/pytorch-data/coarsened-2x-london-rcp85-01-pr-day
+    --loss l1 --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
+  job_id: 170023
+  submitted: 2021-11-26 15:51
+simple-conv-coarsened-2x-london-rcp85-01-pr-day-l1-200-epochs:
+  cmd: lsub_nonblock -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname
+    simple-conv-coarsened-2x-london-rcp85-01-pr-day-l1-200-epochs --workdir ~/code/ml-downscaling-emulation/
+    -- python train-model.py --arch simple-conv --data ${WORK}/pytorch-data/coarsened-2x-london-rcp85-01-pr-day
+    --loss l1 --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/simple-conv/${SLURM_JOB_ID}
+  job_id: 170025
+  submitted: 2021-11-26 15:52
+simple-conv-coarsened-2x-london-rcp85-01-pr-day-mse-200-epochs:
+  cmd: lsub_nonblock -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname
+    simple-conv-coarsened-2x-london-rcp85-01-pr-day-mse-200-epochs --workdir ~/code/ml-downscaling-emulation/
+    -- python train-model.py --arch simple-conv --data ${WORK}/pytorch-data/coarsened-2x-london-rcp85-01-pr-day
+    --loss mse --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/simple-conv/${SLURM_JOB_ID}
+  job_id: 170026
+  submitted: 2021-11-26 15:52
+u-net-2.2km-london-rcp85-01-pr-day-mse-200-epochs:
+  cmd: lsub_nonblock -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname
+    u-net-2.2km-london-rcp85-01-pr-day-mse-200-epochs --workdir ~/code/ml-downscaling-emulation/
+    -- python train-model.py --arch u-net --data ${WORK}/pytorch-data/2.2km-london-rcp85-01-pr-day
+    --loss mse --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
+  job_id: 170395
+  submitted: 2021-11-26 15:52
+u-net-2.2km-london-rcp85-01-pr-day-l1-200-epochs:
+  cmd: lsub_nonblock -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname
+    u-net-2.2km-london-rcp85-01-pr-day-l1-200-epochs --workdir ~/code/ml-downscaling-emulation/
+    -- python train-model.py --arch u-net --data ${WORK}/pytorch-data/2.2km-london-rcp85-01-pr-day
+    --loss l1 --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
+  job_id: 170396
+  submitted: 2021-11-26 15:53
+simple-conv-2.2km-london-rcp85-01-pr-day-l1-200-epochs:
+  cmd: lsub_nonblock -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname
+    simple-conv-2.2km-london-rcp85-01-pr-day-l1-200-epochs --workdir ~/code/ml-downscaling-emulation/
+    -- python train-model.py --arch simple-conv --data ${WORK}/pytorch-data/2.2km-london-rcp85-01-pr-day
+    --loss l1 --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/simple-conv/${SLURM_JOB_ID}
+  job_id: 170398
+  submitted: 2021-11-26 15:53
+simple-conv-2.2km-london-rcp85-01-pr-day-mse-200-epochs:
+  cmd: lsub_nonblock -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname
+    simple-conv-2.2km-london-rcp85-01-pr-day-mse-200-epochs --workdir ~/code/ml-downscaling-emulation/
+    -- python train-model.py --arch simple-conv --data ${WORK}/pytorch-data/2.2km-london-rcp85-01-pr-day
+    --loss mse --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/simple-conv/${SLURM_JOB_ID}
+  job_id: 170399
+  submitted: 2021-11-26 15:53
