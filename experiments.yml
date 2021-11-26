@@ -201,3 +201,17 @@ u-net-coarsened-4x-london-rcp85-01-pr-day-l1-2000-epochs:
     --loss l1 --epochs 2000 --batch-size 64 --model ${WORK}/checkpoints/u-net/$\{SLURM_JOB_ID\}
   job_id: 35169
   submitted: 2021-11-18 18:02
+u-net-coarsened-4x-london-rcp85-01-pr-day-l1-200-epochs:
+  cmd: lsub_nonblock -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname
+    u-net-coarsened-4x-london-rcp85-01-pr-day-l1-200-epochs --workdir ~/code/ml-downscaling-emulation/
+    -- python train-model.py --arch u-net --data ${WORK}/pytorch-data/coarsened-4x-london-rcp85-01-pr-day
+    --loss l1 --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
+  job_id: 126026
+  submitted: 2021-11-23 11:03
+u-net-coarsened-4x-london-rcp85-01-pr-day-mse-200-epochs:
+  cmd: lsub_nonblock -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname
+    u-net-coarsened-4x-london-rcp85-01-pr-day-mse-200-epochs --workdir ~/code/ml-downscaling-emulation/
+    -- python train-model.py --arch u-net --data ${WORK}/pytorch-data/coarsened-4x-london-rcp85-01-pr-day
+    --loss mse --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
+  job_id: 126027
+  submitted: 2021-11-23 11:03
