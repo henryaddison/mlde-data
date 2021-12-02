@@ -6,19 +6,18 @@ import xarray as xr
 cp_model_rotated_pole = ccrs.RotatedPole(pole_longitude=177.5, pole_latitude=37.5)
 platecarree = ccrs.PlateCarree()
 
-def plot_with_ts(slices, timestamps, variable='pr', vmax=None, cmap='YlGn'):
+def plot_with_ts(datasets, timestamps, variable='pr', vmin=0, vmax=None, cmap='YlGn'):
     figs = []
-    for t, timestamp in enumerate(timestamps):        
-        f, axes = plt.subplots(1, len(slices), figsize=(30, 6), subplot_kw={'projection': cp_model_rotated_pole})
+    for t, timestamp in enumerate(timestamps):
+        f, axes = plt.subplots(1, len(datasets), figsize=(30, 6), subplot_kw={'projection': cp_model_rotated_pole})
         f.tight_layout(h_pad=2)
         # make sure axes is 2-d even if only 1 timestamp and or slice
-        axes = axes.reshape(1,len(slices))
+        if len(datasets) == 1: axes = [axes]
 
-    
-        for i, data in enumerate(slices):
-            ax = axes[0][i]
+        for i, data in enumerate(datasets):
+            ax = axes[i]
             ax.coastlines()
-            
+
             x = "longitude"
             y = "latitude"
             transform = platecarree
@@ -26,8 +25,8 @@ def plot_with_ts(slices, timestamps, variable='pr', vmax=None, cmap='YlGn'):
                 x = f"grid_longitude"
                 y = f"grid_latitude"
                 transform = cp_model_rotated_pole
-            
-            data.sel(time=timestamp)[variable].plot(ax=ax, x=x, y=y, add_colorbar=True, transform = transform, vmin=0, vmax=vmax, cmap=cmap)
+
+            data.sel(time=timestamp)[variable].plot(ax=ax, x=x, y=y, add_colorbar=True, transform = transform, vmin=vmin, vmax=vmax, cmap=cmap)
 
         figs.append(f)
 #     plt.show()
