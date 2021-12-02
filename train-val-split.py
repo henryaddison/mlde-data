@@ -16,7 +16,9 @@ def get_args():
                         help='Base path to store output tensors')
     parser.add_argument('--variables', dest='variables', type=str, nargs='+', required=False, default=['pr'],
                         help='List of input variables to use to create datasets')
-    parser.add_argument('--val-prop', dest='val_prop', type=float, required=False, default=0.3,
+    parser.add_argument('--val-prop', dest='val_prop', type=float, required=False, default=0.2,
+                        help='Proportion of data to put in validation set')
+    parser.add_argument('--test-prop', dest='test_prop', type=float, required=False, default=0.1,
                         help='Proportion of data to put in validation set')
 
 
@@ -27,8 +29,8 @@ if __name__ == '__main__':
 
     args = get_args()
 
-    os.makedirs(os.path.dirname(args.output_dir), exist_ok=True)
+    os.makedirs(args.output_dir, exist_ok=True)
 
-    TrainValSplit(args.hi_res_files, args.lo_res_files, args.output_dir, args.variables, args.val_prop).run()
+    TrainValSplit(args.hi_res_files, args.lo_res_files, args.output_dir, args.variables, args.val_prop, args.test_prop).run()
 
     logging.info("All done")
