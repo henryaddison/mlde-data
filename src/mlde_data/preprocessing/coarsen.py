@@ -27,7 +27,7 @@ class Coarsen:
             # regrid the coarsened data to match the original horizontal grid (using NN interpolation)
             # NB iris and xarray can only comminicate in dataarrays not datasets
             regridder = iris.analysis.Nearest().regridder(lo_res_ds[self.variable].to_iris(), hi_res_ds[self.variable].to_iris())
-            regridded_coarse_da = regridder(lo_res_ds.pr.to_iris())
+            regridded_coarse_da = regridder(lo_res_ds[self.variable].to_iris())
             # and form a dataset based on the original hi-res with this new coarsened then NN-gridded data
             hi_res_ds[self.variable] = xr.DataArray.from_iris(regridded_coarse_da)
 

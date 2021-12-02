@@ -1,15 +1,4 @@
 #! /usr/bin/env bash
-#
-#PBS -l walltime=00:10:00
-
-# environment setup for BP
-
-source ~/.bash_profile
-module load lang/python/anaconda/3.8.5-2021-cuda-11.2.2
-conda activate bpdownscaling
-cd $HOME
-
-# the script
 
 set -euo pipefail
 
@@ -19,48 +8,57 @@ region="uk"
 # My machine, my machine, my machine (whose machine?)
 # data_dir_base="../data"
 # Blue Pebble
-data_dir_base="/bp1store/geog-tropical/data/UKCP18"
+data_dir_base="$1"
 
 # resolution independent variables
 ensemble_member="01"
 temp_res="day"
 rcp="rcp85"
 
-# resolution dependent variables
-# 2.2km
-# dataset="land-cpm"
-# space_res="2.2km"
-# version="v20190731"
-# duration=1
-# vars=(pr)
-# # CPM 1980-2000, 2020-2040, 2060-2080 in 1 year steps
-# year_range=($(seq 1980 1 1999) $(seq 2020 1 2039) $(seq 2060 1 2079))
+model=$2
+# resolution/model dependent variables
+case $model in
+  cpm)
+    # # 2.2km
+    dataset="land-cpm"
+    space_res="2.2km"
+    version="v20190731"
+    duration=1
+    # # CPM 1980-2000, 2020-2040, 2060-2080 in 1 year steps
+    year_range=($(seq 1980 ${duration} 1999) $(seq 2020 ${duration} 2039) $(seq 2060 ${duration} 2079))
+    ;;
 
-# 60km
-dataset="land-gcm"
-space_res="60km"
-version="v20181122"
-duration=10
-vars=(pr psl)
-# GCM 1979-2089 in 10 year steps: 1979-1989, 1989-1999, 1999-2009, 2009-2019, 2019-2029, 2029-2039, 2039-2049, 2049-2059, 2069-2079, 2079-2089
-year_range=$(seq 1979 10 2079)
+  gcm)
+    # # 60km
+    dataset="land-gcm"
+    space_res="60km"
+    version="v20181122"
+    duration=10
+    # GCM 1979-2089 in 10 year steps: 1979-1989, 1989-1999, 1999-2009, 2009-2019, 2019-2029, 2029-2039, 2039-2049, 2049-2059, 2069-2079, 2079-2089
+    year_range=$(seq 1979 ${duration} 2079)
+    ;;
+
+  *)
+    echo -n "unknown model"
+    exit 1
+    ;;
+esac
+
+data_variable=$3
 
 for start_year in ${year_range[@]}
 do
   let "end_year=start_year+duration"
-  for var in ${vars[@]}
-  do
-    data_dir="${data_dir_base}/${space_res}/${rcp}/${ensemble_member}/${var}/${temp_res}"
-    mkdir -p ${data_dir}
+  data_dir="${data_dir_base}/${space_res}/${rcp}/${ensemble_member}/${data_variable}/${temp_res}"
+  mkdir -p ${data_dir}
 
-    filename="${var}_${rcp}_${dataset}_${region}_${space_res}_${ensemble_member}_${temp_res}_${start_year}1201-${end_year}1130.nc"
+  filename="${data_variable}_${rcp}_${dataset}_${region}_${space_res}_${ensemble_member}_${temp_res}_${start_year}1201-${end_year}1130.nc"
 
-    url="${url_base}/${dataset}/${region}/${space_res}/${rcp}/${ensemble_member}/${var}/${temp_res}/${version}/${filename}"
+  url="${url_base}/${dataset}/${region}/${space_res}/${rcp}/${ensemble_member}/${data_variable}/${temp_res}/${version}/${filename}"
 
-    set -x
-    python3 simple_file_downloader.py ${url}
+  set -x
+  python3 simple_file_downloader.py ${url}
 
-    mv ${filename} ${data_dir}
-    set +x
-  done
+  mv ${filename} ${data_dir}
+  set +x
 done
