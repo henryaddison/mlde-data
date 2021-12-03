@@ -49,7 +49,7 @@ data_variable=$3
 for start_year in ${year_range[@]}
 do
   let "end_year=start_year+duration"
-  data_dir="${data_dir_base}/${space_res}/${rcp}/${ensemble_member}/${data_variable}/${temp_res}"
+  data_dir="${data_dir_base}/${region}/${space_res}/${rcp}/${ensemble_member}/${data_variable}/${temp_res}"
   mkdir -p ${data_dir}
 
   filename="${data_variable}_${rcp}_${dataset}_${region}_${space_res}_${ensemble_member}_${temp_res}_${start_year}1201-${end_year}1130.nc"
