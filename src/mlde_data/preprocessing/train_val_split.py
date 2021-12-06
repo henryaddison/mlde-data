@@ -9,7 +9,7 @@ import xarray as xr
 logger = logging.getLogger(__name__)
 
 class TrainValSplit:
-    def __init__(self, lo_res_files, hi_res_files, output_dir, variables = ['pr'], val_prop=0.2, test_prop=0.1) -> None:
+    def __init__(self, lo_res_files, hi_res_files, output_dir, variables, val_prop=0.2, test_prop=0.1) -> None:
         self.lo_res_files = lo_res_files
         self.hi_res_files = hi_res_files
         self.variables = variables
