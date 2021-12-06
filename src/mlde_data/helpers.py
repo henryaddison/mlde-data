@@ -6,7 +6,7 @@ import xarray as xr
 cp_model_rotated_pole = ccrs.RotatedPole(pole_longitude=177.5, pole_latitude=37.5)
 platecarree = ccrs.PlateCarree()
 
-def plot_with_ts(datasets, timestamps, variable='pr', vmin=0, vmax=None, cmap='YlGn'):
+def plot_with_ts(datasets, timestamps, variable='pr', vmin=0, vmax=None, cmap='YlGn', titles=None):
     figs = []
     for t, timestamp in enumerate(timestamps):
         f, axes = plt.subplots(1, len(datasets), figsize=(30, 6), subplot_kw={'projection': cp_model_rotated_pole})
@@ -27,6 +27,8 @@ def plot_with_ts(datasets, timestamps, variable='pr', vmin=0, vmax=None, cmap='Y
                 transform = cp_model_rotated_pole
 
             data.sel(time=timestamp)[variable].plot(ax=ax, x=x, y=y, add_colorbar=True, transform = transform, vmin=vmin, vmax=vmax, cmap=cmap)
+            if titles:
+                ax.set_title(f"{titles[i]}@{timestamp.values}")
 
         figs.append(f)
 #     plt.show()
