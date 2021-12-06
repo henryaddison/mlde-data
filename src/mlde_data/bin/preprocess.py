@@ -103,4 +103,4 @@ def train_test_split(output_base_dir, input_base_dir, **params):
 
     os.makedirs(output_dir, exist_ok=True)
 
-    TrainValSplit(lo_res_files, hi_res_files, output_dir, params["val_prop"], params["test_prop"]).run()
+    TrainValSplit(lo_res_files, hi_res_files, output_dir, params["variable"], params["val_prop"], params["test_prop"]).run()
