@@ -42,7 +42,7 @@ queue_opts = {
 queue_basecmd = ["lbatch"]
 queue_cmd = queue_basecmd +  [arg for item in queue_opts.items() for arg in item]
 
-full_cmd = queue_cmd + ["--cmd"] + train_cmd
+full_cmd = queue_cmd + ["--"] + train_cmd
 
 output = subprocess.run(full_cmd, capture_output=True)
 stdout = output.stdout.decode("utf8")
