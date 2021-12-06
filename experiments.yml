@@ -292,3 +292,73 @@ u-net-2.2km-coarsened-2x_london_pr-l1-100-epochs:
     100 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
   job_id: 237004
   submitted: 2021-12-06 22:20
+u-net-2.2km-coarsened-2x_london_pr-mse-200-epochs:
+  cmd: lbatch -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname u-net-2.2km-coarsened-2x_london_pr-mse-200-epochs
+    --workdir ~/code/ml-downscaling-emulation/ -- python train-model.py --architecture
+    u-net --data ${WORK}/nc-datasets/2.2km-coarsened-2x_london_pr --loss mse --epochs
+    200 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
+  job_id: 237007
+  submitted: 2021-12-06 22:23
+u-net-2.2km-coarsened-4x_london_pr-mse-200-epochs:
+  cmd: lbatch -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname u-net-2.2km-coarsened-4x_london_pr-mse-200-epochs
+    --workdir ~/code/ml-downscaling-emulation/ -- python train-model.py --architecture
+    u-net --data ${WORK}/nc-datasets/2.2km-coarsened-4x_london_pr --loss mse --epochs
+    200 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
+  job_id: 237008
+  submitted: 2021-12-06 22:23
+u-net-2.2km-coarsened-8x_london_pr-mse-200-epochs:
+  cmd: lbatch -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname u-net-2.2km-coarsened-8x_london_pr-mse-200-epochs
+    --workdir ~/code/ml-downscaling-emulation/ -- python train-model.py --architecture
+    u-net --data ${WORK}/nc-datasets/2.2km-coarsened-8x_london_pr --loss mse --epochs
+    200 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
+  job_id: 237009
+  submitted: 2021-12-06 22:23
+u-net-2.2km-coarsened-16x_london_pr-mse-200-epochs:
+  cmd: lbatch -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname u-net-2.2km-coarsened-16x_london_pr-mse-200-epochs
+    --workdir ~/code/ml-downscaling-emulation/ -- python train-model.py --architecture
+    u-net --data ${WORK}/nc-datasets/2.2km-coarsened-16x_london_pr --loss mse --epochs
+    200 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
+  job_id: 237010
+  submitted: 2021-12-06 22:23
+u-net-2.2km-coarsened-27x_london_pr-mse-200-epochs:
+  cmd: lbatch -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname u-net-2.2km-coarsened-27x_london_pr-mse-200-epochs
+    --workdir ~/code/ml-downscaling-emulation/ -- python train-model.py --architecture
+    u-net --data ${WORK}/nc-datasets/2.2km-coarsened-27x_london_pr --loss mse --epochs
+    200 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
+  job_id: 237011
+  submitted: 2021-12-06 22:23
+simple-conv-2.2km-coarsened-27x_london_pr-mse-200-epochs:
+  cmd: lbatch -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname simple-conv-2.2km-coarsened-27x_london_pr-mse-200-epochs
+    --workdir ~/code/ml-downscaling-emulation/ -- python train-model.py --architecture
+    simple-conv --data ${WORK}/nc-datasets/2.2km-coarsened-27x_london_pr --loss mse
+    --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/simple-conv/${SLURM_JOB_ID}
+  job_id: 237012
+  submitted: 2021-12-06 22:23
+simple-conv-2.2km-coarsened-16x_london_pr-mse-200-epochs:
+  cmd: lbatch -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname simple-conv-2.2km-coarsened-16x_london_pr-mse-200-epochs
+    --workdir ~/code/ml-downscaling-emulation/ -- python train-model.py --architecture
+    simple-conv --data ${WORK}/nc-datasets/2.2km-coarsened-16x_london_pr --loss mse
+    --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/simple-conv/${SLURM_JOB_ID}
+  job_id: 237013
+  submitted: 2021-12-06 22:23
+simple-conv-2.2km-coarsened-8x_london_pr-mse-200-epochs:
+  cmd: lbatch -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname simple-conv-2.2km-coarsened-8x_london_pr-mse-200-epochs
+    --workdir ~/code/ml-downscaling-emulation/ -- python train-model.py --architecture
+    simple-conv --data ${WORK}/nc-datasets/2.2km-coarsened-8x_london_pr --loss mse
+    --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/simple-conv/${SLURM_JOB_ID}
+  job_id: 237014
+  submitted: 2021-12-06 22:24
+simple-conv-2.2km-coarsened-4x_london_pr-mse-200-epochs:
+  cmd: lbatch -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname simple-conv-2.2km-coarsened-4x_london_pr-mse-200-epochs
+    --workdir ~/code/ml-downscaling-emulation/ -- python train-model.py --architecture
+    simple-conv --data ${WORK}/nc-datasets/2.2km-coarsened-4x_london_pr --loss mse
+    --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/simple-conv/${SLURM_JOB_ID}
+  job_id: 237015
+  submitted: 2021-12-06 22:24
+simple-conv-2.2km-coarsened-2x_london_pr-mse-200-epochs:
+  cmd: lbatch -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname simple-conv-2.2km-coarsened-2x_london_pr-mse-200-epochs
+    --workdir ~/code/ml-downscaling-emulation/ -- python train-model.py --architecture
+    simple-conv --data ${WORK}/nc-datasets/2.2km-coarsened-2x_london_pr --loss mse
+    --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/simple-conv/${SLURM_JOB_ID}
+  job_id: 237016
+  submitted: 2021-12-06 22:24
