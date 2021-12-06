@@ -287,8 +287,8 @@ simple-conv-coarsened-4x-london-rcp85-01-pr-day-l1-200-epochs:
   submitted: 2021-11-26 16:39
 u-net-2.2km-coarsened-2x_london_pr-l1-100-epochs:
   cmd: lbatch -m 16 -g 1 --queue cnu --condaenv cuda-downscaling --jobname u-net-2.2km-coarsened-2x_london_pr-l1-100-epochs
-    --workdir ~/code/ml-downscaling-emulation/ --cmd 'python train-model.py --arch
+    --workdir ~/code/ml-downscaling-emulation/ -- python train-model.py --architecture
     u-net --data ${WORK}/nc-datasets/2.2km-coarsened-2x_london_pr --loss l1 --epochs
-    100 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}'
-  job_id: 236917
-  submitted: 2021-12-06 21:30
+    100 --batch-size 64 --model ${WORK}/checkpoints/u-net/${SLURM_JOB_ID}
+  job_id: 237004
+  submitted: 2021-12-06 22:20
