@@ -24,7 +24,8 @@ class TrainValSplit:
         combined_dataset = xr.combine_by_coords([lo_res_dataset, hi_res_dataset], compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all").isel(ensemble_member=0)
 
         tc = combined_dataset.time.values.copy()
-        np.random.shuffle(tc)
+        rng = np.random.default_rng(seed=42)
+        rng.shuffle(tc)
 
         test_size = int(len(tc)*self.test_prop)
         val_size = int(len(tc)*self.val_prop)
