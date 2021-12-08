@@ -82,7 +82,7 @@ def compare_preds(models_preds, test_set, lo_res_pr_set=None):
     ax.set_title("Lo-res pr vs hi-res pr")
 
     plt.figure()
-    test_set.sum(dim=["grid_longitude", "grid_latitude"]).target_pr.plot.hist(alpha=0.1, log=True)
-    test_set.sum(dim=["grid_longitude", "grid_latitude"]).pr.plot.hist(alpha=0.1, log=True)
     for model_preds in models_preds:
-        model_preds.sum(dim=["grid_longitude", "grid_latitude"]).pr.plot.hist(alpha=0.1, log=True)
+        model_preds.sum(dim=["grid_longitude", "grid_latitude"]).pr.plot.hist(alpha=0.1, log=True, density=True)
+    test_set.sum(dim=["grid_longitude", "grid_latitude"]).target_pr.plot.hist(alpha=0.1, log=True, density=True)
+    test_set.sum(dim=["grid_longitude", "grid_latitude"]).pr.plot.hist(alpha=0.1, log=True, density=True)
