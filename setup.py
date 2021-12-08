@@ -21,6 +21,11 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     package_dir={"": "src"},
+    entry_points={
+        'console_scripts': [
+            'preprocess = ml_downscaling_emulator.bin.preprocess:cli',
+        ],
+    },
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.6",
 )

@@ -1,10 +1,14 @@
+import logging
+import os
+
 import numpy as np
-import torch
 from torch.utils.data import random_split, DataLoader, TensorDataset
 import xarray as xr
 
+logger = logging.getLogger(__name__)
+
 class TrainValSplit:
-    def __init__(self, lo_res_files, hi_res_files, output_dir, variables = ['pr'], val_prop=0.2, test_prop=0.1) -> None:
+    def __init__(self, lo_res_files, hi_res_files, output_dir, variables, val_prop=0.2, test_prop=0.1) -> None:
         self.lo_res_files = lo_res_files
         self.hi_res_files = hi_res_files
         self.variables = variables
@@ -13,6 +17,7 @@ class TrainValSplit:
         self.output_dir = output_dir
 
     def run(self):
+        time_encoding = xr.open_dataset(self.lo_res_files[0]).time_bnds.encoding
         lo_res_dataset = xr.open_mfdataset(self.lo_res_files)
         hi_res_dataset = xr.open_mfdataset(self.hi_res_files).rename({'pr': 'target_pr', 'ensemble_member_id': 'cpm_ensemble_member_id'})
 
@@ -34,31 +39,11 @@ class TrainValSplit:
 
 
         # https://github.com/pydata/xarray/issues/2436 - time dim encoding lost when opened using open_mfdataset
-        test_set.time.encoding.update(lo_res_dataset.time_bnds.encoding)
-        val_set.time.encoding.update(lo_res_dataset.time_bnds.encoding)
-        train_set.time.encoding.update(lo_res_dataset.time_bnds.encoding)
+        test_set.time.encoding.update(time_encoding)
+        val_set.time.encoding.update(time_encoding)
+        train_set.time.encoding.update(time_encoding)
 
-        test_set.to_netcdf(self.output_dir/'test.nc')
-        val_set.to_netcdf(self.output_dir/'val.nc')
-        train_set.to_netcdf(self.output_dir/'train.nc')
-
-
-        # unstacked_X = [torch.tensor(combined_dataset[variable].values) for variable in self.variables]
-
-        # X = torch.stack(list(unstacked_X), dim=1)
-        # y = torch.tensor(combined_dataset['target_pr'].values).unsqueeze(dim=1)
-
-        # all_data = TensorDataset(X, y)
-
-        # val_size = int(self.val_prop * len(all_data))
-        # train_size = len(all_data) - val_size
-        # train_set, val_set = random_split(all_data, [train_size, val_size])
-
-        # train_X, train_y = train_set[:]
-        # val_X, val_y = val_set[:]
-
-        # torch.save(train_X, self.output_dir/'train_X.pt')
-        # torch.save(train_y, self.output_dir/'train_y.pt')
-
-        # torch.save(val_X, self.output_dir/'val_X.pt')
-        # torch.save(val_y, self.output_dir/'val_y.pt')
+        logger.info(f"Saving data to {self.output_dir}")
+        test_set.to_netcdf(os.path.join(self.output_dir, 'test.nc'))
+        val_set.to_netcdf(os.path.join(self.output_dir, 'val.nc'))
+        train_set.to_netcdf(os.path.join(self.output_dir, 'train.nc'))

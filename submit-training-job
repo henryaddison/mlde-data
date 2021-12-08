@@ -20,8 +20,8 @@ jobname = f"{args.model_name}-{args.dataset_name}-{args.loss}-{args.epochs}-epoc
 
 train_basecmd = ["python", f"train-model.py"]
 train_opts = {
-    "--arch": args.model_name,
-    "--data": f"${{WORK}}/pytorch-data/{args.dataset_name}",
+    "--architecture": args.model_name,
+    "--data": f"${{WORK}}/nc-datasets/{args.dataset_name}",
     "--loss": args.loss,
     "--epochs": str(args.epochs),
     "--batch-size": "64",
@@ -39,7 +39,7 @@ queue_opts = {
     "--workdir": "~/code/ml-downscaling-emulation/"
 }
 
-queue_basecmd = ["lsub_nonblock"]
+queue_basecmd = ["lbatch"]
 queue_cmd = queue_basecmd +  [arg for item in queue_opts.items() for arg in item]
 
 full_cmd = queue_cmd + ["--"] + train_cmd
