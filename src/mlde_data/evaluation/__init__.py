@@ -21,7 +21,7 @@ def predict(model, test_set):
 
 def open_test_set(path):
     test_set = xr.open_dataset(path)
-    return test_set.assign_coords(season=(('time'), (test_set.month_number.values % 12 // 4)))
+    return test_set.assign_coords(season=(('time'), (test_set.month_number.values % 12 // 3)))
 
 def compare_preds(models_preds, test_set, lo_res_pr_set=None):
     # lo_res_pr_set needs to be provided only if pr isn't one of the predictors in test_set
