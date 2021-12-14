@@ -93,11 +93,11 @@ def mean_diff(arch, dataset, portion, input_base_dir, output_base_dir):
     ds = open_test_set(dataset_filepath)
 
     eval_data_dirpath = evalution_output_dirpath(output_base_dir, dataset, arch, portion)
-    predictions_filepath = os.path.join(eval_data_dirpath, "predictions.nc")
 
+    predictions_filepath = os.path.join(eval_data_dirpath, "predictions.nc")
     predictions = xr.open_dataset(predictions_filepath)
 
-    model_mean_diff = predictions.mean(dim=["time"]).pr - ds.mean(dim=["time"]).target_pr
+    model_mean_diff = (predictions.mean(dim=["time"]).pr - ds.mean(dim=["time"]).target_pr).to_dataset(name="pr")
 
     output_dirpath = eval_data_dirpath
     output_filepath = os.path.join(output_dirpath, "mean-diff.nc")
