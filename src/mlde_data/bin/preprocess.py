@@ -8,7 +8,7 @@ from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
 from ml_downscaling_emulator.preprocessing.select_region import SelectRegion
 from ml_downscaling_emulator.preprocessing.intensity_split import IntensitySplit
 from ml_downscaling_emulator.preprocessing.random_split import RandomSplit
-
+from ml_downscaling_emulator.preprocessing.season_stratified_intensity_split import SeasonStratifiedIntensitySplit
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')
@@ -76,7 +76,7 @@ def coarsen(input_base_dir, output_base_dir, **params):
 @click.option('--target-resolution', type=click.STRING, default="2.2km")
 @click.option('--domain', type=click.STRING, required=True)
 @click.option('--variable', type=click.STRING, required=True, multiple=True)
-@click.option('--split-scheme', type=click.Choice(['intensity', 'random'], case_sensitive=False), required=True)
+@click.option('--split-scheme', type=click.Choice(['ssi', 'intensity', 'random'], case_sensitive=False), required=True)
 @click.option('--target-variable', type=click.STRING, default='pr')
 @click.option('--val-prop', type=click.FLOAT, default=0.2)
 @click.option('--test-prop', type=click.FLOAT, default=0.1)
@@ -109,5 +109,7 @@ def train_test_split(output_base_dir, input_base_dir, **params):
         RandomSplit(lo_res_files, hi_res_files, output_dir, params["variable"], params["val_prop"], params["test_prop"]).run()
     elif params["split_scheme"] == "intensity":
         IntensitySplit(lo_res_files, hi_res_files, output_dir, params["variable"], params["val_prop"], params["test_prop"]).run()
+    elif params["split_scheme"] == "ssi":
+        SeasonStratifiedIntensitySplit(lo_res_files, hi_res_files, output_dir, params["variable"], params["val_prop"], params["test_prop"]).run()
     else:
         raise(f"Unknown split scheme {params['split_scheme']}")
