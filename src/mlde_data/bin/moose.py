@@ -54,7 +54,7 @@ variable_codes = {
         },
         "psl": {
             "stash": 16222,
-            "stream": "apb"
+            "stream": "apa"
         },
         "hwind_u": {
             "stash": 30201,
