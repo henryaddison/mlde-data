@@ -83,9 +83,8 @@ variable_codes = {
         # the saturated wet-bulb and wet-bulb potential temperatures
         "wet-bulb": {
             "stash": 16205, # 17 pressure levels for daily
-            "stream": "apb"
-        }
-
+            "stream": "apb" #! BAD STREAM, check!
+        },
     },
 }
 
