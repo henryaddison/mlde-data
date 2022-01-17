@@ -70,18 +70,22 @@ variable_codes = {
         },
         "1.5mtemp": {
             "stash": 3236,
-            "stream": "apb"
+            "stream": "apb" #! BAD STREAM, check! - apa based on trial and error
         },
         "pr": {
             "stash": 5216,
-            "stream": "apb"
+            "stream": "apb" #! BAD STREAM, check!
         },
         "geopotheight": {
             "stash": 30207,
-            "stream": "apb"
+            "stream": "apb" #! BAD STREAM, check!
         },
-        # "wet bulb": 16205 # 17 pressure levels for daily,
         # the saturated wet-bulb and wet-bulb potential temperatures
+        "wet-bulb": {
+            "stash": 16205, # 17 pressure levels for daily
+            "stream": "apb"
+        }
+
     },
 }
 
