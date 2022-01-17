@@ -46,23 +46,43 @@ def convert():
     """
     typer.echo("Converting")
 
-stash_codes = {
+variable_codes = {
     "daily": {
-        "temp": 30204,
-        "psl": 16222,
-        "hwind_u": 30201,
-        "hwind_v": 30202,
-        "specific humidity": 30205,
-        "1.5m temperature": 3236,
-        "pr": 5216,
-        "geopotential height": 30207,
+        "temp": {
+            "stash": 30204,
+            "stream": "apb"
+        },
+        "psl": {
+            "stash": 16222,
+            "stream": "apb"
+        },
+        "hwind_u": {
+            "stash": 30201,
+            "stream": "apb"
+        },
+        "hwind_v": {
+            "stash": 30202,
+            "stream": "apb"
+        },
+        "specific humidity": {
+            "stash": 30205,
+            "stream": "apb"
+        },
+        "1.5m temperature": {
+            "stash": 3236,
+            "stream": "apb"
+        },
+        "pr": {
+            "stash": 5216,
+            "stream": "apb"
+        },
+        "geopotential height": {
+            "stash": 30207,
+            "stream": "apb"
+        },
         # "wet bulb": 16205 # 17 pressure levels for daily,
         # the saturated wet-bulb and wet-bulb potential temperatures
     },
-}
-
-streams = {
-    "daily": "apb"
 }
 
 class RangeDict(dict):
@@ -85,11 +105,11 @@ suite_ids = {
 
 def moose_path(variable, year, ensemble_member=0, temporal_res="daily"):
     suite_id = suite_ids[ensemble_member][year]
-    stash_code = stash_codes[temporal_res][variable]
-    return f"moose:crum/{suite_id}/{stash_code}.pp"
+    stream_code = variable_codes[temporal_res][variable]["stream"]
+    return f"moose:crum/{suite_id}/{stream_code}.pp"
 
 def select_query(year, variable, temporal_res="daily"):
-    stash_code = stash_codes[temporal_res][variable]
+    stash_code = variable_codes[temporal_res][variable]["stash"]
 
     return f"""
 begin
