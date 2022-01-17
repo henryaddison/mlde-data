@@ -22,7 +22,7 @@ def extract(variable: str, year: int, temporal_res: str = typer.Argument("daily"
 
     query = select_query(year=year, variable=variable, temporal_res=temporal_res)
 
-    output_dirpath = Path(os.getenv("HOME"))/f"{temporal_res}_{variable}_{year}"
+    output_dirpath = Path(os.getenv("HOME"))/"data"/f"{temporal_res}_{variable}_{year}"
     query_filepath = output_dirpath/"searchfile"
     data_dirpath = output_dirpath/"data"
 
