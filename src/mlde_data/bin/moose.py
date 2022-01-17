@@ -56,19 +56,19 @@ variable_codes = {
             "stash": 16222,
             "stream": "apa"
         },
-        "hwind_u": {
+        "hwindu": {
             "stash": 30201,
             "stream": "apb"
         },
-        "hwind_v": {
+        "hwindv": {
             "stash": 30202,
             "stream": "apb"
         },
-        "specific humidity": {
+        "spechum": {
             "stash": 30205,
             "stream": "apb"
         },
-        "1.5m temperature": {
+        "1.5mtemp": {
             "stash": 3236,
             "stream": "apb"
         },
@@ -76,7 +76,7 @@ variable_codes = {
             "stash": 5216,
             "stream": "apb"
         },
-        "geopotential height": {
+        "geopotheight": {
             "stash": 30207,
             "stream": "apb"
         },
