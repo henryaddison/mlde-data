@@ -34,7 +34,7 @@ def extract(variable: str, year: int, temporal_res: str = typer.Argument("daily"
 
     moose_uri = moose_path(variable, year, ensemble_member=0, temporal_res="daily")
 
-    query_cmd = ["moo" , "select", query_filepath, moose_uri, data_dirpath]
+    query_cmd = ["moo" , "select", query_filepath, moose_uri, os.path.join(data_dirpath,"")]
 
     typer.echo(query_cmd)
     os.execvp(query_cmd[0], query_cmd)
@@ -86,7 +86,7 @@ suite_ids = {
 def moose_path(variable, year, ensemble_member=0, temporal_res="daily"):
     suite_id = suite_ids[ensemble_member][year]
     stash_code = stash_codes[temporal_res][variable]
-    return f"moose:crum/{suite_id}/{stash_code}.pp/"
+    return f"moose:crum/{suite_id}/{stash_code}.pp"
 
 def select_query(year, variable, temporal_res="daily"):
     stash_code = stash_codes[temporal_res][variable]
