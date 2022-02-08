@@ -48,4 +48,4 @@ def convert(pp_dirpath: Path, output_filepath: Path):
     """
     Convert pp data to nc
     """
-    iris.save(iris.load(pp_dirpath/"*.pp"), output_filepath)
+    iris.save(iris.load(str(pp_dirpath/"*.pp")), output_filepath)
