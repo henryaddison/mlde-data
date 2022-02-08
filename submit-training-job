@@ -33,6 +33,7 @@ train_cmd = train_basecmd + [arg for item in train_opts.items() for arg in item]
 queue_opts = {
     "-m": "16",
     "-g": "1",
+    "-t": "24",
     "--queue": "cnu",
     "--condaenv": "cuda-downscaling",
     "--jobname": jobname,

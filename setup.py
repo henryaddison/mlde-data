@@ -24,6 +24,7 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'preprocess = ml_downscaling_emulator.bin.preprocess:cli',
+            'evaluate = ml_downscaling_emulator.bin.evaluation:cli',
         ],
     },
     packages=setuptools.find_packages(where="src"),
