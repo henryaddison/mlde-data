@@ -88,6 +88,7 @@ dependencies:
   - importlib-metadata=3.10.0=py39h06a4308_0
   - importlib_metadata=3.10.0=hd3eb1b0_0
   - importlib_resources=5.4.0=pyhd8ed1ab_0
+  - iniconfig=1.1.1=pyh9f0ad1d_0
   - intel-openmp=2021.2.0=h06a4308_610
   - invoke=1.6.0=py39h06a4308_0
   - ipykernel=5.3.4=py39hb070fc8_0
@@ -189,6 +190,7 @@ dependencies:
   - pickleshare=0.7.5=pyhd3eb1b0_1003
   - pillow=8.2.0=py39he98fc37_0
   - pip=21.1.2=py39h06a4308_0
+  - pluggy=1.0.0=py39hf3d152e_2
   - proj=7.2.0=h277dcde_2
   - prometheus_client=0.11.0=pyhd3eb1b0_0
   - promise=2.3=py39hf3d152e_5
@@ -197,6 +199,7 @@ dependencies:
   - protobuf=3.15.8=py39he80948d_0
   - psutil=5.8.0=py39h3811e60_1
   - ptyprocess=0.7.0=pyhd3eb1b0_2
+  - py=1.11.0=pyh6c4a22f_0
   - pyasn1=0.4.8=pyhd3eb1b0_0
   - pyasn1-modules=0.2.8=py_0
   - pycparser=2.20=py_2
@@ -210,6 +213,7 @@ dependencies:
   - pyrsistent=0.17.3=py39h27cfd23_0
   - pyshp=2.1.3=pyh44b312d_0
   - pysocks=1.7.1=py39h06a4308_0
+  - pytest=6.2.5=py39hf3d152e_2
   - python=3.9.5=h12debd9_4
   - python-dateutil=2.8.1=pyhd3eb1b0_0
   - python-editor=1.0.4=pyhd3eb1b0_0
@@ -256,6 +260,7 @@ dependencies:
   - terminado=0.9.4=py39h06a4308_0
   - testpath=0.4.4=pyhd3eb1b0_0
   - tk=8.6.10=hbc83047_0
+  - toml=0.10.2=pyhd8ed1ab_0
   - toolz=0.11.1=py_0
   - torchaudio=0.9.0=py39
   - torchvision=0.10.0=py39_cpu
