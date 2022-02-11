@@ -1,5 +1,5 @@
 VARIABLE_CODES = {
-    "daily": {
+    "day": {
         "temp": {
             "stash": 30204,
             "stream": "apb"
@@ -34,7 +34,7 @@ VARIABLE_CODES = {
         },
         # the saturated wet-bulb and wet-bulb potential temperatures
         "wet-bulb": {
-            "stash": 16205, # 17 pressure levels for daily
+            "stash": 16205, # 17 pressure levels for day
             "stream": "apb" #! BAD STREAM, check!
         },
     },
@@ -51,19 +51,19 @@ class RangeDict(dict):
             return super().__getitem__(item)
 
 SUITE_IDS = {
-    0: RangeDict({
+    1: RangeDict({
         range(1980, 2001): "mi-bb171",
         range(2020, 2041): "mi-bb188",
         range(2061, 2081): "mi-bb189",
     }),
 }
 
-def moose_path(variable, year, ensemble_member=0, temporal_res="daily"):
+def moose_path(variable, year, ensemble_member=1, temporal_res="day"):
     suite_id = SUITE_IDS[ensemble_member][year]
     stream_code = VARIABLE_CODES[temporal_res][variable]["stream"]
     return f"moose:crum/{suite_id}/{stream_code}.pp"
 
-def select_query(year, variable, temporal_res="daily"):
+def select_query(year, variable, temporal_res="day"):
     stash_code = VARIABLE_CODES[temporal_res][variable]["stash"]
 
     return f"""

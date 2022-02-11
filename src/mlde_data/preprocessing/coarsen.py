@@ -7,8 +7,6 @@ logger = logging.getLogger(__name__)
 
 class Coarsen:
     def __init__(self, scale_factor, variable):
-        # self.input_filepath = input_filepath
-        # self.output_filepath = output_filepath
         self.scale_factor = scale_factor
         self.variable = variable
 
