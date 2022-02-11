@@ -10,6 +10,7 @@ import xarray as xr
 
 from ml_downscaling_emulator.data.moose import select_query, moose_path
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
+from ml_downscaling_emulator.preprocessing.select_region import SelectRegion
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')
@@ -29,14 +30,14 @@ def data_dirpath(variable: str, year: int, temporal_res: str):
 def ppdata_dirpath(variable: str, year: int, temporal_res: str):
     return data_dirpath(variable=variable, year=year, temporal_res=temporal_res)/"pp"
 
-def nc_filename(variable: str, year: int, temporal_res: str):
-    return f"{variable}_rcp85_land-cpm_uk_2.2km_01_{temporal_res}_{year-1}1201-{year}1130.nc"
+def nc_filename(variable: str, year: int, temporal_res: str, domain: str = "uk"):
+    return f"{variable}_rcp85_land-cpm_{domain}_2.2km_01_{temporal_res}_{year-1}1201-{year}1130.nc"
 
 def raw_nc_filepath(variable: str, year: int, temporal_res: str):
     return data_dirpath(variable=variable, year=year, temporal_res=temporal_res)/nc_filename(variable=variable, year=year, temporal_res=temporal_res)
 
-def processed_nc_filepath(variable: str, year: int, temporal_res: str):
-    return Path(os.getenv("DERIVED_DATA"))/"moose"/variable/nc_filename(variable=variable, year=year, temporal_res=temporal_res)
+def processed_nc_filepath(variable: str, year: int, temporal_res: str, domain: str = "uk"):
+    return Path(os.getenv("DERIVED_DATA"))/"moose"/variable/nc_filename(variable=variable, year=year, temporal_res=temporal_res, domain=domain)
 
 @app.command()
 def extract(variable: str, year: int, temporal_res: str = typer.Argument("day")):
@@ -73,20 +74,24 @@ def convert(variable: str, year: int, temporal_res: str = typer.Argument("day"))
     iris.save(iris.load(str(pp_files_glob)), output_filepath)
 
 @app.command()
-def preprocess(variable: str, year: int, scale_factor: int = typer.Option(...), temporal_res: str = typer.Argument("day")):
+def preprocess(variable: str, year: int, temporal_res: str = typer.Argument("day"), scale_factor: int = typer.Option(...), region: str = "london"):
     """
     Coarsen data by given scale-factor
     """
     input_filepath = raw_nc_filepath(variable=variable, year=year, temporal_res=temporal_res)
-    output_filepath = processed_nc_filepath(variable=variable, year=year, temporal_res=temporal_res)
+    output_filepath = processed_nc_filepath(variable=variable, year=year, temporal_res=temporal_res, domain=region)
     ds = xr.load_dataset(input_filepath)
 
+    if region == "london":
+        subregion_defn = SelectRegion.LONDON_IN_CPM_64x64
+
     typer.echo("Coarsening...")
-    output_ds = Coarsen(scale_factor=scale_factor, variable=variable).run(ds)
+    ds = Coarsen(scale_factor=scale_factor, variable=variable).run(ds)
+    ds = SelectRegion(subregion_defn=subregion_defn).run(ds)
 
     typer.echo(f"Saving to {output_filepath}...")
     os.makedirs(output_filepath.parent, exist_ok=True)
-    output_ds.to_netcdf(output_filepath)
+    ds.to_netcdf(output_filepath)
 
 @app.command()
 def clean(variable: str, year: int, temporal_res: str = typer.Argument("day")):
