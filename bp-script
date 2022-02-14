@@ -7,4 +7,7 @@ conda activate downscaling
 set -euxo pipefail
 
 ssh mass-cli.jasmin code/ml-downscaling-emulation/moose-script psl 1981
-ssh sci03.jasmin code/ml-downscaling-emulation/sci-jasmin-script psl 1981
+ssh sci2.jasmin code/ml-downscaling-emulation/sci-jasmin-script psl 1981 8
+# file=""
+# scp xfer1.jasmin derived_data/moose ${DERIVED_DATA}/moose/
+# ssh sci03.jasmin rm
