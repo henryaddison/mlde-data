@@ -4,8 +4,8 @@ set -euxo pipefail
 
 cd ~/code/ml-downscaling-emulation
 
-variables = (psl)
-years = (1981)
+variables=(psl)
+years=(1981)
 
 for variable in ${variables}; do
   for year in ${years}; do
