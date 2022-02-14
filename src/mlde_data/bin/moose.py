@@ -38,7 +38,7 @@ def ppdata_dirpath(variable: str, year: int, frequency: str):
     return data_dirpath(variable=variable, year=year, frequency=frequency)/"pp"
 
 def nc_filename(variable: str, year: int, frequency: str, domain: str = "uk", resolution: str = "2.2km"):
-    return f"{variable}_rcp85_land-cpm_{domain}_2.2km_01_{frequency}_{year-1}1201-{year}1130.nc"
+    return f"{variable}_rcp85_land-cpm_{domain}_{resolution}_01_{frequency}_{year-1}1201-{year}1130.nc"
 
 def raw_nc_filepath(variable: str, year: int, frequency: str):
     return data_dirpath(variable=variable, year=year, frequency=frequency)/nc_filename(variable=variable, year=year, frequency=frequency)
@@ -86,7 +86,7 @@ def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...),
     Coarsen data by given scale-factor
     """
     input_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency)
-    output_filepath = processed_nc_filepath(variable=variable, year=year, frequency=frequency, domain=subdomain, resolution=f"2.2km-coarsened-{scale_factor}x")
+    output_filepath = processed_nc_filepath(variable=variable, year=year, frequency=frequency, domain=subdomain.value, resolution=f"2.2km-coarsened-{scale_factor}x")
     ds = xr.load_dataset(input_filepath)
 
     if subdomain == SubDomainOption.london:
@@ -94,7 +94,7 @@ def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...),
 
     typer.echo(f"Coarsening {scale_factor}x...")
     ds = Coarsen(scale_factor=scale_factor, variable=variable).run(ds)
-    typer.echo(f"Select {subdomain} subdomain...")
+    typer.echo(f"Select {subdomain.value} subdomain...")
     ds = SelectDomain(subdomain_defn=subdomain_defn).run(ds)
 
     typer.echo(f"Saving to {output_filepath}...")
