@@ -76,13 +76,13 @@ SUITE_IDS = {
 # r001i1p02335 - {TS1: "mi-bb220", TS2: "mi-bb221", TS3: "mi-bb222"}
 # r001i1p02491 - {TS1: "mi-bb223", TS2: "mi-bb224", TS3: "mi-bb225"}
 
-def moose_path(variable, year, ensemble_member=1, temporal_res="day"):
+def moose_path(variable, year, ensemble_member=1, frequency="day"):
     suite_id = SUITE_IDS[ensemble_member][year]
-    stream_code = VARIABLE_CODES[temporal_res][variable]["stream"]
+    stream_code = VARIABLE_CODES[frequency][variable]["stream"]
     return f"moose:crum/{suite_id}/{stream_code}.pp"
 
-def select_query(year, variable, temporal_res="day"):
-    stash_code = VARIABLE_CODES[temporal_res][variable]["stash"]
+def select_query(year, variable, frequency="day"):
+    stash_code = VARIABLE_CODES[frequency][variable]["stash"]
 
     return f"""
 begin
