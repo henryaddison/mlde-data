@@ -47,7 +47,7 @@ def processed_nc_filepath(variable: str, year: int, temporal_res: str, domain: s
     return Path(os.getenv("DERIVED_DATA"))/"moose"/variable/nc_filename(variable=variable, year=year, temporal_res=temporal_res, domain=domain)
 
 @app.command()
-def extract(variable: str, year: int, temporal_res: str = typer.Argument("day")):
+def extract(variable: str = typer.Option(...), year: int = typer.Option(...), temporal_res: str = "day"):
     """
     Extract data from moose
     """
@@ -70,7 +70,7 @@ def extract(variable: str, year: int, temporal_res: str = typer.Argument("day"))
     os.execvp(query_cmd[0], query_cmd)
 
 @app.command()
-def convert(variable: str, year: int, temporal_res: str = typer.Argument("day")):
+def convert(variable: str = typer.Option(...), year: int = typer.Option(...), temporal_res: str = "day"):
     """
     Convert pp data to a netCDF file
     """
@@ -81,7 +81,7 @@ def convert(variable: str, year: int, temporal_res: str = typer.Argument("day"))
     iris.save(iris.load(str(pp_files_glob)), output_filepath)
 
 @app.command()
-def preprocess(variable: str, year: int, temporal_res: str = typer.Argument("day"), scale_factor: int = typer.Option(...), subdomain: SubDomainOption = SubDomainOption.london):
+def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...), temporal_res: str = "day", scale_factor: int = typer.Option(...), subdomain: SubDomainOption = SubDomainOption.london):
     """
     Coarsen data by given scale-factor
     """
@@ -102,7 +102,7 @@ def preprocess(variable: str, year: int, temporal_res: str = typer.Argument("day
     ds.to_netcdf(output_filepath)
 
 @app.command()
-def clean(variable: str, year: int, temporal_res: str = typer.Argument("day")):
+def clean(variable: str = typer.Option(...), year: int = typer.Option(...), temporal_res: str = "day"):
     """
     Remove any unneccessary files once conversion is done
     """
