@@ -64,7 +64,7 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
 
     moose_uri = moose_path(variable, year, ensemble_member=1, frequency="day")
 
-    query_cmd = ["moo" , "select", query_filepath, moose_uri, os.path.join(ppdata_dirpath(variable=variable, year=year, frequency=frequency),"")]
+    query_cmd = ["moo" , "select", query_filepath, moose_uri, os.path.join(pp_dirpath,"")]
 
     logger.debug(f"Running {query_cmd}")
     logger.info(f"Extracting {variable} for {year}...")
