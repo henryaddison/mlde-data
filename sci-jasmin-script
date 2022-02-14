@@ -8,4 +8,4 @@ set -euxo pipefail
 
 mlde moose convert --variable $1 --year $2
 mlde moose preprocess --variable $1 --year $2 --scale-factor $3 --subdomain london
-mlde moose cleanup --variable $1 --year $2
+mlde moose clean --variable $1 --year $2

@@ -8,6 +8,11 @@ set -euxo pipefail
 
 ssh mass-cli.jasmin code/ml-downscaling-emulation/moose-script psl 1981
 ssh sci2.jasmin code/ml-downscaling-emulation/sci-jasmin-script psl 1981 8
-# file=""
-# scp xfer1.jasmin derived_data/moose ${DERIVED_DATA}/moose/
-# ssh sci03.jasmin rm
+
+remote_filepath="derived_data/moose/psl/psl_rcp85_land-cpm_london_2.2km_01_day_19801201-19811130.nc"
+local_dirpath="${DERIVED_DATA}/moose/london/2.2km-coarsened-8x/rcp85/01/psl/day/"
+
+mkdir -p ${local_dirpath}
+scp xfer1.jasmin:${remote_filepath} ${local_dirpath}
+
+# ssh sci03.jasmin rm ${remote_filepath}
