@@ -41,7 +41,7 @@ def nc_filename(variable: str, year: int, frequency: str, domain: str = "uk", re
     return f"{variable}_rcp85_land-cpm_{domain}_{resolution}_01_{frequency}_{year-1}1201-{year}1130.nc"
 
 def raw_nc_filepath(variable: str, year: int, frequency: str, domain: str = "uk", resolution: str = "2.2km"):
-    return data_dirpath(variable=variable, year=year, frequency=frequency)/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency)
+    return data_dirpath(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution)/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution)
 
 def processed_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str):
     return Path(os.getenv("DERIVED_DATA"))/"moose"/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution)
