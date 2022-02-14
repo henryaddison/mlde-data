@@ -16,8 +16,8 @@ mass_host="mass-cli.jasmin"
 sci_host="sci2.jasmin"
 xfer_host="xfer1.jasmin"
 
-ssh -i ~/.ssh/id_rsa_jasmin ${mass_host} code/ml-downscaling-emulation/moose-script ${variable} ${year}
-ssh  -i ~/.ssh/id_rsa_jasmin ${sci_host} code/ml-downscaling-emulation/sci-jasmin-script ${variable} ${year} ${sf}
+ssh -q -i ~/.ssh/id_rsa_jasmin ${mass_host} code/ml-downscaling-emulation/moose-script ${variable} ${year}
+ssh -q -i ~/.ssh/id_rsa_jasmin ${sci_host} code/ml-downscaling-emulation/sci-jasmin-script ${variable} ${year} ${sf}
 
 let "start_year=year-1"
 file_subpath="${domain}/${resolution}/rcp85/01/${variable}/day/${variable}_rcp85_land-cpm_${domain}_${resolution}_01_day_${start_year}1201-${year}1130.nc"
@@ -25,6 +25,6 @@ remote_filepath="derived_data/moose/${file_subpath}"
 local_filepath="${DERIVED_DATA}/moose/${file_subpath}"
 
 mkdir -p $(dirname ${local_filepath})
-scp -i ~/.ssh/id_rsa_jasmin ${xfer_host}:${remote_filepath} ${local_filepath}
+scp -q -i ~/.ssh/id_rsa_jasmin ${xfer_host}:${remote_filepath} ${local_filepath}
 
-ssh -i ~/.ssh/id_rsa_jasmin ${sci_host} rm ${remote_filepath}
+ssh -q -i ~/.ssh/id_rsa_jasmin ${sci_host} rm ${remote_filepath}
