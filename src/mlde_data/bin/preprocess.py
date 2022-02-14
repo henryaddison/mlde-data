@@ -5,7 +5,7 @@ import click
 
 from ml_downscaling_emulator import UKCPDatasetMetadata
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
-from ml_downscaling_emulator.preprocessing.select_region import SelectRegion
+from ml_downscaling_emulator.preprocessing.select_domain import SelectDomain
 from ml_downscaling_emulator.preprocessing.intensity_split import IntensitySplit
 from ml_downscaling_emulator.preprocessing.random_split import RandomSplit
 from ml_downscaling_emulator.preprocessing.season_stratified_intensity_split import SeasonStratifiedIntensitySplit
@@ -21,24 +21,24 @@ def cli():
 @click.option('--resolution', type=click.STRING, required=True)
 @click.option('--domain', type=click.STRING, default="uk")
 @click.option('--variable', type=click.STRING, required=True)
-@click.option('--region', type=click.Choice(['london'], case_sensitive=False), required=True)
+@click.option('--subdomain', type=click.Choice(['london'], case_sensitive=False), required=True)
 @click.option('--frequency', type=click.STRING, default='day')
 @click.option('--scenario', type=click.STRING, default='rcp85')
 @click.option('--ensemble-member', type=click.STRING, default='01')
 @click.argument('input-base-dir', type=click.Path(exists=True))
 @click.argument('output-base-dir', type=click.Path(exists=True), envvar='DERIVED_DATA')
-def select_region(input_base_dir, output_base_dir, **params):
-    """Select a region within a given dataset"""
+def select_subdomain(input_base_dir, output_base_dir, **params):
+    """Select a subdomain within a given dataset"""
 
     if params["resolution"].startswith('2.2km'):
-        subregion_defn = SelectRegion.LONDON_IN_CPM
+        subdomain_defn = SelectDomain.LONDON_IN_CPM
     elif params["resolution"].startswith('60km'):
-        subregion_defn = SelectRegion.LONDON_IN_CPM
+        subdomain_defn = SelectDomain.LONDON_IN_CPM
 
     input_ds_params = {k: params[k] for k in ["domain", "resolution", "ensemble_member", "scenario", "variable", "frequency"]}
     input = UKCPDatasetMetadata(input_base_dir, **input_ds_params)
     output_ds_params = input_ds_params.copy()
-    output_ds_params.update({"domain": params["region"]})
+    output_ds_params.update({"domain": params["subdomain"]})
     output = UKCPDatasetMetadata(output_base_dir, **output_ds_params)
 
     click.echo(input.filepath_prefix())
@@ -46,7 +46,7 @@ def select_region(input_base_dir, output_base_dir, **params):
     os.makedirs(output.dirpath(), exist_ok=True)
 
     for year in input.years():
-        SelectRegion(input.filepath(year), output.filepath(year), subregion_defn).run()
+        SelectDomain(input.filepath(year), output.filepath(year), subdomain_defn).run()
 
 @cli.command()
 @click.option('--resolution', type=click.STRING, required=True)
