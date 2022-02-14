@@ -52,9 +52,12 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
 
     output_dirpath = variable_dirpath(variable=variable, year=year, frequency=frequency)
     query_filepath = variable_dirpath(variable=variable, year=year, frequency=frequency)/"searchfile"
+    pp_dirpath = ppdata_dirpath(variable=variable, year=year, frequency=frequency)
 
     os.makedirs(output_dirpath, exist_ok=True)
-    os.makedirs(ppdata_dirpath(variable=variable, year=year, frequency=frequency), exist_ok=True)
+    # remove any previous attempt at extracting the data (or else moo select will complain)
+    shutil.rmtree(pp_dirpath)
+    os.makedirs(pp_dirpath, exist_ok=True)
 
     typer.echo(query)
     query_filepath.write_text(query)
