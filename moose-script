@@ -10,3 +10,5 @@ years=(1981)
 for variable in ${variables}; do
   for year in ${years}; do
     mlde moose extract --variable ${variable} --year ${year}
+  done
+done
