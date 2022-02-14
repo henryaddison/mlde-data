@@ -10,12 +10,13 @@ variable=$1
 year=$2
 sf=$3
 resolution="2.2km-coarsened-${sf}x"
+domain="london"
 
 ssh mass-cli.jasmin code/ml-downscaling-emulation/moose-script ${variable} ${year}
 ssh sci2.jasmin code/ml-downscaling-emulation/sci-jasmin-script ${variable} ${year} ${sf}
 
 let "start_year=year-1"
-file_subpath="${domain}/${resolution}/rcp85/01/${variable}/day/${variable}_rcp85_land-cpm_london_${resolution}_01_day_${start_year}1201-${year}1130.nc"
+file_subpath="${domain}/${resolution}/rcp85/01/${variable}/day/${variable}_rcp85_land-cpm_${domain}_${resolution}_01_day_${start_year}1201-${year}1130.nc"
 remote_filepath="derived_data/moose/${file_subpath}"
 local_filepath="${DERIVED_DATA}/moose/${file_subpath}"
 
