@@ -25,7 +25,7 @@ setuptools.setup(
         'console_scripts': [
             'preprocess = ml_downscaling_emulator.bin.preprocess:cli',
             'evaluate = ml_downscaling_emulator.bin.evaluation:cli',
-            'moose = ml_downscaling_emulator.bin.moose:app'
+            'mlde = ml_downscaling_emulator.bin:app'
         ],
     },
     packages=setuptools.find_packages(where="src"),
