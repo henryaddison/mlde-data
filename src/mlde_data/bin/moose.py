@@ -59,7 +59,7 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     shutil.rmtree(pp_dirpath, ignore_errors=True)
     os.makedirs(pp_dirpath, exist_ok=True)
 
-    typer.echo(query)
+    logger.debug(query)
     query_filepath.write_text(query)
 
     moose_uri = moose_path(variable, year, ensemble_member=1, frequency="day")
