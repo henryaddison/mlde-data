@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+
+eval "$(conda shell.bash hook)"
+
+conda activate downscaling
+
+set -euxo pipefail
+
+ssh mass-cli.jasmin code/ml-downscaling-emulation/moose-script psl 1981
+ssh sci03.jasmin code/ml-downscaling-emulation/sci-jasmin-script psl 1981
