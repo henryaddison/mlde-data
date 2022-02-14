@@ -2,6 +2,6 @@
 
 set -euxo pipefail
 
-cd ~/code/ml-downscaling-emulation
+conda activate downscaling
 
 mlde moose extract --variable $1 --year $2
