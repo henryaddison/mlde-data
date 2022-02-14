@@ -66,7 +66,8 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
 
     query_cmd = ["moo" , "select", query_filepath, moose_uri, os.path.join(ppdata_dirpath(variable=variable, year=year, frequency=frequency),"")]
 
-    typer.echo(f"Running {query_cmd}")
+    logger.debug(f"Running {query_cmd}")
+    logger.info(f"Extracting {variable} for {year}...")
     os.execvp(query_cmd[0], query_cmd)
 
 @app.command()
