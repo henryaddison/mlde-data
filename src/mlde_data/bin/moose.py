@@ -1,3 +1,4 @@
+from enum import Enum
 import logging
 import os
 from pathlib import Path
@@ -16,10 +17,6 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')
 
 app = typer.Typer()
-
-from enum import Enum
-
-import typer
 
 class SubDomainOption(str, Enum):
     london = "london"
