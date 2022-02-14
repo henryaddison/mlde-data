@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+source ~/.bash_profile
+
 set -euxo pipefail
 
 conda activate downscaling
