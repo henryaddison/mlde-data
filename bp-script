@@ -6,7 +6,7 @@ conda activate downscaling
 
 set -euxo pipefail
 
-ssh mass-cli.jasmin code/ml-downscaling-emulation/moose-script psl 1981
+# ssh mass-cli.jasmin code/ml-downscaling-emulation/moose-script psl 1981
 ssh sci2.jasmin code/ml-downscaling-emulation/sci-jasmin-script psl 1981 8
 
 remote_filepath="derived_data/moose/psl/psl_rcp85_land-cpm_london_2.2km_01_day_19801201-19811130.nc"
