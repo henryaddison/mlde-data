@@ -2,8 +2,8 @@
 
 source ~/.bash_profile
 
-set -euxo pipefail
-
 conda activate downscaling
+
+set -euxo pipefail
 
 mlde moose extract --variable $1 --year $2
