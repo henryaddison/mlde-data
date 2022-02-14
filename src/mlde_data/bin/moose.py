@@ -56,7 +56,7 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
 
     os.makedirs(output_dirpath, exist_ok=True)
     # remove any previous attempt at extracting the data (or else moo select will complain)
-    shutil.rmtree(pp_dirpath)
+    shutil.rmtree(pp_dirpath, ignore_errors=True)
     os.makedirs(pp_dirpath, exist_ok=True)
 
     typer.echo(query)
