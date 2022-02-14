@@ -4,11 +4,4 @@ set -euxo pipefail
 
 cd ~/code/ml-downscaling-emulation
 
-variables=(psl)
-years=(1981)
-
-for variable in ${variables}; do
-  for year in ${years}; do
-    mlde moose extract --variable ${variable} --year ${year}
-  done
-done
+mlde moose extract --variable $1 --year $2
