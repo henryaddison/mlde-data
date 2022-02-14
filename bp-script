@@ -15,4 +15,4 @@ local_dirpath="${DERIVED_DATA}/moose/london/2.2km-coarsened-8x/rcp85/01/psl/day/
 mkdir -p ${local_dirpath}
 scp xfer1.jasmin:${remote_filepath} ${local_dirpath}
 
-# ssh sci03.jasmin rm ${remote_filepath}
+ssh sci03.jasmin rm ${remote_filepath}
