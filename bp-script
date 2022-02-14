@@ -23,10 +23,10 @@ local_filepath="${DERIVED_DATA}/moose/${file_subpath}"
 
 set -x
 
-LANG=C ssh -q -i ~/.ssh/id_rsa_jasmin ${mass_host} code/ml-downscaling-emulation/moose-script ${variable} ${year}
-LANG=C ssh -q -i ~/.ssh/id_rsa_jasmin ${sci_host} code/ml-downscaling-emulation/sci-jasmin-script ${variable} ${year} ${sf}
+LANG=C ssh -q ${mass_host} code/ml-downscaling-emulation/moose-script ${variable} ${year}
+LANG=C ssh -q ${sci_host} code/ml-downscaling-emulation/sci-jasmin-script ${variable} ${year} ${sf}
 
 mkdir -p $(dirname ${local_filepath})
-LANG=C scp -q -i ~/.ssh/id_rsa_jasmin ${xfer_host}:${remote_filepath} ${local_filepath}
+LANG=C scp -q ${xfer_host}:${remote_filepath} ${local_filepath}
 
-LANG=C ssh -q -i ~/.ssh/id_rsa_jasmin ${sci_host} rm ${remote_filepath}
+LANG=C ssh -q ${sci_host} rm ${remote_filepath}
