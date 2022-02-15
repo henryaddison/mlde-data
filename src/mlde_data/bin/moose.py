@@ -106,6 +106,6 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     Remove any unneccessary files once conversion is done
     """
     typer.echo(f"Removing {ppdata_dirpath(variable=variable, year=year, frequency=frequency)}...")
-    shutil.rmtree(ppdata_dirpath(variable=variable, year=year, frequency=frequency))
+    shutil.rmtree(ppdata_dirpath(variable=variable, year=year, frequency=frequency), ignore_errors=True)
     typer.echo(f"Removing {raw_nc_filepath(variable=variable, year=year, frequency=frequency)}...")
     os.remove(raw_nc_filepath(variable=variable, year=year, frequency=frequency))
