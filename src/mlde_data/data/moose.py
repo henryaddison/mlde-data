@@ -2,83 +2,81 @@ from re import M
 
 
 VARIABLE_CODES = {
-    "day": {
-        "temp": {
-            "query": {
-                "stash": 30204
-            },
-            "stream": "apb",
-            "moose_name": "air_temperature"
+    "temp": {
+        "query": {
+            "stash": 30204
         },
-        "psl": {
-            "query": {
-               "stash": 16222,
-            },
-            "stream": "apa",
-            "moose_name": "air_pressure_at_sea_level"
-        },
-        "xwind": {
-            "query": {
-               "stash": 30201,
-            },
-            "stream": "apb",
-            "moose_name": "x_wind"
-        },
-        "ywind": {
-            "query": {
-               "stash": 30202,
-            },
-            "stream": "apb",
-            "moose_name": "y_wind"
-        },
-        "spechum": {
-            "query": {
-               "stash": 30205,
-            },
-            "stream": "apb",
-            "moose_name": "specific_humidity"
-        },
-        "1.5mtmean": {
-            "query": {
-               "stash": 3236,
-                "lbproc": 128,
-            },
-            "stream": "apa" #! BAD STREAM, check! - apa based on trial and error
-        },
-        "1.5mtmax": {
-            "query": {
-               "stash": 3236,
-                "lbproc": 8192,
-            },
-            "stream": "apa" #! BAD STREAM, check! - apa based on trial and error
-        },
-        "1.5mtmin": {
-            "query": {
-                "stash": 3236,
-                "lbproc": 4096,
-            },
-            "stream": "apa" #! BAD STREAM, check! - apa based on trial and error
-        },
-        "pr": {
-            "query": {
-                "stash": 5216,
-            },
-            "stream": "apb" #! BAD STREAM, check!
-        },
-        "geopotential_height": {
-            "query": {
-               "stash": 30207,
-            },
-            "stream": "apb" #! BAD STREAM, check!
-        },
-        # the saturated wet-bulb and wet-bulb potential temperatures
-        "wet_bulb": {
-            "query": {
-               "stash": 16205, # 17 pressure levels for day
-            },
-            "stream": "apb" #! BAD STREAM, check!
-        },
+        "stream": {"day": "apb", "3hrinst": "aph",},
+        "moose_name": "air_temperature"
     },
+    "psl": {
+        "query": {
+            "stash": 16222,
+        },
+        "stream": {"day": "apa", "3hrinst": "apc", "6hr": "apc"},
+        "moose_name": "air_pressure_at_sea_level"
+    },
+    "xwind": {
+        "query": {
+            "stash": 30201,
+        },
+        "stream": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"},
+        "moose_name": "x_wind"
+    },
+    "ywind": {
+        "query": {
+            "stash": 30202,
+        },
+        "stream": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"},
+        "moose_name": "y_wind"
+    },
+    "spechum": {
+        "query": {
+            "stash": 30205,
+        },
+        "stream": {"day": "apb", "3hrinst": "aph"},
+        "moose_name": "specific_humidity"
+    },
+    "1.5mtmean": {
+        "query": {
+            "stash": 3236,
+            "lbproc": 128,
+        },
+        "stream": {"day": "apa", "1hr": "ape"}
+    },
+    "1.5mtmax": {
+        "query": {
+            "stash": 3236,
+            "lbproc": 8192,
+        },
+        "stream": {"day": "apa"}
+    },
+    "1.5mtmin": {
+        "query": {
+            "stash": 3236,
+            "lbproc": 4096,
+        },
+        "stream": {"day": "apa"}
+    },
+    "pr": {
+        "query": {
+            "stash": 5216,
+        },
+        "stream": {"day": "apb"} #! BAD STREAM, check!
+    },
+    "geopotential_height": {
+        "query": {
+            "stash": 30207,
+        },
+        "stream": {"3hrinst": "aph"}
+    },
+    "wet_bulb": { # the saturated wet-bulb and wet-bulb potential temperatures
+        "query": {
+            "stash": 16205, # 17 pressure levels for day
+        },
+        "stream": {"3hrinst": "aph", "1hrinst": "apr", "6hrinst": "apc"}
+    },
+    # "1hrinst",    "3hrinst", "6hrinst", "6hr", "3hr", "1hr"
 }
 
 class RangeDict(dict):
@@ -119,11 +117,11 @@ SUITE_IDS = {
 
 def moose_path(variable, year, ensemble_member=1, frequency="day"):
     suite_id = SUITE_IDS[ensemble_member][year]
-    stream_code = VARIABLE_CODES[frequency][variable]["stream"]
+    stream_code = VARIABLE_CODES[variable]["stream"][frequency]
     return f"moose:crum/{suite_id}/{stream_code}.pp"
 
 def select_query(year, variable, frequency="day"):
-    query_conditions = VARIABLE_CODES[frequency][variable]["query"]
+    query_conditions = VARIABLE_CODES[variable]["query"]
 
     def query_lines(qcond, qyear, qmonths):
         return ["begin"] + [f"    {k}={v}" for k, v in dict(yr=qyear, mon=qmonths, **qcond).items()] + ["end"]
