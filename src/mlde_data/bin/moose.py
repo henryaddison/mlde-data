@@ -25,20 +25,17 @@ class SubDomainOption(str, Enum):
 def callback():
     pass
 
-def variable_dirpath(variable: str, year: int, frequency: str, domain: str = "uk", resolution: str = "2.2km"):
-    return Path(os.getenv("MOOSE_DATA"))/domain/resolution/"rcp85"/"01"/variable/frequency/str(year)
-
-def data_dirpath(variable: str, year: int, frequency: str, domain: str = "uk", resolution: str = "2.2km"):
-    return variable_dirpath(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution)/"data"
+def moose_extract_dirpath(variable: str, year: int, frequency: str, domain: str = "uk", resolution: str = "2.2km"):
+    return Path(os.getenv("MOOSE_DATA"))/"pp"/domain/resolution/"rcp85"/"01"/variable/frequency/str(year)
 
 def ppdata_dirpath(variable: str, year: int, frequency: str, domain: str = "uk", resolution: str = "2.2km"):
-    return data_dirpath(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution)/"pp"
+    return moose_extract_dirpath(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution)/"data"
 
 def nc_filename(variable: str, year: int, frequency: str, domain: str = "uk", resolution: str = "2.2km"):
     return f"{variable}_rcp85_land-cpm_{domain}_{resolution}_01_{frequency}_{year-1}1201-{year}1130.nc"
 
 def raw_nc_filepath(variable: str, year: int, frequency: str, domain: str = "uk", resolution: str = "2.2km"):
-    return data_dirpath(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution)/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution)
+    return Path(os.getenv("MOOSE_DATA"))/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution)
 
 def processed_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str):
     return Path(os.getenv("DERIVED_DATA"))/"moose"/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution)
@@ -50,8 +47,8 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     """
     query = select_query(year=year, variable=variable, frequency=frequency)
 
-    output_dirpath = variable_dirpath(variable=variable, year=year, frequency=frequency)
-    query_filepath = variable_dirpath(variable=variable, year=year, frequency=frequency)/"searchfile"
+    output_dirpath = moose_extract_dirpath(variable=variable, year=year, frequency=frequency)
+    query_filepath = output_dirpath/"searchfile"
     pp_dirpath = ppdata_dirpath(variable=variable, year=year, frequency=frequency)
 
     os.makedirs(output_dirpath, exist_ok=True)
