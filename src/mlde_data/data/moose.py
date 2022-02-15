@@ -43,21 +43,21 @@ VARIABLE_CODES = {
                "stash": 3236,
                 "lbproc": 128,
             },
-            "stream": "apb" #! BAD STREAM, check! - apa based on trial and error
+            "stream": "apa" #! BAD STREAM, check! - apa based on trial and error
         },
         "1.5mtmax": {
             "query": {
                "stash": 3236,
                 "lbproc": 8192,
             },
-            "stream": "apb" #! BAD STREAM, check! - apa based on trial and error
+            "stream": "apa" #! BAD STREAM, check! - apa based on trial and error
         },
         "1.5mtmin": {
             "query": {
                 "stash": 3236,
                 "lbproc": 4096,
             },
-            "stream": "apb" #! BAD STREAM, check! - apa based on trial and error
+            "stream": "apa" #! BAD STREAM, check! - apa based on trial and error
         },
         "pr": {
             "query": {
