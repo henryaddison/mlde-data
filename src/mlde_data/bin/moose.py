@@ -9,7 +9,7 @@ import iris
 import typer
 import xarray as xr
 
-from ml_downscaling_emulator.data.moose import select_query, moose_path
+from ml_downscaling_emulator.data.moose import VARIABLE_CODES, select_query, moose_path
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
 from ml_downscaling_emulator.preprocessing.select_domain import SelectDomain
 
@@ -86,10 +86,15 @@ def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...),
     """
     input_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency)
     output_filepath = processed_nc_filepath(variable=variable, year=year, frequency=frequency, domain=subdomain.value, resolution=f"2.2km-coarsened-{scale_factor}x")
-    ds = xr.load_dataset(input_filepath)
 
     if subdomain == SubDomainOption.london:
         subdomain_defn = SelectDomain.LONDON_IN_CPM_64x64
+
+    ds = xr.load_dataset(input_filepath)
+
+    if "moose_name" in VARIABLE_CODES[variable]:
+        logger.info(f"Renaming {VARIABLE_CODES[variable]['moose_name']} to {variable}...")
+        ds.rename({VARIABLE_CODES[variable]["moose_name"]: variable})
 
     typer.echo(f"Coarsening {scale_factor}x...")
     ds = Coarsen(scale_factor=scale_factor, variable=variable).run(ds)

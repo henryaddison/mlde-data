@@ -1,24 +1,30 @@
+from re import M
+
+
 VARIABLE_CODES = {
     "day": {
         "temp": {
             "stash": 30204,
-            "stream": "apb"
+            "stream": "apb",
+            "moose_name": "air_temperature"
         },
         "psl": {
             "stash": 16222,
-            "stream": "apa"
+            "stream": "apa",
+            "moose_name": "air_pressure_at_sea_level"
         },
-        "hwindu": {
+        "x_wind": {
             "stash": 30201,
             "stream": "apb"
         },
-        "hwindv": {
+        "y_wind": {
             "stash": 30202,
             "stream": "apb"
         },
         "spechum": {
             "stash": 30205,
-            "stream": "apb"
+            "stream": "apb",
+            "moose_name": "specific_humidity"
         },
         "1.5mtemp": {
             "stash": 3236,
@@ -28,12 +34,12 @@ VARIABLE_CODES = {
             "stash": 5216,
             "stream": "apb" #! BAD STREAM, check!
         },
-        "geopotheight": {
+        "geopotential_height": {
             "stash": 30207,
             "stream": "apb" #! BAD STREAM, check!
         },
         # the saturated wet-bulb and wet-bulb potential temperatures
-        "wet-bulb": {
+        "wet_bulb": {
             "stash": 16205, # 17 pressure levels for day
             "stream": "apb" #! BAD STREAM, check!
         },
