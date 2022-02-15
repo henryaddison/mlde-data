@@ -76,6 +76,7 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     output_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency)
 
     typer.echo(f"Saving to {output_filepath}...")
+    os.makedirs(output_filepath.parent, exist_ok=True)
     iris.save(iris.load(str(pp_files_glob)), output_filepath)
 
 @app.command()
