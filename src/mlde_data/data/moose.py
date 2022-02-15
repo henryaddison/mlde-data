@@ -4,43 +4,78 @@ from re import M
 VARIABLE_CODES = {
     "day": {
         "temp": {
-            "stash": 30204,
+            "query": {
+                "stash": 30204
+            },
             "stream": "apb",
             "moose_name": "air_temperature"
         },
         "psl": {
-            "stash": 16222,
+            "query": {
+               "stash": 16222,
+            },
             "stream": "apa",
             "moose_name": "air_pressure_at_sea_level"
         },
-        "x_wind": {
-            "stash": 30201,
-            "stream": "apb"
+        "xwind": {
+            "query": {
+               "stash": 30201,
+            },
+            "stream": "apb",
+            "moose_name": "x_wind"
         },
-        "y_wind": {
-            "stash": 30202,
-            "stream": "apb"
+        "ywind": {
+            "query": {
+               "stash": 30202,
+            },
+            "stream": "apb",
+            "moose_name": "y_wind"
         },
         "spechum": {
-            "stash": 30205,
+            "query": {
+               "stash": 30205,
+            },
             "stream": "apb",
             "moose_name": "specific_humidity"
         },
-        "1.5mtemp": {
-            "stash": 3236,
+        "1.5mtmean": {
+            "query": {
+               "stash": 3236,
+                "lbproc": 128,
+            },
+            "stream": "apb" #! BAD STREAM, check! - apa based on trial and error
+        },
+        "1.5mtmax": {
+            "query": {
+               "stash": 3236,
+                "lbproc": 8192,
+            },
+            "stream": "apb" #! BAD STREAM, check! - apa based on trial and error
+        },
+        "1.5mtmin": {
+            "query": {
+                "stash": 3236,
+                "lbproc": 4096,
+            },
             "stream": "apb" #! BAD STREAM, check! - apa based on trial and error
         },
         "pr": {
-            "stash": 5216,
+            "query": {
+                "stash": 5216,
+            },
             "stream": "apb" #! BAD STREAM, check!
         },
         "geopotential_height": {
-            "stash": 30207,
+            "query": {
+               "stash": 30207,
+            },
             "stream": "apb" #! BAD STREAM, check!
         },
         # the saturated wet-bulb and wet-bulb potential temperatures
         "wet_bulb": {
-            "stash": 16205, # 17 pressure levels for day
+            "query": {
+               "stash": 16205, # 17 pressure levels for day
+            },
             "stream": "apb" #! BAD STREAM, check!
         },
     },
@@ -88,18 +123,11 @@ def moose_path(variable, year, ensemble_member=1, frequency="day"):
     return f"moose:crum/{suite_id}/{stream_code}.pp"
 
 def select_query(year, variable, frequency="day"):
-    stash_code = VARIABLE_CODES[frequency][variable]["stash"]
+    query_conditions = VARIABLE_CODES[frequency][variable]["query"]
 
-    return f"""
-begin
-    stash={stash_code}
-    yr={year-1}
-    mon=12
-end
+    def query_lines(qcond, qyear, qmonths):
+        return ["begin"] + [f"    {k}={v}" for k, v in dict(yr=qyear, mon=qmonths, **qcond).items()] + ["end"]
 
-begin
-    stash={stash_code}
-    yr={year}
-    mon=[1..11]
-end
-""".lstrip()
+    query_parts = [ "\n".join(query_lines(query_conditions, qyear, qmonths)) for (qyear, qmonths) in [(year-1, "12"), (year, "[1..11]")] ]
+
+    return "\n\n".join(query_parts).lstrip()+"\n"
