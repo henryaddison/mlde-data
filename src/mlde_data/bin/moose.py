@@ -94,7 +94,7 @@ def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...),
 
     if "moose_name" in VARIABLE_CODES[variable]:
         logger.info(f"Renaming {VARIABLE_CODES[variable]['moose_name']} to {variable}...")
-        ds.rename({VARIABLE_CODES[variable]["moose_name"]: variable})
+        ds = ds.rename({VARIABLE_CODES[variable]["moose_name"]: variable})
 
     typer.echo(f"Coarsening {scale_factor}x...")
     ds = Coarsen(scale_factor=scale_factor, variable=variable).run(ds)
