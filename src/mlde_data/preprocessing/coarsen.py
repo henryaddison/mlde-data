@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 class Coarsen:
     def __init__(self, scale_factor, variable):
         self.scale_factor = scale_factor
-        self.variable = 'air_pressure_at_sea_level' #variable
+        self.variable = variable
 
     def run(self, hi_res_ds):
         logger.info(f"Coarsening {self.variable} by a scale factor of {self.scale_factor}")
