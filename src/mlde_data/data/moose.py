@@ -73,11 +73,12 @@ VARIABLE_CODES = {
         },
         "stream": {"3hrinst": "aph"}
     },
-    "wet_bulb": { # the saturated wet-bulb and wet-bulb potential temperatures
+    "wetbulbpott": { # the saturated wet-bulb and wet-bulb potential temperatures
         "query": {
             "stash": 16205, # 17 pressure levels for day
         },
-        "stream": {"3hrinst": "aph", "1hrinst": "apr", "6hrinst": "apc"}
+        "stream": {"3hrinst": "aph", "1hrinst": "apr", "6hrinst": "apc"},
+        "moose_name": "wet_bulb_potential_temperature"
     },
 }
 
