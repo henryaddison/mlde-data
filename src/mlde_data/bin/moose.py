@@ -11,6 +11,7 @@ import xarray as xr
 
 from ml_downscaling_emulator.data.moose import VARIABLE_CODES, select_query, moose_path
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
+from ml_downscaling_emulator.preprocessing.resample import Resample
 from ml_downscaling_emulator.preprocessing.select_domain import SelectDomain
 
 logger = logging.getLogger(__name__)
@@ -80,12 +81,11 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     iris.save(iris.load(str(pp_files_glob)), output_filepath)
 
 @app.command()
-def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", scale_factor: int = typer.Option(...), subdomain: SubDomainOption = SubDomainOption.london):
+def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", scale_factor: int = typer.Option(...), subdomain: SubDomainOption = SubDomainOption.london, target_frequency: str = "day"):
     """
     Coarsen data by given scale-factor
     """
     input_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency)
-    output_filepath = processed_nc_filepath(variable=variable, year=year, frequency=frequency, domain=subdomain.value, resolution=f"2.2km-coarsened-{scale_factor}x")
 
     if subdomain == SubDomainOption.london:
         subdomain_defn = SelectDomain.LONDON_IN_CPM_64x64
@@ -96,11 +96,15 @@ def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...),
         logger.info(f"Renaming {VARIABLE_CODES[variable]['moose_name']} to {variable}...")
         ds = ds.rename({VARIABLE_CODES[variable]["moose_name"]: variable})
 
+    if frequency != target_frequency:
+        ds = Resample(target_frequency=target_frequency).run(ds)
+
     typer.echo(f"Coarsening {scale_factor}x...")
     ds = Coarsen(scale_factor=scale_factor, variable=variable).run(ds)
     typer.echo(f"Select {subdomain.value} subdomain...")
     ds = SelectDomain(subdomain_defn=subdomain_defn).run(ds)
 
+    output_filepath = processed_nc_filepath(variable=variable, year=year, frequency=target_frequency, domain=subdomain.value, resolution=f"2.2km-coarsened-{scale_factor}x")
     typer.echo(f"Saving to {output_filepath}...")
     os.makedirs(output_filepath.parent, exist_ok=True)
     ds.to_netcdf(output_filepath)
