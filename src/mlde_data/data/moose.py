@@ -37,26 +37,29 @@ VARIABLE_CODES = {
         "stream": {"day": "apb", "3hrinst": "aph"},
         "moose_name": "specific_humidity"
     },
-    "1.5mtmean": {
+    "tmean150cm": {
         "query": {
             "stash": 3236,
             "lbproc": 128,
         },
-        "stream": {"day": "apa", "1hr": "ape"}
+        "stream": {"day": "apa", "1hr": "ape"},
+        "moose_name": "air_temperature"
     },
-    "1.5mtmax": {
+    "tmax150cm": {
         "query": {
             "stash": 3236,
             "lbproc": 8192,
         },
-        "stream": {"day": "apa"}
+        "stream": {"day": "apa"},
+        "moose_name": "air_temperature"
     },
-    "1.5mtmin": {
+    "tmin150cm": {
         "query": {
             "stash": 3236,
             "lbproc": 4096,
         },
-        "stream": {"day": "apa"}
+        "stream": {"day": "apa"},
+        "moose_name": "air_temperature"
     },
     "pr": {
         "query": {
