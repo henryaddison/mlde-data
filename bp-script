@@ -14,8 +14,8 @@ domain="london"
 frequency="day"
 
 mass_host="mass-cli.jasmin"
-sci_host="sci2.jasmin"
-xfer_host="xfer1.jasmin"
+sci_host="sci2.jasmin.ac.uk"
+xfer_host="xfer1.jasmin.ac.uk"
 
 let "start_year=year-1"
 file_subpath="${domain}/${resolution}/rcp85/01/${variable}/${frequency}/${variable}_rcp85_land-cpm_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
@@ -28,7 +28,7 @@ mlde moose extract --variable ${variable} --year ${year}
 
 LANG=C ssh -q ${sci_host} code/ml-downscaling-emulation/sci-jasmin-script ${variable} ${year} ${sf}
 
-ssh -q bp mkdir -p $(dirname ${local_filepath})
-LANG=C scp -q ${xfer_host}:${remote_filepath} bp:${local_filepath}
+ssh -q -J seis bp mkdir -p $(dirname ${local_filepath})
+ssh -a ${xfer_host} scp -oProxyJump=seis {remote_filepath} bp:${local_filepath}
 
-LANG=C ssh -q ${sci_host} rm ${remote_filepath}
+rm ${remote_filepath}
