@@ -79,7 +79,6 @@ VARIABLE_CODES = {
         },
         "stream": {"3hrinst": "aph", "1hrinst": "apr", "6hrinst": "apc"}
     },
-    # "1hrinst",    "3hrinst", "6hrinst", "6hr", "3hr", "1hr"
 }
 
 class RangeDict(dict):

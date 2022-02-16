@@ -59,7 +59,7 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     logger.debug(query)
     query_filepath.write_text(query)
 
-    moose_uri = moose_path(variable, year, ensemble_member=1, frequency="day")
+    moose_uri = moose_path(variable, year, frequency=frequency)
 
     query_cmd = ["moo" , "select", query_filepath, moose_uri, os.path.join(pp_dirpath,"")]
 
