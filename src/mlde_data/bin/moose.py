@@ -99,12 +99,17 @@ def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...),
     if frequency != target_frequency:
         ds = Resample(target_frequency=target_frequency).run(ds)
 
-    typer.echo(f"Coarsening {scale_factor}x...")
-    ds = Coarsen(scale_factor=scale_factor, variable=variable).run(ds)
+    if scale_factor != 1:
+        typer.echo(f"Coarsening {scale_factor}x...")
+        target_resolution = f"2.2km-coarsened-{scale_factor}x"
+        ds = Coarsen(scale_factor=scale_factor, variable=variable).run(ds)
+    else:
+        target_resolution = "2.2km"
+
     typer.echo(f"Select {subdomain.value} subdomain...")
     ds = SelectDomain(subdomain_defn=subdomain_defn).run(ds)
 
-    output_filepath = processed_nc_filepath(variable=variable, year=year, frequency=target_frequency, domain=subdomain.value, resolution=f"2.2km-coarsened-{scale_factor}x")
+    output_filepath = processed_nc_filepath(variable=variable, year=year, frequency=target_frequency, domain=subdomain.value, resolution=target_resolution)
     typer.echo(f"Saving to {output_filepath}...")
     os.makedirs(output_filepath.parent, exist_ok=True)
     ds.to_netcdf(output_filepath)
