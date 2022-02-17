@@ -61,11 +61,12 @@ VARIABLE_CODES = {
         "stream": {"day": "apa"},
         "moose_name": "air_temperature"
     },
-    "pr": {
+    "wetbulbpott": { # the saturated wet-bulb and wet-bulb potential temperatures
         "query": {
-            "stash": 5216,
+            "stash": 16205, # 17 pressure levels for day
         },
-        "stream": {"day": "apb"} #! BAD STREAM, check!
+        "stream": {"3hrinst": "aph", "1hrinst": "apr", "6hrinst": "apc"},
+        "moose_name": "wet_bulb_potential_temperature"
     },
     "geopotential_height": {
         "query": {
@@ -73,12 +74,17 @@ VARIABLE_CODES = {
         },
         "stream": {"3hrinst": "aph"}
     },
-    "wetbulbpott": { # the saturated wet-bulb and wet-bulb potential temperatures
+    "lsrain": {
         "query": {
-            "stash": 16205, # 17 pressure levels for day
+            "stash": 4203,
         },
-        "stream": {"3hrinst": "aph", "1hrinst": "apr", "6hrinst": "apc"},
-        "moose_name": "wet_bulb_potential_temperature"
+        "stream": {"day": "apa"}
+    },
+    "lssnow": {
+        "query": {
+            "stash": 4204,
+        },
+        "stream": {"day": "apa"}
     },
 }
 
