@@ -83,7 +83,11 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
 @app.command()
 def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", scale_factor: int = typer.Option(...), subdomain: SubDomainOption = SubDomainOption.london, target_frequency: str = "day"):
     """
-    Coarsen data by given scale-factor
+    Pre-process the moose data:
+        1. Re-name the variable
+        2. Re-sample the data to a match a target frequency
+        3. Coarsen by given scale-factor
+        4. Select a subdomain
     """
     input_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency)
 
@@ -117,7 +121,7 @@ def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...),
 @app.command()
 def clean(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day"):
     """
-    Remove any unneccessary files once conversion is done
+    Remove any unneccessary files once processing is done
     """
     typer.echo(f"Removing {ppdata_dirpath(variable=variable, year=year, frequency=frequency)}...")
     shutil.rmtree(ppdata_dirpath(variable=variable, year=year, frequency=frequency), ignore_errors=True)
