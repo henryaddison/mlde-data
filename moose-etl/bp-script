@@ -20,10 +20,10 @@ set -x
 
 # Extract (from moose)
 # mlde moose extract --variable ${variable} --year ${year}
-LANG=C ssh -a -q ${mass_host} code/ml-downscaling-emulation/moose-script
+LANG=C ssh -a -q ${mass_host} code/ml-downscaling-emulation/moose-etl/mass-script
 
 # Transform (on sci JASMIN)
-LANG=C ssh -q ${sci_host} code/ml-downscaling-emulation/sci-jasmin-script ${variable} ${year}
+LANG=C ssh -q ${sci_host} code/ml-downscaling-emulation/moose-etl/sci-jasmin-script ${variable} ${year}
 
 # Load (onto BP storage)
 for sf in 4 8 16 27 32; do
