@@ -20,7 +20,7 @@ set -x
 
 # Extract (from moose)
 # mlde moose extract --variable ${variable} --year ${year}
-LANG=C ssh -a -q ${mass_host} code/ml-downscaling-emulation/moose-etl/mass-script --variable ${variable} --year ${year}
+LANG=C ssh -a -q ${mass_host} code/ml-downscaling-emulation/moose-etl/mass-script ${variable} ${year}
 
 # Transform (on sci JASMIN)
 LANG=C ssh -q ${sci_host} code/ml-downscaling-emulation/moose-etl/sci-jasmin-script ${variable} ${year}
