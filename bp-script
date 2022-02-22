@@ -6,29 +6,37 @@ conda activate downscaling
 
 set -euo pipefail
 
-variable=$1
-year=$2
-sf=$3
-resolution="2.2km-coarsened-${sf}x"
-domain="london"
-frequency="day"
-
 mass_host="mass-cli.jasmin"
 sci_host="sci2.jasmin.ac.uk"
 xfer_host="xfer1.jasmin.ac.uk"
 
+variable=$1
+year=$2
 let "start_year=year-1"
-file_subpath="${domain}/${resolution}/rcp85/01/${variable}/${frequency}/${variable}_rcp85_land-cpm_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
-jasmin_filepath="/home/users/vf20964/derived_data/moose/${file_subpath}"
-bp_filepath="/user/work/vf20964/moose/${file_subpath}"
+domain="london"
+frequency="day"
 
 set -x
 
-mlde moose extract --variable ${variable} --year ${year}
+# Extract (from moose)
+# mlde moose extract --variable ${variable} --year ${year}
+LANG=C ssh -a -q ${mass_host} code/ml-downscaling-emulation/moose-script
 
+# Transform (on sci JASMIN)
 LANG=C ssh -q ${sci_host} code/ml-downscaling-emulation/sci-jasmin-script ${variable} ${year} ${sf}
 
-ssh -q -J seis bp mkdir -p $(dirname ${bp_filepath})
-ssh -a ${xfer_host} scp -oProxyJump=seis ${jasmin_filepath} bp:${bp_filepath}
+# Load (onto BP storage)
+for sf in 4 8 16 27 32; do
+  set +x
+  resolution="2.2km-coarsened-${sf}x"
+  filename="${variable}_rcp85_land-cpm_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
+  file_subpath="${domain}/${resolution}/rcp85/01/${variable}/${frequency}/${filename}"
+  jasmin_filepath="/home/users/vf20964/derived_data/moose/${file_subpath}"
+  bp_filepath="/user/work/vf20964/moose/${file_subpath}"
+  set -x
 
-rm ${jasmin_filepath}
+  mkdir -p $(dirname ${bp_filepath})
+  # ssh -a -q ${xfer_host} scp -oProxyJump=seis ${jasmin_filepath} bp:${bp_filepath}
+  scp -a ${xfer_host}:${jasmin_filepath} bp:${bp_filepath}
+  LANG=C ssh -a -q ${sci_host} rm ${jasmin_filepath}
+done

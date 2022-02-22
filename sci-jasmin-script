@@ -6,6 +6,11 @@ conda activate downscaling
 
 set -euxo pipefail
 
-mlde moose convert --variable $1 --year $2
-mlde moose preprocess --variable $1 --year $2 --scale-factor $3 --subdomain london
-mlde moose clean --variable $1 --year $2
+variable=$1
+year=$2
+
+mlde moose convert --variable ${variable} --year ${year}
+for sf in 4 8 16 27 32; do
+  mlde moose preprocess --variable ${variable} --year ${year} --scale-factor ${sf} --subdomain london
+done;
+mlde moose clean --variable ${variable} --year ${year}
