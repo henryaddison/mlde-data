@@ -4,6 +4,8 @@ eval "$(conda shell.bash hook)"
 
 conda activate downscaling
 
+bp_host="bp"
+
 variable=$1
 year=$2
 let "start_year=year-1"

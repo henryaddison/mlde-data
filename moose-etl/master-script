@@ -9,7 +9,6 @@ set -euo pipefail
 mass_host="mass-cli.jasmin.ac.uk"
 sci_host="sci2.jasmin.ac.uk"
 xfer_host="xfer1.jasmin.ac.uk"
-bp_host="bp"
 
 variable=$1
 year=$2
