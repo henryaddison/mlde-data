@@ -13,9 +13,6 @@ bp_host="bp"
 
 variable=$1
 year=$2
-let "start_year=year-1"
-domain="london"
-frequency="day"
 
 set -x
 

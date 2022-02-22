@@ -11,6 +11,6 @@ year=$2
 
 mlde moose convert --variable ${variable} --year ${year}
 for sf in 4 8 16 27 32; do
-  mlde moose preprocess --variable ${variable} --year ${year} --scale-factor ${sf} --subdomain london
+  mlde moose preprocess --variable ${variable} --year ${year} --scale-factor ${sf} --subdomain ${domain}
 done;
 mlde moose clean --variable ${variable} --year ${year}
