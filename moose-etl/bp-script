@@ -37,7 +37,7 @@ for sf in 4 8 16 27 32; do
   bp_filepath="/user/work/vf20964/moose/${file_subpath}"
   set -x
 
-  ssh -a -q bp mkdir -p $(dirname ${bp_filepath})
+  ssh -a -q -J seis ${bp_host} mkdir -p $(dirname ${bp_filepath})
   # mkdir -p $(dirname ${bp_filepath})
   ssh -a -q ${xfer_host} scp -oProxyJump=seis ${jasmin_filepath} ${bp_host}:${bp_filepath}
   # scp -a ${xfer_host}:${jasmin_filepath} bp:${bp_filepath}
