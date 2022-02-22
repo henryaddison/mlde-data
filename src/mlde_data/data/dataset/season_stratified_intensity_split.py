@@ -6,25 +6,17 @@ import numpy as np
 from torch.utils.data import random_split, DataLoader, TensorDataset
 import xarray as xr
 
+from ml_downscaling_emulator.data.dataset.random_split import RandomSplit
+
 logger = logging.getLogger(__name__)
 
 class SeasonStratifiedIntensitySplit:
-    def __init__(self, lo_res_files, hi_res_files, output_dir, variables, val_prop=0.2, test_prop=0.1) -> None:
-        self.lo_res_files = lo_res_files
-        self.hi_res_files = hi_res_files
-        self.variables = variables
+    def __init__(self, time_encoding, val_prop=0.2, test_prop=0.1) -> None:
         self.val_prop = val_prop
         self.test_prop = test_prop
-        self.output_dir = output_dir
+        self.time_encoding = time_encoding
 
-    def run(self):
-        time_encoding = xr.open_dataset(self.lo_res_files[0]).time_bnds.encoding
-        lo_res_dataset = xr.open_mfdataset(self.lo_res_files)
-        hi_res_dataset = xr.open_mfdataset(self.hi_res_files).rename({'pr': 'target_pr', 'ensemble_member_id': 'cpm_ensemble_member_id'})
-
-        combined_dataset = xr.combine_by_coords([lo_res_dataset, hi_res_dataset], compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all").isel(ensemble_member=0)
-        combined_dataset = combined_dataset.assign_coords(season=(('time'), (combined_dataset.month_number.values % 12 // 3)))
-
+    def run(self, combined_dataset):
         test_times = set()
         val_times = set()
 
@@ -57,16 +49,15 @@ class SeasonStratifiedIntensitySplit:
 
         train_times = set(combined_dataset.time.values) - test_times - val_times
 
-        test_set = combined_dataset.where(combined_dataset.time.isin(list(test_times)) == True, drop=True)
-        val_set = combined_dataset.where(combined_dataset.time.isin(list(val_times)) == True, drop=True)
-        train_set = combined_dataset.where(combined_dataset.time.isin(list(train_times)) == True, drop=True)
+        extreme_test_set = combined_dataset.where(combined_dataset.time.isin(list(test_times)) == True, drop=True)
+        extreme_val_set = combined_dataset.where(combined_dataset.time.isin(list(val_times)) == True, drop=True)
+        extreme_train_set = combined_dataset.where(combined_dataset.time.isin(list(train_times)) == True, drop=True)
 
         # # https://github.com/pydata/xarray/issues/2436 - time dim encoding lost when opened using open_mfdataset
-        test_set.time.encoding.update(time_encoding)
-        val_set.time.encoding.update(time_encoding)
-        train_set.time.encoding.update(time_encoding)
+        test_set.time.encoding.update(self.time_encoding)
+        val_set.time.encoding.update(self.time_encoding)
+        train_set.time.encoding.update(self.time_encoding)
 
-        logger.info(f"Saving data to {self.output_dir}")
-        test_set.to_netcdf(os.path.join(self.output_dir, 'test.nc'))
-        val_set.to_netcdf(os.path.join(self.output_dir, 'val.nc'))
-        train_set.to_netcdf(os.path.join(self.output_dir, 'train.nc'))
+        train_set, val_set, test_set = RandomSplit(time_encoding=self.time_encoding, val_prop=self.val_prop, test_prop=self.test_prop).run(extreme_train_set)
+
+        return train_set, val_set, test_set, extreme_val_set, extreme_test_set

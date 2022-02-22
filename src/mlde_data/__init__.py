@@ -13,13 +13,11 @@ class UKCPDatasetMetadata:
 
         if self.resolution.startswith("2.2km"):
             self.collection = "land-cpm"
-            self.filename_resolution = "2.2km"
         elif self.resolution.startswith("60km"):
             self.collection = "land-gcm"
-            self.filename_resolution = "60km"
 
     def filename_prefix(self):
-        return "_".join([self.variable, self.scenario, self.collection, "uk", self.filename_resolution, self.ensemble_member, self.frequency])
+        return "_".join([self.variable, self.scenario, self.collection, self.domain, self.resolution, self.ensemble_member, self.frequency])
 
     def filename(self, year):
         return f"{self.filename_prefix()}_{year}1201-{year+1}1130.nc"
