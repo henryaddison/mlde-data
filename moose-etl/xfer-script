@@ -4,30 +4,11 @@ eval "$(conda shell.bash hook)"
 
 conda activate downscaling
 
-set -euo pipefail
-
-mass_host="mass-cli.jasmin.ac.uk"
-sci_host="sci2.jasmin.ac.uk"
-xfer_host="xfer1.jasmin.ac.uk"
-bp_host="bp"
+set -euxo pipefail
 
 variable=$1
 year=$2
-let "start_year=year-1"
-domain="london"
-frequency="day"
 
-set -x
-
-# Extract (from moose)
-# mlde moose extract --variable ${variable} --year ${year}
-LANG=C ssh -a -q -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/mass-script ${variable} ${year}
-
-# Transform (on sci JASMIN)
-~/code/ml-downscaling-emulation/moose-etl/sci-jasmin-script ${variable} ${year}
-# LANG=C ssh -a -q -o ServerAliveInterval=60 ${sci_host} code/ml-downscaling-emulation/moose-etl/sci-jasmin-script ${variable} ${year}
-
-# Load (onto BP storage)
 for sf in 4 8 16 27 32; do
   set +x
   resolution="2.2km-coarsened-${sf}x"
@@ -39,7 +20,7 @@ for sf in 4 8 16 27 32; do
 
   ssh -a -q -J seis ${bp_host} mkdir -p $(dirname ${bp_filepath})
   # mkdir -p $(dirname ${bp_filepath})
-  ssh -a -q ${xfer_host} scp -oProxyJump=seis ${jasmin_filepath} ${bp_host}:${bp_filepath}
+  scp -oProxyJump=seis ${jasmin_filepath} ${bp_host}:${bp_filepath}
   # scp -a ${xfer_host}:${jasmin_filepath} bp:${bp_filepath}
   rm ${jasmin_filepath}
   # LANG=C ssh -a -q ${sci_host} rm ${jasmin_filepath}

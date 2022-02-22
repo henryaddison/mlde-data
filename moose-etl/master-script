@@ -1,0 +1,31 @@
+#! /usr/bin/env bash
+
+eval "$(conda shell.bash hook)"
+
+conda activate downscaling
+
+set -euo pipefail
+
+mass_host="mass-cli.jasmin.ac.uk"
+sci_host="sci2.jasmin.ac.uk"
+xfer_host="xfer1.jasmin.ac.uk"
+bp_host="bp"
+
+variable=$1
+year=$2
+let "start_year=year-1"
+domain="london"
+frequency="day"
+
+set -x
+
+# Extract (from moose)
+# mlde moose extract --variable ${variable} --year ${year}
+LANG=C ssh -a -q -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${variable} ${year}
+
+# Transform (on sci JASMIN)
+~/code/ml-downscaling-emulation/moose-etl/transform-script ${variable} ${year}
+# LANG=C ssh -a -q -o ServerAliveInterval=60 ${sci_host} code/ml-downscaling-emulation/moose-etl/sci-jasmin-script ${variable} ${year}
+
+# Load (onto BP storage)
+LANG=C ssh -a -q -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/xfer-script ${variable} ${year}
