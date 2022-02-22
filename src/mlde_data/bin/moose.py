@@ -80,6 +80,8 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     os.makedirs(output_filepath.parent, exist_ok=True)
     iris.save(iris.load(str(pp_files_glob)), output_filepath)
 
+    assert len(xr.open_dataset(output_filepath).time) == 360
+
 @app.command()
 def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", scale_factor: int = typer.Option(...), subdomain: SubDomainOption = SubDomainOption.london, target_frequency: str = "day"):
     """
