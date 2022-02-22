@@ -24,7 +24,7 @@ set -x
 LANG=C ssh -a -q -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/mass-script ${variable} ${year}
 
 # Transform (on sci JASMIN)
-code/ml-downscaling-emulation/moose-etl/sci-jasmin-script ${variable} ${year}
+~/code/ml-downscaling-emulation/moose-etl/sci-jasmin-script ${variable} ${year}
 # LANG=C ssh -a -q -o ServerAliveInterval=60 ${sci_host} code/ml-downscaling-emulation/moose-etl/sci-jasmin-script ${variable} ${year}
 
 # Load (onto BP storage)
