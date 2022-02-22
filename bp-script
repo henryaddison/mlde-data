@@ -23,7 +23,7 @@ set -x
 LANG=C ssh -a -q ${mass_host} code/ml-downscaling-emulation/moose-script
 
 # Transform (on sci JASMIN)
-LANG=C ssh -q ${sci_host} code/ml-downscaling-emulation/sci-jasmin-script ${variable} ${year} ${sf}
+LANG=C ssh -q ${sci_host} code/ml-downscaling-emulation/sci-jasmin-script ${variable} ${year}
 
 # Load (onto BP storage)
 for sf in 4 8 16 27 32; do
