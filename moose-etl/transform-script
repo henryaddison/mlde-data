@@ -8,6 +8,7 @@ set -euxo pipefail
 
 variable=$1
 year=$2
+domain="london"
 
 mlde moose convert --variable ${variable} --year ${year}
 for sf in 4 8 16 27 32; do
