@@ -4,6 +4,6 @@ set -euxo pipefail
 
 for year in $(seq 2061 1 2080);
   for var in xwind ywind; do
-    ./master-script $var $year; sleep 5;
+    ~/code/ml-downscaling-emulation/moose-etl/master-script $var $year; sleep 5;
   done
 done

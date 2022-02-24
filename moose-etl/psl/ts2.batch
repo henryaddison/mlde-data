@@ -2,4 +2,6 @@
 
 set -euxo pipefail
 
-for year in $(seq 2021 1 2040); do ./master-script psl $year 8; sleep 5; done
+for year in $(seq 2021 1 2040); do
+  ~/code/ml-downscaling-emulation/moose-etl/master-script psl $year; sleep 5;
+done
