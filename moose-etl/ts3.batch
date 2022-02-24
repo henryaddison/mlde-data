@@ -1,5 +1,0 @@
-#! /usr/bin/bash
-
-set -euxo pipefail
-
-for year in $(seq 2065 1 2080); do ./master-script psl $year 8; sleep 5; done
