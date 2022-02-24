@@ -28,17 +28,18 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="DERI
     """
     Create a dataset
     """
-    config_name = config.basename
-    config = yaml.load(config)
+    config_name = config.stem
+    with open(config, 'r') as f:
+        config = yaml.safe_load(f)
 
     predictand_var_params = {k: config[k] for k in ["domain", "ensemble_member", "scenario", "frequency"]}
-    predictand_var_params.update({"variable": config["predictand"]["name"], "resolution":  config["predictand"]["resolution"]})
+    predictand_var_params.update({"variable": config["predictand"]["variable"], "resolution":  config["predictand"]["resolution"]})
     predictand_meta = UKCPDatasetMetadata(input_base_dir, **predictand_var_params)
 
     predictors_meta = []
     for predictor_var_config in config["predictors"]:
         var_params = {k: config[k] for k in ["domain", "ensemble_member", "scenario", "frequency", "resolution"]}
-        var_params.update({"variable": predictor_var_config["name"]})
+        var_params.update({k: predictor_var_config[k] for k in ["variable"]})
         predictors_meta.append(UKCPDatasetMetadata(input_base_dir, **var_params))
 
     example_predictor_filepath = predictors_meta[0].existing_filepaths()[0]
@@ -55,12 +56,13 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="DERI
     else:
         raise(f"Unknown split scheme {config['split_scheme']}")
 
-    output_subdir = "_".join([config["resolution"], config["domain"], config_name, config["split_scheme"]])
+    output_subdir = "_".join([config["resolution"], config["domain"], config["split_scheme"], config_name])
     output_dir = os.path.join(output_base_dir, "nc-datasets", output_subdir)
 
     os.makedirs(output_dir, exist_ok=True)
 
     logger.info(f"Saving data to {output_dir}")
-    yaml.dump(config, os.path.join(output_dir, "ds-config.yml"))
+    with open(os.path.join(output_dir, "ds-config.yml"), 'w') as f:
+        yaml.dump(config, f)
     for split_name, split_ds in split_sets.items():
         split_ds.to_netcdf(os.path.join(output_dir, f"{split_name}.nc"))
