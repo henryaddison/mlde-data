@@ -35,4 +35,4 @@ class RandomSplit:
         val_set.time.encoding.update(self.time_encoding)
         train_set.time.encoding.update(self.time_encoding)
 
-        return train_set, val_set, test_set
+        return {"train": train_set, "val": val_set, "test": test_set}

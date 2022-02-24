@@ -51,7 +51,7 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="DERI
     combined_dataset = combined_dataset.assign_coords(season=(('time'), (combined_dataset.month_number.values % 12 // 3)))
 
     if config["split_scheme"]:
-        train_set, val_set, test_set = SeasonStratifiedIntensitySplit(val_prop=val_prop, test_prop=test_prop, time_encoding=time_encoding).run(combined_dataset)
+        split_sets = SeasonStratifiedIntensitySplit(val_prop=val_prop, test_prop=test_prop, time_encoding=time_encoding).run(combined_dataset)
     else:
         raise(f"Unknown split scheme {config['split_scheme']}")
 
@@ -62,6 +62,5 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="DERI
 
     logger.info(f"Saving data to {output_dir}")
     yaml.dump(config, os.path.join(output_dir, "ds-config.yml"))
-    test_set.to_netcdf(os.path.join(output_dir, 'test.nc'))
-    val_set.to_netcdf(os.path.join(output_dir, 'val.nc'))
-    train_set.to_netcdf(os.path.join(output_dir, 'train.nc'))
+    for split_name, split_ds in split_sets.items():
+        split_ds.to_netcdf(os.path.join(output_dir, f"{split_name}.nc"))

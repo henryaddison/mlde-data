@@ -53,11 +53,11 @@ class SeasonStratifiedIntensitySplit:
         extreme_val_set = combined_dataset.where(combined_dataset.time.isin(list(val_times)) == True, drop=True)
         extreme_train_set = combined_dataset.where(combined_dataset.time.isin(list(train_times)) == True, drop=True)
 
-        # # https://github.com/pydata/xarray/issues/2436 - time dim encoding lost when opened using open_mfdataset
-        test_set.time.encoding.update(self.time_encoding)
-        val_set.time.encoding.update(self.time_encoding)
-        train_set.time.encoding.update(self.time_encoding)
+        splits = RandomSplit(time_encoding=self.time_encoding, val_prop=self.val_prop, test_prop=self.test_prop).run(extreme_train_set)
+        splits.update({"extreme_val": extreme_val_set, "extreme_test": extreme_test_set})
 
-        train_set, val_set, test_set = RandomSplit(time_encoding=self.time_encoding, val_prop=self.val_prop, test_prop=self.test_prop).run(extreme_train_set)
+        for ds in splits.values():
+            # https://github.com/pydata/xarray/issues/2436 - time dim encoding lost when opened using open_mfdataset
+            ds.time.encoding.update(self.time_encoding)
 
-        return train_set, val_set, test_set, extreme_val_set, extreme_test_set
+        return splits
