@@ -78,13 +78,15 @@ VARIABLE_CODES = {
         "query": {
             "stash": 4203,
         },
-        "stream": {"day": "apa"}
+        "stream": {"day": "apa"},
+        "moose_name": "stratiform_rainfall_flux"
     },
     "lssnow": {
         "query": {
             "stash": 4204,
         },
-        "stream": {"day": "apa"}
+        "stream": {"day": "apa"},
+        "moose_name": "stratiform_snowfall_flux"
     },
 }
 
