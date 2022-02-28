@@ -1,5 +1,9 @@
+from enum import Enum
+
 import typer
 
+class DomainOption(str, Enum):
+    london = "london"
 
 from ml_downscaling_emulator.bin import ceda
 from ml_downscaling_emulator.bin import dataset

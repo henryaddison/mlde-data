@@ -8,15 +8,13 @@ import typer
 import xarray as xr
 
 from ml_downscaling_emulator import UKCPDatasetMetadata
+from ml_downscaling_emulator.bin import DomainOption
 from ml_downscaling_emulator.data.dataset import SeasonStratifiedIntensitySplit
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')
 
 app = typer.Typer()
-
-class SubDomainOption(str, Enum):
-    london = "london"
 
 @app.callback()
 def callback():

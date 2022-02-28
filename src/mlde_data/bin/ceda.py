@@ -6,7 +6,7 @@ import typer
 import xarray as xr
 
 from ml_downscaling_emulator import UKCPDatasetMetadata
-from ml_downscaling_emulator.bin.moose import SubDomainOption
+from ml_downscaling_emulator.bin import DomainOption
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
 from ml_downscaling_emulator.preprocessing.select_domain import SelectDomain
 
@@ -20,12 +20,12 @@ def callback():
     pass
 
 @app.command()
-def select_subdomain(variable: str = typer.Option(...), year: int = typer.Option(...), subdomain: SubDomainOption = SubDomainOption.london, frequency: str = "day", resolution: str = "2.2km", domain: str = "uk", input_base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"), output_base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA")):
+def select_subdomain(variable: str = typer.Option(...), year: int = typer.Option(...), subdomain: DomainOption = DomainOption.london, frequency: str = "day", resolution: str = "2.2km", domain: str = "uk", input_base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"), output_base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA")):
     """Select a subdomain within a given dataset"""
     scenario="rcp85"
     ensemble_member="01"
 
-    if subdomain == SubDomainOption.london:
+    if subdomain == DomainOption.london:
         subdomain_defn = SelectDomain.LONDON_IN_CPM_64x64
 
     input_ds_params = dict(domain=domain, frequency=frequency, variable=variable, ensemble_member=ensemble_member, scenario=scenario, resolution=resolution)

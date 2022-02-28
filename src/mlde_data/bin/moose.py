@@ -1,4 +1,3 @@
-from enum import Enum
 import logging
 import os
 from pathlib import Path
@@ -9,6 +8,7 @@ import iris
 import typer
 import xarray as xr
 
+from ml_downscaling_emulator.bin import DomainOption
 from ml_downscaling_emulator.data.moose import VARIABLE_CODES, select_query, moose_path
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
 from ml_downscaling_emulator.preprocessing.resample import Resample
@@ -18,9 +18,6 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')
 
 app = typer.Typer()
-
-class SubDomainOption(str, Enum):
-    london = "london"
 
 @app.callback()
 def callback():
@@ -83,7 +80,7 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     assert len(xr.open_dataset(output_filepath).time) == 360
 
 @app.command()
-def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", scale_factor: int = typer.Option(...), subdomain: SubDomainOption = SubDomainOption.london, target_frequency: str = "day"):
+def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", scale_factor: int = typer.Option(...), subdomain: DomainOption = DomainOption.london, target_frequency: str = "day"):
     """
     Pre-process the moose data:
         1. Re-name the variable
@@ -93,7 +90,7 @@ def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...),
     """
     input_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency)
 
-    if subdomain == SubDomainOption.london:
+    if subdomain == DomainOption.london:
         subdomain_defn = SelectDomain.LONDON_IN_CPM_64x64
 
     ds = xr.load_dataset(input_filepath)
