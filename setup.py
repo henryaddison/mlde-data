@@ -9,6 +9,7 @@ setuptools.setup(
     author="Henry Addison",
     author_email="henry.addison@bristol.ac.uk",
     description="A package for downscaling precipitation forecasts",
+    include_package_data=True,
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/henryaddison/ml-downscaling-emulation",
