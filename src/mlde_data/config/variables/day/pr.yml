@@ -1,0 +1,6 @@
+variable: pr
+attrs:
+  units: kgm-2s-1
+spec:
+  - action: sum
+    variables: [lssnow, lsrain]
