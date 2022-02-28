@@ -2,14 +2,14 @@ import glob
 import os
 
 class UKCPDatasetMetadata:
-    def __init__(self, base_dir, domain, resolution, scenario, ensemble_member, variable, frequency):
+    def __init__(self, base_dir, variable, frequency, domain, resolution, scenario="rcp85", ensemble_member="01"):
         self.base_dir = base_dir
-        self.domain = domain
-        self.resolution = resolution
-        self.scenario = scenario
-        self.ensemble_member = ensemble_member
         self.variable = variable
         self.frequency = frequency
+        self.resolution = resolution
+        self.domain = domain
+        self.scenario = scenario
+        self.ensemble_member = ensemble_member
 
         if self.resolution.startswith("2.2km"):
             self.collection = "land-cpm"
