@@ -8,4 +8,6 @@ class Sum:
         self.new_variable = new_variable
 
     def run(self, ds):
-        return ds.assign({self.new_variable: lambda x: sum([x[var] for var in self.variables])})
+        ds = ds.assign({self.new_variable: lambda x: sum([x[var] for var in self.variables])})
+        ds.drop_vars(self.variables)
+        return ds
