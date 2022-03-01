@@ -25,9 +25,6 @@ def select_subdomain(variable: str = typer.Option(...), year: int = typer.Option
     scenario="rcp85"
     ensemble_member="01"
 
-    if subdomain == DomainOption.london:
-        subdomain_defn = SelectDomain.LONDON_IN_CPM_64x64
-
     input_ds_params = dict(domain=domain, frequency=frequency, variable=variable, ensemble_member=ensemble_member, scenario=scenario, resolution=resolution)
     input = UKCPDatasetMetadata(input_base_dir, **input_ds_params)
 
@@ -38,7 +35,7 @@ def select_subdomain(variable: str = typer.Option(...), year: int = typer.Option
     typer.echo(f"Opening {input.filepath(year)}")
     ds = xr.open_dataset(input.filepath(year))
     typer.echo(f"Select {subdomain.value} subdomain...")
-    ds = SelectDomain(subdomain_defn=subdomain_defn).run(ds)
+    ds = SelectDomain(subdomain=subdomain.value).run(ds)
 
     typer.echo(f"Saving to {output.filepath(year)}...")
     os.makedirs(output.dirpath(), exist_ok=True)

@@ -90,9 +90,6 @@ def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...),
     """
     input_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency)
 
-    if subdomain == DomainOption.london:
-        subdomain_defn = SelectDomain.LONDON_IN_CPM_64x64
-
     ds = xr.load_dataset(input_filepath)
 
     if "moose_name" in VARIABLE_CODES[variable]:
@@ -110,7 +107,10 @@ def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...),
         target_resolution = "2.2km"
 
     typer.echo(f"Select {subdomain.value} subdomain...")
-    ds = SelectDomain(subdomain_defn=subdomain_defn).run(ds)
+    ds = SelectDomain(subdomain=subdomain.value).run(ds)
+
+    assert len(ds.grid_latitude) == 64
+    assert len(ds.grid_longitude) == 64
 
     output_filepath = processed_nc_filepath(variable=variable, year=year, frequency=target_frequency, domain=subdomain.value, resolution=target_resolution)
     typer.echo(f"Saving to {output_filepath}...")
