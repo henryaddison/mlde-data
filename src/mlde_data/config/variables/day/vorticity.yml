@@ -1,0 +1,19 @@
+variable: vorticity
+attrs:
+  units: s-1
+sources:
+  moose:
+    # implicit here is extract from moose, convert to nc and rename variable
+    - xwind
+    - ywind
+spec:
+  - action: coarsen
+    parameters:
+      scale_factor: $scale_factor
+  - action: vorticity
+  - action: regrid
+    variable: vorticity
+  - action: select-subdomain
+    parameters:
+      domain: $domain
+  # implicit final actions: assign attrs, save, cleanup extraction?
