@@ -2,9 +2,10 @@ import glob
 import os
 
 import iris
+import xarray as xr
 
 """
-Regrid all nc files in input directory based on the given target grid file and save output
+Regrid a dataset based on a given target grid file
 """
 class Regrid:
 
@@ -14,38 +15,24 @@ class Regrid:
         "area-weighted": iris.analysis.AreaWeighted
     }
 
-    def __init__(self, input_dir, target_grid, output_dir, scheme) -> None:
-        self.input_dir = input_dir
-        self.target_grid = target_grid
-        self.output_dir = output_dir
+    def __init__(self, target_grid_filepath, variable, scheme="nn") -> None:
+        self.target_grid_filepath = target_grid_filepath
+        self.variable = variable
         self.scheme = self.SCHEMES[scheme]()
 
         pass
 
-    def run(self):
-        output_files = []
+    def run(self, ds):
 
-        target_cube = iris.load_cube(str(self.target_grid))
+        # regrid the coarsened data to match the original horizontal grid (using NN interpolation)
+        # NB iris and xarray can only comminicate in dataarrays not datasets
+        # and form a dataset based on the original hi-res with this new coarsened then NN-gridded data
+        target_cube = iris.load_cube(self.target_grid_filepath)
 
-        example_input_cube_file = glob.glob(str(self.input_dir/"*.nc"))[0]
-        example_input_cube = iris.load_cube(example_input_cube_file)
+        regridder = self.scheme.regridder(ds[self.variable].to_iris(), target_cube)
+        regridded_da = regridder(ds[self.variable].to_iris())
 
-        regridder = self.scheme.regridder(example_input_cube, target_cube)
+        # TODO: this won't match the dimensions anymore, need to clone the target
+        ds[self.variable] = xr.DataArray.from_iris(regridded_da)
 
-        input_fileglob = str(self.input_dir/"*.nc")
-        input_filepaths = glob.glob(input_fileglob)
-
-        for input_filepath in input_filepaths:
-
-            input_cube = iris.load_cube(input_filepath)
-
-            single_year_regridded_cube =  regridder(input_cube)
-
-            output_filename = os.path.basename(input_filepath)
-            output_filepath = self.output_dir / output_filename
-            iris.save(single_year_regridded_cube, output_filepath)
-            output_files.append(output_filepath)
-
-        print("All done")
-
-        return output_files
+        return ds
