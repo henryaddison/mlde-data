@@ -9,5 +9,5 @@ class Sum:
 
     def run(self, ds):
         ds = ds.assign({self.new_variable: lambda x: sum([x[var] for var in self.variables])})
-        ds.drop_vars(self.variables)
+        ds = ds.drop_vars(self.variables)
         return ds

@@ -37,7 +37,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
 
             ds = xr.open_mfdataset([m.filepath(year) for m in input_metadata])
             ds = Sum([m.variable for m in input_metadata], output_metadata.variable).run(ds)
-            ds = ds[variable].assign_attrs(config['attrs'])
+            ds[variable] = ds[variable].assign_attrs(config['attrs'])
 
     logger.info(f"Saving data to {output_metadata.filepath(year)}")
     os.makedirs(output_metadata.dirpath(), exist_ok=True)
