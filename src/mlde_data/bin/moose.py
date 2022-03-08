@@ -153,14 +153,6 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
 
         source_nc_filepath = raw_nc_filepath(variable=source, year=year, frequency=frequency)
 
-        if not source_nc_filepath.exists():
-            source_pp_dirpath = ppdata_dirpath(variable=source, year=year, frequency=frequency)
-            if len(glob.glob(source_pp_dirpath/"*.pp")) != 360:
-                logger.info(f"Extracting {source}...")
-                extract(variable=source, year=year, frequency=frequency)
-            logger.info(f"Converting pp for {source} to nc...")
-            convert(variable=source, year=year, frequency=frequency)
-
         ds = xr.open_dataset(source_nc_filepath)
 
         if "moose_name" in VARIABLE_CODES[source]:
