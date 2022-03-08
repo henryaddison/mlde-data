@@ -140,7 +140,7 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     os.remove(raw_nc_filepath(variable=variable, year=year, frequency=frequency))
 
 @app.command()
-def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), resolution: str = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", , scale_factor: int = typer.Option(...)):
+def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), resolution: str = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: int = typer.Option(...)):
     """
     Create a new variable from moose data
     """
