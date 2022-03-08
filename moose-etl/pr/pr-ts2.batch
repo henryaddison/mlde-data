@@ -1,0 +1,10 @@
+#! /usr/bin/bash
+
+set -euxo pipefail
+
+var=pr
+
+for year in $(seq 2021 1 2040); do
+    mlde preprocess create-variable --variable ${var} --year ${year} --resolution 2.2km
+  done
+done
