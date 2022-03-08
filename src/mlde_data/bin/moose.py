@@ -191,7 +191,8 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
                 target_resolution = "2.2km"
         if job_spec['action'] == "regrid":
             if scale_factor != 1:
-                ds = Regrid(target_grid_filepath=something, variable=variable).run(ds)
+                target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'moose_uk_pr_guide-grid.nc')
+                ds = Regrid(target_grid_filepath=target_grid_filepath, variable=variable).run(ds)
         if job_spec['action'] == "vorticity":
             ds = Vorticity().run(ds)
         if job_spec['action'] == "select-subdomain":
