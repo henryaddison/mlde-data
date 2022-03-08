@@ -1,3 +1,4 @@
+import glob
 from importlib_resources import files
 import logging
 import os
@@ -149,19 +150,25 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     sources = {}
 
     for source in config['sources']['moose']:
-        logger.info(f"Extracting {source}...")
-        extract(variable=source, year=year, frequency=frequency)
-        logger.info(f"Converting pp for {source} to nc...")
-        convert(variable=source, year=year, frequency=frequency)
 
-        input_filepath = raw_nc_filepath(variable=source, year=year, frequency=frequency)
-        ds = xr.open_dataset(input_filepath)
+        source_nc_filepath = raw_nc_filepath(variable=source, year=year, frequency=frequency)
 
-        if "moose_name" in VARIABLE_CODES[variable]:
-            logger.info(f"Renaming {VARIABLE_CODES[variable]['moose_name']} to {variable}...")
-            ds = ds.rename({VARIABLE_CODES[variable]["moose_name"]: variable})
+        if not source_nc_filepath.exists():
+            source_pp_dirpath = ppdata_dirpath(variable=source, year=year, frequency=frequency)
+            if len(glob.glob(source_pp_dirpath/"*.pp")) != 360:
+                logger.info(f"Extracting {source}...")
+                extract(variable=source, year=year, frequency=frequency)
+            logger.info(f"Converting pp for {source} to nc...")
+            convert(variable=source, year=year, frequency=frequency)
+
+        ds = xr.open_dataset(source_nc_filepath)
+
+        if "moose_name" in VARIABLE_CODES[source]:
+            logger.info(f"Renaming {VARIABLE_CODES[source]['moose_name']} to {source}...")
+            ds = ds.rename({VARIABLE_CODES[source]["moose_name"]: source})
 
         sources[source] = ds
+
     logger.info(f"Combining {config['sources']}...")
     ds = xr.combine_by_coords(sources.values(), compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all")
 
