@@ -21,7 +21,7 @@ set -x
 #   mlde moose convert --variable ${variable} --year ${year}
 # done;
 
-variable="vorticity"
+variable="vorticity850"
 domain="london"
 
 # Transform (into vorticity on sci JASMIN)
