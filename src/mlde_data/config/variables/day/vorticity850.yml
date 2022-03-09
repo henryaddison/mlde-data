@@ -1,4 +1,4 @@
-variable: vorticity
+variable: vorticity850
 attrs:
   units: s-1
 sources:
