@@ -22,6 +22,7 @@ for variable in xwind ywind; do
 done;
 
 variable="vorticity"
+domain="london"
 
 # Transform (into vorticity on sci JASMIN)
 for sf in 4 8 16 27 32; do
