@@ -7,6 +7,9 @@ sources:
     - xwind
     - ywind
 spec:
+  - action: constrain
+    query:
+      pressure: 850.0
   - action: coarsen
     parameters:
       scale_factor: $scale_factor

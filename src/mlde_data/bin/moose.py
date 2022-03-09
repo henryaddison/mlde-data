@@ -15,6 +15,7 @@ from ml_downscaling_emulator import UKCPDatasetMetadata
 from ml_downscaling_emulator.bin import DomainOption
 from ml_downscaling_emulator.data.moose import VARIABLE_CODES, select_query, moose_path
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
+from ml_downscaling_emulator.preprocessing.constrain import Constrain
 from ml_downscaling_emulator.preprocessing.regrid import Regrid
 from ml_downscaling_emulator.preprocessing.resample import Resample
 from ml_downscaling_emulator.preprocessing.select_domain import SelectDomain
@@ -174,22 +175,26 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             ds = xr.open_mfdataset([m.filepath(year) for m in input_metadata])
             ds = Sum([m.variable for m in input_metadata], output_metadata.variable).run(ds)
             ds = ds[variable].assign_attrs(config['attrs'])
-        if job_spec['action'] == "coarsen":
+        elif job_spec['action'] == "coarsen":
             if scale_factor != 1:
                 typer.echo(f"Coarsening {scale_factor}x...")
                 target_resolution = f"2.2km-coarsened-{scale_factor}x"
                 ds = Coarsen(scale_factor=scale_factor).run(ds)
             else:
                 target_resolution = "2.2km"
-        if job_spec['action'] == "regrid":
+        elif job_spec['action'] == "regrid":
             if scale_factor != 1:
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'moose_uk_pr_guide-grid.nc')
                 ds = Regrid(target_grid_filepath=target_grid_filepath, variable=variable).run(ds)
-        if job_spec['action'] == "vorticity":
+        elif job_spec['action'] == "vorticity":
             ds = Vorticity().run(ds)
-        if job_spec['action'] == "select-subdomain":
+        elif job_spec['action'] == "select-subdomain":
             typer.echo(f"Select {domain.value} subdomain...")
             ds = SelectDomain(subdomain=domain.value).run(ds)
+        elif job_spec['action']:
+            ds = Constrain(query=job_spec['query']).run(ds)
+        else:
+            raise f"Unknown action {job_spec['action']}"
 
     assert len(ds.grid_latitude) == 64
     assert len(ds.grid_longitude) == 64
