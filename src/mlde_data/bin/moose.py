@@ -141,7 +141,7 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     os.remove(raw_nc_filepath(variable=variable, year=year, frequency=frequency))
 
 @app.command()
-def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), resolution: str = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: int = typer.Option(...)):
+def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: int = typer.Option(...)):
     """
     Create a new variable from moose data
     """
@@ -168,12 +168,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     for job_spec in config['spec']:
         if job_spec['action'] == "sum":
             logger.info(f"Summing {job_spec['variables']}")
-            input_metadata = [
-                UKCPDatasetMetadata(data_basedir, frequency=frequency, domain=domain, resolution=resolution, ensemble_member='01', variable=variable) for variable in job_spec['variables']
-            ]
-
-            ds = xr.open_mfdataset([m.filepath(year) for m in input_metadata])
-            ds = Sum([m.variable for m in input_metadata], output_metadata.variable).run(ds)
+            ds = Sum(job_spec['variables'], variable).run(ds)
             ds = ds[variable].assign_attrs(config['attrs'])
         elif job_spec['action'] == "coarsen":
             if scale_factor != 1:
