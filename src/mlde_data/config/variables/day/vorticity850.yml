@@ -15,7 +15,7 @@ spec:
       scale_factor: $scale_factor
   - action: vorticity
   - action: regrid
-    variable: vorticity
+    variable: vorticity850
   - action: select-subdomain
     parameters:
       domain: $domain
