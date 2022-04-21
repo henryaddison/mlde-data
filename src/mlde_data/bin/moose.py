@@ -115,7 +115,9 @@ def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...),
     if scale_factor != 1:
         typer.echo(f"Coarsening {scale_factor}x...")
         target_resolution = f"2.2km-coarsened-{scale_factor}x"
-        ds = Coarsen(scale_factor=scale_factor, variable=variable).run(ds)
+        uncoarsened_ds = ds.clone()
+        ds = Coarsen(scale_factor=scale_factor).run(ds)
+        ds = Regrid(target_grid=uncoarsened_ds, variable=variable).run(ds)
     else:
         target_resolution = "2.2km"
 
