@@ -13,6 +13,6 @@ class Coarsen:
         logger.info(f"Coarsening by a scale factor of {self.scale_factor}")
 
         # horizontally coarsen the hi resolution data
-        ds = ds.coarsen(grid_latitude=self.scale_factor, grid_longitude=self.scale_factor, boundary="trim").mean()
+        coarsened_ds = ds.coarsen(grid_latitude=self.scale_factor, grid_longitude=self.scale_factor, boundary="trim").mean()
 
-        return ds
+        return coarsened_ds, ds

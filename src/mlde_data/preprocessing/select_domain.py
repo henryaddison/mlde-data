@@ -27,8 +27,8 @@ class SelectDomain:
         if self.subdomain == "london":
             centre_ds = ds.sel(grid_longitude=360.0+self.LONDON_RP_LONG_LAT[0], grid_latitude=self.LONDON_RP_LONG_LAT[1], method="nearest")
 
-            centre_long_idx = np.where(ds.grid_longitude.values == centre_ds.grid_longitude.values)
-            centre_lat_idx = np.where(ds.grid_latitude.values == centre_ds.grid_latitude.values)
+            centre_long_idx = np.where(ds.grid_longitude.values == centre_ds.grid_longitude.values)[0].item()
+            centre_lat_idx = np.where(ds.grid_latitude.values == centre_ds.grid_latitude.values)[0].item()
 
             ds = ds.sel(grid_longitude=slice(ds.grid_longitude[centre_long_idx-31].values, ds.grid_longitude[centre_long_idx+32].values), grid_latitude=slice(ds.grid_latitude[centre_lat_idx-31].values, ds.grid_latitude[centre_lat_idx+32].values))
 

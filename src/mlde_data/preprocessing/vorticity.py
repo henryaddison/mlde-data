@@ -10,9 +10,12 @@ class Vorticity:
 
     def run(self, ds):
         logger.info(f"Computing vorticity from xwind, ywind")
-        dx, dy = mpcalc.lat_lon_grid_deltas(ds.grid_longitude.values, ds.grid_latitude.values)
+        dx, dy =  mpcalc.lat_lon_grid_deltas(ds.grid_longitude.values, ds.grid_latitude.values)
+        # make sure grid deltas broadcast properly over time dimension - https://stackoverflow.com/a/55012247
+        dx = dx[None, :]
+        dy = dy[None, :]
 
-        ds['vorticity'] = mpcalc.vorticity(ds.isel(time=10)['xwind'], ds.isel(time=10)['ywind'], dx=dx, dy=dy)
+        ds['vorticity850'] = mpcalc.vorticity(ds['xwind'], ds['ywind'], dx=dx, dy=dy)
 
         ds = ds.drop_vars(['xwind', 'ywind'])
 

@@ -153,7 +153,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     for source in config['sources']['moose']:
 
         source_nc_filepath = raw_nc_filepath(variable=source, year=year, frequency=frequency)
-
+        logger.info(f"Opening {source_nc_filepath}")
         ds = xr.open_dataset(source_nc_filepath)
 
         if "moose_name" in VARIABLE_CODES[source]:
@@ -174,19 +174,20 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             if scale_factor != 1:
                 typer.echo(f"Coarsening {scale_factor}x...")
                 target_resolution = f"2.2km-coarsened-{scale_factor}x"
-                ds = Coarsen(scale_factor=scale_factor).run(ds)
+                ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
             else:
                 target_resolution = "2.2km"
         elif job_spec['action'] == "regrid":
             if scale_factor != 1:
-                target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'moose_uk_pr_guide-grid.nc')
-                ds = Regrid(target_grid_filepath=target_grid_filepath, variable=variable).run(ds)
+                # target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'moose_uk_pr_guide-grid.nc')
+                # orig_da = orig_ds[list(sources.keys())[0]]
+                ds = Regrid(orig_ds, variable=variable).run(ds)
         elif job_spec['action'] == "vorticity":
             ds = Vorticity().run(ds)
         elif job_spec['action'] == "select-subdomain":
             typer.echo(f"Select {domain.value} subdomain...")
             ds = SelectDomain(subdomain=domain.value).run(ds)
-        elif job_spec['action']:
+        elif job_spec['action'] == "constrain":
             ds = Constrain(query=job_spec['query']).run(ds)
         else:
             raise f"Unknown action {job_spec['action']}"
