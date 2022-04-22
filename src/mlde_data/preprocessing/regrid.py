@@ -37,11 +37,10 @@ class Regrid:
         regridder = self.scheme.regridder(src_cube, self.target_cube)
         regridded_da = xr.DataArray.from_iris(regridder(src_cube))
 
-        vars = {f'{key}_bnds': ([key, 'bnds'], self.target_ds[f'{key}_bnds'].values, self.target_ds[f'{key}_bnds'].attrs) for key in ['grid_latitude', 'grid_longitude']}
-        vars['time_bnds'] = (['time', 'bnds'], ds['time_bnds'].values, ds['time_bnds'].attrs, {'units': 'hours since 1970-01-01 00:00:00', 'calendar': '360_day'})
-        vars['forecast_period_bnds'] = (['time', 'bnds'], ds['forecast_period_bnds'].values, ds['forecast_period_bnds'].attrs, {'units': 'hours since 1970-01-01 00:00:00', 'calendar': '360_day'})
 
-        vars[self.variable] = (['time', 'grid_latitude', 'grid_longitude'], regridded_da.values, ds[self.variable].attrs)
+        vars = {self.variable: (['time', 'grid_latitude', 'grid_longitude'], regridded_da.values, ds[self.variable].attrs)}
+        vars.update({f'{key}_bnds': ([key, 'bnds'], self.target_ds[f'{key}_bnds'].values, self.target_ds[f'{key}_bnds'].attrs) for key in ['grid_latitude', 'grid_longitude']})
+        vars.update({key: (['time', 'bnds'], ds[key].values, ds[key].attrs, {'units': 'hours since 1970-01-01 00:00:00', 'calendar': '360_day'}) for key in ['time_bnds', 'forecast_period_bnds']})
 
         coords = dict(ds.coords)
         coords['grid_longitude'] = self.target_ds.coords['grid_longitude']
