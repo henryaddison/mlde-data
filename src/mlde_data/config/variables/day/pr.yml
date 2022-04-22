@@ -1,6 +1,13 @@
 variable: pr
 attrs:
-  units: kgm-2s-1
+  units: kg m-2 s-1
+  standard_name: pr
+  grid_mapping: rotated_latitude_longitude
+sources:
+  moose:
+    # implicit here is extract from moose, convert to nc and rename variable
+    - lssnow
+    - lsrain
 spec:
   - action: sum
     variables: [lssnow, lsrain]

@@ -22,5 +22,6 @@ class Vorticity:
         # units='s**-1',
         # standard_name='atmosphere_relative_vorticity',
         # long_name='relative_vorticity'
+        # grid_mapping='rotated_latitude_longitude'}
 
         return ds

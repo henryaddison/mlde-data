@@ -167,23 +167,23 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     logger.info(f"Combining {config['sources']}...")
     ds = xr.combine_by_coords(sources.values(), compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all")
 
+    target_resolution = "2.2km"
+
     for job_spec in config['spec']:
         if job_spec['action'] == "sum":
             logger.info(f"Summing {job_spec['variables']}")
             ds = Sum(job_spec['variables'], variable).run(ds)
-            ds = ds[variable].assign_attrs(config['attrs'])
+            ds[variable] = ds[variable].assign_attrs(config['attrs'])
         elif job_spec['action'] == "coarsen":
             if scale_factor != 1:
                 typer.echo(f"Coarsening {scale_factor}x...")
-                target_resolution = f"2.2km-coarsened-{scale_factor}x"
+                target_resolution = f"{target_resolution}-coarsened-{scale_factor}x"
                 ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
-            else:
-                target_resolution = "2.2km"
         elif job_spec['action'] == "regrid":
             if scale_factor != 1:
-                # target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'moose_uk_pr_guide-grid.nc')
+                target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'moose_uk_pr_guide-grid.nc')
                 # orig_da = orig_ds[list(sources.keys())[0]]
-                ds = Regrid(orig_ds, variable=variable).run(ds)
+                ds = Regrid(target_grid_filepath, variable=variable).run(ds)
         elif job_spec['action'] == "vorticity":
             ds = Vorticity().run(ds)
         elif job_spec['action'] == "select-subdomain":
