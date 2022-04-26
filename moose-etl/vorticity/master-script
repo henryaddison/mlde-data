@@ -15,11 +15,11 @@ year=$1
 set -x
 
 # Extract (x and y wind components from moose to nc format)
-# for variable in xwind ywind; do
-#   LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${variable} ${year}
+for variable in xwind ywind; do
+  LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${variable} ${year}
 
-#   mlde moose convert --variable ${variable} --year ${year}
-# done;
+  mlde moose convert --variable ${variable} --year ${year}
+done;
 
 variable="vorticity850"
 domain="london"
