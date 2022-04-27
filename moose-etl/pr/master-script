@@ -14,7 +14,7 @@ year=$1
 
 set -x
 
-# Extract (x and y wind components from moose to nc format)
+# Extract (ls snow and rain components from moose to nc format)
 for variable in lssnow lsrain; do
   LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${variable} ${year}
 
@@ -30,9 +30,9 @@ for sf in 1; do
 done;
 
 # Load (vorticity onto BP storage)
-LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/xfer-script ${variable} ${year}
+LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/pr/xfer-script ${variable} ${year}
 
-# Clean up (x and y wind components downloaded from moose)
-for variable in xwind ywind; do
+# Clean up (ls snow and rain components downloaded from moose)
+for variable in lssnow lsrain; do
   mlde moose clean --variable ${variable} --year ${year}
 done
