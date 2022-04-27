@@ -24,19 +24,21 @@ class Regrid:
         pass
 
     def run(self, ds):
-
         # regrid the coarsened data to match the original horizontal grid (using NN interpolation)
         # NB iris and xarray can only comminicate in dataarrays not datasets
         # and form a dataset based on the original hi-res with this new coarsened then NN-gridded data
 
         src_cube = ds[self.variable].to_iris()
-
+        # conversion to iris looses the coordinate system on the lat and long dimensions but iris it needs to do regrid
         src_cube.coords('grid_longitude')[0].coord_system = self.target_cube.coords('grid_longitude')[0].coord_system
         src_cube.coords('grid_latitude')[0].coord_system = self.target_cube.coords('grid_latitude')[0].coord_system
 
         regridder = self.scheme.regridder(src_cube, self.target_cube)
         regridded_da = xr.DataArray.from_iris(regridder(src_cube))
 
+        # forecast_reference_period depends on the time slice but doesn't affect the grid
+        # so update for target grid dataset to match the data being regridded
+        self.target_ds['forecast_reference_period'] = ds['forecast_reference_period']
 
         vars = {self.variable: (['time', 'grid_latitude', 'grid_longitude'], regridded_da.values, ds[self.variable].attrs)}
         vars.update({f'{key}_bnds': ([key, 'bnds'], self.target_ds[f'{key}_bnds'].values, self.target_ds[f'{key}_bnds'].attrs) for key in ['grid_latitude', 'grid_longitude']})
