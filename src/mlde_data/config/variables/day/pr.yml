@@ -11,3 +11,6 @@ sources:
 spec:
   - action: sum
     variables: [lssnow, lsrain]
+  - action: select-subdomain
+    parameters:
+      domain: $domain
