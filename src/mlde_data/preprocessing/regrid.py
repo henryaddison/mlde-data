@@ -36,9 +36,9 @@ class Regrid:
         regridder = self.scheme.regridder(src_cube, self.target_cube)
         regridded_da = xr.DataArray.from_iris(regridder(src_cube))
 
-        # forecast_reference_period depends on the time slice but doesn't affect the grid
+        # forecast_reference_time depends on the time slice but doesn't affect the grid
         # so update for target grid dataset to match the data being regridded
-        self.target_ds['forecast_reference_period'] = ds['forecast_reference_period']
+        self.target_ds['forecast_reference_time'] = ds['forecast_reference_time']
 
         vars = {self.variable: (['time', 'grid_latitude', 'grid_longitude'], regridded_da.values, ds[self.variable].attrs)}
         vars.update({f'{key}_bnds': ([key, 'bnds'], self.target_ds[f'{key}_bnds'].values, self.target_ds[f'{key}_bnds'].attrs) for key in ['grid_latitude', 'grid_longitude']})
