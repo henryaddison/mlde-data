@@ -9,7 +9,7 @@ import xarray as xr
 
 from ml_downscaling_emulator import UKCPDatasetMetadata
 from ml_downscaling_emulator.bin import DomainOption
-from ml_downscaling_emulator.data.dataset import SeasonStratifiedIntensitySplit
+from ml_downscaling_emulator.data.dataset import RandomSplit, SeasonStratifiedIntensitySplit
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')
@@ -49,10 +49,14 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="DERI
     combined_dataset = xr.combine_by_coords([*predictor_datasets, predictand_dataset], compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all").isel(ensemble_member=0)
     combined_dataset = combined_dataset.assign_coords(season=(('time'), (combined_dataset['time.month'].values % 12 // 3)))
 
-    if config["split_scheme"]:
-        split_sets = SeasonStratifiedIntensitySplit(val_prop=val_prop, test_prop=test_prop, time_encoding=time_encoding).run(combined_dataset)
+    if config["split_scheme"] == "ssi":
+        splitter = SeasonStratifiedIntensitySplit(val_prop=val_prop, test_prop=test_prop, time_encoding=time_encoding)
+    elif config["split_scheme"] == "random":
+        splitter = RandomSplit(val_prop=val_prop, test_prop=test_prop, time_encoding=time_encoding)
     else:
         raise(f"Unknown split scheme {config['split_scheme']}")
+
+    split_sets = splitter.run(combined_dataset)
 
     output_subdir = "_".join([config["resolution"], config["domain"], config["split_scheme"], config_name])
     output_dir = os.path.join(output_base_dir, "nc-datasets", output_subdir)
