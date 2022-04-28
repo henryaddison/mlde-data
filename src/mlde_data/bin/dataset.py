@@ -47,7 +47,7 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="DERI
     predictand_dataset = xr.open_mfdataset(predictand_meta.existing_filepaths()).rename({predictand_meta.variable: f'target_{predictand_meta.variable}'})
 
     combined_dataset = xr.combine_by_coords([*predictor_datasets, predictand_dataset], compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all").isel(ensemble_member=0)
-    combined_dataset = combined_dataset.assign_coords(season=(('time'), (combined_dataset.month_number.values % 12 // 3)))
+    combined_dataset = combined_dataset.assign_coords(season=(('time'), (combined_dataset['time.month'].values % 12 // 3)))
 
     if config["split_scheme"]:
         split_sets = SeasonStratifiedIntensitySplit(val_prop=val_prop, test_prop=test_prop, time_encoding=time_encoding).run(combined_dataset)
