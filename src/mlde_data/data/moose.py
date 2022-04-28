@@ -140,3 +140,23 @@ def select_query(year, variable, frequency="day"):
     query_parts = [ "\n".join(query_lines(query_conditions, qyear, qmonths)) for (qyear, qmonths) in [(year-1, "12"), (year, "[1..11]")] ]
 
     return "\n\n".join(query_parts).lstrip()+"\n"
+
+
+### GCM detailss
+
+# moose uris: moose:ens/{suite}/{rip_code}/{stream}.pp
+
+# Suite names
+# The four suite names covering the historical and RCP8.5 experiments are:
+# Historical: u-an398 (Dec 1896 - Nov 1970), u-ap977 (Dec 1970 - Nov 2005)
+# RCP8.5    : u-ar095 (Dec 2005 – Nov 2076), u-au084 (Dec 2076 – Nov 2099)
+
+
+# rip codes
+# r001i1p00000 (standard physics model) r001i1p01113  r001i1p01935  r001i1p02305 r001i1p02832
+# r001i1p00090 r001i1p01554  r001i1p02089  r001i1p02335  r001i1p02868
+# r001i1p00605  r001i1p01649  r001i1p02123  r001i1p02491  r001i1p02884
+# r001i1p00834  r001i1p01843  r001i1p02242  r001i1p02753  r001i1p02914
+
+# stream codes
+# Data streams for 6-hourly data is apc.pp. For daily mean data it is ape.pp.
