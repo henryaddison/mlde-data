@@ -25,7 +25,8 @@ variable="pr"
 domain="london"
 
 # Transform (into vorticity on sci JASMIN)
-for sf in 1; do
+# for sf in 1; do
+for sf in 2 4 8 16 27 32; do
   mlde moose create-variable --variable ${variable} --year ${year} --scale-factor ${sf} --domain ${domain}
 done;
 
