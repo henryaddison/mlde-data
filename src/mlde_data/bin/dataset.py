@@ -58,7 +58,7 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="DERI
 
     split_sets = splitter.run(combined_dataset)
 
-    output_subdir = "_".join([config["resolution"], config["domain"], config["split_scheme"], config_name])
+    output_subdir = "_".join([config["resolution"], config["domain"], "-".join([pred["variable"] for pred in config["predictors"]]), config["split_scheme"]])
     output_dir = os.path.join(output_base_dir, "nc-datasets", output_subdir)
 
     os.makedirs(output_dir, exist_ok=True)
