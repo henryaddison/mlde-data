@@ -9,8 +9,13 @@ sources:
     - lssnow
     - lsrain
 spec:
+  - action: coarsen
+    parameters:
+      scale_factor: $scale_factor
   - action: sum
     variables: [lssnow, lsrain]
+  - action: regrid
+    variable: pr
   - action: select-subdomain
     parameters:
       domain: $domain
