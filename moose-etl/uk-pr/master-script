@@ -21,7 +21,7 @@ for variable in lssnow lsrain; do
   mlde moose convert --variable ${variable} --year ${year}
 done;
 
-variable="pr"
+variable="uk-pr"
 domain="uk"
 
 # Transform (into vorticity on sci JASMIN)
