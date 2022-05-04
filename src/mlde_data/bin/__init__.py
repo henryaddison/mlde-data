@@ -3,6 +3,7 @@ from enum import Enum
 import typer
 
 class DomainOption(str, Enum):
+    uk = "uk"
     london = "london"
 
 from ml_downscaling_emulator.bin import ceda

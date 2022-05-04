@@ -1,0 +1,36 @@
+#! /usr/bin/env bash
+
+eval "$(conda shell.bash hook)"
+
+conda activate downscaling
+
+bp_host="bp"
+
+variable=$1
+year=$2
+let "start_year=year-1"
+domain="uk"
+frequency="day"
+
+set -euxo pipefail
+
+for sf in 2 4 8 27; do
+  set +x
+  if [$sf -eq 1 ]; then
+    resolution="2.2km"
+  else
+    resolution="2.2km-coarsened-${sf}x"
+  fi
+  filename="${variable}_rcp85_land-cpm_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
+  file_subpath="${domain}/${resolution}/rcp85/01/${variable}/${frequency}/${filename}"
+  jasmin_filepath="/home/users/vf20964/derived_data/moose/${file_subpath}"
+  bp_filepath="/user/work/vf20964/moose/${file_subpath}"
+  set -x
+
+  ssh -a -J seis ${bp_host} mkdir -p $(dirname ${bp_filepath})
+  # mkdir -p $(dirname ${bp_filepath})
+  scp -oProxyJump=seis ${jasmin_filepath} ${bp_host}:${bp_filepath}
+  # scp -a ${xfer_host}:${jasmin_filepath} bp:${bp_filepath}
+  rm ${jasmin_filepath}
+  # LANG=C ssh -a -q ${sci_host} rm ${jasmin_filepath}
+done
