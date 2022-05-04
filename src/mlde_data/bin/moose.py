@@ -194,9 +194,9 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             ds = Constrain(query=job_spec['query']).run(ds)
         else:
             raise f"Unknown action {job_spec['action']}"
-
-    assert len(ds.grid_latitude) == 64
-    assert len(ds.grid_longitude) == 64
+    if domain == DomainOption.london and target_resolution == "2.2km":
+        assert len(ds.grid_latitude) == 64
+        assert len(ds.grid_longitude) == 64
 
     data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
 
