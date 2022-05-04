@@ -168,6 +168,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     ds = xr.combine_by_coords(sources.values(), compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all")
 
     target_resolution = "2.2km"
+    variable_resolution = "2.2km"
 
     for job_spec in config['spec']:
         if job_spec['action'] == "sum":
@@ -177,7 +178,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
         elif job_spec['action'] == "coarsen":
             if scale_factor != 1:
                 typer.echo(f"Coarsening {scale_factor}x...")
-                target_resolution = f"{target_resolution}-coarsened-{scale_factor}x"
+                variable_resolution = f"{variable_resolution}-coarsened-{scale_factor}x"
                 ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
         elif job_spec['action'] == "regrid":
             if scale_factor != 1:
@@ -199,7 +200,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
 
     data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
 
-    output_metadata = UKCPDatasetMetadata(data_basedir, frequency=frequency, domain=domain.value, resolution=target_resolution, ensemble_member='01', variable=config['variable'])
+    output_metadata = UKCPDatasetMetadata(data_basedir, frequency=frequency, domain=domain.value, resolution=variable_resolution, ensemble_member='01', variable=config['variable'])
 
     logger.info(f"Saving data to {output_metadata.filepath(year)}")
     os.makedirs(output_metadata.dirpath(), exist_ok=True)
