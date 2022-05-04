@@ -182,6 +182,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
         elif job_spec['action'] == "regrid":
             if scale_factor != 1:
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', target_resolution, 'uk', 'moose_pr_grid.nc')
+                variable_resolution = f"{variable_resolution}-{target_resolution}"
                 # orig_da = orig_ds[list(sources.keys())[0]]
                 ds = Regrid(target_grid_filepath, variable=variable).run(ds)
         elif job_spec['action'] == "vorticity":
