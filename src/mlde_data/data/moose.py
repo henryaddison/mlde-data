@@ -1,40 +1,48 @@
-from re import M
+### CPM details
 
+# moose uris: moose:crum/{suite_id}/{stream_code}.pp
+
+### GCM details
+
+# moose uris: moose:ens/{suite_id}/{rip_code}/{stream_code}.pp
+
+# stream codes
+# Data streams for 6-hourly data is apc.pp. For daily mean data it is ape.pp.
 
 VARIABLE_CODES = {
     "temp": {
         "query": {
             "stash": 30204
         },
-        "stream": {"day": "apb", "3hrinst": "aph",},
+        "stream": {"land-cpm": {"day": "apb", "3hrinst": "aph",}, "gcm": {"day": "ape"}},
         "moose_name": "air_temperature"
     },
     "psl": {
         "query": {
             "stash": 16222,
         },
-        "stream": {"day": "apa", "3hrinst": "apc", "6hr": "apc"},
+        "stream": {"land-cpm": {"day": "apa", "3hrinst": "apc", "6hr": "apc"}, "gcm": {"day": "ape"}},
         "moose_name": "air_pressure_at_sea_level"
     },
     "xwind": {
         "query": {
             "stash": 30201,
         },
-        "stream": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"},
+        "stream": {"land-cpm": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"}, "gcm": {"day": "ape"}},
         "moose_name": "x_wind"
     },
     "ywind": {
         "query": {
             "stash": 30202,
         },
-        "stream": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"},
+        "stream": {"land-cpm": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"}, "gcm": {"day": "ape"}},
         "moose_name": "y_wind"
     },
     "spechum": {
         "query": {
             "stash": 30205,
         },
-        "stream": {"day": "apb", "3hrinst": "aph"},
+        "stream": {"land-cpm": {"day": "apb", "3hrinst": "aph"}, "gcm": {"day": "ape"}},
         "moose_name": "specific_humidity"
     },
     "tmean150cm": {
@@ -42,7 +50,7 @@ VARIABLE_CODES = {
             "stash": 3236,
             "lbproc": 128,
         },
-        "stream": {"day": "apa", "1hr": "ape"},
+        "stream": {"land-cpm": {"day": "apa", "1hr": "ape"}, "gcm": {"day": "ape"}},
         "moose_name": "air_temperature"
     },
     "tmax150cm": {
@@ -50,7 +58,7 @@ VARIABLE_CODES = {
             "stash": 3236,
             "lbproc": 8192,
         },
-        "stream": {"day": "apa"},
+        "stream": {"land-cpm": {"day": "apa"}, "gcm": {"day": "ape"}},
         "moose_name": "air_temperature"
     },
     "tmin150cm": {
@@ -58,34 +66,34 @@ VARIABLE_CODES = {
             "stash": 3236,
             "lbproc": 4096,
         },
-        "stream": {"day": "apa"},
+        "stream": {"land-cpm": {"day": "apa"}, "gcm": {"day": "ape"}},
         "moose_name": "air_temperature"
     },
     "wetbulbpott": { # the saturated wet-bulb and wet-bulb potential temperatures
         "query": {
             "stash": 16205, # 17 pressure levels for day
         },
-        "stream": {"3hrinst": "aph", "1hrinst": "apr", "6hrinst": "apc"},
+        "stream": {"land-cpm": {"3hrinst": "aph", "1hrinst": "apr", "6hrinst": "apc"}, "gcm": {"day": "ape"}},
         "moose_name": "wet_bulb_potential_temperature"
     },
     "geopotential_height": {
         "query": {
             "stash": 30207,
         },
-        "stream": {"3hrinst": "aph"}
+        "stream": {"land-cpm": {"3hrinst": "aph"}, "gcm": {"day": "ape"}}
     },
     "lsrain": {
         "query": {
             "stash": 4203,
         },
-        "stream": {"day": "apa"},
+        "stream": {"land-cpm": {"day": "apa"}, "gcm": {"day": "ape"}},
         "moose_name": "stratiform_rainfall_flux"
     },
     "lssnow": {
         "query": {
             "stash": 4204,
         },
-        "stream": {"day": "apa"},
+        "stream": {"land-cpm": {"day": "apa"}, "gcm": {"day": "ape"}},
         "moose_name": "stratiform_snowfall_flux"
     },
 }
@@ -103,17 +111,30 @@ class RangeDict(dict):
 TS1 = range(1980, 2001)
 TS2 = range(2020, 2041)
 TS3 = range(2061, 2081)
+TSRecent = range(1971, 2006)
+TSNearF = range(2006, 2077)
+TSFarF = range(2077, 2100)
 
 SUITE_IDS = {
-    # r001i1p00000
-    1: RangeDict({
-        TS1: "mi-bb171",
-        TS2: "mi-bb188",
-        TS3: "mi-bb189",
-    }),
+    "land-cpm": {
+        # r001i1p00000
+        1: RangeDict({
+            TS1: "mi-bb171",
+            TS2: "mi-bb188",
+            TS3: "mi-bb189",
+        }),
+    },
+    "gcm": {
+        # r001i1p00000
+        1: RangeDict({
+            TSRecent: "u-ap977",
+            TSNearF: "u-ar095",
+            TSFarF: "u-au084",
+        }),
+    }
 }
 
-# Suite ids for other ensemble members
+# Suite ids for other CPM ensemble members
 # r001i1p01113 - {TS1: "mi-bb190", TS2: "mi-bb191", TS3: "mi-bb192"}
 # r001i1p01554 - {TS1: "mi-bb193", TS2: "mi-bb194", TS3: "mi-bb195"}
 # r001i1p01649 - {TS1: "mi-bb196", TS2: "mi-bb197", TS3: "mi-bb198"}
@@ -126,12 +147,37 @@ SUITE_IDS = {
 # r001i1p02335 - {TS1: "mi-bb220", TS2: "mi-bb221", TS3: "mi-bb222"}
 # r001i1p02491 - {TS1: "mi-bb223", TS2: "mi-bb224", TS3: "mi-bb225"}
 
-def moose_path(variable, year, ensemble_member=1, frequency="day"):
-    suite_id = SUITE_IDS[ensemble_member][year]
-    stream_code = VARIABLE_CODES[variable]["stream"][frequency]
-    return f"moose:crum/{suite_id}/{stream_code}.pp"
+# Suite names for GCM time periods
+# The four suite names covering the historical and RCP8.5 experiments are:
+# Historical: u-an398 (Dec 1896 - Nov 1970), u-ap977 (Dec 1970 - Nov 2005)
+# RCP8.5    : u-ar095 (Dec 2005 – Nov 2076), u-au084 (Dec 2076 – Nov 2099)
 
-def select_query(year, variable, frequency="day"):
+RIP_CODES = {
+    "gcm": {
+        1: "r001i1p00000"
+    }
+}
+
+# other GCM rip codes
+# r001i1p00000 (standard physics model) r001i1p01113  r001i1p01935  r001i1p02305 r001i1p02832
+# r001i1p00090 r001i1p01554  r001i1p02089  r001i1p02335  r001i1p02868
+# r001i1p00605  r001i1p01649  r001i1p02123  r001i1p02491  r001i1p02884
+# r001i1p00834  r001i1p01843  r001i1p02242  r001i1p02753  r001i1p02914
+
+def moose_path(variable, year, ensemble_member=1, frequency="day", collection="land-cpm"):
+    if collection == "land-cpm":
+        suite_id = SUITE_IDS[collection][ensemble_member][year]
+        stream_code = VARIABLE_CODES[variable]["stream"][collection][frequency]
+        return f"moose:crum/{suite_id}/{stream_code}.pp"
+    elif collection == "gcm":
+        suite_id = SUITE_IDS[collection][ensemble_member][year]
+        stream_code = VARIABLE_CODES[variable]["stream"][collection][frequency]
+        rip_code = RIP_CODES[collection][ensemble_member]
+        return f"moose:ens/{suite_id}/{rip_code}/{stream_code}.pp"
+    else:
+        raise f"Unknown collection {collection}"
+
+def select_query(year, variable, frequency="day", collection="land-cpm"):
     query_conditions = VARIABLE_CODES[variable]["query"]
 
     def query_lines(qcond, qyear, qmonths):
@@ -140,23 +186,3 @@ def select_query(year, variable, frequency="day"):
     query_parts = [ "\n".join(query_lines(query_conditions, qyear, qmonths)) for (qyear, qmonths) in [(year-1, "12"), (year, "[1..11]")] ]
 
     return "\n\n".join(query_parts).lstrip()+"\n"
-
-
-### GCM detailss
-
-# moose uris: moose:ens/{suite}/{rip_code}/{stream}.pp
-
-# Suite names
-# The four suite names covering the historical and RCP8.5 experiments are:
-# Historical: u-an398 (Dec 1896 - Nov 1970), u-ap977 (Dec 1970 - Nov 2005)
-# RCP8.5    : u-ar095 (Dec 2005 – Nov 2076), u-au084 (Dec 2076 – Nov 2099)
-
-
-# rip codes
-# r001i1p00000 (standard physics model) r001i1p01113  r001i1p01935  r001i1p02305 r001i1p02832
-# r001i1p00090 r001i1p01554  r001i1p02089  r001i1p02335  r001i1p02868
-# r001i1p00605  r001i1p01649  r001i1p02123  r001i1p02491  r001i1p02884
-# r001i1p00834  r001i1p01843  r001i1p02242  r001i1p02753  r001i1p02914
-
-# stream codes
-# Data streams for 6-hourly data is apc.pp. For daily mean data it is ape.pp.
