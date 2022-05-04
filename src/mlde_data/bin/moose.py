@@ -188,7 +188,13 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             ds = Vorticity().run(ds)
         elif job_spec['action'] == "select-subdomain":
             typer.echo(f"Select {domain.value} subdomain...")
-            ds = SelectDomain(subdomain=domain.value).run(ds)
+            if target_resolution == "2.2km":
+                size = 64
+            elif target_resolution == "2.2km-coarsened-8x":
+                size = 16
+            else:
+                size = 32
+            ds = SelectDomain(subdomain=domain.value, size=size).run(ds)
         elif job_spec['action'] == "constrain":
             ds = Constrain(query=job_spec['query']).run(ds)
         else:
