@@ -56,7 +56,7 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
         domain = "uk"
     elif collection == CollectionOption.gcm:
         resolution = "60km"
-        domain = "earth"
+        domain = "global"
     else:
         raise f"Unknown collection {collection}"
 
@@ -97,7 +97,7 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
         domain = "uk"
     elif collection == CollectionOption.gcm:
         resolution = "60km"
-        domain = "earth"
+        domain = "global"
     else:
         raise f"Unknown collection {collection}"
 
@@ -160,7 +160,7 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
         domain = "uk"
     elif collection == CollectionOption.gcm:
         resolution = "60km"
-        domain = "earth"
+        domain = "global"
     else:
         raise f"Unknown collection {collection}"
 
