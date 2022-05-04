@@ -1,0 +1,15 @@
+domain: london
+frequency: day
+ensemble_member: "01"
+scenario: rcp85
+resolution: 2.2km-coarsened-8x
+predictand:
+  variable: pr
+  resolution: 2.2km
+  pressure: null
+predictors:
+  - variable: pr
+    pressure: null
+  # - variable: xwind
+  #   pressure: [925.0, 850.0]
+split_scheme: ssi

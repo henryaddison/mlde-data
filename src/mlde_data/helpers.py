@@ -6,7 +6,7 @@ import xarray as xr
 cp_model_rotated_pole = ccrs.RotatedPole(pole_longitude=177.5, pole_latitude=37.5)
 platecarree = ccrs.PlateCarree()
 
-def plots_at_ts(data_arrays, timestamp, vmin=0, vmax=None, cmap='YlGn', titles=None):
+def plots_at_ts(data_arrays, timestamp, vmin=0, vmax=None, cmap='Blues', titles=None):
     f, axes = plt.subplots(1, len(data_arrays), figsize=(30, 6), subplot_kw={'projection': cp_model_rotated_pole})
     f.tight_layout(h_pad=2)
     # make sure axes is 2-d even if only 1 timestamp and or slice
@@ -27,8 +27,10 @@ def plots_at_ts(data_arrays, timestamp, vmin=0, vmax=None, cmap='YlGn', titles=N
         data.sel(time=timestamp).plot(ax=ax, x=x, y=y, add_colorbar=True, transform = transform, vmin=vmin, vmax=vmax, cmap=cmap)
         if titles:
             ax.set_title(f"{titles[i]}@{timestamp}")
+        if titles == False:
+            ax.set_title(f"")
 
-def plot_with_ts(datasets, timestamps, variable='pr', vmin=0, vmax=None, cmap='YlGn', titles=None):
+def plot_with_ts(datasets, timestamps, variable='pr', vmin=0, vmax=None, cmap='Blues', titles=None):
     for timestamp in timestamps.values:
         plots_at_ts([ds[variable] for ds in datasets], timestamp, vmin, vmax, cmap, titles)
 

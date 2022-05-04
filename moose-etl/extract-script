@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+eval "$(conda shell.bash hook)"
+
+conda activate downscaling
+
+set -euxo pipefail
+
+mlde moose extract --variable $1 --year $2

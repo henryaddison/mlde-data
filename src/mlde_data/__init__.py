@@ -2,27 +2,25 @@ import glob
 import os
 
 class UKCPDatasetMetadata:
-    def __init__(self, base_dir, domain, resolution, scenario, ensemble_member, variable, frequency):
+    def __init__(self, base_dir, variable, frequency, domain, resolution, scenario="rcp85", ensemble_member="01"):
         self.base_dir = base_dir
-        self.domain = domain
-        self.resolution = resolution
-        self.scenario = scenario
-        self.ensemble_member = ensemble_member
         self.variable = variable
         self.frequency = frequency
+        self.resolution = resolution
+        self.domain = domain
+        self.scenario = scenario
+        self.ensemble_member = ensemble_member
 
         if self.resolution.startswith("2.2km"):
             self.collection = "land-cpm"
-            self.filename_resolution = "2.2km"
         elif self.resolution.startswith("60km"):
             self.collection = "land-gcm"
-            self.filename_resolution = "60km"
 
     def filename_prefix(self):
-        return "_".join([self.variable, self.scenario, self.collection, "uk", self.filename_resolution, self.ensemble_member, self.frequency])
+        return "_".join([self.variable, self.scenario, self.collection, self.domain, self.resolution, self.ensemble_member, self.frequency])
 
     def filename(self, year):
-        return f"{self.filename_prefix()}_{year}1201-{year+1}1130.nc"
+        return f"{self.filename_prefix()}_{year-1}1201-{year}1130.nc"
 
     def subdir(self):
         return os.path.join(self.domain, self.resolution, self.scenario, self.ensemble_member, self.variable, self.frequency)

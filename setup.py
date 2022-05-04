@@ -9,6 +9,7 @@ setuptools.setup(
     author="Henry Addison",
     author_email="henry.addison@bristol.ac.uk",
     description="A package for downscaling precipitation forecasts",
+    include_package_data=True,
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/henryaddison/ml-downscaling-emulation",
@@ -25,7 +26,7 @@ setuptools.setup(
         'console_scripts': [
             'preprocess = ml_downscaling_emulator.bin.preprocess:cli',
             'evaluate = ml_downscaling_emulator.bin.evaluation:cli',
-            'moose = ml_downscaling_emulator.bin.moose:app'
+            'mlde = ml_downscaling_emulator.bin:app'
         ],
     },
     packages=setuptools.find_packages(where="src"),

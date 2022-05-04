@@ -3,7 +3,7 @@ name: CI
 on: [push]
 
 jobs:
-  build-linux:
+  ci-checks:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
