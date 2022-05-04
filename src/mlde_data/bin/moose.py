@@ -181,7 +181,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
                 ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
         elif job_spec['action'] == "regrid":
             if scale_factor != 1:
-                target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'moose_uk_pr_guide-grid.nc')
+                target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', target_resolution, 'uk', 'moose_pr_grid.nc')
                 # orig_da = orig_ds[list(sources.keys())[0]]
                 ds = Regrid(target_grid_filepath, variable=variable).run(ds)
         elif job_spec['action'] == "vorticity":
