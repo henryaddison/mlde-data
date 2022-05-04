@@ -179,6 +179,8 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     config = files('ml_downscaling_emulator.config').joinpath(f'variables/day/{variable}.yml').read_text()
     config = yaml.safe_load(config)
 
+    variable = config['variable']
+
     sources = {}
 
     for source in config['sources']['moose']:
@@ -201,8 +203,8 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     for job_spec in config['spec']:
         if job_spec['action'] == "sum":
             logger.info(f"Summing {job_spec['variables']}")
-            ds = Sum(job_spec['variables'], variable).run(ds)
-            ds[variable] = ds[variable].assign_attrs(config['attrs'])
+            ds = Sum(job_spec['variables'], config['variable']).run(ds)
+            ds[config['variable']] = ds[config['variable']].assign_attrs(config['attrs'])
         elif job_spec['action'] == "coarsen":
             if scale_factor != 1:
                 typer.echo(f"Coarsening {scale_factor}x...")
@@ -212,7 +214,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             if target_resolution != variable_resolution:
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', target_resolution, 'uk', 'moose_pr_grid.nc')
 
-                ds = Regrid(target_grid_filepath, variable=variable).run(ds)
+                ds = Regrid(target_grid_filepath, variable=config['variable']).run(ds)
         elif job_spec['action'] == "vorticity":
             ds = Vorticity().run(ds)
         elif job_spec['action'] == "select-subdomain":
