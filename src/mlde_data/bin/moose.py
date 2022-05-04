@@ -143,7 +143,7 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     os.remove(raw_nc_filepath(variable=variable, year=year, frequency=frequency))
 
 @app.command()
-def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: int = typer.Option(...)):
+def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: int = typer.Option(...), target_resolution: str = "2.2km"):
     """
     Create a new variable from moose data
     """
@@ -167,7 +167,6 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     logger.info(f"Combining {config['sources']}...")
     ds = xr.combine_by_coords(sources.values(), compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all")
 
-    target_resolution = "2.2km"
     variable_resolution = "2.2km"
 
     for job_spec in config['spec']:
