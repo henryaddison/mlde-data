@@ -27,7 +27,7 @@ domain="london"
 # Transform (into vorticity on sci JASMIN)
 # for sf in 1; do
 for sf in 2 4 8; do
-  if [$sf -eq 1 ]; then
+  if [ $sf -eq 1 ]; then
     target_resolution="2.2km"
   else
     target_resolution="2.2km-coarsened-${sf}x"

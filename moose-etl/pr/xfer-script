@@ -18,7 +18,7 @@ for sf in 2 4 8; do
   set +x
 
   variable_resolution="2.2km-coarsened-27x"
-  if [$sf -eq 1 ]; then
+  if [ $sf -eq 1 ]; then
     target_resolution="2.2km"
   else
     target_resolution="2.2km-coarsened-${sf}x"
