@@ -180,10 +180,9 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
                 variable_resolution = f"{variable_resolution}-coarsened-{scale_factor}x"
                 ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
         elif job_spec['action'] == "regrid":
-            if scale_factor != 1:
+            if target_resolution != variable_resolution:
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', target_resolution, 'uk', 'moose_pr_grid.nc')
-                variable_resolution = f"{variable_resolution}-{target_resolution}"
-                # orig_da = orig_ds[list(sources.keys())[0]]
+
                 ds = Regrid(target_grid_filepath, variable=variable).run(ds)
         elif job_spec['action'] == "vorticity":
             ds = Vorticity().run(ds)
@@ -200,7 +199,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
 
     data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
 
-    output_metadata = UKCPDatasetMetadata(data_basedir, frequency=frequency, domain=domain.value, resolution=variable_resolution, ensemble_member='01', variable=config['variable'])
+    output_metadata = UKCPDatasetMetadata(data_basedir, frequency=frequency, domain=domain.value, resolution=f"{variable_resolution}-{target_resolution}", ensemble_member='01', variable=config['variable'])
 
     logger.info(f"Saving data to {output_metadata.filepath(year)}")
     os.makedirs(output_metadata.dirpath(), exist_ok=True)
