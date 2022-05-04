@@ -16,7 +16,7 @@ set -euxo pipefail
 
 for sf in 2 4 8 27; do
   set +x
-  if [$sf -eq 1 ]; then
+  if [ $sf -eq 1 ]; then
     resolution="2.2km"
   else
     resolution="2.2km-coarsened-${sf}x"

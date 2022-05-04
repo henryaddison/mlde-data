@@ -31,7 +31,7 @@ for sf in 2 4 8 27; do
 done;
 
 # Load (vorticity onto BP storage)
-LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/pr/xfer-script ${variable} ${year}
+LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/uk-pr/xfer-script uk ${year}
 
 # Clean up (ls snow and rain components downloaded from moose)
 for variable in lssnow lsrain; do
