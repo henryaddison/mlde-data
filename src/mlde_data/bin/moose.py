@@ -180,12 +180,20 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     config = yaml.safe_load(config)
 
     variable = config['variable']
+    collection = "land-cpm"
+    variable_resolution = "2.2km"
 
     sources = {}
 
+    # ds = xr.open_mfdataset([raw_nc_filepath(variable=source, year=year, frequency=frequency) for source in config['sources']['moose']])
+    # for source in config['sources']['moose']:
+    #     if "moose_name" in VARIABLE_CODES[source]:
+    #         logger.info(f"Renaming {VARIABLE_CODES[source]['moose_name']} to {source}...")
+    #         ds = ds.rename({VARIABLE_CODES[source]["moose_name"]: source})
+
     for source in config['sources']['moose']:
 
-        source_nc_filepath = raw_nc_filepath(variable=source, year=year, frequency=frequency)
+        source_nc_filepath = raw_nc_filepath(variable=source, year=year, frequency=frequency, resolution=variable_resolution, collection=collection)
         logger.info(f"Opening {source_nc_filepath}")
         ds = xr.open_dataset(source_nc_filepath)
 
@@ -197,8 +205,6 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
 
     logger.info(f"Combining {config['sources']}...")
     ds = xr.combine_by_coords(sources.values(), compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all")
-
-    variable_resolution = "2.2km"
 
     for job_spec in config['spec']:
         if job_spec['action'] == "sum":
