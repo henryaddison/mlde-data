@@ -6,6 +6,10 @@ class DomainOption(str, Enum):
     uk = "uk"
     london = "london"
 
+class CollectionOption(str, Enum):
+    gcm = "gcm"
+    cpm = "land-cpm"
+
 from ml_downscaling_emulator.bin import ceda
 from ml_downscaling_emulator.bin import dataset
 from ml_downscaling_emulator.bin import moose

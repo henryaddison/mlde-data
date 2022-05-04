@@ -12,7 +12,7 @@ import typer
 import xarray as xr
 
 from ml_downscaling_emulator import UKCPDatasetMetadata
-from ml_downscaling_emulator.bin import DomainOption
+from ml_downscaling_emulator.bin import DomainOption, CollectionOption
 from ml_downscaling_emulator.data.moose import VARIABLE_CODES, select_query, moose_path
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
 from ml_downscaling_emulator.preprocessing.constrain import Constrain
@@ -31,31 +31,40 @@ app = typer.Typer()
 def callback():
     pass
 
-def moose_extract_dirpath(variable: str, year: int, frequency: str, domain: str = "uk", resolution: str = "2.2km"):
-    return Path(os.getenv("MOOSE_DATA"))/"pp"/domain/resolution/"rcp85"/"01"/variable/frequency/str(year)
+def moose_extract_dirpath(variable: str, year: int, frequency: str, resolution: str, collection: str, domain: str):
+    return Path(os.getenv("MOOSE_DATA"))/"pp"/collection/domain/resolution/"rcp85"/"01"/variable/frequency/str(year)
 
-def ppdata_dirpath(variable: str, year: int, frequency: str, domain: str = "uk", resolution: str = "2.2km"):
-    return moose_extract_dirpath(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution)/"data"
+def ppdata_dirpath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str):
+    return moose_extract_dirpath(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)/"data"
 
-def nc_filename(variable: str, year: int, frequency: str, domain: str = "uk", resolution: str = "2.2km"):
-    return f"{variable}_rcp85_land-cpm_{domain}_{resolution}_01_{frequency}_{year-1}1201-{year}1130.nc"
+def nc_filename(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str):
+    return f"{variable}_rcp85_{collection}_{domain}_{resolution}_01_{frequency}_{year-1}1201-{year}1130.nc"
 
-def raw_nc_filepath(variable: str, year: int, frequency: str, domain: str = "uk", resolution: str = "2.2km"):
-    return Path(os.getenv("MOOSE_DATA"))/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution)
+def raw_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str = "land-cpm"):
+    return Path(os.getenv("MOOSE_DATA"))/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
 
-def processed_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str):
-    return Path(os.getenv("DERIVED_DATA"))/"moose"/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution)
+def processed_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str):
+    return Path(os.getenv("DERIVED_DATA"))/"moose"/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
 
 @app.command()
-def extract(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day"):
+def extract(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...)):
     """
     Extract data from moose
     """
-    query = select_query(year=year, variable=variable, frequency=frequency)
+    if collection == CollectionOption.cpm:
+        resolution = "2.2km"
+        domain = "uk"
+    elif collection == CollectionOption.gcm:
+        resolution = "60km"
+        domain = "earth"
+    else:
+        raise f"Unknown collection {collection}"
 
-    output_dirpath = moose_extract_dirpath(variable=variable, year=year, frequency=frequency)
+    query = select_query(year=year, variable=variable, frequency=frequency, collection=collection.value)
+
+    output_dirpath = moose_extract_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
     query_filepath = output_dirpath/"searchfile"
-    pp_dirpath = ppdata_dirpath(variable=variable, year=year, frequency=frequency)
+    pp_dirpath = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
 
     os.makedirs(output_dirpath, exist_ok=True)
     # remove any previous attempt at extracting the data (or else moo select will complain)
@@ -65,7 +74,7 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     logger.debug(query)
     query_filepath.write_text(query)
 
-    moose_uri = moose_path(variable, year, frequency=frequency)
+    moose_uri = moose_path(variable, year, frequency=frequency, collection=collection.value)
 
     query_cmd = ["moo" , "select", query_filepath, moose_uri, os.path.join(pp_dirpath,"")]
 
@@ -79,12 +88,21 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     # os.execvp(query_cmd[0], query_cmd)
 
 @app.command()
-def convert(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day"):
+def convert(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...)):
     """
     Convert pp data to a netCDF file
     """
-    pp_files_glob = ppdata_dirpath(variable=variable, year=year, frequency=frequency)/"*.pp"
-    output_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency)
+    if collection == CollectionOption.cpm:
+        resolution = "2.2km"
+        domain = "uk"
+    elif collection == CollectionOption.gcm:
+        resolution = "60km"
+        domain = "earth"
+    else:
+        raise f"Unknown collection {collection}"
+
+    pp_files_glob = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)/"*.pp"
+    output_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
 
     typer.echo(f"Saving to {output_filepath}...")
     os.makedirs(output_filepath.parent, exist_ok=True)
@@ -133,14 +151,25 @@ def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...),
     ds.to_netcdf(output_filepath)
 
 @app.command()
-def clean(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day"):
+def clean(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...)):
     """
     Remove any unneccessary files once processing is done
     """
-    typer.echo(f"Removing {ppdata_dirpath(variable=variable, year=year, frequency=frequency)}...")
-    shutil.rmtree(ppdata_dirpath(variable=variable, year=year, frequency=frequency), ignore_errors=True)
-    typer.echo(f"Removing {raw_nc_filepath(variable=variable, year=year, frequency=frequency)}...")
-    os.remove(raw_nc_filepath(variable=variable, year=year, frequency=frequency))
+    if collection == CollectionOption.cpm:
+        resolution = "2.2km"
+        domain = "uk"
+    elif collection == CollectionOption.gcm:
+        resolution = "60km"
+        domain = "earth"
+    else:
+        raise f"Unknown collection {collection}"
+
+    pp_path = ppdata_dirpath(variable=variable, year=year, frequency=frequency, collection=collection, resolution=resolution, domain=domain)
+    typer.echo(f"Removing {pp_path}...")
+    shutil.rmtree(pp_path, ignore_errors=True)
+    raw_nc_path = raw_nc_filepath(variable=variable, year=year, frequency=frequency, collection=collection, resolution=resolution, domain=domain)
+    typer.echo(f"Removing {raw_nc_path}...")
+    os.remove(raw_nc_path)
 
 @app.command()
 def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: int = typer.Option(...), target_resolution: str = "2.2km"):
