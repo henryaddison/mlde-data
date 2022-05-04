@@ -14,17 +14,22 @@ frequency="day"
 
 set -euxo pipefail
 
-for sf in 2 4 8 16 27 32; do
+for sf in 2 4 8; do
   set +x
+
+  variable_resolution="2.2km-coarsened-27x"
   if [$sf -eq 1 ]; then
-    resolution="2.2km"
+    target_resolution="2.2km"
   else
-    resolution="2.2km-coarsened-${sf}x"
+    target_resolution="2.2km-coarsened-${sf}x"
   fi
+  resolution="${variable_resolution}-${target_resolution}"
+
   filename="${variable}_rcp85_land-cpm_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
   file_subpath="${domain}/${resolution}/rcp85/01/${variable}/${frequency}/${filename}"
   jasmin_filepath="/home/users/vf20964/derived_data/moose/${file_subpath}"
   bp_filepath="/user/work/vf20964/moose/${file_subpath}"
+
   set -x
 
   ssh -a -J seis ${bp_host} mkdir -p $(dirname ${bp_filepath})
