@@ -182,6 +182,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     variable = config['variable']
     collection = "land-cpm"
     variable_resolution = "2.2km"
+    source_domain = "uk"
 
     sources = {}
 
@@ -193,7 +194,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
 
     for source in config['sources']['moose']:
 
-        source_nc_filepath = raw_nc_filepath(variable=source, year=year, frequency=frequency, resolution=variable_resolution, collection=collection)
+        source_nc_filepath = raw_nc_filepath(variable=source, year=year, frequency=frequency, resolution=variable_resolution, collection=collection, domain=source_domain)
         logger.info(f"Opening {source_nc_filepath}")
         ds = xr.open_dataset(source_nc_filepath)
 
