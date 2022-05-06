@@ -164,10 +164,10 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     else:
         raise f"Unknown collection {collection}"
 
-    pp_path = ppdata_dirpath(variable=variable, year=year, frequency=frequency, collection=collection, resolution=resolution, domain=domain)
+    pp_path = ppdata_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
     typer.echo(f"Removing {pp_path}...")
     shutil.rmtree(pp_path, ignore_errors=True)
-    raw_nc_path = raw_nc_filepath(variable=variable, year=year, frequency=frequency, collection=collection, resolution=resolution, domain=domain)
+    raw_nc_path = raw_nc_filepath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
     typer.echo(f"Removing {raw_nc_path}...")
     os.remove(raw_nc_path)
 
@@ -180,7 +180,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     config = yaml.safe_load(config)
 
     variable = config['variable']
-    collection = "land-cpm"
+    collection = CollectionOption.cpm
     variable_resolution = "2.2km"
     source_domain = "uk"
 
@@ -194,7 +194,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
 
     for source in config['sources']['moose']:
 
-        source_nc_filepath = raw_nc_filepath(variable=source, year=year, frequency=frequency, resolution=variable_resolution, collection=collection, domain=source_domain)
+        source_nc_filepath = raw_nc_filepath(variable=source, year=year, frequency=frequency, resolution=variable_resolution, collection=collection.value, domain=source_domain)
         logger.info(f"Opening {source_nc_filepath}")
         ds = xr.open_dataset(source_nc_filepath)
 
