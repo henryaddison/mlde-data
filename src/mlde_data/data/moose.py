@@ -100,7 +100,7 @@ VARIABLE_CODES = {
         "query": {
             "stash": 5216,
         },
-        "stream": {"gcm": {"day": "ape"}}
+        "stream": {"gcm": {"day": "apa"}}
     }
 }
 
