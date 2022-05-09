@@ -4,8 +4,11 @@ attrs:
   standard_name: relative_vorticity_850hPa
   grid_mapping: rotated_latitude_longitude
 sources:
-  moose:
-    # implicit here is extract from moose, convert to nc and rename variable
+  type: moose
+  collection: land-cpm
+  variables:
+    # assumes already extracted and converted to nc
+    # implicit here is rename variable
     - xwind
     - ywind
 spec:
