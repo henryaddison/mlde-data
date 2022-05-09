@@ -12,17 +12,18 @@ xfer_host="xfer1.jasmin.ac.uk"
 
 year=$1
 
+collection="land-cpm"
+variable="pr"
+domain="london"
+
 set -x
 
 # Extract (ls snow and rain components from moose to nc format)
-for variable in lssnow lsrain; do
-  LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${variable} ${year}
+for src_variable in lssnow lsrain; do
+  LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${src_variable} ${year} ${collection}
 
-  mlde moose convert --variable ${variable} --year ${year}
+  mlde moose convert --variable ${src_variable} --year ${year} --collection ${collection}
 done;
-
-variable="pr"
-domain="london"
 
 # Transform (into vorticity on sci JASMIN)
 # for sf in 1; do
@@ -39,9 +40,9 @@ for sf in 2 4 8; do
 done;
 
 # Load (vorticity onto BP storage)
-LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/pr/xfer-script ${variable} ${year}
+LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/pr/xfer-script ${variable} ${year} ${collection}
 
 # Clean up (ls snow and rain components downloaded from moose)
-for variable in lssnow lsrain; do
-  mlde moose clean --variable ${variable} --year ${year}
+for src_variable in lssnow lsrain; do
+  mlde moose clean --variable ${src_variable} --year ${year} --collection ${collection}
 done

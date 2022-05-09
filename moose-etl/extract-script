@@ -6,4 +6,4 @@ conda activate downscaling
 
 set -euxo pipefail
 
-mlde moose extract --variable $1 --year $2 --collection land-cpm
+mlde moose extract --variable $1 --year $2 --collection $3

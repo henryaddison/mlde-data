@@ -12,17 +12,18 @@ xfer_host="xfer1.jasmin.ac.uk"
 
 year=$1
 
+collection="land-cpm"
+variable="vorticity850"
+domain="london"
+
 set -x
 
 # Extract (x and y wind components from moose to nc format)
-for variable in xwind ywind; do
-  LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${variable} ${year}
+for src_variable in xwind ywind; do
+  LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${src_variable} ${year} ${collection}
 
-  mlde moose convert --variable ${variable} --year ${year} --collection land-cpm
+  mlde moose convert --variable ${src_variable} --year ${year} --collection ${collection}
 done;
-
-variable="vorticity850"
-domain="london"
 
 # Transform (into vorticity on sci JASMIN)
 for sf in 2 4 8; do
@@ -35,9 +36,9 @@ for sf in 2 4 8; do
 done;
 
 # Load (vorticity onto BP storage)
-LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/xfer-script ${variable} ${year}
+LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/xfer-script ${variable} ${year} ${collection}
 
 # Clean up (x and y wind components downloaded from moose)
-for variable in xwind ywind; do
-  mlde moose clean --variable ${variable} --year ${year} --collection land-cpm
+for src_variable in xwind ywind; do
+  mlde moose clean --variable ${src_variable} --year ${year} --collection ${collection}
 done
