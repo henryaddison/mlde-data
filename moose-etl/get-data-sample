@@ -14,7 +14,7 @@ fi
 
 # target_pr is a pseudo-variable for this script to indicate data and grid resolutions should match
 # since pr can be used as target and as input variable depending on the resolution
-if [ ${variable} -eq "target_pr" ]
+if [[ "${variable}" == "target_pr" ]]
 then
   variable="pr"
   variable_resolution=${target_resolution}
