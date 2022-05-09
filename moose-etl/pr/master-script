@@ -26,8 +26,7 @@ for src_variable in lssnow lsrain; do
 done;
 
 # Transform (into vorticity on sci JASMIN)
-# for sf in 1; do
-for sf in 2 4 8; do
+for sf in 1 2 4 8; do
   if [ $sf -eq 1 ]; then
     target_resolution="2.2km"
   else
