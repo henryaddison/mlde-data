@@ -32,6 +32,9 @@ for sf in 2 4 8; do
   else
     target_resolution="2.2km-coarsened-${sf}x"
   fi
+  # pr as target to scale-factor matches target resolution
+  mlde moose create-variable --variable ${variable} --year ${year} --scale-factor ${sf} --domain ${domain} --target-resolution ${target_resolution}
+  # pr as conditioning input so fixed 27x scale factor matched to various target resolutions
   mlde moose create-variable --variable ${variable} --year ${year} --scale-factor 27 --domain ${domain} --target-resolution ${target_resolution}
 done;
 
