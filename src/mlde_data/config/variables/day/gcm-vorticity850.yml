@@ -1,0 +1,23 @@
+variable: vorticity850
+attrs:
+  units: s-1
+  standard_name: relative_vorticity_850hPa
+  grid_mapping: rotated_latitude_longitude
+sources:
+  type: moose
+  collection: gcm
+  variables:
+    # assumes already extracted and converted to nc
+    # implicit here is rename variable
+    - xwind
+    - ywind
+spec:
+  - action: constrain
+    query: {pressure: 850.0}
+  - action: vorticity
+  - action: regrid
+    variable: vorticity850
+  - action: select-subdomain
+    parameters:
+      domain: $domain
+  # implicit final actions: assign attrs, save, cleanup extraction?
