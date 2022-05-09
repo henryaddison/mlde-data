@@ -28,19 +28,29 @@ class Regrid:
         # NB iris and xarray can only comminicate in dataarrays not datasets
         # and form a dataset based on the original hi-res with this new coarsened then NN-gridded data
 
+        if ds[self.variable].attrs['grid_mapping'] == "latitude_longitude":
+            src_coord_sys = iris.coord_systems.GeogCS(ds["latitude_longitude"].attrs['earth_radius'])
+            src_lat_name = 'latitude'
+            src_lon_name = 'longitude'
+        elif ds[self.variable].attrs['grid_mapping'] == "rotated_latitude_longitude":
+            src_coord_sys = iris.coord_systems.RotatedGeogCS(ds["rotated_latitude_longitude"].attrs['grid_north_pole_latitude'], ds["rotated_latitude_longitude"].attrs['grid_north_pole_longitude'], ellipsoid=iris.coord_systems.GeogCS(ds["rotated_latitude_longitude"].attrs['earth_radius']))
+            src_lat_name = 'grid_latitude'
+            src_lon_name = 'grid_longitude'
+
         src_cube = ds[self.variable].to_iris()
         # conversion to iris looses the coordinate system on the lat and long dimensions but iris it needs to do regrid
-        src_cube.coords('grid_longitude')[0].coord_system = self.target_cube.coords('grid_longitude')[0].coord_system
-        src_cube.coords('grid_latitude')[0].coord_system = self.target_cube.coords('grid_latitude')[0].coord_system
+        src_cube.coords(src_lon_name)[0].coord_system = src_coord_sys
+        src_cube.coords(src_lat_name)[0].coord_system = src_coord_sys
 
         regridder = self.scheme.regridder(src_cube, self.target_cube)
         regridded_da = xr.DataArray.from_iris(regridder(src_cube))
+        regridded_var_attrs = ds[self.variable].attrs|{"grid_mapping": self.target_ds[self.target_cube.var_name].attrs["grid_mapping"]}
 
         # forecast_reference_time depends on the time slice but doesn't affect the grid
         # so update for target grid dataset to match the data being regridded
         self.target_ds['forecast_reference_time'] = ds['forecast_reference_time']
 
-        vars = {self.variable: (['time', 'grid_latitude', 'grid_longitude'], regridded_da.values, ds[self.variable].attrs)}
+        vars = {self.variable: (['time', 'grid_latitude', 'grid_longitude'], regridded_da.values, regridded_var_attrs)}
         vars.update({f'{key}_bnds': ([key, 'bnds'], self.target_ds[f'{key}_bnds'].values, self.target_ds[f'{key}_bnds'].attrs) for key in ['grid_latitude', 'grid_longitude']})
         vars.update({key: (['time', 'bnds'], ds[key].values, ds[key].attrs, {'units': 'hours since 1970-01-01 00:00:00', 'calendar': '360_day'}) for key in ['time_bnds', 'forecast_period_bnds']})
 
