@@ -39,7 +39,7 @@ for target_sf in 1; do
 done;
 
 # Load (vorticity onto BP storage)
-LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/xfer-script ${variable} ${year} ${collection}
+LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/vorticity/xfer-script ${variable} ${year} ${collection}
 
 # Clean up (x and y wind components downloaded from moose)
 for src_variable in xwind ywind; do
