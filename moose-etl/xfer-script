@@ -15,7 +15,7 @@ frequency="day"
 
 set -euxo pipefail
 
-for sf in 2 4 8; do
+for sf in 1 2 4 8; do
   set +x
   variable_resolution="2.2km-coarsened-27x"
   if [ $sf -eq 1 ]; then
