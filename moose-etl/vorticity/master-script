@@ -26,13 +26,16 @@ for src_variable in xwind ywind; do
 done;
 
 # Transform (into vorticity on sci JASMIN)
-for sf in 2 4 8; do
-  if [ $sf -eq 1 ]; then
+for target_sf in 1; do
+# for target_sf in 2 4 8; do
+  if [ $target_sf -eq 1 ]; then
     target_resolution="2.2km"
   else
     target_resolution="2.2km-coarsened-${sf}x"
   fi
-  mlde moose create-variable --variable ${variable} --year ${year} --scale-factor 27 --domain ${domain} --target-resolution ${target_resolution}
+  for variable_sf in 1 27; do
+    mlde moose create-variable --variable ${variable} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution}
+  done
 done;
 
 # Load (vorticity onto BP storage)
