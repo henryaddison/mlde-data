@@ -9,20 +9,18 @@ bp_host="bp"
 variable=$1
 year=$2
 let "start_year=year-1"
-domain="london"
+domain="uk"
 frequency="day"
 
 set -euxo pipefail
 
-for sf in 2 4 8; do
+for sf in 2 4 8 27; do
   set +x
-  variable_resolution="2.2km-coarsened-27x"
   if [ $sf -eq 1 ]; then
-    target_resolution="2.2km"
+    resolution="2.2km"
   else
-    target_resolution="2.2km-coarsened-${sf}x"
+    resolution="2.2km-coarsened-${sf}x"
   fi
-  resolution="${variable_resolution}-${target_resolution}"
   filename="${variable}_rcp85_land-cpm_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
   file_subpath="${domain}/${resolution}/rcp85/01/${variable}/${frequency}/${filename}"
   jasmin_filepath="/home/users/vf20964/derived_data/moose/${file_subpath}"

@@ -18,15 +18,20 @@ set -x
 for variable in xwind ywind; do
   LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${variable} ${year}
 
-  mlde moose convert --variable ${variable} --year ${year}
+  mlde moose convert --variable ${variable} --year ${year} --collection land-cpm
 done;
 
 variable="vorticity850"
 domain="london"
 
 # Transform (into vorticity on sci JASMIN)
-for sf in 4 8 16 27 32; do
-  mlde moose create-variable --variable ${variable} --year ${year} --scale-factor ${sf} --domain ${domain}
+for sf in 2 4 8; do
+  if [ $sf -eq 1 ]; then
+    target_resolution="2.2km"
+  else
+    target_resolution="2.2km-coarsened-${sf}x"
+  fi
+  mlde moose create-variable --variable ${variable} --year ${year} --scale-factor 27 --domain ${domain} --target-resolution ${target_resolution}
 done;
 
 # Load (vorticity onto BP storage)
@@ -34,5 +39,5 @@ LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulati
 
 # Clean up (x and y wind components downloaded from moose)
 for variable in xwind ywind; do
-  mlde moose clean --variable ${variable} --year ${year}
+  mlde moose clean --variable ${variable} --year ${year} --collection land-cpm
 done
