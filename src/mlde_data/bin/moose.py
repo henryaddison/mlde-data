@@ -164,10 +164,10 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     else:
         raise f"Unknown collection {collection}"
 
-    pp_path = ppdata_dirpath(variable=variable, year=year, frequency=frequency, collection=collection, resolution=resolution, domain=domain)
+    pp_path = ppdata_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
     typer.echo(f"Removing {pp_path}...")
     shutil.rmtree(pp_path, ignore_errors=True)
-    raw_nc_path = raw_nc_filepath(variable=variable, year=year, frequency=frequency, collection=collection, resolution=resolution, domain=domain)
+    raw_nc_path = raw_nc_filepath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
     typer.echo(f"Removing {raw_nc_path}...")
     os.remove(raw_nc_path)
 
@@ -180,8 +180,15 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     config = yaml.safe_load(config)
 
     variable = config['variable']
-    collection = "land-cpm"
-    variable_resolution = "2.2km"
+    collection = CollectionOption(config['sources']['collection'])
+    if collection == CollectionOption.cpm:
+        variable_resolution = "2.2km"
+        source_domain = "uk"
+    elif collection == CollectionOption.gcm:
+        variable_resolution = "60km"
+        source_domain = "global"
+    else:
+        raise f"Unknown collection {collection}"
 
     sources = {}
 
@@ -191,17 +198,19 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     #         logger.info(f"Renaming {VARIABLE_CODES[source]['moose_name']} to {source}...")
     #         ds = ds.rename({VARIABLE_CODES[source]["moose_name"]: source})
 
-    for source in config['sources']['moose']:
+    # currently only support data from moose
+    assert(config["sources"]["type"] == "moose")
 
-        source_nc_filepath = raw_nc_filepath(variable=source, year=year, frequency=frequency, resolution=variable_resolution, collection=collection)
+    for src_variable in config['sources']['variables']:
+        source_nc_filepath = raw_nc_filepath(variable=src_variable, year=year, frequency=frequency, resolution=variable_resolution, collection=collection.value, domain=source_domain)
         logger.info(f"Opening {source_nc_filepath}")
         ds = xr.open_dataset(source_nc_filepath)
 
-        if "moose_name" in VARIABLE_CODES[source]:
-            logger.info(f"Renaming {VARIABLE_CODES[source]['moose_name']} to {source}...")
-            ds = ds.rename({VARIABLE_CODES[source]["moose_name"]: source})
+        if "moose_name" in VARIABLE_CODES[src_variable]:
+            logger.info(f"Renaming {VARIABLE_CODES[src_variable]['moose_name']} to {src_variable}...")
+            ds = ds.rename({VARIABLE_CODES[src_variable]["moose_name"]: src_variable})
 
-        sources[source] = ds
+        sources[src_variable] = ds
 
     logger.info(f"Combining {config['sources']}...")
     ds = xr.combine_by_coords(sources.values(), compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all")

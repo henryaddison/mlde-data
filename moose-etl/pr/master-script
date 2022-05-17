@@ -12,33 +12,36 @@ xfer_host="xfer1.jasmin.ac.uk"
 
 year=$1
 
-set -x
-
-# Extract (ls snow and rain components from moose to nc format)
-for variable in lssnow lsrain; do
-  LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${variable} ${year}
-
-  mlde moose convert --variable ${variable} --year ${year}
-done;
-
+collection="land-cpm"
 variable="pr"
 domain="london"
 
+set -x
+
+# Extract (ls snow and rain components from moose to nc format)
+for src_variable in lssnow lsrain; do
+  LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${src_variable} ${year} ${collection}
+
+  mlde moose convert --variable ${src_variable} --year ${year} --collection ${collection}
+done;
+
 # Transform (into vorticity on sci JASMIN)
-# for sf in 1; do
-for sf in 2 4 8; do
+for sf in 1 2 4 8; do
   if [ $sf -eq 1 ]; then
     target_resolution="2.2km"
   else
     target_resolution="2.2km-coarsened-${sf}x"
   fi
+  # pr as target to scale-factor matches target resolution
+  mlde moose create-variable --variable ${variable} --year ${year} --scale-factor ${sf} --domain ${domain} --target-resolution ${target_resolution}
+  # pr as conditioning input so fixed 27x scale factor matched to various target resolutions
   mlde moose create-variable --variable ${variable} --year ${year} --scale-factor 27 --domain ${domain} --target-resolution ${target_resolution}
 done;
 
 # Load (vorticity onto BP storage)
-LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/pr/xfer-script ${variable} ${year}
+LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/pr/xfer-script ${variable} ${year} ${collection}
 
 # Clean up (ls snow and rain components downloaded from moose)
-for variable in lssnow lsrain; do
-  mlde moose clean --variable ${variable} --year ${year}
+for src_variable in lssnow lsrain; do
+  mlde moose clean --variable ${src_variable} --year ${year} --collection ${collection}
 done

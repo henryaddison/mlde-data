@@ -5,13 +5,23 @@ set -euo pipefail
 variable=$1
 sf=$2
 
-variable_resolution="2.2km-coarsened-27x"
 if [ ${sf} -eq 1 ]
 then
   target_resolution=2.2km
 else
   target_resolution=2.2km-coarsened-${sf}x
 fi
+
+# target_pr is a pseudo-variable for this script to indicate data and grid resolutions should match
+# since pr can be used as target and as input variable depending on the resolution
+if [[ "${variable}" == "target_pr" ]]
+then
+  variable="pr"
+  variable_resolution=${target_resolution}
+else
+  variable_resolution="2.2km-coarsened-27x"
+fi
+
 resolution="${variable_resolution}-${target_resolution}"
 
 bp_host=bp-remote

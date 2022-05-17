@@ -12,36 +12,34 @@ xfer_host="xfer1.jasmin.ac.uk"
 
 year=$1
 
-collection="land-cpm"
-variable="vorticity850"
+collection="land-gcm"
+variable="gcm-vorticity850"
 domain="london"
+src_vars=(xwind ywind)
 
 set -x
 
-# Extract (x and y wind components from moose to nc format)
-for src_variable in xwind ywind; do
+# Extract (source data from moose to nc format)
+for src_variable in ${src_vars}; do
   LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${src_variable} ${year} ${collection}
 
   mlde moose convert --variable ${src_variable} --year ${year} --collection ${collection}
 done;
 
 # Transform (into vorticity on sci JASMIN)
-for target_sf in 1; do
-# for target_sf in 2 4 8; do
-  if [ $target_sf -eq 1 ]; then
+for sf in 1 2 4 8; do
+  if [ $sf -eq 1 ]; then
     target_resolution="2.2km"
   else
     target_resolution="2.2km-coarsened-${sf}x"
   fi
-  for variable_sf in 1 27; do
-    mlde moose create-variable --variable ${variable} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution}
-  done
+  mlde moose create-variable --variable ${variable} --year ${year} --scale-factor 0 --domain ${domain} --target-resolution ${target_resolution}
 done;
 
 # Load (vorticity onto BP storage)
-LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/vorticity/xfer-script ${variable} ${year} ${collection}
+LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/xfer-script ${variable} ${year} ${collection}
 
 # Clean up (x and y wind components downloaded from moose)
-for src_variable in xwind ywind; do
+for src_variable in ${src_vars}; do
   mlde moose clean --variable ${src_variable} --year ${year} --collection ${collection}
 done

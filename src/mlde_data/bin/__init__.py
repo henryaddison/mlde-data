@@ -7,7 +7,7 @@ class DomainOption(str, Enum):
     london = "london"
 
 class CollectionOption(str, Enum):
-    gcm = "gcm"
+    gcm = "land-gcm"
     cpm = "land-cpm"
 
 from ml_downscaling_emulator.bin import ceda

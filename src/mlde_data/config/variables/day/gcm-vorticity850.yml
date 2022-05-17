@@ -5,7 +5,7 @@ attrs:
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
-  collection: land-cpm
+  collection: gcm
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
@@ -14,9 +14,6 @@ sources:
 spec:
   - action: constrain
     query: {pressure: 850.0}
-  - action: coarsen
-    parameters:
-      scale_factor: $scale_factor
   - action: vorticity
   - action: regrid
     variable: vorticity850

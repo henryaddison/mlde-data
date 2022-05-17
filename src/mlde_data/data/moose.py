@@ -96,6 +96,12 @@ VARIABLE_CODES = {
         "stream": {"land-cpm": {"day": "apa"}, "gcm": {"day": "ape"}},
         "moose_name": "stratiform_snowfall_flux"
     },
+    "pr": {
+        "query": {
+            "stash": 5216,
+        },
+        "stream": {"gcm": {"day": "apa"}}
+    }
 }
 
 class RangeDict(dict):
