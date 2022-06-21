@@ -72,7 +72,7 @@ for year in ${year_range_starts[@]}
 do
   # years run December of previous year to November (i.e. data for 1980 means Dec 1979 to Nov 1980)
   let "start_year=year-1"
-  let "end_year=year+duration"
+  let "end_year=year+duration-1"
   data_dir="${data_dir_base}/${domain}/${resolution}/${rcp}/${ensemble_member}/${data_variable}/${frequency}"
   mkdir -p ${data_dir}
 
