@@ -1,5 +1,22 @@
 #! /usr/bin/env bash
 
+# One-off setup
+
+# (from https://help.ceda.ac.uk/article/4442-ceda-opendap-scripted-interactions#python)
+
+# mkdir ~/ceda_pydap_cert_code
+# cd ~/ceda_pydap_cert_code
+# git clone https://github.com/cedadev/online_ca_client
+
+# Credentials
+
+# Assumes that username and password for CEDA are passed as environment variables
+# CEDA_USERNAME and CEDA_PASSWORD respectively
+
+# Example usage
+
+# ./download-ukcp18 /bp1store/geog-tropical/data cpm psl
+
 set -euo pipefail
 
 # Constant for project
