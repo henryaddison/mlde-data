@@ -2,7 +2,7 @@
 
 # One-off setup
 
-# (from https://help.ceda.ac.uk/article/4442-ceda-opendap-scripted-interactions#python)
+# (from https://help.ceda.ac.uk/article/4442-ceda-opendap-scripted-interactions)
 
 # mkdir ~/ceda_pydap_cert_code
 # cd ~/ceda_pydap_cert_code
