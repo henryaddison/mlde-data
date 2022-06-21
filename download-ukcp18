@@ -20,7 +20,7 @@
 set -euo pipefail
 
 # Constant for project
-url_base="http://dap.ceda.ac.uk/badc/ukcp18/data"
+url_base="https://dap.ceda.ac.uk/badc/ukcp18/data"
 domain="uk"
 data_dir_base="$1"
 
@@ -62,7 +62,10 @@ data_variable=$3
 
 pushd ~/ceda_pydap_cert_code/online_ca_client/contrail/security/onlineca/client/sh/
 ./onlineca-get-trustroots-wget.sh -U https://slcs.ceda.ac.uk/onlineca/trustroots/ -c ~/trustroots -b
-echo ${CEDA_PASSWORD} | ./onlineca-get-cert-wget.sh -U  https://slcs.ceda.ac.uk/onlineca/certificate/ -c ~/trustroots -l ${CEDA_USERNAME} -o $PWD/creds.pem -S
+echo ${CEDA_PASSWORD} | ./onlineca-get-cert-wget.sh -U  https://slcs.ceda.ac.uk/onlineca/certificate/ -c ~/trustroots -l ${CEDA_USERNAME} -o $PWD/creds.tmp.pem -S
+
+sed 's/KEY-----/&\n/g' $PWD/creds.tmp.pem | sed 's/BEGIN CERTIFICATE-----/&\n/g' | sed 's/-----END/\n&/g' >  $PWD/creds.pem
+rm $PWD/creds.tmp.pem
 popd
 
 for year in ${year_range_starts[@]}
