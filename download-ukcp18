@@ -36,7 +36,7 @@ case $model in
     # # 2.2km
     dataset="land-cpm"
     resolution="2.2km"
-    version="v20190731"
+    version="v20210615"
     duration=1
     # CPM 1981-2000, 2021-2040, 2061-2080 in 1 year steps
     year_range_starts=($(seq 1981 ${duration} 2000) $(seq 2020 ${duration} 2039) $(seq 2060 ${duration} 2079))
