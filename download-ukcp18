@@ -20,7 +20,7 @@
 set -euo pipefail
 
 # Constant for project
-url_base="http://dap.ceda.ac.uk/badc/ukcp18/data/"
+url_base="http://dap.ceda.ac.uk/badc/ukcp18/data"
 domain="uk"
 data_dir_base="$1"
 
@@ -79,6 +79,6 @@ do
 
   echo "Downloading ${url} to ${data_dir}/${filename}..."
   set -x
-  curl --cert ../ceda_pydap_cert_code/online_ca_client/contrail/security/onlineca/client/sh/creds.pem -L -c /dev/null $url --output ${data_dir}/${filename}
+  curl --cert ~/ceda_pydap_cert_code/online_ca_client/contrail/security/onlineca/client/sh/creds.pem -L -c /dev/null $url --output ${data_dir}/${filename}
   set +x
 done
