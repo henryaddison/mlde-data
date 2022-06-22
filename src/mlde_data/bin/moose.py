@@ -234,10 +234,12 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
                     ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
         elif job_spec['action'] == "regrid":
             if target_resolution != variable_resolution:
+                typer.echo(f"Regridding to target resolution...")
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', target_resolution, 'uk', 'moose_pr_grid.nc')
 
                 ds = Regrid(target_grid_filepath, variables=[config['variable']]).run(ds)
         elif job_spec['action'] == "vorticity":
+            typer.echo(f"Computing vorticity...")
             ds = Vorticity().run(ds)
         elif job_spec['action'] == "select-subdomain":
             typer.echo(f"Select {domain.value} subdomain...")
@@ -249,6 +251,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
                 size = 32
             ds = SelectDomain(subdomain=domain.value, size=size).run(ds)
         elif job_spec['action'] == "constrain":
+            typer.echo(f"Filtering...")
             ds = Constrain(query=job_spec['query']).run(ds)
         else:
             raise f"Unknown action {job_spec['action']}"
