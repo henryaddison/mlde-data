@@ -26,8 +26,7 @@ for src_variable in xwind ywind; do
 done;
 
 # Transform (into vorticity on sci JASMIN)
-for target_sf in 1; do
-# for target_sf in 2 4 8; do
+for target_sf in 1 2 4 8; do
   if [ $target_sf -eq 1 ]; then
     target_resolution="2.2km"
   else
