@@ -229,7 +229,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             if target_resolution != variable_resolution:
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', target_resolution, 'uk', 'moose_pr_grid.nc')
 
-                ds = Regrid(target_grid_filepath, variable=config['variable']).run(ds)
+                ds = Regrid(target_grid_filepath, variables=[config['variable']]).run(ds)
         elif job_spec['action'] == "vorticity":
             ds = Vorticity().run(ds)
         elif job_spec['action'] == "select-subdomain":
