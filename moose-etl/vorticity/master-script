@@ -33,7 +33,7 @@ for target_sf in 1; do
   else
     target_resolution="2.2km-coarsened-${sf}x"
   fi
-  for variable_sf in 1 27; do
+  for variable_sf in gcm; do
     mlde moose create-variable --variable ${variable} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution}
   done
 done;
