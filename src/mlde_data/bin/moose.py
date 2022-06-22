@@ -172,7 +172,7 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     os.remove(raw_nc_path)
 
 @app.command()
-def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: int = typer.Option(...), target_resolution: str = "2.2km"):
+def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km"):
     """
     Create a new variable from moose data
     """
@@ -221,10 +221,17 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             ds = Sum(job_spec['variables'], config['variable']).run(ds)
             ds[config['variable']] = ds[config['variable']].assign_attrs(config['attrs'])
         elif job_spec['action'] == "coarsen":
-            if scale_factor != 1:
-                typer.echo(f"Coarsening {scale_factor}x...")
-                variable_resolution = f"{variable_resolution}-coarsened-{scale_factor}x"
-                ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
+            if scale_factor == "gcm":
+                typer.echo(f"Coarsening by regridding to gcm grid...")
+                variable_resolution = f"{variable_resolution}-coarsened-gcm"
+                target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', '60km', 'global', 'moose_grid.nc')
+                ds = Regrid(target_grid_filepath, variables=job_spec["parameters"]["variables"]).run(ds)
+            else:
+                scale_factor = int(scale_factor)
+                if scale_factor != 1:
+                    typer.echo(f"Coarsening {scale_factor}x...")
+                    variable_resolution = f"{variable_resolution}-coarsened-{scale_factor}x"
+                    ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
         elif job_spec['action'] == "regrid":
             if target_resolution != variable_resolution:
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', target_resolution, 'uk', 'moose_pr_grid.nc')
