@@ -33,7 +33,7 @@ for target_sf in 1 2 4 8; do
   if [ $target_sf -eq 1 ]; then
     target_resolution="2.2km"
   else
-    target_resolution="2.2km-coarsened-${sf}x"
+    target_resolution="2.2km-coarsened-${target_sf}x"
   fi
   for variable_sf in gcm; do
     mlde moose create-variable --variable ${variable} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution}
