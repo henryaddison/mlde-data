@@ -24,7 +24,6 @@ for src_variable in xwind ywind; do
   # ./extract-script ${src_variable} ${year} ${collection}
   mlde moose extract --variable  ${src_variable} --year ${year} --collection ${collection}
 
-
   mlde moose convert --variable ${src_variable} --year ${year} --collection ${collection}
 done;
 
@@ -37,11 +36,18 @@ for target_sf in 1 2 4 8; do
   fi
   for variable_sf in gcm; do
     mlde moose create-variable --variable ${variable} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution}
+
+    resolution="${variable_resolution}-${target_resolution}"
+
+    filename="${variable}_rcp85_${collection}_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
+    file_subpath="${domain}/${resolution}/rcp85/01/${variable}/${frequency}/${filename}"
+    jasmin_filepath="/home/users/vf20964/derived_data/moose/${file_subpath}"
+    bp_filepath="/user/work/vf20964/moose/${file_subpath}"
+
+    # Load (vorticity onto BP storage)
+    LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/vorticity/xfer-script ${jasmin_filepath} ${bp_filepath}
   done
 done;
-
-# Load (vorticity onto BP storage)
-LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/vorticity/xfer-script ${variable} ${year} ${collection}
 
 # Clean up (x and y wind components downloaded from moose)
 for src_variable in xwind ywind; do
