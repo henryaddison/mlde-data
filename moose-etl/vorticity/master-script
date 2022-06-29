@@ -20,7 +20,10 @@ set -x
 
 # Extract (x and y wind components from moose to nc format)
 for src_variable in xwind ywind; do
-  LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${src_variable} ${year} ${collection}
+  # LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${src_variable} ${year} ${collection}
+  # ./extract-script ${src_variable} ${year} ${collection}
+  mlde moose extract --variable  ${src_variable} --year ${year} --collection ${collection}
+
 
   mlde moose convert --variable ${src_variable} --year ${year} --collection ${collection}
 done;
