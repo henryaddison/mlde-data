@@ -39,6 +39,8 @@ for target_sf in 1 2 4 8; do
   for variable_sf in gcm; do
     if [ $variable_sf -eq 1 ]; then
       variable_resolution="2.2km"
+    elif [ $variable_sf == "gcm" ]; then
+      variable_resolution="2.2km-coarsened-gcm"
     else
       variable_resolution="2.2km-coarsened-${variable_sf}x"
     fi
