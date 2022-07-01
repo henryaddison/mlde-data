@@ -35,9 +35,15 @@ for target_sf in 1 2 4 8; do
     target_resolution="2.2km-coarsened-${target_sf}x"
   fi
   for variable_sf in gcm; do
-    mlde moose create-variable --variable ${variable} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution}
+    if [ $variable_sf -eq 1 ]; then
+      variable_resolution="2.2km"
+    else
+      variable_resolution="2.2km-coarsened-${variable_sf}x"
+    fi
 
     resolution="${variable_resolution}-${target_resolution}"
+
+    mlde moose create-variable --variable ${variable} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution}
 
     filename="${variable}_rcp85_${collection}_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
     file_subpath="${domain}/${resolution}/rcp85/01/${variable}/${frequency}/${filename}"
@@ -45,7 +51,9 @@ for target_sf in 1 2 4 8; do
     bp_filepath="/user/work/vf20964/moose/${file_subpath}"
 
     # Load (vorticity onto BP storage)
-    LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/vorticity/xfer-script ${jasmin_filepath} ${bp_filepath}
+    LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/xfer-script ${jasmin_filepath} ${bp_filepath}
+    # Cleanup file copied to BP
+    rm ${jasmin_filepath}
   done
 done;
 
