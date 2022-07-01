@@ -25,7 +25,7 @@ train_opts = {
     "--loss": args.loss,
     "--epochs": str(args.epochs),
     "--batch-size": "64",
-    "--model": f"${{DERIVED_DATA}}/checkpoints/{args.model_name}/${{SLURM_JOB_ID}}"
+    "--model": f"${{DERIVED_DATA}}/{args.model_name}/${{SLURM_JOB_ID}}/checkpoints/"
 }
 
 train_cmd = train_basecmd + [arg for item in train_opts.items() for arg in item]
