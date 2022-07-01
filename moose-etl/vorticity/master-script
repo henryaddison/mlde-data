@@ -15,6 +15,7 @@ year=$1
 collection="land-cpm"
 variable="vorticity850"
 domain="london"
+frequency="day"
 
 set -x
 
