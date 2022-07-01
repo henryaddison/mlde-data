@@ -34,10 +34,10 @@ dependencies:
   - brotlipy=0.7.0=py39h3811e60_1003
   - bzip2=1.0.8=h7f98852_4
   - c-ares=1.18.1=h7f98852_0
-  - ca-certificates=2021.10.8=ha878542_0
+  - ca-certificates=2022.6.15=ha878542_0
   - cachetools=5.0.0=pyhd8ed1ab_0
   - cartopy=0.20.2=py39hc85cdae_3
-  - certifi=2021.10.8=py39hf3d152e_1
+  - certifi=2022.6.15=py39hf3d152e_0
   - cf-units=3.0.1=py39hce5d2b2_2
   - cffi=1.15.0=py39h4bc2ebd_0
   - cftime=1.6.0=py39hd257fcd_0
@@ -202,6 +202,7 @@ dependencies:
   - parso=0.8.3=pyhd8ed1ab_0
   - partd=1.2.0=pyhd8ed1ab_0
   - pathlib2=2.3.7.post1=py39hf3d152e_0
+  - pathtools=0.1.2=py_1
   - patsy=0.5.2=pyhd8ed1ab_0
   - pcre=8.45=h9c3ff4c_0
   - pexpect=4.8.0=pyh9f0ad1d_2
@@ -212,6 +213,7 @@ dependencies:
   - proj=8.2.1=ha227179_0
   - prometheus_client=0.13.1=pyhd8ed1ab_0
   - prometheus_flask_exporter=0.19.0=pyhd8ed1ab_0
+  - promise=2.3=py39hf3d152e_6
   - prompt-toolkit=3.0.27=pyha770c72_0
   - prompt_toolkit=3.0.27=hd8ed1ab_0
   - protobuf=3.19.4=py39he80948d_0
@@ -258,9 +260,12 @@ dependencies:
   - seaborn=0.11.2=hd8ed1ab_0
   - seaborn-base=0.11.2=pyhd8ed1ab_0
   - send2trash=1.8.0=pyhd8ed1ab_0
+  - sentry-sdk=1.6.0=pyhd8ed1ab_0
+  - setproctitle=1.2.3=py39hb9d737c_0
   - setuptools=59.8.0=py39hf3d152e_0
   - shapely=1.8.0=py39ha65c37e_5
   - shellingham=1.4.0=pyh44b312d_0
+  - shortuuid=1.0.8=py39hf3d152e_1
   - sip=4.19.13=py39h295c915_0
   - six=1.16.0=pyh6c4a22f_0
   - smmap=3.0.5=pyh44b312d_0
