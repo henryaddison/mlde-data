@@ -21,11 +21,11 @@ jobname = f"{args.model_name}-{args.dataset_name}-{args.loss}-{args.epochs}-epoc
 train_basecmd = ["python", f"train-model.py"]
 train_opts = {
     "--architecture": args.model_name,
-    "--data": f"${{WORK}}/nc-datasets/{args.dataset_name}",
+    "--data": f"${{DERIVED_DATA}}/moose/nc-datasets/{args.dataset_name}",
     "--loss": args.loss,
     "--epochs": str(args.epochs),
     "--batch-size": "64",
-    "--model": f"${{WORK}}/checkpoints/{args.model_name}/${{SLURM_JOB_ID}}"
+    "--model": f"${{DERIVED_DATA}}/{args.model_name}/${{SLURM_JOB_ID}}/checkpoints/"
 }
 
 train_cmd = train_basecmd + [arg for item in train_opts.items() for arg in item]

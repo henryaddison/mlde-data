@@ -432,3 +432,10 @@ simple-conv-2.2km-coarsened-27x_london_pr_ssi-mse-200-epochs:
     mse --epochs 200 --batch-size 64 --model ${WORK}/checkpoints/simple-conv/${SLURM_JOB_ID}
   job_id: 340025
   submitted: 2021-12-15 16:23
+u-net-2.2km-coarsened-8x_london_vorticity850_random-mse-2000-epochs:
+  cmd: lbatch -m 16 -g 1 -t 24 --queue cnu --condaenv cuda-downscaling --jobname u-net-2.2km-coarsened-8x_london_vorticity850_random-mse-2000-epochs
+    --workdir ~/code/ml-downscaling-emulation/ -- python train-model.py --architecture
+    u-net --data ${DERIVED_DATA}/moose/nc-datasets/2.2km-coarsened-8x_london_vorticity850_random
+    --loss mse --epochs 2000 --batch-size 64 --model ${DERIVED_DATA}/u-net/${SLURM_JOB_ID}/checkpoints/
+  job_id: 2234019
+  submitted: 2022-07-01 15:46
