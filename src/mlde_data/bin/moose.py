@@ -225,7 +225,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
                 typer.echo(f"Coarsening by regridding to gcm grid...")
                 variable_resolution = f"{variable_resolution}-coarsened-gcm"
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', '60km', 'global', 'moose_grid.nc')
-                ds = Regrid(target_grid_filepath, variables=job_spec["parameters"]["variables"]).run(ds)
+                ds = Regrid(target_grid_filepath, variables=job_spec["parameters"]["variables"], scheme="linear").run(ds)
             else:
                 scale_factor = int(scale_factor)
                 if scale_factor != 1:
