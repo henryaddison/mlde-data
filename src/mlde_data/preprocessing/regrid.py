@@ -1,7 +1,5 @@
-import glob
-import os
-
 import iris
+import iris.analysis
 import xarray as xr
 
 """
@@ -19,7 +17,7 @@ class Regrid:
         self.target_cube = iris.load_cube(target_grid_filepath)
         self.target_ds = xr.open_dataset(target_grid_filepath)
         self.variables = variables
-        self.scheme = self.SCHEMES[scheme]()
+        self.scheme = self.SCHEMES[scheme](extrapolation_mode="mask")
 
         pass
 
