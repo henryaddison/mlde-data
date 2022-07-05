@@ -1,0 +1,6 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+rm -rf output/test
+python train-model.py --data "${DERIVED_DATA}/moose/nc-datasets/2.2km-coarsened-8x_london_vorticity850_random-sample" --architecture u-net --batch-size 32 --model output/test
