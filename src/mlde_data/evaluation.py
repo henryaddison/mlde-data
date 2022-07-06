@@ -35,7 +35,8 @@ def predict(model, eval_dl, target_transform):
         samples = generate_samples(model, device, cond_batch)
         preds.append(samples)
 
-    preds = np.concatenate(preds)
+    # combine the samples along the time axis
+    preds = np.concatenate(preds, axis=1)
 
     # U-net is deterministic, so only 1 sample possible
     sample_id = 0
