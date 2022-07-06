@@ -20,7 +20,7 @@ src_vars=(lssnow lsrain)
 set -x
 
 # Extract (source data from moose to nc format)
-for src_variable in ${src_vars}; do
+for src_variable in ${src_vars[@]}; do
   LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${src_variable} ${year} ${collection}
 
   mlde moose convert --variable ${src_variable} --year ${year} --collection ${collection}

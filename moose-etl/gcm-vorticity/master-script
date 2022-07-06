@@ -24,14 +24,14 @@ let "start_year=year-1"
 set -x
 
 # Extract (source data from moose to nc format)
-for src_variable in ${src_vars}; do
+for src_variable in ${src_vars[@]}; do
   mlde moose extract --variable  ${src_variable} --year ${year} --collection ${collection}
 
   mlde moose convert --variable ${src_variable} --year ${year} --collection ${collection}
 done;
 
 # Transform (into vorticity on sci JASMIN)
-for target_sf in ${target_sfs}; do
+for target_sf in ${target_sfs[@]}; do
   if [ $target_sf -eq 1 ]; then
     target_resolution="2.2km"
   else
