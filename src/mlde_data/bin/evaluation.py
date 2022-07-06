@@ -1,107 +1,77 @@
 import logging
 import os
+from pathlib import Path
 
-import click
-import xarray as xr
+import typer
 import yaml
 
-from ml_downscaling_emulator import UKCPDatasetMetadata
-from ml_downscaling_emulator.evaluation import load_model, predict, open_test_set
+from ml_downscaling_emulator.training import load_data, get_transform
+from ml_downscaling_emulator.evaluation import load_model, predict
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')
 
-@click.group()
-def cli():
-    pass
-
-def experiment_run_id(arch, dataset, loss="mse", epochs=200):
-    return f"{arch}-{dataset}-{loss}-{epochs}-epochs"
-
-def model_job_id(arch, dataset, loss="mse", epochs=200):
+def model_job_id(run_id):
     experiments_log_filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "..", "experiments.yml")
 
     with open(experiments_log_filepath, 'r') as file:
         experiments = yaml.safe_load(file)
 
-    run_id = experiment_run_id(arch, dataset, loss, epochs)
     return str(experiments[run_id]["job_id"])
 
-def model_path(base_dir, arch, dataset, loss="mse", epochs=200):
-    job_id = model_job_id(arch, dataset, loss, epochs)
+def job_dirpath(base_dir, job_id):
+    return os.path.join(base_dir, "u-net", job_id)
 
-    return os.path.join(base_dir, "checkpoints", arch, job_id, f"model-epoch{epochs-1}.pth")
+def model_path(base_dir, job_id, checkpoint_epoch):
+    return os.path.join(job_dirpath(base_dir, job_id), "checkpoints", f"model-epoch{checkpoint_epoch}.pth")
 
-def evalution_output_dirpath(output_base_dir, dataset, arch, portion):
-    return os.path.join(output_base_dir, "evaluation", dataset, arch, portion)
+def evalution_output_dirpath(base_dir, job_id, checkpoint_epoch, split):
+    return os.path.join(job_dirpath(base_dir, job_id), "samples", f"epoch{checkpoint_epoch}", split)
 
-@cli.command()
-@click.option('--arch', type=click.STRING, required=True)
-@click.option('--dataset', type=click.STRING, required=True)
-@click.option('--loss', type=click.STRING, default="mse")
-@click.option('--epochs', type=click.INT, default=200)
-@click.argument('remote', type=click.STRING)
-@click.argument('output-base-dir', type=click.Path(exists=True), envvar='DERIVED_DATA')
-def download_model(arch, dataset, loss, epochs, remote, output_base_dir):
+app = typer.Typer()
+
+@app.callback()
+def callback():
+    pass
+
+@app.command()
+def download_model(
+    remote: str,
+    output_base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"),
+    job_id: str = typer.Option(...),
+    checkpoint: int = typer.Option(...)
+):
     from fabric import Connection
 
     remote_host, remote_base_dir = remote.split(":")
-    remote_checkpoint_path = model_path(remote_base_dir, arch, dataset, loss, epochs)
+    remote_checkpoint_path = model_path(remote_base_dir, job_id, checkpoint)
 
     local_checkpoint_filepath = os.path.join(output_base_dir, os.path.relpath(remote_checkpoint_path, remote_base_dir))
 
     logger.info(f"Downloading {remote_host}:{remote_checkpoint_path} to {local_checkpoint_filepath}")
     Connection(remote_host).get(remote_checkpoint_path, local_checkpoint_filepath)
 
-@cli.command()
-@click.option('--arch', type=click.STRING, required=True)
-@click.option('--dataset', type=click.STRING, required=True)
-@click.option('--loss', type=click.STRING, default="mse")
-@click.option('--epochs', type=click.INT, default=200)
-@click.option('--portion', type=click.STRING, default="test")
-@click.argument('input-base-dir', type=click.Path(exists=True), envvar='DERIVED_DATA')
-@click.argument('output-base-dir', type=click.Path(exists=True), envvar='DERIVED_DATA')
-def save_predictions(arch, dataset, loss, epochs, portion, input_base_dir, output_base_dir):
-    dataset_dirpath = os.path.join(input_base_dir, 'nc-datasets', dataset)
-    dataset_filepath = os.path.join(dataset_dirpath, f"{portion}.nc")
+@app.command()
+def save_predictions(
+    base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"),
+    job_id: str = typer.Option(...),
+    checkpoint: int = typer.Option(...),
+    dataset: str = typer.Option(...),
+    split: str = "val"
+):
+    dataset_dirpath = os.path.join(base_dir, 'moose', 'nc-datasets', dataset)
 
-    ds = open_test_set(dataset_filepath)
+    _, target_transform, _ = get_transform(dataset_dirpath)
+    _, eval_dl = load_data(dataset_dirpath, 64, eval_split=split)
 
-    path = model_path(input_base_dir, arch, dataset, loss, epochs)
+    path = model_path(base_dir, job_id, checkpoint)
     model = load_model(path)
 
-    predictions = predict(model, ds)
+    predictions = predict(model, eval_dl, target_transform)
 
-    output_dirpath = evalution_output_dirpath(output_base_dir, dataset, arch, portion)
+    output_dirpath = evalution_output_dirpath(base_dir, job_id, checkpoint, split)
     output_filepath = os.path.join(output_dirpath, "predictions.nc")
 
     logger.info(f"Saving predictions to {output_filepath}")
     os.makedirs(output_dirpath, exist_ok=True)
     predictions.to_netcdf(output_filepath)
-
-
-@cli.command()
-@click.option('--arch', type=click.STRING, required=True)
-@click.option('--dataset', type=click.STRING, required=True)
-@click.option('--portion', type=click.STRING, default="test")
-@click.argument('input-base-dir', type=click.Path(exists=True), envvar='DERIVED_DATA')
-@click.argument('output-base-dir', type=click.Path(exists=True), envvar='DERIVED_DATA')
-def mean_diff(arch, dataset, portion, input_base_dir, output_base_dir):
-    dataset_dirpath = os.path.join(input_base_dir, 'nc-datasets', dataset)
-    dataset_filepath = os.path.join(dataset_dirpath, f"{portion}.nc")
-
-    ds = open_test_set(dataset_filepath)
-
-    eval_data_dirpath = evalution_output_dirpath(output_base_dir, dataset, arch, portion)
-
-    predictions_filepath = os.path.join(eval_data_dirpath, "predictions.nc")
-    predictions = xr.open_dataset(predictions_filepath)
-
-    model_mean_diff = (predictions.mean(dim=["time"]).pr - ds.mean(dim=["time"]).target_pr).to_dataset(name="pr")
-
-    output_dirpath = eval_data_dirpath
-    output_filepath = os.path.join(output_dirpath, "mean-diff.nc")
-
-    logger.info(f"Saving mean diff to {output_filepath}")
-    os.makedirs(output_dirpath, exist_ok=True)
-    model_mean_diff.to_netcdf(output_filepath)

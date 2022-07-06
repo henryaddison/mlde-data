@@ -10,14 +10,16 @@ class CollectionOption(str, Enum):
     gcm = "land-gcm"
     cpm = "land-cpm"
 
-from ml_downscaling_emulator.bin import ceda
-from ml_downscaling_emulator.bin import dataset
-from ml_downscaling_emulator.bin import moose
-from ml_downscaling_emulator.bin import preprocess
+from . import ceda
+from . import dataset
+from . import evaluation
+from . import moose
+from . import preprocess
 
 app = typer.Typer()
 app.add_typer(ceda.app, name="ceda")
 app.add_typer(dataset.app, name="dataset")
+app.add_typer(evaluation.app, name="evaluate")
 app.add_typer(moose.app, name="moose")
 app.add_typer(preprocess.app, name="preprocess")
 
