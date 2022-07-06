@@ -15,29 +15,44 @@ year=$1
 collection="land-gcm"
 variable="gcm-vorticity850"
 domain="london"
+frequency="day"
 src_vars=(xwind ywind)
+target_sfs=(1 2 4 8)
+
+let "start_year=year-1"
 
 set -x
 
 # Extract (source data from moose to nc format)
 for src_variable in ${src_vars}; do
-  LANG=C ssh -a -o ServerAliveInterval=60 ${mass_host} code/ml-downscaling-emulation/moose-etl/extract-script ${src_variable} ${year} ${collection}
+  mlde moose extract --variable  ${src_variable} --year ${year} --collection ${collection}
 
   mlde moose convert --variable ${src_variable} --year ${year} --collection ${collection}
 done;
 
 # Transform (into vorticity on sci JASMIN)
-for sf in 1 2 4 8; do
-  if [ $sf -eq 1 ]; then
+for target_sf in ${target_sfs}; do
+  if [ $target_sf -eq 1 ]; then
     target_resolution="2.2km"
   else
-    target_resolution="2.2km-coarsened-${sf}x"
+    target_resolution="2.2km-coarsened-${target_sf}x"
   fi
-  mlde moose create-variable --variable ${variable} --year ${year} --scale-factor 0 --domain ${domain} --target-resolution ${target_resolution}
-done;
+  variable_resolution="60km"
 
-# Load (vorticity onto BP storage)
-LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/xfer-script ${variable} ${year} ${collection}
+  resolution="${variable_resolution}-${target_resolution}"
+
+  mlde moose create-variable --variable ${variable} --year ${year} --scale-factor 0 --domain ${domain} --target-resolution ${target_resolution}
+
+  filename="${variable}_rcp85_${collection}_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
+  file_subpath="${domain}/${resolution}/rcp85/01/${variable}/${frequency}/${filename}"
+  jasmin_filepath="/home/users/vf20964/derived_data/moose/${file_subpath}"
+  bp_filepath="/user/work/vf20964/moose/${file_subpath}"
+
+  # Load (vorticity onto BP storage)
+  LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/xfer-script ${jasmin_filepath} ${bp_filepath}
+  # Cleanup file copied to BP
+  rm ${jasmin_filepath}
+done;
 
 # Clean up (x and y wind components downloaded from moose)
 for src_variable in ${src_vars}; do
