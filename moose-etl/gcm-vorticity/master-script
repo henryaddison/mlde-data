@@ -13,7 +13,8 @@ xfer_host="xfer1.jasmin.ac.uk"
 year=$1
 
 collection="land-gcm"
-variable="gcm-vorticity850"
+data_variable="vorticity850"
+variable_config_name="gcm-${data_variable}"
 domain="london"
 frequency="day"
 src_vars=(xwind ywind)
@@ -41,10 +42,10 @@ for target_sf in ${target_sfs[@]}; do
 
   resolution="${variable_resolution}-${target_resolution}"
 
-  mlde moose create-variable --variable ${variable} --year ${year} --scale-factor 0 --domain ${domain} --target-resolution ${target_resolution}
+  mlde moose create-variable --variable ${variable_config_name} --year ${year} --scale-factor 0 --domain ${domain} --target-resolution ${target_resolution}
 
-  filename="vorticity850_rcp85_${collection}_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
-  file_subpath="${domain}/${resolution}/rcp85/01/vorticity850/${frequency}/${filename}"
+  filename="${data_variable}_rcp85_${collection}_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
+  file_subpath="${domain}/${resolution}/rcp85/01/${data_variable}/${frequency}/${filename}"
   jasmin_filepath="/home/users/vf20964/derived_data/moose/${file_subpath}"
   bp_filepath="/user/work/vf20964/moose/${file_subpath}"
 
@@ -55,6 +56,6 @@ for target_sf in ${target_sfs[@]}; do
 done;
 
 # Clean up (x and y wind components downloaded from moose)
-for src_variable in ${src_vars}; do
+for src_variable in ${src_vars[@]}; do
   mlde moose clean --variable ${src_variable} --year ${year} --collection ${collection}
 done
