@@ -19,7 +19,7 @@ then
   variable="pr"
   variable_resolution=${target_resolution}
 else
-  variable_resolution="2.2km-coarsened-27x"
+  variable_resolution="2.2km-coarsened-gcm"
 fi
 
 resolution="${variable_resolution}-${target_resolution}"
