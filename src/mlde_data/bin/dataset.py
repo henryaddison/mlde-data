@@ -21,7 +21,7 @@ def callback():
     pass
 
 @app.command()
-def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"), output_base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"), val_prop: float = 0.2,
+def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"), output_base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"), val_prop: float = 0.2,
     test_prop: float = 0.1):
     """
     Create a dataset
