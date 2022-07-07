@@ -67,7 +67,7 @@ if __name__ == '__main__':
     elif args.loss == 'mse':
         criterion = torch.nn.MSELoss().to(device)
     else:
-        raise("Unkwown loss function")
+        raise("Unknown loss function")
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
 

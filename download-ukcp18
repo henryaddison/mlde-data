@@ -1,18 +1,32 @@
 #! /usr/bin/env bash
 
+# One-off setup
+
+# (from https://help.ceda.ac.uk/article/4442-ceda-opendap-scripted-interactions)
+
+# mkdir ~/ceda_pydap_cert_code
+# cd ~/ceda_pydap_cert_code
+# git clone https://github.com/cedadev/online_ca_client
+
+# Credentials
+
+# Assumes that username and password for CEDA are passed as environment variables
+# CEDA_USERNAME and CEDA_PASSWORD respectively
+
+# Example usage
+
+# ./download-ukcp18 /bp1store/geog-tropical/data/UKCP18 cpm psl
+
 set -euo pipefail
 
 # Constant for project
-url_base="http://dap.ceda.ac.uk/badc/ukcp18/data/"
-region="uk"
-# My machine, my machine, my machine (whose machine?)
-# data_dir_base="../data"
-# Blue Pebble
+url_base="https://dap.ceda.ac.uk/badc/ukcp18/data"
+domain="uk"
 data_dir_base="$1"
 
 # resolution independent variables
 ensemble_member="01"
-temp_res="day"
+frequency="day"
 rcp="rcp85"
 
 model=$2
@@ -21,21 +35,21 @@ case $model in
   cpm)
     # # 2.2km
     dataset="land-cpm"
-    space_res="2.2km"
-    version="v20190731"
+    resolution="2.2km"
+    version="v20210615"
     duration=1
-    # # CPM 1980-2000, 2020-2040, 2060-2080 in 1 year steps
-    year_range=($(seq 1980 ${duration} 1999) $(seq 2020 ${duration} 2039) $(seq 2060 ${duration} 2079))
+    # CPM 1981-2000, 2021-2040, 2061-2080 in 1 year steps
+    year_range_starts=($(seq 1981 ${duration} 2000) $(seq 2020 ${duration} 2039) $(seq 2060 ${duration} 2079))
     ;;
 
   gcm)
     # # 60km
     dataset="land-gcm"
-    space_res="60km"
+    resolution="60km"
     version="v20181122"
     duration=10
-    # GCM 1979-2089 in 10 year steps: 1979-1989, 1989-1999, 1999-2009, 2009-2019, 2019-2029, 2029-2039, 2039-2049, 2049-2059, 2069-2079, 2079-2089
-    year_range=$(seq 1979 ${duration} 2079)
+    # GCM 1980-2089 in 10 year steps: 1980-1989, 1990-1999, ..., 2070-2079, 2080-2089
+    year_range_starts=$(seq 1980 ${duration} 2080)
     ;;
 
   *)
@@ -46,27 +60,28 @@ esac
 
 data_variable=$3
 
-pushd ../ceda_pydap_cert_code/online_ca_client/contrail/security/onlineca/client/sh/
+pushd ~/ceda_pydap_cert_code/online_ca_client/contrail/security/onlineca/client/sh/
 ./onlineca-get-trustroots-wget.sh -U https://slcs.ceda.ac.uk/onlineca/trustroots/ -c ~/trustroots -b
-echo ${CEDA_PASSWORD} | ./onlineca-get-cert-wget.sh -U  https://slcs.ceda.ac.uk/onlineca/certificate/ -c ~/trustroots -l ${CEDA_USERNAME} -o $PWD/creds.pem -S
+echo ${CEDA_PASSWORD} | ./onlineca-get-cert-wget.sh -U  https://slcs.ceda.ac.uk/onlineca/certificate/ -c ~/trustroots -l ${CEDA_USERNAME} -o $PWD/creds.tmp.pem -S
+
+sed 's/KEY-----/&\n/g' $PWD/creds.tmp.pem | sed 's/BEGIN CERTIFICATE-----/&\n/g' | sed 's/-----END/\n&/g' >  $PWD/creds.pem
+rm $PWD/creds.tmp.pem
 popd
 
-for start_year in ${year_range[@]}
+for year in ${year_range_starts[@]}
 do
-  let "end_year=start_year+duration"
-  data_dir="${data_dir_base}/${region}/${space_res}/${rcp}/${ensemble_member}/${data_variable}/${temp_res}"
+  # years run December of previous year to November (i.e. data for 1980 means Dec 1979 to Nov 1980)
+  let "start_year=year-1"
+  let "end_year=year+duration-1"
+  data_dir="${data_dir_base}/${domain}/${resolution}/${rcp}/${ensemble_member}/${data_variable}/${frequency}"
   mkdir -p ${data_dir}
 
-  filename="${data_variable}_${rcp}_${dataset}_${region}_${space_res}_${ensemble_member}_${temp_res}_${start_year}1201-${end_year}1130.nc"
+  filename="${data_variable}_${rcp}_${dataset}_${domain}_${resolution}_${ensemble_member}_${frequency}_${start_year}1201-${end_year}1130.nc"
 
-  url="${url_base}/${dataset}/${region}/${space_res}/${rcp}/${ensemble_member}/${data_variable}/${temp_res}/${version}/${filename}"
+  url="${url_base}/${dataset}/${domain}/${resolution}/${rcp}/${ensemble_member}/${data_variable}/${frequency}/${version}/${filename}"
 
-  set -x
   echo "Downloading ${url} to ${data_dir}/${filename}..."
-  curl --cert ../ceda_pydap_cert_code/online_ca_client/contrail/security/onlineca/client/sh/creds.pem -L -c /dev/null $url --output ${data_dir}/${filename}
-
-  # python3 simple_file_downloader.py ${url}
-
-  # mv ${filename} ${data_dir}
+  set -x
+  curl --cert ~/ceda_pydap_cert_code/online_ca_client/contrail/security/onlineca/client/sh/creds.pem -L -c /dev/null $url --output ${data_dir}/${filename}
   set +x
 done

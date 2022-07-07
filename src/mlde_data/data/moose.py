@@ -14,35 +14,35 @@ VARIABLE_CODES = {
         "query": {
             "stash": 30204
         },
-        "stream": {"land-cpm": {"day": "apb", "3hrinst": "aph",}, "gcm": {"day": "ape"}},
+        "stream": {"land-cpm": {"day": "apb", "3hrinst": "aph",}, "land-gcm": {"day": "ape"}},
         "moose_name": "air_temperature"
     },
     "psl": {
         "query": {
             "stash": 16222,
         },
-        "stream": {"land-cpm": {"day": "apa", "3hrinst": "apc", "6hr": "apc"}, "gcm": {"day": "ape"}},
+        "stream": {"land-cpm": {"day": "apa", "3hrinst": "apc", "6hr": "apc"}, "land-gcm": {"day": "ape"}},
         "moose_name": "air_pressure_at_sea_level"
     },
     "xwind": {
         "query": {
             "stash": 30201,
         },
-        "stream": {"land-cpm": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"}, "gcm": {"day": "ape"}},
+        "stream": {"land-cpm": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"}, "land-gcm": {"day": "ape"}},
         "moose_name": "x_wind"
     },
     "ywind": {
         "query": {
             "stash": 30202,
         },
-        "stream": {"land-cpm": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"}, "gcm": {"day": "ape"}},
+        "stream": {"land-cpm": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"}, "land-gcm": {"day": "ape"}},
         "moose_name": "y_wind"
     },
     "spechum": {
         "query": {
             "stash": 30205,
         },
-        "stream": {"land-cpm": {"day": "apb", "3hrinst": "aph"}, "gcm": {"day": "ape"}},
+        "stream": {"land-cpm": {"day": "apb", "3hrinst": "aph"}, "land-gcm": {"day": "ape"}},
         "moose_name": "specific_humidity"
     },
     "tmean150cm": {
@@ -50,7 +50,7 @@ VARIABLE_CODES = {
             "stash": 3236,
             "lbproc": 128,
         },
-        "stream": {"land-cpm": {"day": "apa", "1hr": "ape"}, "gcm": {"day": "ape"}},
+        "stream": {"land-cpm": {"day": "apa", "1hr": "ape"}, "land-gcm": {"day": "ape"}},
         "moose_name": "air_temperature"
     },
     "tmax150cm": {
@@ -58,7 +58,7 @@ VARIABLE_CODES = {
             "stash": 3236,
             "lbproc": 8192,
         },
-        "stream": {"land-cpm": {"day": "apa"}, "gcm": {"day": "ape"}},
+        "stream": {"land-cpm": {"day": "apa"}, "land-gcm": {"day": "ape"}},
         "moose_name": "air_temperature"
     },
     "tmin150cm": {
@@ -66,41 +66,41 @@ VARIABLE_CODES = {
             "stash": 3236,
             "lbproc": 4096,
         },
-        "stream": {"land-cpm": {"day": "apa"}, "gcm": {"day": "ape"}},
+        "stream": {"land-cpm": {"day": "apa"}, "land-gcm": {"day": "ape"}},
         "moose_name": "air_temperature"
     },
     "wetbulbpott": { # the saturated wet-bulb and wet-bulb potential temperatures
         "query": {
             "stash": 16205, # 17 pressure levels for day
         },
-        "stream": {"land-cpm": {"3hrinst": "aph", "1hrinst": "apr", "6hrinst": "apc"}, "gcm": {"day": "ape"}},
+        "stream": {"land-cpm": {"3hrinst": "aph", "1hrinst": "apr", "6hrinst": "apc"}, "land-gcm": {"day": "ape"}},
         "moose_name": "wet_bulb_potential_temperature"
     },
     "geopotential_height": {
         "query": {
             "stash": 30207,
         },
-        "stream": {"land-cpm": {"3hrinst": "aph"}, "gcm": {"day": "ape"}}
+        "stream": {"land-cpm": {"3hrinst": "aph"}, "land-gcm": {"day": "ape"}}
     },
     "lsrain": {
         "query": {
             "stash": 4203,
         },
-        "stream": {"land-cpm": {"day": "apa"}, "gcm": {"day": "ape"}},
+        "stream": {"land-cpm": {"day": "apa"}, "land-gcm": {"day": "ape"}},
         "moose_name": "stratiform_rainfall_flux"
     },
     "lssnow": {
         "query": {
             "stash": 4204,
         },
-        "stream": {"land-cpm": {"day": "apa"}, "gcm": {"day": "ape"}},
+        "stream": {"land-cpm": {"day": "apa"}, "land-gcm": {"day": "ape"}},
         "moose_name": "stratiform_snowfall_flux"
     },
     "pr": {
         "query": {
             "stash": 5216,
         },
-        "stream": {"gcm": {"day": "apa"}}
+        "stream": {"land-gcm": {"day": "apa"}}
     }
 }
 
@@ -130,7 +130,7 @@ SUITE_IDS = {
             TS3: "mi-bb189",
         }),
     },
-    "gcm": {
+    "land-gcm": {
         # r001i1p00000
         1: RangeDict({
             TSRecent: "u-ap977",
@@ -159,7 +159,7 @@ SUITE_IDS = {
 # RCP8.5    : u-ar095 (Dec 2005 – Nov 2076), u-au084 (Dec 2076 – Nov 2099)
 
 RIP_CODES = {
-    "gcm": {
+    "land-gcm": {
         1: "r001i1p00000"
     }
 }
@@ -175,7 +175,7 @@ def moose_path(variable, year, ensemble_member=1, frequency="day", collection="l
         suite_id = SUITE_IDS[collection][ensemble_member][year]
         stream_code = VARIABLE_CODES[variable]["stream"][collection][frequency]
         return f"moose:crum/{suite_id}/{stream_code}.pp"
-    elif collection == "gcm":
+    elif collection == "land-gcm":
         suite_id = SUITE_IDS[collection][ensemble_member][year]
         stream_code = VARIABLE_CODES[variable]["stream"][collection][frequency]
         rip_code = RIP_CODES[collection][ensemble_member]

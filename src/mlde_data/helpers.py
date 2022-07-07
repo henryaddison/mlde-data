@@ -30,9 +30,12 @@ def plots_at_ts(data_arrays, timestamp, vmin=0, vmax=None, cmap='Blues', titles=
         if titles == False:
             ax.set_title(f"")
 
+def plot_over_ts(data_arrays, timestamps, vmin=0, vmax=None, cmap='Blues', titles=None):
+    for timestamp in timestamps:
+        plots_at_ts(data_arrays, timestamp, vmin, vmax, cmap, titles)
+
 def plot_with_ts(datasets, timestamps, variable='pr', vmin=0, vmax=None, cmap='Blues', titles=None):
-    for timestamp in timestamps.values:
-        plots_at_ts([ds[variable] for ds in datasets], timestamp, vmin, vmax, cmap, titles)
+    plot_over_ts([ds[variable] for ds in datasets], timestamps, vmin, vmax, cmap, titles)
 
 MODEL2RES = {
     "gcm": "60km",
