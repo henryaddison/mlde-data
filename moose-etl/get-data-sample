@@ -3,13 +3,16 @@
 set -euo pipefail
 
 variable=$1
-sf=$2
+target_sf=$2
+variable_sf=$3
 
-if [ ${sf} -eq 1 ]
+unscaled_variable_resolution="2.2km"
+
+if [ ${target_sf} -eq 1 ]
 then
   target_resolution=2.2km
 else
-  target_resolution=2.2km-coarsened-${sf}x
+  target_resolution=2.2km-coarsened-${target_sf}x
 fi
 
 # target_pr is a pseudo-variable for this script to indicate data and grid resolutions should match
@@ -19,7 +22,13 @@ then
   variable="pr"
   variable_resolution=${target_resolution}
 else
-  variable_resolution="2.2km-coarsened-gcm"
+  if [ $variable_sf -eq 1 ]; then
+    variable_resolution=${unscaled_variable_resolution}
+  elif [ $variable_sf == "gcm" ]; then
+    variable_resolution="${unscaled_variable_resolution}-coarsened-gcm"
+  else
+    variable_resolution="${unscaled_variable_resolution}-coarsened-${variable_sf}x"
+  fi
 fi
 
 resolution="${variable_resolution}-${target_resolution}"
