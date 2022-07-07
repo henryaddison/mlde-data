@@ -10,15 +10,15 @@ mass_host="mass-cli.jasmin.ac.uk"
 sci_host="sci2.jasmin.ac.uk"
 xfer_host="xfer1.jasmin.ac.uk"
 
-collection="land-gcm"
-unscaled_variable_resolution="60km"
-data_variable="pr"
-variable_config_name="gcm-${data_variable}"
+collection="land-cpm"
+unscaled_variable_resolution="2.2km"
+data_variable="vorticity850"
+variable_config_name="cpm-${data_variable}"
 domain="london"
 frequency="day"
-src_vars=(pr)
+src_vars=(xwind ywind)
 target_sfs=(1 2 4 8)
-variable_sfs=(1)
+variable_sfs=(gcm)
 
 set -x
 
@@ -34,6 +34,7 @@ for year in $@; do
   done;
 
   # Transform (into vorticity on sci JASMIN)
+
   for target_sf in ${target_sfs[@]}; do
     if [ $target_sf -eq 1 ]; then
       target_resolution="2.2km"
@@ -51,7 +52,7 @@ for year in $@; do
 
       resolution="${variable_resolution}-${target_resolution}"
 
-      mlde moose create-variable --variable ${variable_config_name} --year ${year} --scale-factor 0 --domain ${domain} --target-resolution ${target_resolution}
+      mlde moose create-variable --variable ${variable_config_name} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution}
 
       filename="${data_variable}_rcp85_${collection}_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
       file_subpath="${domain}/${resolution}/rcp85/01/${data_variable}/${frequency}/${filename}"
