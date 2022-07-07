@@ -2,11 +2,11 @@
 
 set -euo pipefail
 
-ts1jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable ts1.batch)
+ts1jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable ./master-script $(seq 1981 1 2000))
 echo ${ts1jobid}
 
-ts2jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${ts1jobid} ts2.batch)
+ts2jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${ts1jobid} ./master-script $(seq 2021 1 2040))
 echo ${ts2jobid}
 
-ts3jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${ts2jobid} ts3.batch)
+ts3jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${ts2jobid} ./master-script $(seq 2061 1 2080))
 echo ${ts3jobid}
