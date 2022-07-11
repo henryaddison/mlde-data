@@ -209,6 +209,7 @@ dependencies:
   - nest-asyncio=1.5.5=pyhd8ed1ab_0
   - netcdf4=1.6.0=nompi_py39hf5a3a3f_100
   - nettle=3.8=hc379101_0
+  - ninja=1.11.0=h924138e_0
   - notebook=6.4.12=pyha770c72_0
   - notebook-shim=0.1.0=pyhd8ed1ab_0
   - nspr=4.32=h9c3ff4c_1
@@ -345,6 +346,7 @@ dependencies:
     - alembic==1.4.1
     - appdirs==1.4.4
     - configparser==5.1.0
+    - contextlib2==21.6.0
     - contrailonlinecaclient==0.5.1
     - databricks-cli==0.16.2
     - docker==5.0.3
@@ -358,6 +360,7 @@ dependencies:
     - itsdangerous==2.0.1
     - mako==1.1.5
     - metpy==1.2.0
+    - ml-collections==0.1.1
     - mlflow==1.21.0
     - pathtools==0.1.2
     - pint==0.18
@@ -380,4 +383,4 @@ dependencies:
     - wandb==0.12.6
     - websocket-client==1.2.1
     - yaspin==2.1.0
-prefix: /user/home/vf20964/miniconda3/envs/cuda-downscaling
+prefix: /home/henry/anaconda3/envs/cuda-downscaling
