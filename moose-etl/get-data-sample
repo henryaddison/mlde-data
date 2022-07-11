@@ -10,9 +10,9 @@ unscaled_variable_resolution="2.2km"
 
 if [ ${target_sf} -eq 1 ]
 then
-  target_resolution=2.2km
+  target_resolution="2.2km"
 else
-  target_resolution=2.2km-coarsened-${target_sf}x
+  target_resolution="2.2km-coarsened-${target_sf}x"
 fi
 
 # target_pr is a pseudo-variable for this script to indicate data and grid resolutions should match
@@ -22,10 +22,10 @@ then
   variable="pr"
   variable_resolution=${target_resolution}
 else
-  if [ $variable_sf -eq 1 ]; then
-    variable_resolution=${unscaled_variable_resolution}
-  elif [ $variable_sf == "gcm" ]; then
+  if [ $variable_sf == "gcm" ]; then
     variable_resolution="${unscaled_variable_resolution}-coarsened-gcm"
+  elif [ $variable_sf -eq 1 ]; then
+    variable_resolution=${unscaled_variable_resolution}
   else
     variable_resolution="${unscaled_variable_resolution}-coarsened-${variable_sf}x"
   fi
