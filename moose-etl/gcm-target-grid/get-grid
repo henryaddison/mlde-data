@@ -4,6 +4,6 @@ set -euo pipefail
 
 rm -rf pp-data
 mkdir -p pp-data
-moo select searchfile moose:ens/u-ap97/r001i1p00000/ape.pp pp-data/
+moo select searchfile moose:ens/u-ap977/r001i1p00000/apa.pp pp-data/
 
 python transform.py
