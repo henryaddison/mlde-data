@@ -6,4 +6,4 @@ rm -rf pp-data
 mkdir -p pp-data
 moo select searchfile moose:ens/u-ap97/r001i1p00000/ape.pp pp-data/
 
-python -m iris 'iris.save(iris.load("pp-data/*.pp"), "moose-grid.nc"'
+python transform.py
