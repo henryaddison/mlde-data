@@ -66,6 +66,7 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
         raise f"Unknown collection {collection}"
 
     cache_path = moose_cache_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
+    cache_check_filepath = cache_path/".cache-ready"
 
     query = select_query(year=year, variable=variable, frequency=frequency, collection=collection.value)
 
@@ -75,7 +76,7 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
 
 
     if cache:
-        if os.path.exists(cache_path/"data"):
+        if os.path.exists(cache_check_filepath):
             logger.info(f"Recovering from moose cache {cache_path}")
             shutil.copytree(cache_path/"data", pp_dirpath, dirs_exist_ok=True)
             return
@@ -99,13 +100,14 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     stdout = output.stdout.decode("utf8")
     print(stdout)
     print(output.stderr.decode("utf8"))
+    # os.execvp(query_cmd[0], query_cmd)
 
     if cache:
         cache_path = moose_cache_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
         logger.info(f"Copying {pp_dirpath} to {cache_path}...")
         os.makedirs(cache_path, exist_ok=True)
         shutil.copytree(pp_dirpath, cache_path, dirs_exist_ok=True)
-    # os.execvp(query_cmd[0], query_cmd)
+        cache_check_filepath.touch()
 
 @app.command()
 def convert(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...)):
