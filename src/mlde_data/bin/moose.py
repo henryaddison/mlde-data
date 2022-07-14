@@ -8,6 +8,7 @@ import subprocess
 import yaml
 
 import iris
+import numpy as np
 import typer
 import xarray as xr
 
@@ -109,7 +110,9 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
 
     # bug in the xwind and ywind data means the final grid_latitude bound is very large (1.0737418e+09)
     if collection == CollectionOption.cpm and variable in ["xwind", "ywind"]:
-        src_cube.coord("grid_latitude").bounds[-1][1] = 8.962849
+        bounds = np.copy(src_cube.coord("grid_latitude").bounds)
+        bounds[-1][1] = 8.962849
+        src_cube.coord("grid_latitude").bounds = bounds
 
     typer.echo(f"Saving to {output_filepath}...")
     os.makedirs(output_filepath.parent, exist_ok=True)
