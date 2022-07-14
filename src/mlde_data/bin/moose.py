@@ -17,6 +17,7 @@ from ml_downscaling_emulator.data.moose import VARIABLE_CODES, select_query, moo
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
 from ml_downscaling_emulator.preprocessing.constrain import Constrain
 from ml_downscaling_emulator.preprocessing.regrid import Regrid
+from ml_downscaling_emulator.preprocessing.remapcon import Remapcon
 from ml_downscaling_emulator.preprocessing.resample import Resample
 from ml_downscaling_emulator.preprocessing.select_domain import SelectDomain
 from ml_downscaling_emulator.preprocessing.sum import Sum
@@ -229,13 +230,15 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             ds[config['variable']] = ds[config['variable']].assign_attrs(config['attrs'])
         elif job_spec['action'] == "coarsen":
             if scale_factor == "gcm":
-                typer.echo(f"Coarsening by regridding to gcm grid...")
+                typer.echo(f"Remapping conservatively to gcm grid...")
                 variable_resolution = f"{variable_resolution}-coarsened-gcm"
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', '60km', 'global', 'moose_grid.nc')
-                ds = Regrid(target_grid_filepath, variables=job_spec["parameters"]["variables"], scheme="linear").run(ds)
+                ds = Remapcon(target_grid_filepath).run(ds)
             else:
                 scale_factor = int(scale_factor)
-                if scale_factor != 1:
+                if scale_factor == 1:
+                    typer.echo(f"{scale_factor}x coarsening scale factor, nothing to do...")
+                else:
                     typer.echo(f"Coarsening {scale_factor}x...")
                     variable_resolution = f"{variable_resolution}-coarsened-{scale_factor}x"
                     ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
