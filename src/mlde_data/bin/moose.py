@@ -36,6 +36,9 @@ def callback():
 def moose_extract_dirpath(variable: str, year: int, frequency: str, resolution: str, collection: str, domain: str):
     return Path(os.getenv("MOOSE_DATA"))/"pp"/collection/domain/resolution/"rcp85"/"01"/variable/frequency/str(year)
 
+def moose_cache_dirpath(variable: str, year: int, frequency: str, resolution: str, collection: str, domain: str):
+    return Path(os.getenv("MOOSE_CACHE"))/"pp"/collection/domain/resolution/"rcp85"/"01"/variable/frequency/str(year)
+
 def ppdata_dirpath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str):
     return moose_extract_dirpath(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)/"data"
 
@@ -49,7 +52,7 @@ def processed_nc_filepath(variable: str, year: int, frequency: str, domain: str,
     return Path(os.getenv("DERIVED_DATA"))/"moose"/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
 
 @app.command()
-def extract(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...)):
+def extract(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...), cache: bool = True):
     """
     Extract data from moose
     """
@@ -62,11 +65,20 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     else:
         raise f"Unknown collection {collection}"
 
+    cache_path = moose_cache_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
+
     query = select_query(year=year, variable=variable, frequency=frequency, collection=collection.value)
 
     output_dirpath = moose_extract_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
     query_filepath = output_dirpath/"searchfile"
     pp_dirpath = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
+
+
+    if cache:
+        if os.path.exists(cache_path/"data"):
+            logger.info(f"Recovering from moose cache {cache_path}")
+            shutil.copytree(cache_path/"data", pp_dirpath, dirs_exist_ok=True)
+            return
 
     os.makedirs(output_dirpath, exist_ok=True)
     # remove any previous attempt at extracting the data (or else moo select will complain)
@@ -87,6 +99,12 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     stdout = output.stdout.decode("utf8")
     print(stdout)
     print(output.stderr.decode("utf8"))
+
+    if cache:
+        cache_path = moose_cache_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
+        logger.info(f"Copying {pp_dirpath} to {cache_path}...")
+        os.makedirs(cache_path, exist_ok=True)
+        shutil.copytree(pp_dirpath, cache_path, dirs_exist_ok=True)
     # os.execvp(query_cmd[0], query_cmd)
 
 @app.command()
