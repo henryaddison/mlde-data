@@ -187,6 +187,15 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     config = files('ml_downscaling_emulator.config').joinpath(f'variables/day/{variable}.yml').read_text()
     config = yaml.safe_load(config)
 
+    # add cli parameters to config
+    config["parameters"] = {
+        "frequency": frequency,
+        "domain": domain,
+        "scenario": scenario,
+        "scale_factor": scale_factor,
+        "target_resolution": target_resolution
+    }
+
     variable = config['variable']
     collection = CollectionOption(config['sources']['collection'])
     if collection == CollectionOption.cpm:
@@ -276,3 +285,5 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     logger.info(f"Saving data to {output_metadata.filepath(year)}")
     os.makedirs(output_metadata.dirpath(), exist_ok=True)
     ds.to_netcdf(output_metadata.filepath(year))
+    with open(os.path.join(output_metadata.dirpath(), f"{variable}-{year}.yml"), 'w') as f:
+        yaml.dump(config, f)
