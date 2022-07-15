@@ -78,7 +78,7 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     if cache:
         if os.path.exists(cache_check_filepath):
             logger.info(f"Recovering from moose cache {cache_path}")
-            shutil.copytree(cache_path/"data", pp_dirpath, dirs_exist_ok=True)
+            shutil.copytree(cache_path, output_dirpath, dirs_exist_ok=True)
             return
 
     os.makedirs(output_dirpath, exist_ok=True)
@@ -104,9 +104,9 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
 
     if cache:
         cache_path = moose_cache_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
-        logger.info(f"Copying {pp_dirpath} to {cache_path}...")
+        logger.info(f"Copying {output_dirpath} to {cache_path}...")
         os.makedirs(cache_path, exist_ok=True)
-        shutil.copytree(pp_dirpath, cache_path, dirs_exist_ok=True)
+        shutil.copytree(output_dirpath, cache_path, dirs_exist_ok=True)
         cache_check_filepath.touch()
 
 @app.command()
