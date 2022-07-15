@@ -199,7 +199,7 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     shutil.rmtree(pp_path, ignore_errors=True)
     raw_nc_path = raw_nc_filepath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
     typer.echo(f"Removing {raw_nc_path}...")
-    os.remove(raw_nc_path)
+    if os.path.exists(raw_nc_path): os.remove(raw_nc_path)
 
 @app.command()
 def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km"):
