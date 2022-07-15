@@ -212,7 +212,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     # add cli parameters to config
     config["parameters"] = {
         "frequency": frequency,
-        "domain": domain,
+        "domain": domain.value,
         "scenario": scenario,
         "scale_factor": scale_factor,
         "target_resolution": target_resolution
