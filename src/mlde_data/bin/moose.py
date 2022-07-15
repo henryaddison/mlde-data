@@ -218,7 +218,6 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
         "target_resolution": target_resolution
     }
 
-    variable = config['variable']
     collection = CollectionOption(config['sources']['collection'])
     if collection == CollectionOption.cpm:
         variable_resolution = "2.2km"
