@@ -41,10 +41,10 @@ for year in $@; do
       target_resolution="2.2km-coarsened-${target_sf}x"
     fi
     for variable_sf in ${variable_sfs[@]}; do
-      if [ $variable_sf -eq 1 ]; then
-        variable_resolution=${unscaled_variable_resolution}
-      elif [ $variable_sf == "gcm" ]; then
+      if [ $variable_sf == "gcm" ]; then
         variable_resolution="${unscaled_variable_resolution}-coarsened-gcm"
+      elif [ $variable_sf -eq 1 ]; then
+        variable_resolution=${unscaled_variable_resolution}
       else
         variable_resolution="${unscaled_variable_resolution}-coarsened-${variable_sf}x"
       fi
