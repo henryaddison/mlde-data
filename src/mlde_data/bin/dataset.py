@@ -46,7 +46,7 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="MOOS
     predictor_datasets = [xr.open_mfdataset(dsmeta.existing_filepaths()) for dsmeta in predictors_meta]
     predictand_dataset = xr.open_mfdataset(predictand_meta.existing_filepaths()).rename({predictand_meta.variable: f'target_{predictand_meta.variable}'})
 
-    combined_dataset = xr.combine_by_coords([*predictor_datasets, predictand_dataset], compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all")
+    combined_dataset = xr.combine_by_coords([*predictor_datasets, predictand_dataset], compat='override', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all")
     combined_dataset = combined_dataset.assign_coords(season=(('time'), (combined_dataset['time.month'].values % 12 // 3)))
 
     if config["split_scheme"] == "ssi":
