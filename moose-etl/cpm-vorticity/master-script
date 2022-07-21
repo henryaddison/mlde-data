@@ -42,10 +42,10 @@ for year in $@; do
       target_resolution="2.2km-coarsened-${target_sf}x"
     fi
     for variable_sf in ${variable_sfs[@]}; do
-      if [ $variable_sf -eq 1 ]; then
-        variable_resolution=${unscaled_variable_resolution}
-      elif [ $variable_sf == "gcm" ]; then
+      if [ $variable_sf == "gcm" ]; then
         variable_resolution="${unscaled_variable_resolution}-coarsened-gcm"
+      elif [ $variable_sf -eq 1 ]; then
+        variable_resolution=${unscaled_variable_resolution}
       else
         variable_resolution="${unscaled_variable_resolution}-coarsened-${variable_sf}x"
       fi
@@ -54,15 +54,19 @@ for year in $@; do
 
       mlde moose create-variable --variable ${variable_config_name} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution}
 
-      filename="${data_variable}_rcp85_${collection}_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
-      file_subpath="${domain}/${resolution}/rcp85/01/${data_variable}/${frequency}/${filename}"
-      jasmin_filepath="/home/users/vf20964/derived_data/moose/${file_subpath}"
-      bp_filepath="/user/work/vf20964/moose/${file_subpath}"
-
       # Load (vorticity onto BP storage)
-      LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/xfer-script ${jasmin_filepath} ${bp_filepath}
-      # Cleanup file copied to BP
-      rm ${jasmin_filepath}
+      filename="${data_variable}_rcp85_${collection}_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
+      config_filename="${variable_config_name}-${year}.yml"
+      file_subdirpath="${domain}/${resolution}/rcp85/01/${data_variable}/${frequency}"
+      jasmin_dirpath="/home/users/vf20964/derived_data/moose/${file_subdirpath}"
+      bp_dirpath="/user/work/vf20964/moose/${file_subdirpath}"
+
+      LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/xfer-script "${jasmin_dirpath}/${filename}" "${bp_dirpath}/${filename}"
+      # including the variable config
+      LANG=C ssh -a -o ServerAliveInterval=60 ${xfer_host} code/ml-downscaling-emulation/moose-etl/xfer-script "${jasmin_dirpath}/${config_filename}" "${bp_dirpath}/${config_filename}"
+      # Cleanup files copied to BP
+      rm "${jasmin_dirpath}/${filename}"
+      rm "${jasmin_dirpath}/${config_filename}"
     done;
   done;
 

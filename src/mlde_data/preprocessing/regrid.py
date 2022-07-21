@@ -62,7 +62,7 @@ class Regrid:
 
             # forecast_reference_time depends on the time slice but doesn't affect the grid
             # so update for target grid dataset to match the data being regridded
-            self.target_ds['forecast_reference_time'] = ds['forecast_reference_time']
+            # self.target_ds['forecast_reference_time'] = ds['forecast_reference_time']
 
             vars.update({variable: (['time', target_lat_name, target_lon_name], regridded_da.values, regridded_var_attrs)})
 
@@ -72,7 +72,7 @@ class Regrid:
         # if working with CPM data on rotated pole grid then copy the grid lat and lon bnds data too
         if "rotated_latitude_longitude" in self.target_ds.variables:
             vars.update({f'{key}_bnds': ([key, 'bnds'], self.target_ds[f'{key}_bnds'].values, self.target_ds[f'{key}_bnds'].attrs) for key in [target_lat_name, target_lon_name]})
-        vars.update({key: (['time', 'bnds'], ds[key].values, ds[key].attrs, {'units': 'hours since 1970-01-01 00:00:00', 'calendar': '360_day'}) for key in ['time_bnds', 'forecast_period_bnds']})
+        vars.update({key: (['time', 'bnds'], ds[key].values, ds[key].attrs, {'units': 'hours since 1970-01-01 00:00:00', 'calendar': '360_day'}) for key in ['time_bnds']})
 
         coords = dict(ds.coords)
         # grid coord names are determined by the target but other coordinates should come from the source dataset

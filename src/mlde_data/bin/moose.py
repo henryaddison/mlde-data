@@ -8,6 +8,7 @@ import subprocess
 import yaml
 
 import iris
+import numpy as np
 import typer
 import xarray as xr
 
@@ -17,6 +18,7 @@ from ml_downscaling_emulator.data.moose import VARIABLE_CODES, select_query, moo
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
 from ml_downscaling_emulator.preprocessing.constrain import Constrain
 from ml_downscaling_emulator.preprocessing.regrid import Regrid
+from ml_downscaling_emulator.preprocessing.remapcon import Remapcon
 from ml_downscaling_emulator.preprocessing.resample import Resample
 from ml_downscaling_emulator.preprocessing.select_domain import SelectDomain
 from ml_downscaling_emulator.preprocessing.sum import Sum
@@ -34,6 +36,9 @@ def callback():
 def moose_extract_dirpath(variable: str, year: int, frequency: str, resolution: str, collection: str, domain: str):
     return Path(os.getenv("MOOSE_DATA"))/"pp"/collection/domain/resolution/"rcp85"/"01"/variable/frequency/str(year)
 
+def moose_cache_dirpath(variable: str, year: int, frequency: str, resolution: str, collection: str, domain: str):
+    return Path(os.getenv("MOOSE_CACHE"))/"pp"/collection/domain/resolution/"rcp85"/"01"/variable/frequency/str(year)
+
 def ppdata_dirpath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str):
     return moose_extract_dirpath(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)/"data"
 
@@ -47,7 +52,7 @@ def processed_nc_filepath(variable: str, year: int, frequency: str, domain: str,
     return Path(os.getenv("DERIVED_DATA"))/"moose"/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
 
 @app.command()
-def extract(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...)):
+def extract(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...), cache: bool = True):
     """
     Extract data from moose
     """
@@ -60,11 +65,21 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     else:
         raise f"Unknown collection {collection}"
 
+    cache_path = moose_cache_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
+    cache_check_filepath = cache_path/".cache-ready"
+
     query = select_query(year=year, variable=variable, frequency=frequency, collection=collection.value)
 
     output_dirpath = moose_extract_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
     query_filepath = output_dirpath/"searchfile"
     pp_dirpath = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
+
+
+    if cache:
+        if os.path.exists(cache_check_filepath):
+            logger.info(f"Recovering from moose cache {cache_path}")
+            shutil.copytree(cache_path, output_dirpath, dirs_exist_ok=True)
+            return
 
     os.makedirs(output_dirpath, exist_ok=True)
     # remove any previous attempt at extracting the data (or else moo select will complain)
@@ -87,6 +102,13 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     print(output.stderr.decode("utf8"))
     # os.execvp(query_cmd[0], query_cmd)
 
+    if cache:
+        cache_path = moose_cache_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
+        logger.info(f"Copying {output_dirpath} to {cache_path}...")
+        os.makedirs(cache_path, exist_ok=True)
+        shutil.copytree(output_dirpath, cache_path, dirs_exist_ok=True)
+        cache_check_filepath.touch()
+
 @app.command()
 def convert(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...)):
     """
@@ -104,9 +126,17 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     pp_files_glob = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)/"*.pp"
     output_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
 
+    src_cube = iris.load_cube(str(pp_files_glob))
+
+    # bug in the xwind and ywind data means the final grid_latitude bound is very large (1.0737418e+09)
+    if collection == CollectionOption.cpm and variable in ["xwind", "ywind"]:
+        bounds = np.copy(src_cube.coord("grid_latitude").bounds)
+        bounds[-1][1] = 8.962849
+        src_cube.coord("grid_latitude").bounds = bounds
+
     typer.echo(f"Saving to {output_filepath}...")
     os.makedirs(output_filepath.parent, exist_ok=True)
-    iris.save(iris.load(str(pp_files_glob)), output_filepath)
+    iris.save(src_cube, output_filepath)
 
     assert len(xr.open_dataset(output_filepath).time) == 360
 
@@ -169,7 +199,7 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     shutil.rmtree(pp_path, ignore_errors=True)
     raw_nc_path = raw_nc_filepath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
     typer.echo(f"Removing {raw_nc_path}...")
-    os.remove(raw_nc_path)
+    if os.path.exists(raw_nc_path): os.remove(raw_nc_path)
 
 @app.command()
 def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km"):
@@ -179,7 +209,15 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     config = files('ml_downscaling_emulator.config').joinpath(f'variables/day/{variable}.yml').read_text()
     config = yaml.safe_load(config)
 
-    variable = config['variable']
+    # add cli parameters to config
+    config["parameters"] = {
+        "frequency": frequency,
+        "domain": domain.value,
+        "scenario": scenario,
+        "scale_factor": scale_factor,
+        "target_resolution": target_resolution
+    }
+
     collection = CollectionOption(config['sources']['collection'])
     if collection == CollectionOption.cpm:
         variable_resolution = "2.2km"
@@ -222,13 +260,15 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             ds[config['variable']] = ds[config['variable']].assign_attrs(config['attrs'])
         elif job_spec['action'] == "coarsen":
             if scale_factor == "gcm":
-                typer.echo(f"Coarsening by regridding to gcm grid...")
+                typer.echo(f"Remapping conservatively to gcm grid...")
                 variable_resolution = f"{variable_resolution}-coarsened-gcm"
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', '60km', 'global', 'moose_grid.nc')
-                ds = Regrid(target_grid_filepath, variables=job_spec["parameters"]["variables"], scheme="linear").run(ds)
+                ds = Remapcon(target_grid_filepath).run(ds)
             else:
                 scale_factor = int(scale_factor)
-                if scale_factor != 1:
+                if scale_factor == 1:
+                    typer.echo(f"{scale_factor}x coarsening scale factor, nothing to do...")
+                else:
                     typer.echo(f"Coarsening {scale_factor}x...")
                     variable_resolution = f"{variable_resolution}-coarsened-{scale_factor}x"
                     ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
@@ -266,3 +306,5 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     logger.info(f"Saving data to {output_metadata.filepath(year)}")
     os.makedirs(output_metadata.dirpath(), exist_ok=True)
     ds.to_netcdf(output_metadata.filepath(year))
+    with open(os.path.join(output_metadata.dirpath(), f"{variable}-{year}.yml"), 'w') as f:
+        yaml.dump(config, f)
