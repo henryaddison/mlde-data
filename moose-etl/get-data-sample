@@ -3,10 +3,10 @@
 set -euo pipefail
 
 variable=$1
-target_sf=$2
-variable_sf=$3
-
-unscaled_variable_resolution=${4:-"2.2km"}
+domain=$2
+target_sf=$3
+variable_sf=$4
+unscaled_variable_resolution=${5:-"2.2km"}
 
 if [[ ${unscaled_variable_resolution} == "2.2km" ]]; then
   collection="land-cpm"
@@ -41,15 +41,15 @@ resolution="${variable_resolution}-${target_resolution}"
 
 bp_host=bp-remote
 
-local_dirpath=${DERIVED_DATA}/moose/london/${resolution}/rcp85/01/${variable}/day/
-bp_dirpath=/user/work/vf20964/moose/london/${resolution}/rcp85/01/${variable}/day
+local_dirpath=${DERIVED_DATA}/moose/${domain}/${resolution}/rcp85/01/${variable}/day/
+bp_dirpath=/user/work/vf20964/moose/${domain}/${resolution}/rcp85/01/${variable}/day
 
 mkdir -p ${local_dirpath}
 
 for year in 1981 2021 2061; do
   let "dec_year=year-1"
   time_range="${dec_year}1201-${year}1130"
-  filename=${variable}_rcp85_${collection}_london_${resolution}_01_day_${time_range}.nc
+  filename=${variable}_rcp85_${collection}_${domain}_${resolution}_01_day_${time_range}.nc
 
   scp ${bp_host}:${bp_dirpath}/${filename} ${local_dirpath}
 done
