@@ -5,6 +5,7 @@ import typer
 class DomainOption(str, Enum):
     uk = "uk"
     london = "london"
+    birmingham = "birmingham"
 
 class CollectionOption(str, Enum):
     gcm = "land-gcm"
