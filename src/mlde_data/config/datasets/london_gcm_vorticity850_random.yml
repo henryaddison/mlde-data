@@ -2,7 +2,7 @@ domain: london
 frequency: day
 ensemble_member: "01"
 scenario: rcp85
-resolution: 2.2km-coarsened-gcm-2.2km
+resolution: 60km-2.2km
 predictand:
   variable: pr
   resolution: 2.2km-2.2km
