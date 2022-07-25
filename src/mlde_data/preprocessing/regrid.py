@@ -60,10 +60,6 @@ class Regrid:
             regridded_da = xr.DataArray.from_iris(regridder(src_cube))
             regridded_var_attrs = ds[variable].attrs|{"grid_mapping": self.target_ds[self.target_cube.var_name].attrs["grid_mapping"]}
 
-            # forecast_reference_time depends on the time slice but doesn't affect the grid
-            # so update for target grid dataset to match the data being regridded
-            # self.target_ds['forecast_reference_time'] = ds['forecast_reference_time']
-
             vars.update({variable: (['time', target_lat_name, target_lon_name], regridded_da.values, regridded_var_attrs)})
 
         # add grid mapping data from target grid
