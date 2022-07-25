@@ -16,7 +16,7 @@ data_variable="pr"
 variable_config_name="cpm-${data_variable}"
 frequency="day"
 src_vars=(lsrain lssnow)
-target_sfs=(1 4)
+target_sfs=(1)
 variable_sfs=(1 8 gcm)
 
 while getopts ":d:" opt; do

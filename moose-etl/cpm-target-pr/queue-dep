@@ -1,0 +1,14 @@
+#! /usr/bin/bash
+
+set -euo pipefail
+
+domain=$1
+
+ts1jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable ./master-script -d ${domain} $(seq 1981 1 2000))
+echo ${ts1jobid}
+
+ts2jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${ts1jobid} ./master-script -d ${domain} $(seq 2021 1 2040))
+echo ${ts2jobid}
+
+ts3jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${ts2jobid} ./master-script  -d ${domain} $(seq 2061 1 2080))
+echo ${ts3jobid}
