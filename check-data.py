@@ -56,8 +56,13 @@ for domain, var_resolutions in domain_var_resolutions.items():
     for var, resolutions in var_resolutions.items():
         for res in resolutions:
             for year in years:
-                print(f"Checking {year} for {var} over {domain} at {res}")
                 var_meta = UKCPDatasetMetadata(os.getenv("MOOSE_DERIVED_DATA"), variable=var, frequency="day", domain=domain, resolution=res)
 
-                assert xr.open_dataset(var_meta.filepath(year))[var].isnull().sum().values.item() == 0
+                nan_count = xr.open_dataset(var_meta.filepath(year))[var].isnull().sum().values.item()
+
+                try:
+                    assert nan_count == 0
+                    print(f"Checking {year} for {var} over {domain} at {res}")
+                except AssertionError:
+                    print(f"Failed {year} for {var} over {domain} at {res}: {nan_count} NaNs")
 
