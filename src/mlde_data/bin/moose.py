@@ -297,6 +297,9 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
         assert len(ds.grid_latitude) == 64
         assert len(ds.grid_longitude) == 64
 
+    # there should be no missing values in this dataset
+    assert ds[config["variable"]].isnull().sum().values.item() == 0
+
     data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
 
     output_metadata = UKCPDatasetMetadata(data_basedir, frequency=frequency, domain=domain.value, resolution=f"{variable_resolution}-{target_resolution}", ensemble_member='01', variable=config['variable'])
