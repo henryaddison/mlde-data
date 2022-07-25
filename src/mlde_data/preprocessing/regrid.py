@@ -17,7 +17,7 @@ class Regrid:
         self.target_cube = iris.load_cube(target_grid_filepath)
         self.target_ds = xr.open_dataset(target_grid_filepath)
         self.variables = variables
-        self.scheme = self.SCHEMES[scheme](extrapolation_mode="mask")
+        self.scheme = self.SCHEMES[scheme]()
 
         pass
 
