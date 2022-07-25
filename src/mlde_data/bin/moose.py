@@ -248,6 +248,9 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             logger.info(f"Renaming {VARIABLE_CODES[src_variable]['moose_name']} to {src_variable}...")
             ds = ds.rename({VARIABLE_CODES[src_variable]["moose_name"]: src_variable})
 
+        # remove forecast related coords that we don't need
+        ds = ds.reset_coords(["forecast_period", "forecast_reference_time", "realization"], drop=True).drop_vars(["forecast_period_bnds"])
+
         sources[src_variable] = ds
 
     logger.info(f"Combining {config['sources']}...")
