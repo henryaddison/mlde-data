@@ -47,8 +47,8 @@ for year in $@; do
   # Transform (into vorticity on sci JASMIN)
 
   for sf in ${scale_factors[@]}; do
-    target_sf=sf
-    variable_sf=sf
+    target_sf=${sf}
+    variable_sf=${sf}
     if [ $target_sf -eq 1 ]; then
       target_resolution="2.2km"
     else
