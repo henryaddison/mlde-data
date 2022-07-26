@@ -8,31 +8,12 @@ domain_var_resolutions = {
     "london": {
         "pr": [
             "2.2km-2.2km",
-            "2.2km-coarsened-2x-2.2km-coarsened-2x",
-            "2.2km-coarsened-4x-2.2km-coarsened-4x",
-            "2.2km-coarsened-8x-2.2km-coarsened-8x",
-            "2.2km-coarsened-27x-2.2km",
-            "2.2km-coarsened-27x-2.2km-coarsened-2x",
-            "2.2km-coarsened-27x-2.2km-coarsened-4x",
-            "2.2km-coarsened-27x-2.2km-coarsened-8x",
-
         ],
         "vorticity850": [
             "2.2km-2.2km",
-            "2.2km-coarsened-4x-2.2km",
             "2.2km-coarsened-8x-2.2km",
-            "2.2km-coarsened-27x-2.2km",
-            "2.2km-coarsened-27x-2.2km-coarsened-2x",
-            "2.2km-coarsened-27x-2.2km-coarsened-4x",
-            "2.2km-coarsened-27x-2.2km-coarsened-8x",
             "2.2km-coarsened-gcm-2.2km",
-            "2.2km-coarsened-gcm-2.2km-coarsened-2x",
-            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
-            "2.2km-coarsened-gcm-2.2km-coarsened-8x",
             # "60km-2.2km",
-            # "60km-2.2km-coarsened-2x",
-            # "60km-2.2km-coarsened-4x",
-            # "60km-2.2km-coarsened-8x",
         ]
     },
     "birmingham": {
@@ -41,8 +22,11 @@ domain_var_resolutions = {
             "2.2km-coarsened-4x-2.2km-coarsened-4x",
         ],
         "vorticity850": [
+            # "2.2km-2.2km",
             "2.2km-coarsened-gcm-2.2km",
             "2.2km-coarsened-gcm-2.2km-coarsened-4x",
+            # "60km-2.2km",
+            # "60km-2.2km-coarsened-4x",
         ]
     }
 }
