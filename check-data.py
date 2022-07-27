@@ -13,7 +13,8 @@ domain_var_resolutions = {
             "2.2km-2.2km",
             "2.2km-coarsened-8x-2.2km",
             "2.2km-coarsened-gcm-2.2km",
-            # "60km-2.2km",
+            "60km-2.2km",
+            "60km-2.2km-coarsened-4x",
         ]
     },
     "birmingham": {
