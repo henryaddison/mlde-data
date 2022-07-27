@@ -53,6 +53,6 @@ for domain, var_resolutions in domain_var_resolutions.items():
 
                 # TODO: check for forecast metadata (should have been stripped)
 
-            for reason, years in bad_years.items():
-                if len(years) > 0:
-                    print(f"Failed '{reason}': {var} over {domain} at {res} for {' '.join(years)}")
+            for reason, error_years in bad_years.items():
+                if len(error_years) > 0:
+                    print(f"Failed '{reason}': {var} over {domain} at {res} for {' '.join(error_years)}")
