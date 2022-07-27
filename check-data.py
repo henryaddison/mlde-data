@@ -19,7 +19,7 @@ domain_var_resolutions = {
     },
     "birmingham": {
         "pr": [
-            "2.2km-2.2km",
+            # "2.2km-2.2km",
             "2.2km-coarsened-4x-2.2km-coarsened-4x",
         ],
         "vorticity850": [
