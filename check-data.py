@@ -55,4 +55,4 @@ for domain, var_resolutions in domain_var_resolutions.items():
 
             for reason, error_years in bad_years.items():
                 if len(error_years) > 0:
-                    print(f"Failed '{reason}': {var} over {domain} at {res} for {' '.join(error_years)}")
+                    print(f"Failed '{reason}': {var} over {domain} at {res} for {error_years}")
