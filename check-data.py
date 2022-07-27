@@ -51,6 +51,8 @@ for domain, var_resolutions in domain_var_resolutions.items():
                 except FileNotFoundError:
                     bad_years["no file"].append(year)
 
-                for reason, years in bad_years.items():
-                    if len(years) > 0:
-                        print(f"Failed '{reason}': {var} over {domain} at {res} for {' '.join(years)}")
+                # TODO: check for forecast metadata (should have been stripped)
+
+            for reason, years in bad_years.items():
+                if len(years) > 0:
+                    print(f"Failed '{reason}': {var} over {domain} at {res} for {' '.join(years)}")
