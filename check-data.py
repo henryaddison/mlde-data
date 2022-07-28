@@ -21,6 +21,10 @@ domain_var_resolutions = {
         "pr": [
             # "2.2km-2.2km",
             "2.2km-coarsened-4x-2.2km-coarsened-4x",
+            "2.2km-coarsened-gcm-2.2km",
+            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
+            "60km-2.2km",
+            "60km-2.2km-coarsened-4x",
         ],
         "vorticity850": [
             # "2.2km-2.2km",
