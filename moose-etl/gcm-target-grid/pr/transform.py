@@ -10,7 +10,7 @@ working_grid_nc_path = "moose-grid.nc"
 target_grid_path = Path("../../../src/ml_downscaling_emulator/utils/target-grids/60km/global/pr/moose-grid.nc")
 
 # convert pp data to netcdf and open with xr
-target_cube = iris.load(working_grid_pp_path)
+target_cube = iris.load_cube(working_grid_pp_path, iris.Constraint(cube_func=lambda cube: cube.cell_methods[0].method == "mean"))
 iris.save(target_cube, working_grid_nc_path)
 ds = xr.load_dataset(working_grid_nc_path).isel(time=0)
 
