@@ -100,7 +100,8 @@ VARIABLE_CODES = {
         "query": {
             "stash": 5216,
         },
-        "stream": {"land-gcm": {"day": "apa"}}
+        "stream": {"land-gcm": {"day": "apa"}},
+        "moose_name": "precipitation_flux"
     }
 }
 
