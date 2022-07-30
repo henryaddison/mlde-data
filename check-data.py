@@ -8,6 +8,8 @@ domain_var_resolutions = {
     "london": {
         "pr": [
             "2.2km-2.2km",
+            "60km-2.2km",
+            "60km-2.2km-coarsened-4x"
         ],
         "vorticity850": [
             "2.2km-2.2km",
