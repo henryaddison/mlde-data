@@ -45,20 +45,29 @@ for domain, var_resolutions in domain_var_resolutions.items():
         for res in resolutions:
             print(f"Checking {var} over {domain} at {res}")
 
-            bad_years = {"NaNs": [], "no file": []}
+            bad_years = {"NaNs": set(), "no file": set(), "forecast_encoding": set(), "forecast_vars": set()}
             for year in years:
                 var_meta = UKCPDatasetMetadata(os.getenv("MOOSE_DERIVED_DATA"), variable=var, frequency="day", domain=domain, resolution=res)
 
                 try:
-                    nan_count = xr.open_dataset(var_meta.filepath(year))[var].isnull().sum().values.item()
-                    assert nan_count == 0
-                except AssertionError:
-                    bad_years["NaNs"].append(year)
+                    ds = xr.open_dataset(var_meta.filepath(year))
                 except FileNotFoundError:
-                    bad_years["no file"].append(year)
+                    bad_years["no file"].add(year)
+                    continue
 
-                # TODO: check for forecast metadata (should have been stripped)
+                nan_count = ds[var].isnull().sum().values.item()
 
+                if nan_count > 0:
+                    bad_years["NaNs"].add(year)
+
+                # check for forecast related metadata (should have been stripped)
+                for v in ds.variables:
+                    if "coordinates" in ds[v].encoding:
+                        bad_years["forecast_encoding"].add(year)
+                    if v in ["forecast_period", "forecast_reference_time", "realization", "forecast_period_bnds"]:
+                       bad_years["forecast_vars"].add(year)
+
+            # report findings
             for reason, error_years in bad_years.items():
                 if len(error_years) > 0:
                     print(f"Failed '{reason}': {var} over {domain} at {res} for {error_years}")
