@@ -50,7 +50,7 @@ for domain, var_resolutions in domain_var_resolutions.items():
                 var_meta = UKCPDatasetMetadata(os.getenv("MOOSE_DERIVED_DATA"), variable=var, frequency="day", domain=domain, resolution=res)
 
                 try:
-                    ds = xr.open_dataset(var_meta.filepath(year))
+                    ds = xr.load_dataset(var_meta.filepath(year))
                 except FileNotFoundError:
                     bad_years["no file"].add(year)
                     continue
