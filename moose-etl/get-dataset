@@ -1,0 +1,17 @@
+#!/bin/bash
+# Sync dataset splits from bluepebble to local filesystem
+
+set -euo pipefail
+
+dataset=$1
+bp_host=${2:-"bp"}
+
+ds_path="nc-datasets/${dataset}/"
+
+bp_path="/user/work/vf20964/moose/${ds_path}"
+local_path="${MOOSE_DERIVED_DATA}/${ds_path}"
+
+mkdir -p ${local_path}
+
+set -x
+rsync -avz ${bp_host}:${bp_path} ${local_path}
