@@ -27,14 +27,14 @@ def remove_forecast(ds):
     return ds
 
 datasets = [
-    # "2.2km-coarsened-8x_london_vorticity850_random",
-    # "2.2km-coarsened-gcm-2.2km-coarsened-4x_birmingham_vorticity850_random",
-    # "60km-2.2km-coarsened-4x_birmingham_vorticity850_random",
-    # "2.2km-coarsened-gcm-2.2km_london_vorticity850_random",
+    "2.2km-coarsened-8x_london_vorticity850_random",
+    "2.2km-coarsened-gcm-2.2km-coarsened-4x_birmingham_vorticity850_random",
+    "60km-2.2km-coarsened-4x_birmingham_vorticity850_random",
+    "2.2km-coarsened-gcm-2.2km_london_vorticity850_random",
     "60km-2.2km_london_vorticity850_random"
 ]
 
-splits = ["val", "test"]
+splits = ["train", "val", "test"]
 
 for dataset in datasets:
     for split in splits:
