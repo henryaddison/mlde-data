@@ -62,7 +62,7 @@ for domain, var_resolutions in domain_var_resolutions.items():
 
                 # check for forecast related metadata (should have been stripped)
                 for v in ds.variables:
-                    if "coordinates" in ds[v].encoding:
+                    if "coordinates" in ds[v].encoding and "forecast" in ds[v].encoding["coordinates"]:
                         bad_years["forecast_encoding"].add(year)
                     if v in ["forecast_period", "forecast_reference_time", "realization", "forecast_period_bnds"]:
                        bad_years["forecast_vars"].add(year)
