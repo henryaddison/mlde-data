@@ -1,4 +1,5 @@
 import glob
+import re
 from importlib_resources import files
 import logging
 import os
@@ -50,6 +51,23 @@ def raw_nc_filepath(variable: str, year: int, frequency: str, domain: str, resol
 
 def processed_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str):
     return Path(os.getenv("DERIVED_DATA"))/"moose"/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
+
+def remove_forecast(ds):
+    coords_to_remove = []
+    for v in ds.variables:
+        if v in ["forecast_period", "forecast_reference_time", "realization"]:
+            coords_to_remove.append(v)
+    ds = ds.reset_coords(coords_to_remove, drop=True)
+
+    if "forecast_period_bnds" in ds.variables:
+        ds = ds.drop_vars("forecast_period_bnds", errors='ignore')
+
+    for v in ds.variables:
+        if "coordinates" in ds[v].encoding:
+            new_coords_encoding = re.sub("(realization|forecast_period|forecast_reference_time) ?", "", ds[v].encoding["coordinates"]).strip()
+            ds[v].encoding.update({"coordinates": new_coords_encoding})
+
+    return ds
 
 @app.command()
 def extract(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...), cache: bool = True):
@@ -255,7 +273,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             ds = ds.rename({VARIABLE_CODES[src_variable]["moose_name"]: src_variable})
 
         # remove forecast related coords that we don't need
-        ds = ds.reset_coords(["forecast_period", "forecast_reference_time", "realization"], drop=True).drop_vars(["forecast_period_bnds"])
+        ds = remove_forecast(ds)
 
         sources[src_variable] = ds
 
