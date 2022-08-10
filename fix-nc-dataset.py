@@ -1,4 +1,5 @@
 import os
+import re
 
 import iris
 import xarray as xr
@@ -9,7 +10,7 @@ def remove_forecast(ds):
     vars_to_remove = []
     coord_encodings_to_remove = []
     for v in ds.variables:
-        if "coordinates" in ds[v].encoding and "forecast" in ds[v].encoding["coordinates"]:
+        if ("coordinates" in ds[v].encoding) and (re.match("(realization|forecast_period|forecast_reference_time) ?", ds[v].encoding["coordinates"]) is not None):
             coord_encodings_to_remove.append(v)
         if v in ["forecast_period", "forecast_reference_time", "realization", "forecast_period_bnds"]:
             vars_to_remove.append(v)
@@ -21,8 +22,9 @@ def remove_forecast(ds):
 
     ds = ds.drop_vars(vars_to_remove)
     for v in ds.variables:
-        if "coordinates" in ds[v].encoding and "forecast" in ds[v].encoding["coordinates"]:
-            print(v, ds[v].encoding.pop("coordinates", None))
+        if "coordinates" in ds[v].encoding:
+            new_coords_encoding = re.sub("(realization|forecast_period|forecast_reference_time) ?", "", ds[v].encoding["coordinates"]).strip()
+            ds[v].encoding.update({"coordinates": new_coords_encoding})
 
     return ds
 
