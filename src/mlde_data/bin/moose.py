@@ -300,7 +300,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
                     typer.echo(f"Coarsening {scale_factor}x...")
                     variable_resolution = f"{variable_resolution}-coarsened-{scale_factor}x"
                     ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
-        elif job_spec['action'] == "regrid":
+        elif job_spec['action'] == "regrid_to_target":
             if target_resolution != variable_resolution:
                 typer.echo(f"Regridding to target resolution...")
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', target_resolution, 'uk', 'moose_grid.nc')

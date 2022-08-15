@@ -17,7 +17,7 @@ spec:
       scale_factor: $scale_factor
   - action: sum
     variables: [lssnow, lsrain]
-  - action: regrid
+  - action: regrid_to_target
     variable: pr
   - action: select-subdomain
     parameters:
