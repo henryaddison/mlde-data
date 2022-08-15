@@ -1,0 +1,23 @@
+variable: spechum250
+attrs:
+  units: s-1
+  standard_name: relative_vorticity_850hPa
+  grid_mapping: rotated_latitude_longitude
+sources:
+  type: moose
+  collection: land-cpm
+  variables:
+    # assumes already extracted and converted to nc
+    # implicit here is rename variable
+    - spechum
+spec:
+  - action: constrain
+    query: {pressure: 250.0}
+  - action: coarsen
+    parameters:
+      scale_factor: $scale_factor
+  - action: regrid_to_target
+  - action: select-subdomain
+    parameters:
+      domain: $domain
+  # implicit final actions: assign attrs, save, cleanup extraction?
