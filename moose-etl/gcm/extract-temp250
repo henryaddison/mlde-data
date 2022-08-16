@@ -1,0 +1,11 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+collection="land-gcm"
+variable="temp250"
+domain="birmingham"
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+${SCRIPT_DIR}/../queue-dep ${collection} ${variable} ${domain}
