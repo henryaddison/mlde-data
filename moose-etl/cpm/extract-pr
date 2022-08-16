@@ -5,7 +5,8 @@ set -euo pipefail
 collection="land-cpm"
 variable="pr"
 domain="birmingham"
+variable_sf="gcm"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-${SCRIPT_DIR}/../queue-dep ${collection} ${variable} ${domain}
+${SCRIPT_DIR}/../queue-dep ${collection} ${variable} ${domain} ${variable_sf}

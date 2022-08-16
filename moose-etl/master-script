@@ -25,13 +25,16 @@ source["cpm-temp250"]="temp"
 
 # parse commandline arguments
 
-while getopts ":c:v:d:" opt; do
+while getopts ":c:v:s:d:" opt; do
   case ${opt} in
     c)
       collection=${OPTARG}
       ;;
     v )
       data_variable=${OPTARG}
+      ;;
+    s )
+      variable_sfs=(${OPTARG})
       ;;
     d )
       domain=${OPTARG}
