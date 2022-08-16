@@ -8,7 +8,7 @@ domain=$3
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-pushd ${SCRIPT_DIR}/..
+pushd ${SCRIPT_DIR}
 
 ts1jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable ./master-script -c ${collection} -v ${variable} -d ${domain} $(seq 1981 1 2000))
 echo ${ts1jobid}
