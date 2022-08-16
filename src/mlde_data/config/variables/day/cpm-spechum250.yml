@@ -1,7 +1,7 @@
 variable: spechum250
 attrs:
-  units: s-1
-  standard_name: relative_vorticity_850hPa
+  units: 1
+  standard_name: specific_humidity
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose

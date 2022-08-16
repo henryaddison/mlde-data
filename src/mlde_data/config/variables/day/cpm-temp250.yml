@@ -1,7 +1,7 @@
 variable: temp250
 attrs:
-  units: s-1
-  standard_name: relative_vorticity_850hPa
+  units: K
+  standard_name: air_temperature
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
