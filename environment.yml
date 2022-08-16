@@ -35,7 +35,6 @@ dependencies:
   - bzip2=1.0.8=h7f98852_4
   - c-ares=1.18.1=h7f98852_0
   - ca-certificates=2022.6.15=ha878542_0
-  - cachetools=5.0.0=pyhd8ed1ab_0
   - cairo=1.16.0=ha61ee94_1011
   - cartopy=0.20.3=py39hed214b2_1
   - cdo=2.0.5=h98cb44a_1
@@ -326,7 +325,6 @@ dependencies:
   - typer=0.5.0=pyhd8ed1ab_0
   - typing-extensions=4.3.0=hd8ed1ab_0
   - typing_extensions=4.3.0=pyha770c72_0
-  - tzdata=2022a=h191b570_0
   - udunits2=2.2.28=hc3e0081_0
   - unicodedata2=14.0.0=py39hb9d737c_1
   - urllib3=1.26.10=pyhd8ed1ab_0
@@ -369,9 +367,13 @@ dependencies:
   - pip:
     - alembic==1.4.1
     - appdirs==1.4.4
+    - apscheduler==3.6.3
+    - cachetools==4.2.2
     - configparser==5.1.0
     - contextlib2==21.6.0
     - contrailonlinecaclient==0.5.1
+    - cssselect==1.1.0
+    - cssutils==2.5.1
     - databricks-cli==0.16.2
     - docker==5.0.3
     - docker-pycreds==0.4.0
@@ -382,19 +384,28 @@ dependencies:
     - greenlet==1.1.2
     - gunicorn==20.1.0
     - itsdangerous==2.0.1
+    - jeepney==0.8.0
+    - keyring==23.8.1
+    - knockknock==0.1.8.1
+    - lxml==4.9.1
     - mako==1.1.5
+    - matrix-client==0.4.0
     - metpy==1.2.0
     - ml-collections==0.1.1
     - mlflow==1.21.0
     - pathtools==0.1.2
     - pint==0.18
     - pooch==1.6.0
+    - premailer==3.10.0
     - prometheus-client==0.12.0
     - prometheus-flask-exporter==0.18.5
     - promise==2.3
     - pyproj==3.3.0
     - python-editor==1.0.4
+    - python-telegram-bot==13.13
+    - pytz-deprecation-shim==0.1.0.post0
     - querystring-parser==1.2.4
+    - secretstorage==3.3.2
     - sentry-sdk==1.4.3
     - shortuuid==1.0.8
     - smmap==5.0.0
@@ -404,7 +415,11 @@ dependencies:
     - tabulate==0.8.9
     - termcolor==1.1.0
     - traitlets==5.1.1
+    - twilio==7.12.0
+    - tzdata==2022.1
+    - tzlocal==4.2
     - wandb==0.12.6
     - websocket-client==1.2.1
+    - yagmail==0.15.280
     - yaspin==2.1.0
 prefix: /home/henry/anaconda3/envs/cuda-downscaling

@@ -61,7 +61,7 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="MOOS
     output_subdir = "_".join([config["resolution"], config["domain"], "-".join([pred["variable"] for pred in config["predictors"]]), config["split_scheme"]])
     output_dir = os.path.join(output_base_dir, "nc-datasets", output_subdir)
 
-    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=False)
 
     logger.info(f"Saving data to {output_dir}")
     with open(os.path.join(output_dir, "ds-config.yml"), 'w') as f:

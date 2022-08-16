@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+rm -rf pp-data
+mkdir -p pp-data
+# get some xwind data (same as ywind) as the base for vorticity grid
+moo select searchfile moose:ens/u-ap977/r001i1p00000/ape.pp pp-data/
+
+python transform.py

@@ -1,4 +1,5 @@
 import glob
+import re
 from importlib_resources import files
 import logging
 import os
@@ -50,6 +51,23 @@ def raw_nc_filepath(variable: str, year: int, frequency: str, domain: str, resol
 
 def processed_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str):
     return Path(os.getenv("DERIVED_DATA"))/"moose"/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
+
+def remove_forecast(ds):
+    coords_to_remove = []
+    for v in ds.variables:
+        if v in ["forecast_period", "forecast_reference_time", "realization"]:
+            coords_to_remove.append(v)
+    ds = ds.reset_coords(coords_to_remove, drop=True)
+
+    if "forecast_period_bnds" in ds.variables:
+        ds = ds.drop_vars("forecast_period_bnds", errors='ignore')
+
+    for v in ds.variables:
+        if "coordinates" in ds[v].encoding:
+            new_coords_encoding = re.sub("(realization|forecast_period|forecast_reference_time) ?", "", ds[v].encoding["coordinates"]).strip()
+            ds[v].encoding.update({"coordinates": new_coords_encoding})
+
+    return ds
 
 @app.command()
 def extract(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...), cache: bool = True):
@@ -126,7 +144,13 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     pp_files_glob = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)/"*.pp"
     output_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
 
-    src_cube = iris.load_cube(str(pp_files_glob))
+
+    if variable == "pr" and collection == CollectionOption.gcm:
+        # for some reason precip extract for GCM has a mean and max hourly cell method version
+        # only want the mean version
+        src_cube = iris.load_cube(str(pp_files_glob), iris.Constraint(cube_func=lambda cube: cube.cell_methods[0].method == "mean"))
+    else:
+        src_cube = iris.load_cube(str(pp_files_glob))
 
     # bug in the xwind and ywind data means the final grid_latitude bound is very large (1.0737418e+09)
     if collection == CollectionOption.cpm and variable in ["xwind", "ywind"]:
@@ -248,6 +272,9 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             logger.info(f"Renaming {VARIABLE_CODES[src_variable]['moose_name']} to {src_variable}...")
             ds = ds.rename({VARIABLE_CODES[src_variable]["moose_name"]: src_variable})
 
+        # remove forecast related coords that we don't need
+        ds = remove_forecast(ds)
+
         sources[src_variable] = ds
 
     logger.info(f"Combining {config['sources']}...")
@@ -262,7 +289,8 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             if scale_factor == "gcm":
                 typer.echo(f"Remapping conservatively to gcm grid...")
                 variable_resolution = f"{variable_resolution}-coarsened-gcm"
-                target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', '60km', 'global', 'moose_grid.nc')
+                # pick the target grid based on the particular variable
+                target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', '60km', 'global', config["variable"], 'moose_grid.nc')
                 ds = Remapcon(target_grid_filepath).run(ds)
             else:
                 scale_factor = int(scale_factor)
@@ -275,7 +303,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
         elif job_spec['action'] == "regrid":
             if target_resolution != variable_resolution:
                 typer.echo(f"Regridding to target resolution...")
-                target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', target_resolution, 'uk', 'moose_pr_grid.nc')
+                target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', target_resolution, 'uk', 'moose_grid.nc')
 
                 ds = Regrid(target_grid_filepath, variables=[config['variable']]).run(ds)
         elif job_spec['action'] == "vorticity":
@@ -283,12 +311,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             ds = Vorticity().run(ds)
         elif job_spec['action'] == "select-subdomain":
             typer.echo(f"Select {domain.value} subdomain...")
-            if target_resolution == "2.2km":
-                size = 64
-            elif target_resolution == "2.2km-coarsened-8x":
-                size = 16
-            else:
-                size = 32
+            size = 64
             ds = SelectDomain(subdomain=domain.value, size=size).run(ds)
         elif job_spec['action'] == "constrain":
             typer.echo(f"Filtering...")
@@ -298,6 +321,9 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     if domain == DomainOption.london and target_resolution == "2.2km":
         assert len(ds.grid_latitude) == 64
         assert len(ds.grid_longitude) == 64
+
+    # there should be no missing values in this dataset
+    assert ds[config["variable"]].isnull().sum().values.item() == 0
 
     data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
 
