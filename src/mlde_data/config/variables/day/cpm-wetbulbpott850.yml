@@ -9,10 +9,12 @@ sources:
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - spechum
+    - wetbulbpott
 spec:
   - action: constrain
     query: {pressure: 850.0}
+  - action: rename
+    mapping: {"wetbulbpott": "wetbulbpott850"}
   - action: coarsen
     parameters:
       scale_factor: $scale_factor

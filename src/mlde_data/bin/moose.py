@@ -320,6 +320,9 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
         elif job_spec['action'] == "constrain":
             typer.echo(f"Filtering...")
             ds = Constrain(query=job_spec['query']).run(ds)
+        elif job_spec['action'] == "rename":
+            typer.echo(f"Renaming...")
+            ds = ds.rename(job_spec["mapping"])
         else:
             raise f"Unknown action {job_spec['action']}"
     if domain == DomainOption.london and target_resolution == "2.2km":

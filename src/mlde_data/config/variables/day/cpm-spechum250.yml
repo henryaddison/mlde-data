@@ -13,6 +13,8 @@ sources:
 spec:
   - action: constrain
     query: {pressure: 250.0}
+  - action: rename
+    mapping: {"spechum": "spechum250"}
   - action: coarsen
     parameters:
       scale_factor: $scale_factor
