@@ -8,15 +8,11 @@ domain=$3
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-pushd ${SCRIPT_DIR}
-
-ts1jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable ./master-script -c ${collection} -v ${variable} -d ${domain} $(seq 1981 1 2000))
+ts1jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable ${SCRIPT_DIR}/master-script -c ${collection} -v ${variable} -d ${domain} $(seq 1981 1 2000))
 echo ${ts1jobid}
 
-ts2jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${ts1jobid} ./master-script -c ${collection} -v ${variable} -d ${domain} $(seq 2021 1 2040))
+ts2jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${ts1jobid} ${SCRIPT_DIR}/master-script -c ${collection} -v ${variable} -d ${domain} $(seq 2021 1 2040))
 echo ${ts2jobid}
 
-ts3jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${ts2jobid} ./master-script -c ${collection} -v ${variable} -d ${domain} $(seq 2061 1 2080))
+ts3jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${ts2jobid} ${SCRIPT_DIR}/master-script -c ${collection} -v ${variable} -d ${domain} $(seq 2061 1 2080))
 echo ${ts3jobid}
-
-popd
