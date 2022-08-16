@@ -152,8 +152,8 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     else:
         src_cube = iris.load_cube(str(pp_files_glob))
 
-    # bug in the xwind and ywind data means the final grid_latitude bound is very large (1.0737418e+09)
-    if collection == CollectionOption.cpm and variable in ["xwind", "ywind"]:
+    # bug in some data means the final grid_latitude bound is very large (1.0737418e+09)
+    if collection == CollectionOption.cpm and variable in ["xwind", "ywind", "spechum", "temp"]:
         bounds = np.copy(src_cube.coord("grid_latitude").bounds)
         bounds[-1][1] = 8.962849
         src_cube.coord("grid_latitude").bounds = bounds
@@ -289,11 +289,10 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             if scale_factor == "gcm":
                 typer.echo(f"Remapping conservatively to gcm grid...")
                 variable_resolution = f"{variable_resolution}-coarsened-gcm"
-                # pick the target grid based on the particular variable
-                target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', '60km', 'global', config["variable"], 'moose_grid.nc')
-                # if variable specific grid does not exist then use the precip one
-                if not os.path.exists(target_grid_filepath):
-                    target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', '60km', 'global', 'pr', 'moose_grid.nc')
+                # pick the target grid based on the job spec
+                # some variables use one grid, others a slightly offset one
+                grid_type = job_spec["parameters"]["grid"]
+                target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', '60km', 'global', grid_type, 'moose_grid.nc')
                 ds = Remapcon(target_grid_filepath).run(ds)
             else:
                 scale_factor = int(scale_factor)

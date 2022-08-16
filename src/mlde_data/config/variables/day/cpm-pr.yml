@@ -15,6 +15,7 @@ spec:
   - action: coarsen
     parameters:
       scale_factor: $scale_factor
+      grid: pr
   - action: sum
     variables: [lssnow, lsrain]
   - action: regrid_to_target
