@@ -291,6 +291,9 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
                 variable_resolution = f"{variable_resolution}-coarsened-gcm"
                 # pick the target grid based on the particular variable
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', '60km', 'global', config["variable"], 'moose_grid.nc')
+                # if variable specific grid does not exist then use the precip one
+                if not os.path.exists(target_grid_filepath):
+                    target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', '60km', 'global', 'pr', 'moose_grid.nc')
                 ds = Remapcon(target_grid_filepath).run(ds)
             else:
                 scale_factor = int(scale_factor)
