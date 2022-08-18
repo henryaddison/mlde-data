@@ -15,6 +15,7 @@ xfer_host="xfer1.jasmin.ac.uk"
 frequency="day"
 target_sfs=(4)
 variable_sfs=(gcm)
+target_size=64
 
 declare -A source
 source["cpm-vorticity"]="xwind ywind"
@@ -25,7 +26,7 @@ source["cpm-temp250"]="temp"
 
 # parse commandline arguments
 
-while getopts ":c:v:s:d:" opt; do
+while getopts ":c:v:s:d:p:" opt; do
   case ${opt} in
     c)
       collection=${OPTARG}
@@ -38,6 +39,9 @@ while getopts ":c:v:s:d:" opt; do
       ;;
     d )
       domain=${OPTARG}
+      ;;
+    p )
+      target_size=${OPTARG}
       ;;
    \? )
      echo "Invalid Option: -${OPTARG}" 1>&2
@@ -98,12 +102,12 @@ for year in $@; do
 
       resolution="${variable_resolution}-${target_resolution}"
 
-      mlde moose create-variable --variable ${variable_config_name} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution}
+      mlde moose create-variable --variable ${variable_config_name} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution} --target-size ${target_size}
 
       # Load (vorticity onto BP storage)
-      filename="${data_variable}_rcp85_${collection}_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
+      filename="${data_variable}_rcp85_${collection}_${domain}-${target_size}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
       config_filename="${variable_config_name}-${year}.yml"
-      file_subdirpath="${domain}/${resolution}/rcp85/01/${data_variable}/${frequency}"
+      file_subdirpath="${domain}-${target_size}/${resolution}/rcp85/01/${data_variable}/${frequency}"
       jasmin_dirpath="/home/users/vf20964/derived_data/moose/${file_subdirpath}"
       bp_dirpath="/user/work/vf20964/moose/${file_subdirpath}"
 
