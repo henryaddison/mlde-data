@@ -167,46 +167,6 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     assert len(xr.open_dataset(output_filepath).time) == 360
 
 @app.command()
-def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", scale_factor: int = typer.Option(...), subdomain: DomainOption = DomainOption.london, target_frequency: str = "day"):
-    """
-    Pre-process the moose data:
-        1. Re-name the variable
-        2. Re-sample the data to a match a target frequency
-        3. Coarsen by given scale-factor
-        4. Select a subdomain
-    """
-    input_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency)
-
-    ds = xr.load_dataset(input_filepath)
-
-    if "moose_name" in VARIABLE_CODES[variable]:
-        logger.info(f"Renaming {VARIABLE_CODES[variable]['moose_name']} to {variable}...")
-        ds = ds.rename({VARIABLE_CODES[variable]["moose_name"]: variable})
-
-    if frequency != target_frequency:
-        ds = Resample(target_frequency=target_frequency).run(ds)
-
-    if scale_factor != 1:
-        typer.echo(f"Coarsening {scale_factor}x...")
-        target_resolution = f"2.2km-coarsened-{scale_factor}x"
-        uncoarsened_ds = ds.clone()
-        ds = Coarsen(scale_factor=scale_factor).run(ds)
-        ds = Regrid(target_grid=uncoarsened_ds, variable=variable).run(ds)
-    else:
-        target_resolution = "2.2km"
-
-    typer.echo(f"Select {subdomain.value} subdomain...")
-    ds = SelectDomain(subdomain=subdomain.value).run(ds)
-
-    assert len(ds.grid_latitude) == 64
-    assert len(ds.grid_longitude) == 64
-
-    output_filepath = processed_nc_filepath(variable=variable, year=year, frequency=target_frequency, domain=subdomain.value, resolution=target_resolution)
-    typer.echo(f"Saving to {output_filepath}...")
-    os.makedirs(output_filepath.parent, exist_ok=True)
-    ds.to_netcdf(output_filepath)
-
-@app.command()
 def clean(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...)):
     """
     Remove any unneccessary files once processing is done
