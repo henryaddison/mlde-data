@@ -18,8 +18,8 @@ variable_sfs=(gcm)
 target_size=64
 
 declare -A source
-source["cpm-vorticity"]="xwind ywind"
-source["gcm-vorticity"]="xwind ywind"
+source["cpm-vorticity850"]="xwind ywind"
+source["gcm-vorticity850"]="xwind ywind"
 source["cpm-pr"]="lsrain lssnow"
 source["gcm-pr"]="pr"
 source["cpm-temp250"]="temp"
