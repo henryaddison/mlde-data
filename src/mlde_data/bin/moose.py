@@ -228,7 +228,7 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     if os.path.exists(raw_nc_path): os.remove(raw_nc_path)
 
 @app.command()
-def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km"):
+def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
     """
     Create a new variable from moose data
     """
@@ -315,8 +315,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             ds = Vorticity().run(ds)
         elif job_spec['action'] == "select-subdomain":
             typer.echo(f"Select {domain.value} subdomain...")
-            size = 64
-            ds = SelectDomain(subdomain=domain.value, size=size).run(ds)
+            ds = SelectDomain(subdomain=domain.value, size=target_size).run(ds)
         elif job_spec['action'] == "constrain":
             typer.echo(f"Filtering...")
             ds = Constrain(query=job_spec['query']).run(ds)
@@ -325,16 +324,16 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             ds = ds.rename(job_spec["mapping"])
         else:
             raise f"Unknown action {job_spec['action']}"
-    if domain == DomainOption.london and target_resolution == "2.2km":
-        assert len(ds.grid_latitude) == 64
-        assert len(ds.grid_longitude) == 64
+
+    assert len(ds.grid_latitude) == target_size
+    assert len(ds.grid_longitude) == target_size
 
     # there should be no missing values in this dataset
     assert ds[config["variable"]].isnull().sum().values.item() == 0
 
     data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
 
-    output_metadata = UKCPDatasetMetadata(data_basedir, frequency=frequency, domain=domain.value, resolution=f"{variable_resolution}-{target_resolution}", ensemble_member='01', variable=config['variable'])
+    output_metadata = UKCPDatasetMetadata(data_basedir, frequency=frequency, domain=domain.value, resolution=f"{variable_resolution}-{target_resolution}", ensemble_member='01', variable=config['variable'], target_size=target_size)
 
     logger.info(f"Saving data to {output_metadata.filepath(year)}")
     os.makedirs(output_metadata.dirpath(), exist_ok=True)
