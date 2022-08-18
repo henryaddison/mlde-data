@@ -30,13 +30,13 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="MOOS
     with open(config, 'r') as f:
         config = yaml.safe_load(f)
 
-    predictand_var_params = {k: config[k] for k in ["domain", "ensemble_member", "scenario", "frequency"]}
+    predictand_var_params = {k: config[k] for k in ["domain", "target_size", "ensemble_member", "scenario", "frequency"]}
     predictand_var_params.update({"variable": config["predictand"]["variable"], "resolution":  config["predictand"]["resolution"]})
     predictand_meta = UKCPDatasetMetadata(input_base_dir, **predictand_var_params)
 
     predictors_meta = []
     for predictor_var_config in config["predictors"]:
-        var_params = {k: config[k] for k in ["domain", "ensemble_member", "scenario", "frequency", "resolution"]}
+        var_params = {k: config[k] for k in ["domain", "target_size", "ensemble_member", "scenario", "frequency", "resolution"]}
         var_params.update({k: predictor_var_config[k] for k in ["variable"]})
         predictors_meta.append(UKCPDatasetMetadata(input_base_dir, **var_params))
 
