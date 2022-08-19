@@ -5,9 +5,9 @@ set -euo pipefail
 collection="land-cpm"
 variable="pr"
 domain="birmingham"
-variable_sf=4
+variable_sf=1
 target_sf=${variable_sf}
-size=64
+size=256
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
