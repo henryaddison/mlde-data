@@ -21,7 +21,7 @@ class UKCPDatasetMetadata:
     def fq_domain(self):
         """Fully-qualified domain - for subdomains the domain is really a combination of the domain centre and its size. For full domains like 'uk' and 'global' then also need a way to bypass the size (as quite reasonably may not know it)"""
         if self.target_size is not None:
-            return "-".join([self.domain, self.target_size])
+            return "-".join([self.domain, str(self.target_size)])
         else:
             return self.domain
 
