@@ -59,11 +59,9 @@ shift $((OPTIND -1))
 if [ $collection == "land-cpm" ]; then
   unscaled_variable_resolution="2.2km"
   variable_config_name="cpm-${data_variable}"
-  variable_sfs=(gcm)
 elif [ $collection == "land-gcm"]; then
   unscaled_variable_resolution="60km"
   variable_config_name="gcm-${data_variable}"
-  variable_sfs=(1)
 else
   >&2 echo "unrecognised collection ${collection}"
   exit 1
