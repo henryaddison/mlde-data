@@ -6,7 +6,7 @@ import xarray as xr
 from ml_downscaling_emulator import UKCPDatasetMetadata
 
 domain_var_resolutions = {
-    "london": {
+    "london-64": {
         "pr": [
             "2.2km-2.2km",
             "60km-2.2km",
@@ -20,7 +20,7 @@ domain_var_resolutions = {
             "60km-2.2km-coarsened-4x",
         ]
     },
-    "birmingham": {
+    "birmingham-64": {
         "pr": [
             # "2.2km-2.2km",
             "2.2km-coarsened-4x-2.2km-coarsened-4x",
@@ -35,6 +35,16 @@ domain_var_resolutions = {
             "2.2km-coarsened-gcm-2.2km-coarsened-4x",
             "60km-2.2km",
             "60km-2.2km-coarsened-4x",
+        ]
+    },
+    "birmingham-256": {
+        "pr": [
+            "2.2km-2.2km",
+            # "60km-2.2km",
+        ],
+        "vorticity850": [
+            "2.2km-coarsened-gcm-2.2km",
+            # "60km-2.2km"
         ]
     }
 }
