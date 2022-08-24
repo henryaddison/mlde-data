@@ -105,6 +105,7 @@ dependencies:
   - importlib-metadata=4.11.4=py39hf3d152e_0
   - importlib_metadata=4.11.4=hd8ed1ab_0
   - importlib_resources=5.8.0=pyhd8ed1ab_0
+  - iniconfig=1.1.1=pyh9f0ad1d_0
   - intel-openmp=2022.0.1=h06a4308_3633
   - ipykernel=6.15.1=pyh210e3f2_0
   - ipython=8.4.0=py39hf3d152e_0
@@ -249,6 +250,7 @@ dependencies:
   - pillow=9.2.0=py39hae2aec6_0
   - pip=22.1.2=pyhd8ed1ab_0
   - pixman=0.40.0=h36c2ea0_0
+  - pluggy=1.0.0=py39hf3d152e_3
   - ply=3.11=py_1
   - portaudio=19.6.0=h57a0ea0_5
   - proj=9.0.1=h93bde94_1
@@ -260,6 +262,7 @@ dependencies:
   - ptyprocess=0.7.0=pyhd3deb0d_0
   - pulseaudio=14.0=h7f54b18_8
   - pure_eval=0.2.2=pyhd8ed1ab_0
+  - py=1.11.0=pyh6c4a22f_0
   - pyasn1=0.4.8=py_0
   - pyasn1-modules=0.2.7=py_0
   - pycparser=2.21=pyhd8ed1ab_0
@@ -273,6 +276,7 @@ dependencies:
   - pyrsistent=0.18.1=py39hb9d737c_1
   - pyshp=2.3.0=pyhd8ed1ab_0
   - pysocks=1.7.1=py39hf3d152e_5
+  - pytest=7.1.2=py39hf3d152e_0
   - python=3.9.13=h9a8a25e_0_cpython
   - python-cdo=1.5.6=pyhd8ed1ab_0
   - python-dateutil=2.8.2=pyhd8ed1ab_0
