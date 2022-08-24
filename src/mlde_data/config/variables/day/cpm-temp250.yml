@@ -1,22 +1,25 @@
-variable: vorticity850
+variable: temp250
 attrs:
-  units: s-1
-  standard_name: relative_vorticity_850hPa
+  units: K
+  standard_name: air_temperature
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
-  collection: land-gcm
+  collection: land-cpm
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - xwind
-    - ywind
+    - temp
 spec:
   - action: constrain
-    query: {pressure: 850.0}
-  - action: vorticity
+    query: {pressure: 250.0}
+  - action: rename
+    mapping: {"temp": "temp250"}
+  - action: coarsen
+    parameters:
+      scale_factor: $scale_factor
+      grid: vorticity850
   - action: regrid_to_target
-    variable: vorticity850
   - action: select-subdomain
     parameters:
       domain: $domain

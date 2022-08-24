@@ -17,9 +17,10 @@ spec:
   - action: coarsen
     parameters:
       scale_factor: $scale_factor
+      grid: vorticity850
       variables: [xwind, ywind]
   - action: vorticity
-  - action: regrid
+  - action: regrid_to_target
     variable: vorticity850
   - action: select-subdomain
     parameters:

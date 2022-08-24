@@ -6,23 +6,45 @@ conda activate cuda-downscaling
 
 set -euo pipefail
 
+# some constants and defaults
+
 mass_host="mass-cli.jasmin.ac.uk"
 sci_host="sci2.jasmin.ac.uk"
 xfer_host="xfer1.jasmin.ac.uk"
 
-collection="land-cpm"
-unscaled_variable_resolution="2.2km"
-data_variable="pr"
-variable_config_name="cpm-${data_variable}"
 frequency="day"
-src_vars=(lsrain lssnow)
-target_sfs=(1 4)
+target_sfs=(4)
 variable_sfs=(gcm)
+target_size=64
 
-while getopts ":d:" opt; do
+declare -A source
+source["cpm-vorticity850"]="xwind ywind"
+source["gcm-vorticity850"]="xwind ywind"
+source["cpm-pr"]="lsrain lssnow"
+source["gcm-pr"]="pr"
+source["cpm-temp250"]="temp"
+
+# parse commandline arguments
+
+while getopts ":c:v:s:t:d:p:" opt; do
   case ${opt} in
+    c)
+      collection=${OPTARG}
+      ;;
+    v )
+      data_variable=${OPTARG}
+      ;;
+    s )
+      variable_sfs=(${OPTARG})
+      ;;
+    t )
+      target_sfs=(${OPTARG})
+      ;;
     d )
       domain=${OPTARG}
+      ;;
+    p )
+      target_size=${OPTARG}
       ;;
    \? )
      echo "Invalid Option: -${OPTARG}" 1>&2
@@ -31,6 +53,23 @@ while getopts ":d:" opt; do
   esac
 done
 shift $((OPTIND -1))
+
+# compute other helpful values based on constants and args
+
+if [ $collection == "land-cpm" ]; then
+  unscaled_variable_resolution="2.2km"
+  variable_config_name="cpm-${data_variable}"
+elif [ $collection == "land-gcm"]; then
+  unscaled_variable_resolution="60km"
+  variable_config_name="gcm-${data_variable}"
+else
+  >&2 echo "unrecognised collection ${collection}"
+  exit 1
+fi
+
+src_vars=${source["${variable_config_name}"]}
+
+# do the work
 
 set -x
 
@@ -56,9 +95,6 @@ for year in $@; do
     for variable_sf in ${variable_sfs[@]}; do
       if [ $variable_sf == "gcm" ]; then
         variable_resolution="${unscaled_variable_resolution}-coarsened-gcm"
-      elif [ ${variable_sf} -lt ${target_sf} ]; then
-        # skip if variable data will be higher resolution than target grid
-        continue
       elif [ $variable_sf -eq 1 ]; then
         variable_resolution=${unscaled_variable_resolution}
       else
@@ -67,13 +103,12 @@ for year in $@; do
 
       resolution="${variable_resolution}-${target_resolution}"
 
-      mlde moose create-variable --variable ${variable_config_name} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution}
-
+      mlde moose create-variable --variable ${variable_config_name} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution} --target-size ${target_size}
 
       # Load (vorticity onto BP storage)
-      filename="${data_variable}_rcp85_${collection}_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
+      filename="${data_variable}_rcp85_${collection}_${domain}-${target_size}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
       config_filename="${variable_config_name}-${year}.yml"
-      file_subdirpath="${domain}/${resolution}/rcp85/01/${data_variable}/${frequency}"
+      file_subdirpath="${domain}-${target_size}/${resolution}/rcp85/01/${data_variable}/${frequency}"
       jasmin_dirpath="/home/users/vf20964/derived_data/moose/${file_subdirpath}"
       bp_dirpath="/user/work/vf20964/moose/${file_subdirpath}"
 

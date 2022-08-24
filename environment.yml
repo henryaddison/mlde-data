@@ -216,6 +216,7 @@ dependencies:
   - nbconvert-core=6.5.0=pyhd8ed1ab_0
   - nbconvert-pandoc=6.5.0=pyhd8ed1ab_0
   - nbformat=5.4.0=pyhd8ed1ab_0
+  - nc-time-axis=1.4.1=pyhd8ed1ab_0
   - ncurses=6.3=h27087fc_1
   - nest-asyncio=1.5.5=pyhd8ed1ab_0
   - netcdf4=1.6.0=nompi_py39hf5a3a3f_100

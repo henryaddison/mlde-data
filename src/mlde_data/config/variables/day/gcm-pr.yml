@@ -11,7 +11,7 @@ sources:
     # implicit here is rename variable
     - pr
 spec:
-  - action: regrid
+  - action: regrid_to_target
     variable: pr
   - action: select-subdomain
     parameters:

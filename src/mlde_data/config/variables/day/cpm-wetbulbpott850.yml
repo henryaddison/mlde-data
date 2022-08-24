@@ -1,22 +1,25 @@
-variable: vorticity850
+variable: wetbulbpott850
 attrs:
-  units: s-1
-  standard_name: relative_vorticity_850hPa
+  units: K
+  standard_name: wet_bulb_potential_temperature
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
-  collection: land-gcm
+  collection: land-cpm
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - xwind
-    - ywind
+    - wetbulbpott
 spec:
   - action: constrain
     query: {pressure: 850.0}
-  - action: vorticity
+  - action: rename
+    mapping: {"wetbulbpott": "wetbulbpott850"}
+  - action: coarsen
+    parameters:
+      scale_factor: $scale_factor
+      grid: pr
   - action: regrid_to_target
-    variable: vorticity850
   - action: select-subdomain
     parameters:
       domain: $domain

@@ -1,11 +1,11 @@
-domain: birmingham-64
+domain: birmingham-256
 frequency: day
 ensemble_member: "01"
 scenario: rcp85
-resolution: 60km-2.2km-coarsened-4x
+resolution: 2.2km-coarsened-gcm-2.2km
 predictand:
   variable: pr
-  resolution: 60km-2.2km-coarsened-4x
+  resolution: 2.2km-2.2km
 predictors:
   - variable: vorticity850
 split_scheme: random
