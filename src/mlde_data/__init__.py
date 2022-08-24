@@ -23,7 +23,7 @@ class UKCPDatasetMetadata:
         return f"{self.filename_prefix()}_{year-1}1201-{year}1130.nc"
 
     def subdir(self):
-        return os.path.join(self.fq_domain, self.resolution, self.scenario, self.ensemble_member, self.variable, self.frequency)
+        return os.path.join(self.domain, self.resolution, self.scenario, self.ensemble_member, self.variable, self.frequency)
 
     def dirpath(self):
         return os.path.join(self.base_dir, self.subdir())
