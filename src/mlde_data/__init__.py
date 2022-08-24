@@ -8,7 +8,6 @@ class UKCPDatasetMetadata:
         self.frequency = frequency
         self.resolution = resolution
         self.domain = domain
-        self.target_size = target_size
         self.scenario = scenario
         self.ensemble_member = ensemble_member
 
