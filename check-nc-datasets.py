@@ -3,8 +3,6 @@ import re
 
 import xarray as xr
 
-from ml_downscaling_emulator import UKCPDatasetMetadata
-
 datasets = [
     "2.2km-coarsened-8x_london_vorticity850_random",
     "2.2km-coarsened-gcm-2.2km-coarsened-4x_birmingham_vorticity850_random",
