@@ -1,7 +1,7 @@
-variable: temp250
+variable: temp500
 attrs:
   units: K
-  standard_name: air_temperature
+  standard_name: air_temperature_500hPa
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose

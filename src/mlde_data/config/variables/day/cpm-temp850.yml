@@ -1,7 +1,7 @@
-variable: temp250
+variable: temp850
 attrs:
   units: K
-  standard_name: air_temperature
+  standard_name: air_temperature_850hPa
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
@@ -14,7 +14,7 @@ spec:
   - action: constrain
     query: {pressure: 850.0}
   - action: rename
-    mapping: {"temp": "temp250"}
+    mapping: {"temp": "temp850"}
   - action: coarsen
     parameters:
       scale_factor: $scale_factor
