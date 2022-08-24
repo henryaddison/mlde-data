@@ -3,7 +3,6 @@ import os
 import iris
 import xarray as xr
 
-from ml_downscaling_emulator import UKCPDatasetMetadata
 from ml_downscaling_emulator.bin.moose import remove_forecast
 
 datasets = [

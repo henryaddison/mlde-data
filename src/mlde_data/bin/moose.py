@@ -167,46 +167,6 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     assert len(xr.open_dataset(output_filepath).time) == 360
 
 @app.command()
-def preprocess(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", scale_factor: int = typer.Option(...), subdomain: DomainOption = DomainOption.london, target_frequency: str = "day"):
-    """
-    Pre-process the moose data:
-        1. Re-name the variable
-        2. Re-sample the data to a match a target frequency
-        3. Coarsen by given scale-factor
-        4. Select a subdomain
-    """
-    input_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency)
-
-    ds = xr.load_dataset(input_filepath)
-
-    if "moose_name" in VARIABLE_CODES[variable]:
-        logger.info(f"Renaming {VARIABLE_CODES[variable]['moose_name']} to {variable}...")
-        ds = ds.rename({VARIABLE_CODES[variable]["moose_name"]: variable})
-
-    if frequency != target_frequency:
-        ds = Resample(target_frequency=target_frequency).run(ds)
-
-    if scale_factor != 1:
-        typer.echo(f"Coarsening {scale_factor}x...")
-        target_resolution = f"2.2km-coarsened-{scale_factor}x"
-        uncoarsened_ds = ds.clone()
-        ds = Coarsen(scale_factor=scale_factor).run(ds)
-        ds = Regrid(target_grid=uncoarsened_ds, variable=variable).run(ds)
-    else:
-        target_resolution = "2.2km"
-
-    typer.echo(f"Select {subdomain.value} subdomain...")
-    ds = SelectDomain(subdomain=subdomain.value).run(ds)
-
-    assert len(ds.grid_latitude) == 64
-    assert len(ds.grid_longitude) == 64
-
-    output_filepath = processed_nc_filepath(variable=variable, year=year, frequency=target_frequency, domain=subdomain.value, resolution=target_resolution)
-    typer.echo(f"Saving to {output_filepath}...")
-    os.makedirs(output_filepath.parent, exist_ok=True)
-    ds.to_netcdf(output_filepath)
-
-@app.command()
 def clean(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...)):
     """
     Remove any unneccessary files once processing is done
@@ -228,7 +188,7 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     if os.path.exists(raw_nc_path): os.remove(raw_nc_path)
 
 @app.command()
-def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km"):
+def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
     """
     Create a new variable from moose data
     """
@@ -315,8 +275,7 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             ds = Vorticity().run(ds)
         elif job_spec['action'] == "select-subdomain":
             typer.echo(f"Select {domain.value} subdomain...")
-            size = 64
-            ds = SelectDomain(subdomain=domain.value, size=size).run(ds)
+            ds = SelectDomain(subdomain=domain.value, size=target_size).run(ds)
         elif job_spec['action'] == "constrain":
             typer.echo(f"Filtering...")
             ds = Constrain(query=job_spec['query']).run(ds)
@@ -325,16 +284,16 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             ds = ds.rename(job_spec["mapping"])
         else:
             raise f"Unknown action {job_spec['action']}"
-    if domain == DomainOption.london and target_resolution == "2.2km":
-        assert len(ds.grid_latitude) == 64
-        assert len(ds.grid_longitude) == 64
+
+    assert len(ds.grid_latitude) == target_size
+    assert len(ds.grid_longitude) == target_size
 
     # there should be no missing values in this dataset
     assert ds[config["variable"]].isnull().sum().values.item() == 0
 
     data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
 
-    output_metadata = UKCPDatasetMetadata(data_basedir, frequency=frequency, domain=domain.value, resolution=f"{variable_resolution}-{target_resolution}", ensemble_member='01', variable=config['variable'])
+    output_metadata = UKCPDatasetMetadata(data_basedir, frequency=frequency, domain=f"{domain.value}-{target_size}", resolution=f"{variable_resolution}-{target_resolution}", ensemble_member='01', variable=config['variable'])
 
     logger.info(f"Saving data to {output_metadata.filepath(year)}")
     os.makedirs(output_metadata.dirpath(), exist_ok=True)

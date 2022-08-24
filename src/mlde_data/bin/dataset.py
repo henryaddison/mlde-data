@@ -58,8 +58,7 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="MOOS
 
     split_sets = splitter.run(combined_dataset)
 
-    output_subdir = "_".join([config["resolution"], config["domain"], "-".join([pred["variable"] for pred in config["predictors"]]), config["split_scheme"]])
-    output_dir = os.path.join(output_base_dir, "nc-datasets", output_subdir)
+    output_dir = os.path.join(output_base_dir, "nc-datasets", config_name)
 
     os.makedirs(output_dir, exist_ok=False)
 
