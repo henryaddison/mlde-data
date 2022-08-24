@@ -85,4 +85,4 @@ for domain, var_resolutions in domain_var_resolutions.items():
             # report findings
             for reason, error_years in bad_years.items():
                 if len(error_years) > 0:
-                    print(f"Failed '{reason}': {var} over {domain} at {res} for {error_years}")
+                    print(f"Failed '{reason}': {var} over {domain} at {res} for {len(error_years)}\n{sorted(error_years)}")
