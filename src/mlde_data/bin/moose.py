@@ -98,9 +98,9 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
 
     query = select_query(year=year, variable=variable, frequency=frequency, collection=collection.value)
 
-    output_dirpath = moose_extract_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
+    output_dirpath = moose_extract_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain, cache=False)
     query_filepath = output_dirpath/"searchfile"
-    pp_dirpath = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
+    pp_dirpath = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain, cache=False)
 
     os.makedirs(output_dirpath, exist_ok=True)
     # remove any previous attempt at extracting the data (or else moo select will complain)
@@ -193,7 +193,7 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     else:
         raise f"Unknown collection {collection}"
 
-    pp_path = ppdata_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
+    pp_path = ppdata_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain, cache=False)
     typer.echo(f"Removing {pp_path}...")
     shutil.rmtree(pp_path, ignore_errors=True)
     raw_nc_path = raw_nc_filepath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
