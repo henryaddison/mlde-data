@@ -77,24 +77,24 @@ for year in $@; do
   done;
 
   # Transform (into vorticity on sci JASMIN)
-  for theta in ${thetas[@]}; do
-    for target_sf in ${target_sfs[@]}; do
-      if [ $target_sf -eq 1 ]; then
-        target_resolution="2.2km"
+  for target_sf in ${target_sfs[@]}; do
+    if [ $target_sf -eq 1 ]; then
+      target_resolution="2.2km"
+    else
+      target_resolution="2.2km-coarsened-${target_sf}x"
+    fi
+    for variable_sf in ${variable_sfs[@]}; do
+      if [ $variable_sf == "gcm" ]; then
+        variable_resolution="${unscaled_variable_resolution}-coarsened-gcm"
+      elif [ $variable_sf -eq 1 ]; then
+        variable_resolution=${unscaled_variable_resolution}
       else
-        target_resolution="2.2km-coarsened-${target_sf}x"
+        variable_resolution="${unscaled_variable_resolution}-coarsened-${variable_sf}x"
       fi
-      for variable_sf in ${variable_sfs[@]}; do
-        if [ $variable_sf == "gcm" ]; then
-          variable_resolution="${unscaled_variable_resolution}-coarsened-gcm"
-        elif [ $variable_sf -eq 1 ]; then
-          variable_resolution=${unscaled_variable_resolution}
-        else
-          variable_resolution="${unscaled_variable_resolution}-coarsened-${variable_sf}x"
-        fi
 
-        resolution="${variable_resolution}-${target_resolution}"
+      resolution="${variable_resolution}-${target_resolution}"
 
+      for theta in ${thetas[@]}; do
         mlde moose create-variable --variable ${variable_config_name}${theta} --year ${year} --scale-factor ${variable_sf} --domain ${domain} --target-resolution ${target_resolution} --target-size ${target_size}
 
         # Load (vorticity onto BP storage)
