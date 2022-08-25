@@ -93,7 +93,6 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     if cache:
         if os.path.exists(cache_check_filepath):
             logger.info(f"Moose cache available {cache_path}")
-            # shutil.copytree(cache_path, output_dirpath, dirs_exist_ok=True)
             return
 
     query = select_query(year=year, variable=variable, frequency=frequency, collection=collection.value)
