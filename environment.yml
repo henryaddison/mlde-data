@@ -283,7 +283,7 @@ dependencies:
   - python-fastjsonschema=2.15.3=pyhd8ed1ab_0
   - python-xxhash=3.0.0=py39hb9d737c_1
   - python_abi=3.9=2_cp39
-  - pytorch=1.12.0=py3.9_cuda11.3_cudnn8.3.2_0
+  - pytorch=1.12.1=py3.9_cuda11.3_cudnn8.3.2_0
   - pytorch-mutex=1.0=cuda
   - pytz=2022.1=pyhd8ed1ab_0
   - pyu2f=0.1.5=pyhd8ed1ab_0
@@ -322,8 +322,8 @@ dependencies:
   - toml=0.10.2=pyhd8ed1ab_0
   - tomli=2.0.1=pyhd8ed1ab_0
   - toolz=0.12.0=pyhd8ed1ab_0
-  - torchaudio=0.12.0=py39_cu113
-  - torchvision=0.13.0=py39_cu113
+  - torchaudio=0.12.1=py39_cu113
+  - torchvision=0.13.1=py39_cu113
   - tornado=6.2=py39hb9d737c_0
   - tqdm=4.64.0=pyhd8ed1ab_0
   - traits=6.3.2=py39hb9d737c_1
