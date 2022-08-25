@@ -1,0 +1,32 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+collection="land-cpm"
+variable="temp"
+domain="birmingham"
+variable_sf="gcm"
+target_sf=4
+size=64
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+MASTER_SCRIPT_PATH="${SCRIPT_DIR}/master-script"
+
+TS1
+jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable ${MASTER_SCRIPT_PATH} -c ${collection} -v ${variable} -s ${variable_sf} -t ${target_sf} -d ${domain} -p ${size} $(seq 1981 1 1990))
+echo ${jobid}
+jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${jobid} ${MASTER_SCRIPT_PATH} -c ${collection} -v ${variable} -s ${variable_sf} -t ${target_sf} -d ${domain} -p ${size} $(seq 1991 1 2000))
+echo ${jobid}
+
+TS2
+jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${jobid} ${MASTER_SCRIPT_PATH} -c ${collection} -v ${variable} -s ${variable_sf} -t ${target_sf} -d ${domain} -p ${size} $(seq 2021 1 2030))
+echo ${jobid}
+jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${jobid} ${MASTER_SCRIPT_PATH} -c ${collection} -v ${variable} -s ${variable_sf} -t ${target_sf} -d ${domain} -p ${size} $(seq 2031 1 2040))
+echo ${jobid}
+
+# TS3
+jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${jobid} ${MASTER_SCRIPT_PATH} -c ${collection} -v ${variable} -s ${variable_sf} -t ${target_sf} -d ${domain} -p ${size} $(seq 2061 1 2070))
+echo ${jobid}
+jobid=$(sbatch -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${jobid} ${MASTER_SCRIPT_PATH} -c ${collection} -v ${variable} -s ${variable_sf} -t ${target_sf} -d ${domain} -p ${size} $(seq 2071 1 2080))
+echo ${jobid}
