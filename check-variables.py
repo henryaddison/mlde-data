@@ -5,75 +5,34 @@ import xarray as xr
 
 from ml_downscaling_emulator import UKCPDatasetMetadata
 
-domain_var_resolutions = {
+domain_res_vars = {
     "london-64": {
-        "pr": [
-            "2.2km-2.2km",
-            "60km-2.2km",
-            "60km-2.2km-coarsened-4x"
-        ],
-        "vorticity850": [
-            "2.2km-2.2km",
-            "2.2km-coarsened-8x-2.2km",
-            "2.2km-coarsened-gcm-2.2km",
-            "60km-2.2km",
-            "60km-2.2km-coarsened-4x",
-        ]
+        "2.2km-2.2km": ["pr", "vorticity850"],
+        "60km-2.2km": ["pr", "vorticity850"],
+        "60km-2.2km-coarsened-4x": ["pr", "vorticity850"],
+        "2.2km-coarsened-8x-2.2km": ["vorticity850"],
+        "2.2km-coarsened-gcm-2.2km": ["vorticity850"],
     },
     "birmingham-64": {
-        "pr": [
-            # "2.2km-2.2km",
-            "2.2km-coarsened-4x-2.2km-coarsened-4x",
-            "2.2km-coarsened-gcm-2.2km",
-            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
-            "60km-2.2km",
-            "60km-2.2km-coarsened-4x",
-        ],
-        "vorticity850": [
-            # "2.2km-2.2km",
-            "2.2km-coarsened-gcm-2.2km",
-            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
-            "60km-2.2km",
-            "60km-2.2km-coarsened-4x",
-        ],
-        "temp250": [
-            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
-            # "60km-2.2km-coarsened-4x",
-        ],
-        "temp500": [
-            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
-            # "60km-2.2km-coarsened-4x",
-        ],
-        "temp700": [
-            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
-            # "60km-2.2km-coarsened-4x",
-        ],
-        "temp850": [
-            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
-            # "60km-2.2km-coarsened-4x",
-        ],
-        "temp925": [
-            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
-            # "60km-2.2km-coarsened-4x",
-        ],
+        "2.2km-coarsened-4x-2.2km-coarsened-4x": ["pr",],
+        "2.2km-coarsened-gcm-2.2km": ["pr", "vorticity850"],
+        "2.2km-coarsened-gcm-2.2km-coarsened-4x": ["pr", "vorticity850", "temp250", "temp500", "temp700", "temp850", "temp925"],
+        "60km-2.2km": ["pr",  "vorticity850"],
+        "60km-2.2km-coarsened-4x": ["pr",  "vorticity850"], # , "temp250", "temp500", "temp700", "temp850", "temp925"]
+
     },
     "birmingham-256": {
-        "pr": [
-            "2.2km-2.2km",
-            "60km-2.2km",
-        ],
-        "vorticity850": [
-            "2.2km-coarsened-gcm-2.2km",
-            "60km-2.2km"
-        ]
+        "2.2km-2.2km": ["pr"],
+        "2.2km-coarsened-gcm-2.2km": ["vorticity850"],
+        "60km-2.2km": ["pr", "vorticity850"],
     }
 }
 
 years = list(range(1981, 2001))+list(range(2021, 2041))+list(range(2061, 2081))
 
-for domain, var_resolutions in domain_var_resolutions.items():
-    for var, resolutions in var_resolutions.items():
-        for res in resolutions:
+for domain, res_variables in domain_res_vars.items():
+    for res, variables in res_variables.items():
+        for var in variables:
             print(f"Checking {var} over {domain} at {res}")
 
             bad_years = {"NaNs": set(), "no file": set(), "forecast_encoding": set(), "forecast_vars": set()}
