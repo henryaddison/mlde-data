@@ -59,7 +59,7 @@ else
 fi
 
 src_vars=("temp")
-thetas=(850 700 500)
+thetas=(850 700 500 925)
 
 # do the work
 
