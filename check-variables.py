@@ -40,6 +40,22 @@ domain_var_resolutions = {
             "2.2km-coarsened-gcm-2.2km-coarsened-4x",
             # "60km-2.2km-coarsened-4x",
         ],
+        "temp500": [
+            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
+            # "60km-2.2km-coarsened-4x",
+        ],
+        "temp700": [
+            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
+            # "60km-2.2km-coarsened-4x",
+        ],
+        "temp850": [
+            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
+            # "60km-2.2km-coarsened-4x",
+        ],
+        "temp925": [
+            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
+            # "60km-2.2km-coarsened-4x",
+        ],
     },
     "birmingham-256": {
         "pr": [
