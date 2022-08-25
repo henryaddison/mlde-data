@@ -44,11 +44,11 @@ domain_var_resolutions = {
     "birmingham-256": {
         "pr": [
             "2.2km-2.2km",
-            # "60km-2.2km",
+            "60km-2.2km",
         ],
         "vorticity850": [
             "2.2km-coarsened-gcm-2.2km",
-            # "60km-2.2km"
+            "60km-2.2km"
         ]
     }
 }
