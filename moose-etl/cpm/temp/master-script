@@ -77,7 +77,7 @@ for year in $@; do
   done;
 
   # Transform (into vorticity on sci JASMIN)
-  for theta in ${thetas}; do
+  for theta in ${thetas[@]}; do
     for target_sf in ${target_sfs[@]}; do
       if [ $target_sf -eq 1 ]; then
         target_resolution="2.2km"
