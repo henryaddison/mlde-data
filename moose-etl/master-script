@@ -23,6 +23,9 @@ source["gcm-vorticity850"]="xwind ywind"
 source["cpm-pr"]="lsrain lssnow"
 source["gcm-pr"]="pr"
 source["cpm-temp250"]="temp"
+source["cpm-temp500"]="temp"
+source["cpm-temp700"]="temp"
+source["cpm-temp850"]="temp"
 
 # parse commandline arguments
 
