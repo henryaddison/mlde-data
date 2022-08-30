@@ -13,6 +13,8 @@ job_name="${variable}-${domain}-${size}-${collection}"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
+MASTER_SCRIPT_PATH=${SCRIPT_DIR}/master-script
+
 # TS1
 jobid=$(sbatch --job-name ${job_name} -A mass -p mass --time 23:00:00 --parsable ${MASTER_SCRIPT_PATH} -c ${collection} -v ${variable} -s ${variable_sf} -t ${target_sf} -d ${domain} -p ${size} $(seq 1981 1 1990))
 echo ${jobid}
