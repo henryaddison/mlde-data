@@ -280,8 +280,8 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             if target_resolution != variable_resolution:
                 typer.echo(f"Regridding to target resolution...")
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', target_resolution, 'uk', 'moose_grid.nc')
-
-                ds = Regrid(target_grid_filepath, variables=[config['variable']]).run(ds)
+                kwargs = job_spec.get("parameters", {})
+                ds = Regrid(target_grid_filepath, variables=[config['variable']], **kwargs).run(ds)
         elif job_spec['action'] == "vorticity":
             typer.echo(f"Computing vorticity...")
             ds = Vorticity().run(ds)
