@@ -3,7 +3,7 @@
 set -euo pipefail
 
 collection="land-gcm"
-variable="pr"
+variable="lin-pr"
 domain="birmingham"
 variable_sf=1
 target_sf=4
