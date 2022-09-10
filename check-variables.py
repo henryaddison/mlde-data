@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 
 import xarray as xr
 
@@ -33,6 +34,7 @@ years = list(range(1981, 2001))+list(range(2021, 2041))+list(range(2061, 2081))
 for domain, res_variables in domain_res_vars.items():
     for res, variables in res_variables.items():
         for var in variables:
+            sys.stdout.write("\033[K")
             print(f"Checking {var} over {domain} at {res}", end="\r")
 
             bad_years = {"NaNs": set(), "no file": set(), "forecast_encoding": set(), "forecast_vars": set()}
