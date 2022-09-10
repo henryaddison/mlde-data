@@ -24,7 +24,7 @@ echo ${jobid}
 # TS2
 jobid=$(sbatch --job-name ${job_name} -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${jobid} ${MASTER_SCRIPT_PATH} -c ${collection} -v ${variable} -s ${variable_sf} -t ${target_sf} -d ${domain} -p ${size} $(seq 2021 1 2030))
 echo ${jobid}
-jobid=$(sbatch --job-name ${job_name} -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${jobid} ${MASTER_SCRIPT_PATH} -c ${collection} -v ${variable} -s ${variable_sf} -t ${target_sf} -d ${domain} -p ${size} $(seq 2040 1 2040))
+jobid=$(sbatch --job-name ${job_name} -A mass -p mass --time 23:00:00 --parsable --dependency=afterok:${jobid} ${MASTER_SCRIPT_PATH} -c ${collection} -v ${variable} -s ${variable_sf} -t ${target_sf} -d ${domain} -p ${size} $(seq 2031 1 2040))
 echo ${jobid}
 
 # TS3
