@@ -2,12 +2,22 @@
 
 set -euo pipefail
 
+domain="birmingham"
+scale_factor="gcm"
+target_resolution="2.2km-coarsened-4x"
+target_size=64
+variable="${HOME}/code/ml-downscaling-emulation/src/ml_downscaling_emulator/config/variables/day/land-cpm/spechum250.yml"
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+QUEUE_DEP_PATH=${SCRIPT_DIR}/../../queue-dep-func
+BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../../batch-wrapper
+
+# no job initially to wait on
 job_id=0
 
-years=$(seq 1981 1 1990)
+years=$(seq 1989 1 1990)
+job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} ${years})
 
-job_id=$(./queue-dep -j ${job_id} -- ./batch-wrapper ${years})
-
-years=$(seq 1991 1 2000)
-
-job_id=$(./queue-dep -j ${job_id} -- ./batch-wrapper ${years})
+years=$(seq 1999 1 2000)
+job_id=$(${QUEUE_DEP_PATH} -j ${job_id} --  ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} ${years})
