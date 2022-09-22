@@ -105,6 +105,16 @@ VARIABLE_CODES = {
     }
 }
 
+for theta in [250]:
+    VARIABLE_CODES[f"spechum{theta}"] = {
+        "query": {
+            "stash": 30205,
+            "lblev": theta,
+        },
+        "stream": {"land-cpm": {"day": "apb", "3hrinst": "aph"}, "land-gcm": {"day": "ape"}},
+        "moose_name": "specific_humidity"
+    }
+
 class RangeDict(dict):
     def __getitem__(self, item):
         if not isinstance(item, range): # or xrange in Python 2
