@@ -18,6 +18,8 @@ job_id=0
 
 years=$(seq 1989 1 1990)
 job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} ${years})
+echo $job_id
 
 years=$(seq 1999 1 2000)
 job_id=$(${QUEUE_DEP_PATH} -j ${job_id} --  ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} ${years})
+echo $job_id
