@@ -38,6 +38,6 @@ years=$@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-ETL_VARIABLE_SCRIPT_PATH=${SCRIPT_DIR}/etl-variable.py
+ETL_VARIABLE_SCRIPT_PATH=${HOME}/code/ml-downscaling-emulation/moose-etl/etl-variable.py
 
 python ${ETL_VARIABLE_SCRIPT_PATH} --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} ${years}
