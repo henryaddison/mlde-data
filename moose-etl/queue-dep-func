@@ -2,10 +2,13 @@
 
 set -euo pipefail
 
-while getopts ":j:" opt; do
+while getopts ":j:d:" opt; do
   case ${opt} in
     j)
       job_id=${OPTARG}
+      ;;
+    d)
+      directory=${OPTARG}
       ;;
    \? )
      echo "Invalid Option: -${OPTARG}" 1>&2
