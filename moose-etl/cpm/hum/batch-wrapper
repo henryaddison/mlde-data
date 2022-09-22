@@ -10,7 +10,7 @@ domain="birmingham"
 scale_factor="gcm"
 target_resolution="2.2km-coarsened-4x"
 target_size=64
-variable="~/code/ml_downscaling_emulator/src/ml_downscaling_emulator/config/variables/day/land-cpm/spechum250.yml"
+variable="~/code/ml-downscaling-emulation/src/ml_downscaling_emulator/config/variables/day/land-cpm/spechum250.yml"
 
 years=$@
 
