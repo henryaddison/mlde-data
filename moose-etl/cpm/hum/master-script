@@ -33,15 +33,15 @@ def main(years: List[int], variable_config: Path = typer.Option(...), domain: Do
         # run extract and convert
         src_collection = config["sources"]["collection"]
         for src_variable in config["sources"]["variables"]:
-            extract_cmd = ["mlde", "moose", "extract", "--variable", src_variable["name"], "--year", year, "--frequency", src_variable["frequency"], "--collection", src_collection, "--cache"]
+            extract_cmd = ["mlde", "moose", "extract", "--variable", src_variable["name"], "--year", str(year), "--frequency", src_variable["frequency"], "--collection", src_collection, "--cache"]
 
-            convert_cmd = ["mlde", "moose", "convert", "--variable", src_variable["name"], "--year", year, "--frequency", src_variable["frequency"], "--collection", src_collection, "--cache"]
+            convert_cmd = ["mlde", "moose", "convert", "--variable", src_variable["name"], "--year", str(year), "--frequency", src_variable["frequency"], "--collection", src_collection, "--cache"]
 
             run_cmd(extract_cmd)
             run_cmd(convert_cmd)
 
         # run create variable
-        create_cmd = ["mlde", "moose", "create-variable", "--variable", config["variable"], "--year", year, "--scale-factor", scale_factor, "--domain", domain.value, "--target-resolution", target_resolution, "--target-size", target_size]
+        create_cmd = ["mlde", "moose", "create-variable", "--variable", config["variable"], "--year", str(year), "--scale-factor", scale_factor, "--domain", domain.value, "--target-resolution", target_resolution, "--target-size", str(target_size)]
         run_cmd(create_cmd)
 
         # run transfer
@@ -68,7 +68,7 @@ def main(years: List[int], variable_config: Path = typer.Option(...), domain: Do
 
         # run clean up
         for src_variable in config["sources"]["variables"]:
-            clean_cmd = ["mlde", "moose", "clean", "--variable", src_variable["name"], "--frequency", src_variable["frequency"], "--year", year, "--collection", src_variable]
+            clean_cmd = ["mlde", "moose", "clean", "--variable", src_variable["name"], "--frequency", src_variable["frequency"], "--year", str(year), "--collection", src_variable]
 
             run_cmd(clean_cmd)
 if __name__ == "__main__":
