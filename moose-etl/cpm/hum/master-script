@@ -1,0 +1,74 @@
+from argparse import ArgumentError
+import logging
+from pathlib import Path
+import subprocess
+from typing import List
+import yaml
+
+import typer
+
+from ml_downscaling_emulator.bin import DomainOption, CollectionOption
+from ml_downscaling_emulator.bin.moose import processed_nc_filepath
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')
+
+app = typer.Typer()
+
+def run_cmd(cmd):
+    logger.debug(f"Running {cmd}")
+
+    output = subprocess.run(cmd, capture_output=True, check=True)
+    stdout = output.stdout.decode("utf8")
+    print(stdout)
+    print(output.stderr.decode("utf8"))
+
+@app.command()
+def main(years: List[int], variable_config: Path = typer.Option(...), domain: DomainOption = DomainOption.london, frequency: str = "day", scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
+
+    config = yaml.safe_load(variable_config)
+
+    for year in years:
+        # run extract and convert
+        src_collection = config["sources"]["collection"]
+        for src_variable in config["sources"]["variables"]:
+            extract_cmd = ["mlde", "moose", "extract", "--variable", src_variable["name"], "--year", year, "--frequency", src_variable["frequency"], "--collection", src_collection, "--cache"]
+
+            convert_cmd = ["mlde", "moose", "convert", "--variable", src_variable["name"], "--year", year, "--frequency", src_variable["frequency"], "--collection", src_collection, "--cache"]
+
+            run_cmd(extract_cmd)
+            run_cmd(convert_cmd)
+
+        # run create variable
+        create_cmd = ["mlde", "moose", "create-variable", "--variable", config["variable"], "--year", year, "--scale-factor", scale_factor, "--domain", domain.value, "--target-resolution", target_resolution, "--target-size", target_size]
+        run_cmd(create_cmd)
+
+        # run transfer
+        if src_collection == "land-cpm":
+            src_resolution = "2.2km"
+        elif src_collection == "land-gcm":
+            src_resolution = "60km"
+        else:
+            raise(ArgumentError(f"Unknown source collection {src_collection}"))
+
+        if scale_factor == "gcm":
+            variable_resolution = f"{src_resolution}-coarsened-gcm"
+        elif scale_factor == "1":
+            variable_resolution = f"{src_resolution}"
+        else:
+            variable_resolution = f"{src_resolution}-coarsened-{scale_factor}x"
+
+        jasmin_filepath = processed_nc_filepath(variable=config["variable"], year=year, frequency=frequency, domain=domain.str, resolution=f"{variable_resolution}-{target_resolution}")
+        bp_filepath = processed_nc_filepath(variable=config["variable"], base_dir="/user/work/vf20964")
+
+        file_xfer_cmd = ["~/code/ml-downscaling-emulation/cpm/hum/xfer-script", jasmin_filepath, bp_filepath]
+        config_xfer_cmd = []
+        run_cmd(file_xfer_cmd)
+
+        # run clean up
+        for src_variable in config["sources"]["variables"]:
+            clean_cmd = ["mlde", "moose", "clean", "--variable", src_variable["name"], "--frequency", src_variable["frequency"], "--year", year, "--collection", src_variable]
+
+            run_cmd(clean_cmd)
+if __name__ == "__main__":
+    app()

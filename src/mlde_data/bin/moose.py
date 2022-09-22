@@ -53,8 +53,8 @@ def nc_filename(variable: str, year: int, frequency: str, domain: str, resolutio
 def raw_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str = "land-cpm"):
     return Path(os.getenv("MOOSE_DATA"))/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
 
-def processed_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str):
-    return Path(os.getenv("DERIVED_DATA"))/"moose"/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
+def processed_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str, base_dir=os.getenv("DERIVED_DATA")):
+    return Path(base_dir)/"moose"/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
 
 def remove_forecast(ds):
     coords_to_remove = []
