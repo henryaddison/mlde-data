@@ -21,7 +21,7 @@ shift $((OPTIND -1))
 cmd=$@
 
 if [ $job_id -eq 0 ]; then
-  sbatch --mail-type=ALL --mail-user ${USER}@bristol.ac.uk -D ${directory}-A mass -p mass --time 23:00:00 --parsable -- ${cmd}
+  sbatch --mail-type=ALL --mail-user ${USER}@bristol.ac.uk -A mass -p mass --time 23:00:00 --parsable --chdir=${directory} -- ${cmd}
 else
-  sbatch --mail-type=ALL --mail-user ${USER}@bristol.ac.uk -D ${directory} -A mass -p mass --time 23:00:00 --parsable  --dependency=afterok:${job_id} -- ${cmd}
+  sbatch --mail-type=ALL --mail-user ${USER}@bristol.ac.uk -A mass -p mass --time 23:00:00 --parsable  --dependency=afterok:${job_id} --chdir=${directory} -- ${cmd}
 fi
