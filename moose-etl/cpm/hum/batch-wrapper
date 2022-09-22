@@ -14,4 +14,4 @@ variable="~/code/ml_downscaling_emulator/src/ml_downscaling_emulator/config/vari
 
 years=$@
 
-python master-script --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target-size} ${years}
+python master-script --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} ${years}
