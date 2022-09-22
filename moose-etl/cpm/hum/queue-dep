@@ -17,4 +17,8 @@ shift $((OPTIND -1))
 
 cmd=$@
 
-sbatch -A mass -p mass --time 23:00:00 --parsable  --dependency=afterok:${job_id} -- ${cmd}
+if [ $job_id -eq 0]; then
+  sbatch -A mass -p mass --time 23:00:00 --parsable -- ${cmd}
+else
+  sbatch -A mass -p mass --time 23:00:00 --parsable  --dependency=afterok:${job_id} -- ${cmd}
+fi
