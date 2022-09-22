@@ -1,24 +1,13 @@
 #! /usr/bin/env bash
 
-eval "$(conda shell.bash hook)"
-
-conda activate cuda-downscaling
-
 set -euo pipefail
-
-domain="birmingham"
-scale_factor="gcm"
-target_resolution="2.2km-coarsened-4x"
-target_size=64
-
-variable="~/code/ml_downscaling_emulator/src/ml_downscaling_emulator/config/variables/day/land-cpm/spechum250.yml"
 
 job_id=0
 
 years=$(seq 1981 1 1990)
 
-job_id=$(./queue-dep -j ${job_id} -- python master-script --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target-size} ${years})
+job_id=$(./queue-dep -j ${job_id} -- ./batch-wrapper ${years})
 
 years=$(seq 1991 1 2000)
 
-job_id=$(./queue-dep -j ${job_id} -- python master-script --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target-size} ${years})
+job_id=$(./queue-dep -j ${job_id} -- ./batch-wrapper ${years})
