@@ -10,7 +10,7 @@ sources:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
     - name: spechum250
-      frequency: 6hrinst
+      frequency: day
 spec:
   - action: constrain
     query: {pressure: 250.0}
