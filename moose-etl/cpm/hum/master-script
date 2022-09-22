@@ -26,7 +26,8 @@ def run_cmd(cmd):
 @app.command()
 def main(years: List[int], variable_config: Path = typer.Option(...), domain: DomainOption = DomainOption.london, frequency: str = "day", scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
 
-    config = yaml.safe_load(variable_config)
+    with open(variable_config, 'r') as config_file:
+        config = yaml.safe_load(config_file)
 
     for year in years:
         # run extract and convert
