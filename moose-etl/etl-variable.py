@@ -58,7 +58,7 @@ def main(years: List[int], variable_config: Path = typer.Option(...), domain: Do
         jasmin_filepath = processed_nc_filepath(variable=config["variable"], year=year, frequency=frequency, domain=domain.str, resolution=f"{variable_resolution}-{target_resolution}")
         bp_filepath = processed_nc_filepath(variable=config["variable"], base_dir="/user/work/vf20964")
 
-        file_xfer_cmd = ["~/code/ml-downscaling-emulation/cpm/hum/xfer-script", jasmin_filepath, bp_filepath]
+        file_xfer_cmd = ["~/code/ml-downscaling-emulation/xfer-script-direct", jasmin_filepath, bp_filepath]
         config_xfer_cmd = []
         run_cmd(file_xfer_cmd)
 
