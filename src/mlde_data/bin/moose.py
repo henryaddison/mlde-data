@@ -310,5 +310,5 @@ def create_variable(config_path: Path = typer.Option(...), year: int = typer.Opt
     logger.info(f"Saving data to {output_metadata.filepath(year)}")
     os.makedirs(output_metadata.dirpath(), exist_ok=True)
     ds.to_netcdf(output_metadata.filepath(year))
-    with open(os.path.join(output_metadata.dirpath(), f"{variable}-{year}.yml"), 'w') as f:
+    with open(os.path.join(output_metadata.dirpath(), f"{config['variable']}-{year}.yml"), 'w') as f:
         yaml.dump(config, f)
