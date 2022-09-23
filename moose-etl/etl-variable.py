@@ -8,7 +8,7 @@ import yaml
 import typer
 
 from ml_downscaling_emulator.bin import DomainOption, CollectionOption
-from ml_downscaling_emulator.bin.moose import processed_nc_filepath
+from ml_downscaling_emulator.bin.moose import processed_nc_filepath, create_variable, extract, convert, clean
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')
@@ -33,16 +33,12 @@ def main(years: List[int], variable_config: Path = typer.Option(...), domain: Do
         # run extract and convert
         src_collection = config["sources"]["collection"]
         for src_variable in config["sources"]["variables"]:
-            extract_cmd = ["mlde", "moose", "extract", "--variable", src_variable["name"], "--year", str(year), "--frequency", src_variable["frequency"], "--collection", src_collection, "--cache"]
+            extract(variable=src_variable["name"], year=year, frequency=src_variable["frequency"], collection=src_collection)
 
-            convert_cmd = ["mlde", "moose", "convert", "--variable", src_variable["name"], "--year", str(year), "--frequency", src_variable["frequency"], "--collection", src_collection, "--cache"]
-
-            run_cmd(extract_cmd)
-            run_cmd(convert_cmd)
+            convert(variable=src_variable["name"], year=year, frequency=src_variable["frequency"], collection=src_collection)
 
         # run create variable
-        create_cmd = ["mlde", "moose", "create-variable", "--variable", config["variable"], "--year", str(year), "--scale-factor", scale_factor, "--domain", domain.value, "--target-resolution", target_resolution, "--target-size", str(target_size)]
-        run_cmd(create_cmd)
+        create_variable(config_path=variable_config, year=year, domain=domain, target_resolution=target_resolution, target_size=target_size, scale_factor=scale_factor)
 
         # run transfer
         if src_collection == "land-cpm":
@@ -68,8 +64,7 @@ def main(years: List[int], variable_config: Path = typer.Option(...), domain: Do
 
         # run clean up
         for src_variable in config["sources"]["variables"]:
-            clean_cmd = ["mlde", "moose", "clean", "--variable", src_variable["name"], "--frequency", src_variable["frequency"], "--year", str(year), "--collection", src_variable]
+            clean(variable=src_variable["name"], year=year, frequency=src_variable["frequency"], collection=src_collection)
 
-            run_cmd(clean_cmd)
 if __name__ == "__main__":
     app()
