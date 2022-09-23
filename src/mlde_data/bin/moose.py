@@ -200,11 +200,11 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     if os.path.exists(raw_nc_path): os.remove(raw_nc_path)
 
 @app.command()
-def create_variable(variable_config: Path = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
+def create_variable(config_path: Path = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
     """
     Create a new variable from moose data
     """
-    with open(variable_config, 'r') as config_file:
+    with open(config_path, 'r') as config_file:
         config = yaml.safe_load(config_file)
 
     # add cli parameters to config
