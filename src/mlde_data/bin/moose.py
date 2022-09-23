@@ -238,18 +238,18 @@ def create_variable(config_path: Path = typer.Option(...), year: int = typer.Opt
     assert(config["sources"]["type"] == "moose")
 
     for src_variable in config['sources']['variables']:
-        source_nc_filepath = raw_nc_filepath(variable=src_variable, year=year, frequency=frequency, resolution=variable_resolution, collection=collection.value, domain=source_domain)
+        source_nc_filepath = raw_nc_filepath(variable=src_variable["name"], year=year, frequency=src_variable["frequency"], resolution=variable_resolution, collection=collection.value, domain=source_domain)
         logger.info(f"Opening {source_nc_filepath}")
         ds = xr.open_dataset(source_nc_filepath)
 
-        if "moose_name" in VARIABLE_CODES[src_variable]:
-            logger.info(f"Renaming {VARIABLE_CODES[src_variable]['moose_name']} to {src_variable}...")
-            ds = ds.rename({VARIABLE_CODES[src_variable]["moose_name"]: src_variable})
+        if "moose_name" in VARIABLE_CODES[src_variable["name"]]:
+            logger.info(f"Renaming {VARIABLE_CODES[src_variable['name']]['moose_name']} to {src_variable['name']}...")
+            ds = ds.rename({VARIABLE_CODES[src_variable["name"]]["moose_name"]: src_variable["name"]})
 
         # remove forecast related coords that we don't need
         ds = remove_forecast(ds)
 
-        sources[src_variable] = ds
+        sources[src_variable["name"]] = ds
 
     logger.info(f"Combining {config['sources']}...")
     ds = xr.combine_by_coords(sources.values(), compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all")
