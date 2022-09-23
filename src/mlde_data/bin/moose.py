@@ -312,3 +312,21 @@ def create_variable(config_path: Path = typer.Option(...), year: int = typer.Opt
     ds.to_netcdf(output_metadata.filepath(year))
     with open(os.path.join(output_metadata.dirpath(), f"{config['variable']}-{year}.yml"), 'w') as f:
         yaml.dump(config, f)
+
+def run_cmd(cmd):
+    logger.debug(f"Running {cmd}")
+    output = subprocess.run(cmd, capture_output=True, check=False)
+    stdout = output.stdout.decode("utf8")
+    print(stdout)
+    print(output.stderr.decode("utf8"))
+    output.check_returncode()
+
+@app.command()
+def xfer(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, collection: CollectionOption = typer.Option(...), resolution: str = typer.Option(...), target_size: int = 64):
+    # TODO re-write xfer in Python
+    jasmin_filepath = processed_nc_filepath(variable=variable, year=year, frequency=frequency, domain=f"{domain.value}-{target_size}", resolution=resolution, collection=collection.value)
+    bp_filepath = processed_nc_filepath(variable=variable, year=year, frequency=frequency, domain=f"{domain.value}-{target_size}", resolution=resolution, collection=collection.value, base_dir="/user/work/vf20964")
+
+    file_xfer_cmd = [f"{os.getenv('HOME')}/code/ml-downscaling-emulation/moose-etl/xfer-script-direct", jasmin_filepath, bp_filepath]
+    config_xfer_cmd = []
+    run_cmd(file_xfer_cmd)

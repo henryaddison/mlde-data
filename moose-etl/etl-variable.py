@@ -9,20 +9,12 @@ import yaml
 import typer
 
 from ml_downscaling_emulator.bin import DomainOption, CollectionOption
-from ml_downscaling_emulator.bin.moose import processed_nc_filepath, create_variable, extract, convert, clean
+from ml_downscaling_emulator.bin.moose import xfer, create_variable, extract, convert, clean
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')
 
 app = typer.Typer()
-
-def run_cmd(cmd):
-    logger.debug(f"Running {cmd}")
-    output = subprocess.run(cmd, capture_output=True, check=False)
-    stdout = output.stdout.decode("utf8")
-    print(stdout)
-    print(output.stderr.decode("utf8"))
-    output.check_returncode()
 
 @app.command()
 def main(years: List[int], variable_config: Path = typer.Option(...), domain: DomainOption = DomainOption.london, frequency: str = "day", scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
@@ -56,13 +48,8 @@ def main(years: List[int], variable_config: Path = typer.Option(...), domain: Do
         else:
             variable_resolution = f"{src_resolution}-coarsened-{scale_factor}x"
 
-        # TODO re-write xfer in Python
-        jasmin_filepath = processed_nc_filepath(variable=config["variable"], year=year, frequency=frequency, domain=domain.value, resolution=f"{variable_resolution}-{target_resolution}", collection=src_collection.value)
-        bp_filepath = processed_nc_filepath(variable=config["variable"], year=year, frequency=frequency, domain=domain.value, resolution=f"{variable_resolution}-{target_resolution}", collection=src_collection.value, base_dir="/user/work/vf20964")
-
-        file_xfer_cmd = [f"{os.getenv('HOME')}/code/ml-downscaling-emulation/moose-etl/xfer-script-direct", jasmin_filepath, bp_filepath]
-        config_xfer_cmd = []
-        run_cmd(file_xfer_cmd)
+        resolution = f"{variable_resolution}-{target_resolution}"
+        xfer(variable=config["variable"], year=year, frequency=frequency, domain=domain, collection=src_collection, resolution=resolution, target_size=target_size)
 
         # run clean up
         for src_variable in config["sources"]["variables"]:
