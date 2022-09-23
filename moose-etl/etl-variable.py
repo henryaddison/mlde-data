@@ -31,7 +31,7 @@ def main(years: List[int], variable_config: Path = typer.Option(...), domain: Do
 
     for year in years:
         # run extract and convert
-        src_collection = config["sources"]["collection"]
+        src_collection = CollectionOption(config["sources"]["collection"])
         for src_variable in config["sources"]["variables"]:
             extract(variable=src_variable["name"], year=year, frequency=src_variable["frequency"], collection=src_collection)
 
@@ -41,9 +41,9 @@ def main(years: List[int], variable_config: Path = typer.Option(...), domain: Do
         create_variable(config_path=variable_config, year=year, domain=domain, target_resolution=target_resolution, target_size=target_size, scale_factor=scale_factor)
 
         # run transfer
-        if src_collection == "land-cpm":
+        if src_collection == CollectionOption.cpm:
             src_resolution = "2.2km"
-        elif src_collection == "land-gcm":
+        elif src_collection == CollectionOption.gcm:
             src_resolution = "60km"
         else:
             raise(ArgumentError(f"Unknown source collection {src_collection}"))
