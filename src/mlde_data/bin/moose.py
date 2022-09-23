@@ -165,7 +165,7 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
         src_cube = iris.load_cube(str(pp_files_glob))
 
     # bug in some data means the final grid_latitude bound is very large (1.0737418e+09)
-    if collection == CollectionOption.cpm and variable in ["xwind", "ywind", "spechum", "temp"]:
+    if collection == CollectionOption.cpm and any([variable.startswith(var) for var in ["xwind", "ywind", "spechum", "temp"]]):
         bounds = np.copy(src_cube.coord("grid_latitude").bounds)
         # make sure it really is much larger than expected (in case this gets fixed)
         assert bounds[-1][1] > 8.97
