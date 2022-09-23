@@ -200,12 +200,12 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     if os.path.exists(raw_nc_path): os.remove(raw_nc_path)
 
 @app.command()
-def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
+def create_variable(variable_config: Path = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
     """
     Create a new variable from moose data
     """
-    config = files('ml_downscaling_emulator.config').joinpath(f'variables/day/{variable}.yml').read_text()
-    config = yaml.safe_load(config)
+    with open(variable_config, 'r') as config_file:
+        config = yaml.safe_load(config_file)
 
     # add cli parameters to config
     config["parameters"] = {
