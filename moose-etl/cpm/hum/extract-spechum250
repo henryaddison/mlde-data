@@ -45,6 +45,6 @@ years=$(seq 2061 1 2070)
 job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} ${years})
 echo $job_id
 
-years=$(seq 20711 1 2080)
+years=$(seq 2071 1 2080)
 job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} ${years})
 echo $job_id
