@@ -105,7 +105,7 @@ VARIABLE_CODES = {
     }
 }
 
-for theta in [250]:
+for theta in [250, 500, 700, 850, 925]:
     VARIABLE_CODES[f"spechum{theta}"] = {
         "query": {
             "stash": 30205,
