@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import yaml
 
+from codetiming import Timer
 import iris
 import numpy as np
 import typer
@@ -74,6 +75,7 @@ def remove_forecast(ds):
     return ds
 
 @app.command()
+@Timer(name="extract", text="{name}: {minutes:.1f} minutes", logger=logger.info)
 def extract(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...), cache: bool = True):
     """
     Extract data from moose
@@ -130,6 +132,7 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
         cache_check_filepath.touch()
 
 @app.command()
+@Timer(name="convert", text="{name}: {minutes:.1f} minutes", logger=logger.info)
 def convert(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...), cache: bool = True):
     """
     Convert pp data to a netCDF file
@@ -200,6 +203,7 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     if os.path.exists(raw_nc_path): os.remove(raw_nc_path)
 
 @app.command()
+@Timer(name="create-variable", text="{name}: {minutes:.1f} minutes", logger=logger.info)
 def create_variable(config_path: Path = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
     """
     Create a new variable from moose data
