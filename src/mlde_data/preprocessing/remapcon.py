@@ -8,7 +8,7 @@ class Remapcon:
 
     def run(self, ds):
         temp_storage_path = os.getenv("TMPDIR", default=tempfile.gettempdir())
-        os.makedirs(temp_storage_path)
+        os.makedirs(temp_storage_path, exist_ok=True)
         input_file = tempfile.NamedTemporaryFile(delete=True, prefix='cdo_xr_input_', dir=os.getenv("TMPDIR"))
         print(input_file.name)
         ds.to_netcdf(input_file.name)
