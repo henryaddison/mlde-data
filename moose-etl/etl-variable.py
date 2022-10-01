@@ -2,8 +2,10 @@ from argparse import ArgumentError
 import logging
 import os
 from pathlib import Path
+import random
 import subprocess
 from typing import List
+import time
 import yaml
 
 import typer
@@ -49,13 +51,16 @@ def main(years: List[int], variable_config: Path = typer.Option(...), domain: Do
             variable_resolution = f"{src_resolution}-coarsened-{scale_factor}x"
 
         resolution = f"{variable_resolution}-{target_resolution}"
-        for attempt in reversed(range(3)):
+        for attempts_remaining in reversed(range(3)):
             try:
                 xfer(variable=config["variable"], year=year, frequency=frequency, domain=domain, collection=src_collection, resolution=resolution, target_size=target_size)
             except:
-                if attempt <= 0:
+                if attempts_remaining <= 0:
                     raise
                 else:
+                    logger.error(f"Failed to do xfer. {attempts_remaining} attempts remaining. Sleeping for a bit.")
+                    # pause for a bit
+                    time.sleep(random.randint(0,10))
                     continue
             else:
                 break
