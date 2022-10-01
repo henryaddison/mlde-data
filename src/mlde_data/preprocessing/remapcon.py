@@ -13,7 +13,7 @@ class Remapcon:
         print(input_file.name)
         ds.to_netcdf(input_file.name)
 
-        cdo = Cdo(dir=temp_storage_path)
+        cdo = Cdo(tempdir=temp_storage_path)
         ds = cdo.remapcon(self.target_grid_filepath, input=input_file.name, returnXDataset = True)
 
         if "latitude_longitude" in ds.variables:
