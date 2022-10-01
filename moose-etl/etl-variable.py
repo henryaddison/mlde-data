@@ -49,7 +49,16 @@ def main(years: List[int], variable_config: Path = typer.Option(...), domain: Do
             variable_resolution = f"{src_resolution}-coarsened-{scale_factor}x"
 
         resolution = f"{variable_resolution}-{target_resolution}"
-        xfer(variable=config["variable"], year=year, frequency=frequency, domain=domain, collection=src_collection, resolution=resolution, target_size=target_size)
+        for attempt in reversed(range(3)):
+            try:
+                xfer(variable=config["variable"], year=year, frequency=frequency, domain=domain, collection=src_collection, resolution=resolution, target_size=target_size)
+            except:
+                if attempt <= 0:
+                    raise
+                else:
+                    continue
+            else:
+                break
 
         # run clean up
         for src_variable in config["sources"]["variables"]:
