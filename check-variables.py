@@ -19,7 +19,7 @@ domain_res_vars = {
         "2.2km-coarsened-gcm-2.2km": ["pr", "vorticity850"],
         "2.2km-coarsened-gcm-2.2km-coarsened-4x": ["pr", "vorticity850", "temp250", "temp500", "temp700", "temp850", "temp925", "spechum250", "spechum500", "spechum700", "spechum850", "spechum925"],
         "60km-2.2km": ["pr",  "vorticity850"],
-        "60km-2.2km-coarsened-4x": ["pr", "lin-pr", "vorticity850" , "temp250", "temp500", "temp700", "temp850", "temp925", "spechum250"]
+        "60km-2.2km-coarsened-4x": ["pr", "lin-pr", "vorticity850" , "temp250", "temp500", "temp700", "temp850", "temp925", "spechum250", "spechum500", "spechum700", "spechum850", "spechum925"]
 
     },
     "birmingham-256": {
