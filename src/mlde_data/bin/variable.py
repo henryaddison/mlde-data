@@ -31,7 +31,7 @@ def callback():
 
 @app.command()
 @Timer(name="create-variable", text="{name}: {minutes:.1f} minutes", logger=logger.info)
-def create_variable(config_path: Path = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
+def create(config_path: Path = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
     """
     Create a new variable from moose data
     """
