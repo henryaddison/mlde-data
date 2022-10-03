@@ -1,0 +1,27 @@
+#! /usr/bin/bash
+
+set -euo pipefail
+
+while getopts ":j:d:" opt; do
+  case ${opt} in
+    j)
+      job_id=${OPTARG}
+      ;;
+    d)
+      directory=${OPTARG}
+      ;;
+   \? )
+     echo "Invalid Option: -${OPTARG}" 1>&2
+     exit 1
+     ;;
+  esac
+done
+shift $((OPTIND -1))
+
+cmd=$@
+
+if [ $job_id -eq 0 ]; then
+  sbatch --mail-type=ALL --mail-user=vf20964@bristol.ac.uk -A mass -p mass --time 23:00:00 --parsable --chdir=${directory} -- ${cmd}
+else
+  sbatch --mail-type=ALL --mail-user=vf20964@bristol.ac.uk -A mass -p mass --time 23:00:00 --parsable  --dependency=afterok:${job_id} --chdir=${directory} -- ${cmd}
+fi

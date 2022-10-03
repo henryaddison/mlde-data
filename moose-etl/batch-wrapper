@@ -1,0 +1,43 @@
+#! /usr/bin/env bash
+
+eval "$(conda shell.bash hook)"
+
+conda activate cuda-downscaling
+
+set -euo pipefail
+
+while getopts ":c:v:s:t:d:p:" opt; do
+  case ${opt} in
+    c)
+      collection=${OPTARG}
+      ;;
+    v )
+      variable=${OPTARG}
+      ;;
+    s )
+      scale_factor=${OPTARG}
+      ;;
+    t )
+      target_resolution=${OPTARG}
+      ;;
+    d )
+      domain=${OPTARG}
+      ;;
+    p )
+      target_size=${OPTARG}
+      ;;
+   \? )
+     echo "Invalid Option: -${OPTARG}" 1>&2
+     exit 1
+     ;;
+  esac
+done
+shift $((OPTIND -1))
+
+years=$@
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+ETL_VARIABLE_SCRIPT_PATH=${HOME}/code/ml-downscaling-emulation/moose-etl/etl-variable.py
+
+python ${ETL_VARIABLE_SCRIPT_PATH} --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} ${years}

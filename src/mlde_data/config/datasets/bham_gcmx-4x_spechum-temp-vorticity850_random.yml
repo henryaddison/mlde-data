@@ -7,10 +7,15 @@ predictand:
   variable: pr
   resolution: 2.2km-coarsened-4x-2.2km-coarsened-4x
 predictors:
-  - variable: vorticity850
+  - variable: spechum250
+  - variable: spechum500
+  - variable: spechum700
+  - variable: spechum850
+  - variable: spechum925
   - variable: temp250
   - variable: temp500
   - variable: temp700
   - variable: temp850
   - variable: temp925
+  - variable: vorticity850
 split_scheme: random

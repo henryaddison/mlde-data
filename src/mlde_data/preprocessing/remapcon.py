@@ -1,3 +1,4 @@
+import os
 import tempfile
 from cdo import Cdo
 
@@ -6,11 +7,13 @@ class Remapcon:
         self.target_grid_filepath = target_grid_filepath
 
     def run(self, ds):
-        input_file = tempfile.NamedTemporaryFile(delete=True, prefix='cdo_xr_input_', dir=tempfile.gettempdir())
+        temp_storage_path = os.getenv("TMPDIR", default=tempfile.gettempdir())
+        os.makedirs(temp_storage_path, exist_ok=True)
+        input_file = tempfile.NamedTemporaryFile(delete=True, prefix='cdo_xr_input_', dir=os.getenv("TMPDIR"))
         print(input_file.name)
         ds.to_netcdf(input_file.name)
 
-        cdo = Cdo()
+        cdo = Cdo(tempdir=temp_storage_path)
         ds = cdo.remapcon(self.target_grid_filepath, input=input_file.name, returnXDataset = True)
 
         if "latitude_longitude" in ds.variables:

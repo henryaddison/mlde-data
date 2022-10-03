@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import yaml
 
+from codetiming import Timer
 import iris
 import numpy as np
 import typer
@@ -53,8 +54,8 @@ def nc_filename(variable: str, year: int, frequency: str, domain: str, resolutio
 def raw_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str = "land-cpm"):
     return Path(os.getenv("MOOSE_DATA"))/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
 
-def processed_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str):
-    return Path(os.getenv("DERIVED_DATA"))/"moose"/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
+def processed_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str, base_dir=os.getenv("DERIVED_DATA")):
+    return Path(base_dir)/"moose"/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
 
 def remove_forecast(ds):
     coords_to_remove = []
@@ -74,6 +75,7 @@ def remove_forecast(ds):
     return ds
 
 @app.command()
+@Timer(name="extract", text="{name}: {minutes:.1f} minutes", logger=logger.info)
 def extract(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...), cache: bool = True):
     """
     Extract data from moose
@@ -130,6 +132,7 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
         cache_check_filepath.touch()
 
 @app.command()
+@Timer(name="convert", text="{name}: {minutes:.1f} minutes", logger=logger.info)
 def convert(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...), cache: bool = True):
     """
     Convert pp data to a netCDF file
@@ -165,7 +168,7 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
         src_cube = iris.load_cube(str(pp_files_glob))
 
     # bug in some data means the final grid_latitude bound is very large (1.0737418e+09)
-    if collection == CollectionOption.cpm and variable in ["xwind", "ywind", "spechum", "temp"]:
+    if collection == CollectionOption.cpm and any([variable.startswith(var) for var in ["xwind", "ywind", "spechum", "temp"]]):
         bounds = np.copy(src_cube.coord("grid_latitude").bounds)
         # make sure it really is much larger than expected (in case this gets fixed)
         assert bounds[-1][1] > 8.97
@@ -200,12 +203,13 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     if os.path.exists(raw_nc_path): os.remove(raw_nc_path)
 
 @app.command()
-def create_variable(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
+@Timer(name="create-variable", text="{name}: {minutes:.1f} minutes", logger=logger.info)
+def create_variable(config_path: Path = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, scenario="rcp85", scale_factor: str = typer.Option(...), target_resolution: str = "2.2km", target_size: int = 64):
     """
     Create a new variable from moose data
     """
-    config = files('ml_downscaling_emulator.config').joinpath(f'variables/day/{variable}.yml').read_text()
-    config = yaml.safe_load(config)
+    with open(config_path, 'r') as config_file:
+        config = yaml.safe_load(config_file)
 
     # add cli parameters to config
     config["parameters"] = {
@@ -238,18 +242,18 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     assert(config["sources"]["type"] == "moose")
 
     for src_variable in config['sources']['variables']:
-        source_nc_filepath = raw_nc_filepath(variable=src_variable, year=year, frequency=frequency, resolution=variable_resolution, collection=collection.value, domain=source_domain)
+        source_nc_filepath = raw_nc_filepath(variable=src_variable["name"], year=year, frequency=src_variable["frequency"], resolution=variable_resolution, collection=collection.value, domain=source_domain)
         logger.info(f"Opening {source_nc_filepath}")
         ds = xr.open_dataset(source_nc_filepath)
 
-        if "moose_name" in VARIABLE_CODES[src_variable]:
-            logger.info(f"Renaming {VARIABLE_CODES[src_variable]['moose_name']} to {src_variable}...")
-            ds = ds.rename({VARIABLE_CODES[src_variable]["moose_name"]: src_variable})
+        if "moose_name" in VARIABLE_CODES[src_variable["name"]]:
+            logger.info(f"Renaming {VARIABLE_CODES[src_variable['name']]['moose_name']} to {src_variable['name']}...")
+            ds = ds.rename({VARIABLE_CODES[src_variable["name"]]["moose_name"]: src_variable["name"]})
 
         # remove forecast related coords that we don't need
         ds = remove_forecast(ds)
 
-        sources[src_variable] = ds
+        sources[src_variable["name"]] = ds
 
     logger.info(f"Combining {config['sources']}...")
     ds = xr.combine_by_coords(sources.values(), compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all")
@@ -310,5 +314,23 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     logger.info(f"Saving data to {output_metadata.filepath(year)}")
     os.makedirs(output_metadata.dirpath(), exist_ok=True)
     ds.to_netcdf(output_metadata.filepath(year))
-    with open(os.path.join(output_metadata.dirpath(), f"{variable}-{year}.yml"), 'w') as f:
+    with open(os.path.join(output_metadata.dirpath(), f"{config['variable']}-{year}.yml"), 'w') as f:
         yaml.dump(config, f)
+
+def run_cmd(cmd):
+    logger.debug(f"Running {cmd}")
+    output = subprocess.run(cmd, capture_output=True, check=False)
+    stdout = output.stdout.decode("utf8")
+    print(stdout)
+    print(output.stderr.decode("utf8"))
+    output.check_returncode()
+
+@app.command()
+def xfer(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, collection: CollectionOption = typer.Option(...), resolution: str = typer.Option(...), target_size: int = 64):
+    # TODO re-write xfer in Python
+    jasmin_filepath = processed_nc_filepath(variable=variable, year=year, frequency=frequency, domain=f"{domain.value}-{target_size}", resolution=resolution, collection=collection.value)
+    bp_filepath = processed_nc_filepath(variable=variable, year=year, frequency=frequency, domain=f"{domain.value}-{target_size}", resolution=resolution, collection=collection.value, base_dir="/user/work/vf20964")
+
+    file_xfer_cmd = [f"{os.getenv('HOME')}/code/ml-downscaling-emulation/moose-etl/xfer-script-direct", jasmin_filepath, bp_filepath]
+    config_xfer_cmd = []
+    run_cmd(file_xfer_cmd)
