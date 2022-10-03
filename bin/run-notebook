@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -euo pipefail
+
+notebook_filepath=$1
+
+jupyter nbconvert --to notebook --execute ${notebook_filepath}
+mv ${notebook_filepath/ipynb/nbconvert.ipynb} ${notebook_filepath}
