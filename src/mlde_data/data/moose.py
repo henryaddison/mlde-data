@@ -203,3 +203,43 @@ def select_query(year, variable, frequency="day", collection="land-cpm"):
     query_parts = [ "\n".join(query_lines(query_conditions, qyear, qmonths)) for (qyear, qmonths) in [(year-1, "12"), (year, "[1..11]")] ]
 
     return "\n\n".join(query_parts).lstrip()+"\n"
+
+
+def moose_extract_dirpath(variable: str, year: int, frequency: str, resolution: str, collection: str, domain: str, cache: bool = False):
+    if cache:
+        path_start = os.getenv("MOOSE_CACHE")
+    else:
+        path_start = os.getenv("MOOSE_DATA")
+    return Path(path_start)/"pp"/collection/domain/resolution/"rcp85"/"01"/variable/frequency/str(year)
+
+def moose_cache_dirpath(**kwargs):
+    return moose_extract_dirpath(**kwargs, cache=True)
+
+def ppdata_dirpath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str, cache: bool = False):
+    return moose_extract_dirpath(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection, cache=cache)/"data"
+
+def nc_filename(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str):
+    return f"{variable}_rcp85_{collection}_{domain}_{resolution}_01_{frequency}_{year-1}1201-{year}1130.nc"
+
+def raw_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str = "land-cpm"):
+    return Path(os.getenv("MOOSE_DATA"))/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
+
+def processed_nc_filepath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str, base_dir=os.getenv("DERIVED_DATA")):
+    return Path(base_dir)/"moose"/domain/resolution/"rcp85"/"01"/variable/frequency/nc_filename(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)
+
+def remove_forecast(ds):
+    coords_to_remove = []
+    for v in ds.variables:
+        if v in ["forecast_period", "forecast_reference_time", "realization"]:
+            coords_to_remove.append(v)
+    ds = ds.reset_coords(coords_to_remove, drop=True)
+
+    if "forecast_period_bnds" in ds.variables:
+        ds = ds.drop_vars("forecast_period_bnds", errors='ignore')
+
+    for v in ds.variables:
+        if "coordinates" in ds[v].encoding:
+            new_coords_encoding = re.sub("(realization|forecast_period|forecast_reference_time) ?", "", ds[v].encoding["coordinates"]).strip()
+            ds[v].encoding.update({"coordinates": new_coords_encoding})
+
+    return ds

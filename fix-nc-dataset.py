@@ -3,7 +3,7 @@ import os
 import iris
 import xarray as xr
 
-from ml_downscaling_emulator.bin.moose import remove_forecast
+from ml_downscaling_emulator.data.moose import remove_forecast
 
 datasets = [
     "2.2km-coarsened-8x_london_vorticity850_random",

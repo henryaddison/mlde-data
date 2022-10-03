@@ -5,7 +5,7 @@ import typer
 import xarray as xr
 
 from ml_downscaling_emulator import UKCPDatasetMetadata
-from ml_downscaling_emulator.bin.moose import remove_forecast
+from ml_downscaling_emulator.data.moose import remove_forecast
 
 app = typer.Typer()
 

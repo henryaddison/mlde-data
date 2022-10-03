@@ -1,9 +1,7 @@
 from argparse import ArgumentError
 import logging
-import os
 from pathlib import Path
 import random
-import subprocess
 from typing import List
 import time
 import yaml
@@ -11,7 +9,8 @@ import yaml
 import typer
 
 from ml_downscaling_emulator.bin import DomainOption, CollectionOption
-from ml_downscaling_emulator.bin.moose import xfer, create_variable, extract, convert, clean
+from ml_downscaling_emulator.bin.moose import extract, convert, clean
+from ml_downscaling_emulator.bin.variable import create as create_variable, xfer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')
