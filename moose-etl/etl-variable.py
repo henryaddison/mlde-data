@@ -61,7 +61,7 @@ def main(years: List[int], variable_config: Path = typer.Option(...), domain: Do
                     raise
                 else:
                     # pause for a bit
-                    sleep_duration = 60*(2**(attempts-1))
+                    sleep_duration = 60*(2**(attempts-1)) + random.randint(1, 10)
                     logger.error(f"Failed to do xfer on attempt {attempts} of {MAX_ATTEMPTS}. Sleeping for {sleep_duration}.")
                     time.sleep(sleep_duration)
 
