@@ -50,16 +50,21 @@ def main(years: List[int], variable_config: Path = typer.Option(...), domain: Do
             variable_resolution = f"{src_resolution}-coarsened-{scale_factor}x"
 
         resolution = f"{variable_resolution}-{target_resolution}"
-        for attempts_remaining in reversed(range(3)):
+        MAX_ATTEMPTS = 3
+        attempts = 0
+        while(True):
+            attempts += 1
             try:
                 xfer(variable=config["variable"], year=year, frequency=frequency, domain=domain, collection=src_collection, resolution=resolution, target_size=target_size)
             except:
-                if attempts_remaining <= 0:
+                if attempts >= MAX_ATTEMPTS:
                     raise
                 else:
-                    logger.error(f"Failed to do xfer. {attempts_remaining} attempts remaining. Sleeping for a bit.")
                     # pause for a bit
-                    time.sleep(random.randint(0,10))
+                    sleep_duration = 60*(2**(attempts-1))
+                    logger.error(f"Failed to do xfer on attempt {attempts} of {MAX_ATTEMPTS}. Sleeping for {sleep_duration}.")
+                    time.sleep(sleep_duration)
+
                     continue
             else:
                 break
