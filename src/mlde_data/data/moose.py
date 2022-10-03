@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 ### CPM details
 
 # moose uris: moose:crum/{suite_id}/{stream_code}.pp
