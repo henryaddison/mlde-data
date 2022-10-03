@@ -1,0 +1,22 @@
+variable: temp250
+attrs:
+  units: K
+  standard_name: air_temperature_250hPa
+  grid_mapping: rotated_latitude_longitude
+sources:
+  type: moose
+  collection: land-gcm
+  variables:
+    # assumes already extracted and converted to nc
+    # implicit here is rename variable
+    - temp
+spec:
+  - action: constrain
+    query: {pressure: 250.0}
+  - action: rename
+    mapping: {"temp": "temp250"}
+  - action: regrid_to_target
+  - action: select-subdomain
+    parameters:
+      domain: $domain
+  # implicit final actions: assign attrs, save, cleanup extraction?

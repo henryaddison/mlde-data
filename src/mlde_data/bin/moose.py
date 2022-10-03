@@ -34,14 +34,18 @@ app = typer.Typer()
 def callback():
     pass
 
-def moose_extract_dirpath(variable: str, year: int, frequency: str, resolution: str, collection: str, domain: str):
-    return Path(os.getenv("MOOSE_DATA"))/"pp"/collection/domain/resolution/"rcp85"/"01"/variable/frequency/str(year)
+def moose_extract_dirpath(variable: str, year: int, frequency: str, resolution: str, collection: str, domain: str, cache: bool = False):
+    if cache:
+        path_start = os.getenv("MOOSE_CACHE")
+    else:
+        path_start = os.getenv("MOOSE_DATA")
+    return Path(path_start)/"pp"/collection/domain/resolution/"rcp85"/"01"/variable/frequency/str(year)
 
-def moose_cache_dirpath(variable: str, year: int, frequency: str, resolution: str, collection: str, domain: str):
-    return Path(os.getenv("MOOSE_CACHE"))/"pp"/collection/domain/resolution/"rcp85"/"01"/variable/frequency/str(year)
+def moose_cache_dirpath(**kwargs):
+    return moose_extract_dirpath(**kwargs, cache=True)
 
-def ppdata_dirpath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str):
-    return moose_extract_dirpath(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection)/"data"
+def ppdata_dirpath(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str, cache: bool = False):
+    return moose_extract_dirpath(variable=variable, year=year, frequency=frequency, domain=domain, resolution=resolution, collection=collection, cache=cache)/"data"
 
 def nc_filename(variable: str, year: int, frequency: str, domain: str, resolution: str, collection: str):
     return f"{variable}_rcp85_{collection}_{domain}_{resolution}_01_{frequency}_{year-1}1201-{year}1130.nc"
@@ -86,18 +90,16 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     cache_path = moose_cache_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
     cache_check_filepath = cache_path/".cache-ready"
 
-    query = select_query(year=year, variable=variable, frequency=frequency, collection=collection.value)
-
-    output_dirpath = moose_extract_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
-    query_filepath = output_dirpath/"searchfile"
-    pp_dirpath = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
-
-
     if cache:
         if os.path.exists(cache_check_filepath):
-            logger.info(f"Recovering from moose cache {cache_path}")
-            shutil.copytree(cache_path, output_dirpath, dirs_exist_ok=True)
+            logger.info(f"Moose cache available {cache_path}")
             return
+
+    query = select_query(year=year, variable=variable, frequency=frequency, collection=collection.value)
+
+    output_dirpath = moose_extract_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain, cache=False)
+    query_filepath = output_dirpath/"searchfile"
+    pp_dirpath = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain, cache=False)
 
     os.makedirs(output_dirpath, exist_ok=True)
     # remove any previous attempt at extracting the data (or else moo select will complain)
@@ -128,7 +130,7 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
         cache_check_filepath.touch()
 
 @app.command()
-def convert(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...)):
+def convert(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", collection: CollectionOption = typer.Option(...), cache: bool = True):
     """
     Convert pp data to a netCDF file
     """
@@ -141,7 +143,17 @@ def convert(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     else:
         raise f"Unknown collection {collection}"
 
-    pp_files_glob = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)/"*.pp"
+    cache_path = moose_cache_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
+    cache_check_filepath = cache_path/".cache-ready"
+
+    if cache:
+        if os.path.exists(cache_check_filepath):
+            logger.info(f"Moose cache available {cache_path}")
+        else:
+            logger.info(f"Moose cache unavailable {cache_path}")
+            cache = False
+
+    pp_files_glob = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain, cache=cache)/"*.pp"
     output_filepath = raw_nc_filepath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain)
 
 
@@ -180,7 +192,7 @@ def clean(variable: str = typer.Option(...), year: int = typer.Option(...), freq
     else:
         raise f"Unknown collection {collection}"
 
-    pp_path = ppdata_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
+    pp_path = ppdata_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain, cache=False)
     typer.echo(f"Removing {pp_path}...")
     shutil.rmtree(pp_path, ignore_errors=True)
     raw_nc_path = raw_nc_filepath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
@@ -268,8 +280,8 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
             if target_resolution != variable_resolution:
                 typer.echo(f"Regridding to target resolution...")
                 target_grid_filepath = os.path.join(os.path.dirname(__file__), '..', 'utils', 'target-grids', target_resolution, 'uk', 'moose_grid.nc')
-
-                ds = Regrid(target_grid_filepath, variables=[config['variable']]).run(ds)
+                kwargs = job_spec.get("parameters", {})
+                ds = Regrid(target_grid_filepath, variables=[config['variable']], **kwargs).run(ds)
         elif job_spec['action'] == "vorticity":
             typer.echo(f"Computing vorticity...")
             ds = Vorticity().run(ds)
