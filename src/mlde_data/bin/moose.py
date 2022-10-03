@@ -9,8 +9,8 @@ import numpy as np
 import typer
 import xarray as xr
 
-from ml_downscaling_emulator.bin import DomainOption, CollectionOption
-from ml_downscaling_emulator.data.moose import select_query, moose_path, moose_extract_dirpath, moose_cache_dirpath, ppdata_dirpath, raw_nc_filepath, processed_nc_filepath
+from ml_downscaling_emulator.bin import CollectionOption
+from ml_downscaling_emulator.data.moose import select_query, moose_path, moose_extract_dirpath, moose_cache_dirpath, ppdata_dirpath, raw_nc_filepath
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')

@@ -10,7 +10,7 @@ import xarray as xr
 
 from ml_downscaling_emulator import UKCPDatasetMetadata
 from ml_downscaling_emulator.bin import DomainOption, CollectionOption
-from ml_downscaling_emulator.data.moose import VARIABLE_CODES, raw_nc_filepath, remove_forecast
+from ml_downscaling_emulator.data.moose import VARIABLE_CODES, raw_nc_filepath, processed_nc_filepath, remove_forecast
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
 from ml_downscaling_emulator.preprocessing.constrain import Constrain
 from ml_downscaling_emulator.preprocessing.regrid import Regrid
