@@ -7,6 +7,8 @@ wandb/
 # Slurm job output
 slurm-*.out
 slurm-*.err
+*.o
+*.work.o[0-9][0-9][0-9][0-9][0-9][0-9]
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
