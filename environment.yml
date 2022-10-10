@@ -17,6 +17,7 @@ dependencies:
   - argon2-cffi-bindings=21.2.0=py39hb9d737c_2
   - asttokens=2.0.5=pyhd8ed1ab_0
   - async-timeout=4.0.2=pyhd8ed1ab_0
+  - atpublic=3.0.1=pyhd8ed1ab_0
   - attr=2.5.1=h166bdaf_0
   - attrs=21.4.0=pyhd8ed1ab_0
   - babel=2.10.3=pyhd8ed1ab_0
@@ -35,6 +36,8 @@ dependencies:
   - bzip2=1.0.8=h7f98852_4
   - c-ares=1.18.1=h7f98852_0
   - ca-certificates=2022.9.24=ha878542_0
+  - cached-property=1.5.2=hd8ed1ab_1
+  - cached_property=1.5.2=pyha770c72_1
   - cairo=1.16.0=ha61ee94_1011
   - cartopy=0.20.3=py39hed214b2_1
   - cdo=2.0.5=h98cb44a_1
@@ -70,6 +73,7 @@ dependencies:
   - ffmpeg=5.0.1=gpl_h8733cef_106
   - fftw=3.3.10=nompi_h77c792f_102
   - flit-core=3.7.1=pyhd8ed1ab_0
+  - flufl.lock=7.1=pyhd8ed1ab_0
   - font-ttf-dejavu-sans-mono=2.37=hab24e00_0
   - font-ttf-inconsolata=3.000=h77eed37_0
   - font-ttf-source-code-pro=2.038=h77eed37_0
@@ -97,6 +101,8 @@ dependencies:
   - grpcio=1.45.0=py39h0f497a6_0
   - gst-plugins-base=1.20.3=hf6a322e_0
   - gstreamer=1.20.3=hd4edc92_0
+  - h5netcdf=1.0.2=pyhd8ed1ab_0
+  - h5py=3.7.0=nompi_py39h63b1161_100
   - harfbuzz=4.4.1=hf9f4e7c_0
   - hdf4=4.2.15=h10796ff_3
   - hdf5=1.12.1=nompi_h2386368_104
@@ -340,7 +346,7 @@ dependencies:
   - wheel=0.37.1=pyhd8ed1ab_0
   - x264=1!161.3030=h7f98852_1
   - x265=3.5=h924138e_3
-  - xarray=2022.3.0=pyhd8ed1ab_0
+  - xarray=2022.9.0=pyhd8ed1ab_0
   - xcb-util=0.4.0=h166bdaf_0
   - xcb-util-image=0.4.0=h166bdaf_0
   - xcb-util-keysyms=0.4.0=h166bdaf_0
