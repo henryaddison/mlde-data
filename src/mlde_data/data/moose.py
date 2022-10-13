@@ -118,6 +118,22 @@ for theta in [250, 500, 700, 850, 925]:
         "stream": {"land-cpm": {"day": "apb", "3hrinst": "aph"}, "land-gcm": {"day": "ape"}},
         "moose_name": "specific_humidity"
     }
+    VARIABLE_CODES[f"xwind{theta}"] = {
+        "query": {
+            "stash": 30201,
+            "lblev": theta,
+        },
+        "stream": {"land-cpm": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"}, "land-gcm": {"day": "ape"}},
+        "moose_name": "x_wind"
+    }
+    VARIABLE_CODES[f"ywind{theta}"] = {
+        "query": {
+            "stash": 30202,
+            "lblev": theta,
+        },
+        "stream": {"land-cpm": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"}, "land-gcm": {"day": "ape"}},
+        "moose_name": "y_wind"
+    }
 
 class RangeDict(dict):
     def __getitem__(self, item):

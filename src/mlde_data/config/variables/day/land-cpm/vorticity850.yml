@@ -9,13 +9,11 @@ sources:
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - name: xwind
+    - name: xwind850
       frequency: day
-    - name: ywind
+    - name: ywind850
       frequency: day
 spec:
-  - action: constrain
-    query: {pressure: 850.0}
   - action: coarsen
     parameters:
       scale_factor: $scale_factor
