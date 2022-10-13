@@ -9,8 +9,10 @@ sources:
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - xwind
-    - ywind
+    - name: xwind
+      frequency: day
+    - name: ywind
+      frequency: day
 spec:
   - action: constrain
     query: {pressure: 700.0}
