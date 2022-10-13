@@ -16,7 +16,6 @@ spec:
     query: {pressure: 850.0}
   - action: vorticity
   - action: regrid_to_target
-    variable: vorticity850
   - action: select-subdomain
     parameters:
       domain: $domain
