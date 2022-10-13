@@ -8,8 +8,8 @@ from ml_downscaling_emulator import UKCPDatasetMetadata
 
 domain_res_vars = {
     "birmingham-64": {
-        "2.2km-coarsened-gcm-2.2km-coarsened-4x": ["spechum250", "spechum500", "spechum700", "spechum850", "spechum925", "temp250", "temp500", "temp700", "temp850", "temp925", "vorticity850", "pr"],
-        "60km-2.2km-coarsened-4x": ["spechum250", "spechum500", "spechum700", "spechum850", "spechum925", "temp250", "temp500", "temp700", "temp850", "temp925", "vorticity850", "pr", "lin-pr"],
+        "2.2km-coarsened-gcm-2.2km-coarsened-4x": ["spechum250", "spechum500", "spechum700", "spechum850", "spechum925", "temp250", "temp500", "temp700", "temp850", "temp925", "vorticity250", "vorticity500", "vorticity700", "vorticity850", "vorticity925", "pr"],
+        "60km-2.2km-coarsened-4x": ["spechum250", "spechum500", "spechum700", "spechum850", "spechum925", "temp250", "temp500", "temp700", "temp850", "temp925", "vorticity250", "vorticity500", "vorticity700", "vorticity850", "vorticity925", "pr", "lin-pr"],
         "2.2km-coarsened-4x-2.2km-coarsened-4x": ["pr",],
         "2.2km-coarsened-gcm-2.2km": ["pr", "vorticity850"],
         "60km-2.2km": ["pr",  "vorticity850"],
