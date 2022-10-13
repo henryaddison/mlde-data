@@ -115,7 +115,7 @@ def create(config_path: Path = typer.Option(...), year: int = typer.Option(...),
                 ds = Regrid(target_grid_filepath, variables=[config['variable']], **kwargs).run(ds)
         elif job_spec['action'] == "vorticity":
             typer.echo(f"Computing vorticity...")
-            ds = Vorticity().run(ds)
+            ds = Vorticity(**job_spec["parameters"]).run(ds)
         elif job_spec['action'] == "select-subdomain":
             typer.echo(f"Select {domain.value} subdomain...")
             ds = SelectDomain(subdomain=domain.value, size=target_size).run(ds)

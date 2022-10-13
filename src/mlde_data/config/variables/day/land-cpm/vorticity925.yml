@@ -20,6 +20,8 @@ spec:
       grid: vorticity850
       variables: [xwind, ywind]
   - action: vorticity
+    parameters:
+      theta: 925
   - action: regrid_to_target
   - action: select-subdomain
     parameters:
