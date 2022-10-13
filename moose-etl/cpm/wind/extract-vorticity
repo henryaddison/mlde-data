@@ -8,7 +8,7 @@ domain="birmingham"
 scale_factor="gcm"
 target_resolution="2.2km-coarsened-4x"
 target_size=64
-variable="${HOME}/code/ml-downscaling-emulation/src/ml_downscaling_emulator/config/variables/day/land-cpm/verticity${theta}.yml"
+variable="${HOME}/code/ml-downscaling-emulation/src/ml_downscaling_emulator/config/variables/day/land-cpm/vorticity${theta}.yml"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
