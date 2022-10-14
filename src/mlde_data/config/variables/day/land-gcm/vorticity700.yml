@@ -16,7 +16,7 @@ sources:
 spec:
   - action: vorticity
     parameters:
-      theta:700
+      theta: 700
   - action: regrid_to_target
   - action: select-subdomain
     parameters:
