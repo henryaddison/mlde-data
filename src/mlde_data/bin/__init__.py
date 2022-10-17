@@ -33,7 +33,8 @@ app.add_typer(variable.app, name="variable")
 def sample(files: List[Path]):
     for file in files:
         ds = xr.open_dataset(file)
-        sampled_ds = ds.isel(time=slice(100)).load()
+        # take something from each season and each decade
+        sampled_ds = ds.sel(time=((ds["time.month"] % 3 == 0) & (ds["time.year"] % 10 == 0))).load()
         ds.close()
         del ds
         print(f"Saving {file}")
