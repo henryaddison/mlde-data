@@ -1,7 +1,7 @@
-variable: vorticity850
+variable: vorticity700
 attrs:
   units: s-1
-  standard_name: relative_vorticity_850hPa
+  standard_name: relative_vorticity_700hPa
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
@@ -9,9 +9,9 @@ sources:
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - name: xwind850
+    - name: xwind700
       frequency: day
-    - name: ywind850
+    - name: ywind700
       frequency: day
 spec:
   - action: coarsen
@@ -21,7 +21,7 @@ spec:
       variables: [xwind, ywind]
   - action: vorticity
     parameters:
-      theta: 850
+      theta: 700
   - action: regrid_to_target
   - action: select-subdomain
     parameters:

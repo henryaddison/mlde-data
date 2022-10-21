@@ -115,7 +115,7 @@ def create(config_path: Path = typer.Option(...), year: int = typer.Option(...),
                 ds = Regrid(target_grid_filepath, variables=[config['variable']], **kwargs).run(ds)
         elif job_spec['action'] == "vorticity":
             typer.echo(f"Computing vorticity...")
-            ds = Vorticity().run(ds)
+            ds = Vorticity(**job_spec["parameters"]).run(ds)
         elif job_spec['action'] == "select-subdomain":
             typer.echo(f"Select {domain.value} subdomain...")
             ds = SelectDomain(subdomain=domain.value, size=target_size).run(ds)
@@ -153,6 +153,7 @@ def run_cmd(cmd):
     output.check_returncode()
 
 @app.command()
+@Timer(name="xfer-variable", text="{name}: {minutes:.1f} minutes", logger=logger.info)
 def xfer(variable: str = typer.Option(...), year: int = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london, collection: CollectionOption = typer.Option(...), resolution: str = typer.Option(...), target_size: int = 64):
     # TODO re-write xfer in Python
     jasmin_filepath = processed_nc_filepath(variable=variable, year=year, frequency=frequency, domain=f"{domain.value}-{target_size}", resolution=resolution, collection=collection.value)

@@ -1,0 +1,52 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+theta=$1
+
+domain="birmingham"
+scale_factor="1"
+target_resolution="2.2km-coarsened-4x"
+target_size=64
+variable="${HOME}/code/ml-downscaling-emulation/src/ml_downscaling_emulator/config/variables/day/land-gcm/vorticity${theta}.yml"
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+QUEUE_DEP_PATH=${SCRIPT_DIR}/../../queue-dep-func
+BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../../batch-wrapper
+
+# TS1
+# no job initially to wait on
+job_id=0
+
+years=$(seq 1981 1 1990)
+job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} ${years})
+echo $job_id
+
+years=$(seq 1991 1 2000)
+job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} ${years})
+echo $job_id
+
+# TS2
+# no job initially to wait on
+job_id=0
+
+years=$(seq 2021 1 2030)
+job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} ${years})
+echo $job_id
+
+years=$(seq 2031 1 2040)
+job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} ${years})
+echo $job_id
+
+# TS3
+# no job initially to wait on
+job_id=0
+
+years=$(seq 2061 1 2070)
+job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} ${years})
+echo $job_id
+
+years=$(seq 2071 1 2080)
+job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} ${years})
+echo $job_id
