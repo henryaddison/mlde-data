@@ -15,3 +15,5 @@ mkdir -p ${local_path}
 
 set -x
 rsync -avz ${bp_host}:${bp_path} ${local_path}
+
+mlde sample ${local_path}/*.nc
