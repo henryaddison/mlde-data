@@ -4,4 +4,4 @@ set -euo pipefail
 
 notebook_filepath=$1
 
-lbatch -m 16 -q short,compute,cnu -t 1 --condaenv cuda-downscaling -- bin/run-notebook ${notebook_filepath}
+lbatch -m 32 -q short,compute,cnu -t 1 --condaenv cuda-downscaling -- bin/run-notebook ${notebook_filepath}
