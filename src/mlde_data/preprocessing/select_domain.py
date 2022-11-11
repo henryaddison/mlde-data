@@ -3,7 +3,7 @@ import math
 
 import numpy as np
 
-from ml_downscaling_emulator.utils import cp_model_rotated_pole, platecarree
+from ml_downscaling_emulator.plotting import cp_model_rotated_pole, platecarree
 
 logger = logging.getLogger(__name__)
 
