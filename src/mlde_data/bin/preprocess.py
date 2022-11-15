@@ -7,7 +7,7 @@ import yaml
 import typer
 import xarray as xr
 
-from ml_downscaling_emulator import UKCPDatasetMetadata
+from ml_downscaling_emulator import VariableMetadata
 from ml_downscaling_emulator.bin import DomainOption
 from ml_downscaling_emulator.preprocessing.sum import Sum
 
@@ -26,13 +26,13 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
 
     data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
 
-    output_metadata = UKCPDatasetMetadata(data_basedir, frequency=frequency, domain=domain, resolution=resolution, ensemble_member='01', variable=config['variable'])
+    output_metadata = VariableMetadata(data_basedir, frequency=frequency, domain=domain, resolution=resolution, ensemble_member='01', variable=config['variable'])
 
     for job_spec in config['spec']:
         if job_spec['action'] == "sum":
             logger.info(f"Summing {job_spec['variables']}")
             input_metadata = [
-                UKCPDatasetMetadata(data_basedir, frequency=frequency, domain=domain, resolution=resolution, ensemble_member='01', variable=variable) for variable in job_spec['variables']
+                VariableMetadata(data_basedir, frequency=frequency, domain=domain, resolution=resolution, ensemble_member='01', variable=variable) for variable in job_spec['variables']
             ]
 
             ds = xr.open_mfdataset([m.filepath(year) for m in input_metadata])
@@ -42,14 +42,3 @@ def create_variable(variable: str = typer.Option(...), year: int = typer.Option(
     logger.info(f"Saving data to {output_metadata.filepath(year)}")
     os.makedirs(output_metadata.dirpath(), exist_ok=True)
     ds.to_netcdf(output_metadata.filepath(year))
-
-
-# @app.command()
-# def sum(variables: List[str] = typer.Option(...), output_variable: str = typer.Option(...), year: int = typer.Option(...), resolution: str = typer.Option(...), frequency: str = "day", domain: DomainOption = DomainOption.london):
-#     metadata = [
-#         UKCPDatasetMetadata(frequency=frequency, domain=domain, resolution=resolution, ensemble_member='01', variable=variable) for variable in variables
-#     ]
-#     filepaths = [m.filepath(year) for m in metadata]
-#     output_metadata = UKCPDatasetMetadata(frequency=frequency, domain=domain, resolution=resolution, ensemble_member='01', variable=output_variable)
-#     xr.open_mfdataset(filepaths)
-#     typer.echo(f"Summing {variables}")

@@ -5,7 +5,7 @@ from pathlib import Path
 import typer
 import xarray as xr
 
-from ml_downscaling_emulator import UKCPDatasetMetadata
+from ml_downscaling_emulator import VariableMetadata
 from ml_downscaling_emulator.bin import DomainOption
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
 from ml_downscaling_emulator.preprocessing.select_domain import SelectDomain
@@ -26,11 +26,11 @@ def select_subdomain(variable: str = typer.Option(...), year: int = typer.Option
     ensemble_member="01"
 
     input_ds_params = dict(domain=domain, frequency=frequency, variable=variable, ensemble_member=ensemble_member, scenario=scenario, resolution=resolution)
-    input = UKCPDatasetMetadata(input_base_dir, **input_ds_params)
+    input = VariableMetadata(input_base_dir, **input_ds_params)
 
     output_ds_params = input_ds_params.copy()
     output_ds_params.update({"domain": subdomain.value})
-    output = UKCPDatasetMetadata(output_base_dir, **output_ds_params)
+    output = VariableMetadata(output_base_dir, **output_ds_params)
 
     typer.echo(f"Opening {input.filepath(year)}")
     ds = xr.open_dataset(input.filepath(year))
@@ -48,12 +48,12 @@ def coarsen(variable: str = typer.Option(...), year: int = typer.Option(...), sc
     ensemble_member="01"
 
     input_ds_params = dict(domain=domain, frequency=frequency, variable=variable, ensemble_member=ensemble_member, scenario=scenario, resolution=resolution)
-    input = UKCPDatasetMetadata(input_base_dir, **input_ds_params)
+    input = VariableMetadata(input_base_dir, **input_ds_params)
 
     new_resolution = f"{resolution}-coarsened-{scale_factor}x"
     output_ds_params = input_ds_params.copy()
     output_ds_params.update({"resolution": new_resolution})
-    output = UKCPDatasetMetadata(output_base_dir, **output_ds_params)
+    output = VariableMetadata(output_base_dir, **output_ds_params)
 
     typer.echo(f"Opening {input.filepath(year)}")
     ds = xr.open_dataset(input.filepath(year))

@@ -8,7 +8,7 @@ from codetiming import Timer
 import typer
 import xarray as xr
 
-from ml_downscaling_emulator import UKCPDatasetMetadata
+from ml_downscaling_emulator import VariableMetadata
 from ml_downscaling_emulator.bin import DomainOption, CollectionOption
 from ml_downscaling_emulator.data.moose import VARIABLE_CODES, raw_nc_filepath, processed_nc_filepath, remove_forecast
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
@@ -136,7 +136,7 @@ def create(config_path: Path = typer.Option(...), year: int = typer.Option(...),
 
     data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
 
-    output_metadata = UKCPDatasetMetadata(data_basedir, frequency=frequency, domain=f"{domain.value}-{target_size}", resolution=f"{variable_resolution}-{target_resolution}", ensemble_member='01', variable=config['variable'])
+    output_metadata = VariableMetadata(data_basedir, frequency=frequency, domain=f"{domain.value}-{target_size}", resolution=f"{variable_resolution}-{target_resolution}", ensemble_member='01', variable=config['variable'])
 
     logger.info(f"Saving data to {output_metadata.filepath(year)}")
     os.makedirs(output_metadata.dirpath(), exist_ok=True)

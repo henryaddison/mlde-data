@@ -4,7 +4,7 @@ import sys
 
 import xarray as xr
 
-from ml_downscaling_emulator import UKCPDatasetMetadata
+from ml_downscaling_emulator import VariableMetadata
 
 domain_res_vars = {
     "birmingham-64": {
@@ -39,7 +39,7 @@ for domain, res_variables in domain_res_vars.items():
 
             bad_years = {"NaNs": set(), "no file": set(), "forecast_encoding": set(), "forecast_vars": set()}
             for year in years:
-                var_meta = UKCPDatasetMetadata(os.getenv("MOOSE_DERIVED_DATA"), variable=var, frequency="day", domain=domain, resolution=res)
+                var_meta = VariableMetadata(os.getenv("MOOSE_DERIVED_DATA"), variable=var, frequency="day", domain=domain, resolution=res)
 
                 try:
                     ds = xr.load_dataset(var_meta.filepath(year))

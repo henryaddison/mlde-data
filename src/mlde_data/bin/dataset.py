@@ -7,7 +7,7 @@ import yaml
 import typer
 import xarray as xr
 
-from ml_downscaling_emulator import UKCPDatasetMetadata
+from ml_downscaling_emulator import VariableMetadata
 from ml_downscaling_emulator.bin import DomainOption
 from ml_downscaling_emulator.data.dataset import RandomSplit, SeasonStratifiedIntensitySplit
 
@@ -32,13 +32,13 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="MOOS
 
     predictand_var_params = {k: config[k] for k in ["domain", "ensemble_member", "scenario", "frequency"]}
     predictand_var_params.update({"variable": config["predictand"]["variable"], "resolution":  config["predictand"]["resolution"]})
-    predictand_meta = UKCPDatasetMetadata(input_base_dir, **predictand_var_params)
+    predictand_meta = VariableMetadata(input_base_dir, **predictand_var_params)
 
     predictors_meta = []
     for predictor_var_config in config["predictors"]:
         var_params = {k: config[k] for k in ["domain", "ensemble_member", "scenario", "frequency", "resolution"]}
         var_params.update({k: predictor_var_config[k] for k in ["variable"]})
-        predictors_meta.append(UKCPDatasetMetadata(input_base_dir, **var_params))
+        predictors_meta.append(VariableMetadata(input_base_dir, **var_params))
 
     example_predictor_filepath = predictors_meta[0].existing_filepaths()[0]
     time_encoding = xr.open_dataset(example_predictor_filepath).time_bnds.encoding
