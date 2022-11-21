@@ -55,7 +55,7 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="MOOS
     elif config["split_scheme"] == "random":
         splitter = RandomSplit(val_prop=val_prop, test_prop=test_prop, time_encoding=time_encoding)
     else:
-        raise(f"Unknown split scheme {config['split_scheme']}")
+        raise RuntimeError(f"Unknown split scheme {config['split_scheme']}")
 
     split_sets = splitter.run(combined_dataset)
 
