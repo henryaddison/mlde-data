@@ -11,7 +11,7 @@ class Resample:
             self.freq="1D"
             self.offset=datetime.timedelta(hours=12)
         else:
-            raise(f"Unknown target frequency {target_frequency}")
+            raise RuntimeError(f"Unknown target frequency {target_frequency}")
 
     def run(self, ds):
         logger.info(f"Resampling to {self.target_frequency}")

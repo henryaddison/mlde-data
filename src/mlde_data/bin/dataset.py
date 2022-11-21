@@ -2,12 +2,13 @@ from enum import Enum
 import logging
 import os
 from pathlib import Path
+import re
 import yaml
 
 import typer
 import xarray as xr
 
-from ml_downscaling_emulator import UKCPDatasetMetadata
+from ml_downscaling_emulator import VariableMetadata
 from ml_downscaling_emulator.bin import DomainOption
 from ml_downscaling_emulator.data.dataset import RandomSplit, SeasonStratifiedIntensitySplit
 
@@ -32,13 +33,13 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="MOOS
 
     predictand_var_params = {k: config[k] for k in ["domain", "ensemble_member", "scenario", "frequency"]}
     predictand_var_params.update({"variable": config["predictand"]["variable"], "resolution":  config["predictand"]["resolution"]})
-    predictand_meta = UKCPDatasetMetadata(input_base_dir, **predictand_var_params)
+    predictand_meta = VariableMetadata(input_base_dir, **predictand_var_params)
 
     predictors_meta = []
     for predictor_var_config in config["predictors"]:
         var_params = {k: config[k] for k in ["domain", "ensemble_member", "scenario", "frequency", "resolution"]}
         var_params.update({k: predictor_var_config[k] for k in ["variable"]})
-        predictors_meta.append(UKCPDatasetMetadata(input_base_dir, **var_params))
+        predictors_meta.append(VariableMetadata(input_base_dir, **var_params))
 
     example_predictor_filepath = predictors_meta[0].existing_filepaths()[0]
     time_encoding = xr.open_dataset(example_predictor_filepath).time_bnds.encoding
@@ -54,7 +55,7 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="MOOS
     elif config["split_scheme"] == "random":
         splitter = RandomSplit(val_prop=val_prop, test_prop=test_prop, time_encoding=time_encoding)
     else:
-        raise(f"Unknown split scheme {config['split_scheme']}")
+        raise RuntimeError(f"Unknown split scheme {config['split_scheme']}")
 
     split_sets = splitter.run(combined_dataset)
 
@@ -67,3 +68,39 @@ def create(config: Path, input_base_dir: Path = typer.Argument(..., envvar="MOOS
         yaml.dump(config, f)
     for split_name, split_ds in split_sets.items():
         split_ds.to_netcdf(os.path.join(output_dir, f"{split_name}.nc"))
+
+
+@app.command()
+def validate():
+    datasets = [
+        "2.2km-coarsened-8x_london_vorticity850_random",
+        "2.2km-coarsened-gcm-2.2km-coarsened-4x_birmingham_vorticity850_random",
+        "60km-2.2km-coarsened-4x_birmingham_vorticity850_random",
+        "2.2km-coarsened-gcm-2.2km_london_vorticity850_random",
+        "60km-2.2km_london_vorticity850_random"
+    ]
+
+    splits = ["train", "val", "test"]
+
+    for dataset in datasets:
+        bad_splits = {"no file": set(), "forecast_encoding": set(), "forecast_vars": set()}
+        for split in splits:
+            print(f"Checking {split} of {dataset}")
+            dataset_path = os.path.join(os.getenv("MOOSE_DERIVED_DATA"), "nc-datasets", dataset, f"{split}.nc")
+            try:
+                ds = xr.open_dataset(dataset_path)
+            except FileNotFoundError:
+                bad_splits["no file"].add(split)
+                continue
+
+            # check for forecast related metadata (should have been stripped)
+            for v in ds.variables:
+                if "coordinates" in ds[v].encoding and (re.match("(realization|forecast_period|forecast_reference_time) ?", ds[v].encoding["coordinates"]) is not None):
+                    bad_splits["forecast_encoding"].add(split)
+                if v in ["forecast_period", "forecast_reference_time", "realization", "forecast_period_bnds"]:
+                    bad_splits["forecast_vars"].add(split)
+
+        # report findings
+        for reason, error_splits in bad_splits.items():
+            if len(error_splits) > 0:
+                print(f"Failed '{reason}': {dataset} for {error_splits}")
