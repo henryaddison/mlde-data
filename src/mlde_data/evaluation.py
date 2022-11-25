@@ -4,11 +4,6 @@ import numpy as np
 import torch
 import xarray as xr
 
-def load_model(path):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    logging.info(f'Using device {device}')
-    return torch.load(path, map_location=device)
-
 def generate_samples(model, device, cond_batch):
     cond_batch = cond_batch.to(device)
 
@@ -29,11 +24,11 @@ def predict(model, eval_dl, target_transform):
     xr_data_eval  = eval_dl.dataset.ds
 
     preds = []
-
-    for batch_num, (cond_batch, _) in enumerate(eval_dl):
-        logging.info(f"Working on batch {batch_num}")
-        samples = generate_samples(model, device, cond_batch)
-        preds.append(samples)
+    with torch.no_grad():
+        for batch_num, (cond_batch, _) in enumerate(eval_dl):
+            logging.info(f"Working on batch {batch_num}")
+            samples = generate_samples(model, device, cond_batch)
+            preds.append(samples)
 
     # combine the samples along the time axis
     preds = np.concatenate(preds, axis=1)
