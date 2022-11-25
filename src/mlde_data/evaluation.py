@@ -50,7 +50,3 @@ def predict(model, eval_dl, target_transform):
     pred_ds = pred_ds.rename({"target_pr": "pred_pr"})
 
     return pred_ds
-
-def open_test_set(path):
-    test_set = xr.open_dataset(path)
-    return test_set.assign_coords(season=(('time'), (test_set.month_number.values % 12 // 3)))
