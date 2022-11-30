@@ -11,7 +11,7 @@ target_resolution="2.2km-coarsened-4x"
 target_size=64
 variable="${HOME}/code/ml-downscaling-emulation/src/ml_downscaling_emulator/config/variables/day/land-gcm/tempgrad${left_theta}${right_theta}.yml"
 
-for year in years=$(seq 1981 1 2000) $(seq 2021 1 2040) $(seq 2061 1 2080); do
+for year in $(seq 1981 1 2000) $(seq 2021 1 2040) $(seq 2061 1 2080); do
   set -x
   mlde variable create --year ${year} --domain ${domain} --scale-factor 1 --target-resolution ${target_resolution} --target-size ${target_size} --config-path ${variable}
   set +x
