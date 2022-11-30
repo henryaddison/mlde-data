@@ -116,7 +116,6 @@ def create(config_path: Path = typer.Option(...), year: int = typer.Option(...),
         if job_spec['action'] == "diff":
             logger.info(f"Difference between {job_spec['params']['left']} and {job_spec['params']['right']}")
             ds = Diff(**job_spec['params']).run(ds)
-            import pdb; pdb.set_trace()
             ds[config['variable']] = ds[config['variable']].assign_attrs(config['attrs'])
         elif job_spec['action'] == "coarsen":
             if scale_factor == "gcm":
