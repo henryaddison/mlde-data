@@ -263,3 +263,13 @@ def remove_forecast(ds):
             ds[v].encoding.update({"coordinates": new_coords_encoding})
 
     return ds
+
+def remove_pressure(ds):
+    if "pressure" in ds.variables:
+        ds = ds.reset_coords("pressure", drop=True)
+
+    for v in ds.variables:
+        if "coordinates" in ds[v].encoding:
+            new_coords_encoding = re.sub("(pressure) ?", "", ds[v].encoding["coordinates"]).strip()
+            ds[v].encoding.update({"coordinates": new_coords_encoding})
+    return ds

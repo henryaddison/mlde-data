@@ -12,9 +12,10 @@ import xarray as xr
 
 from ml_downscaling_emulator import VariableMetadata
 from ml_downscaling_emulator.bin import DomainOption, CollectionOption
-from ml_downscaling_emulator.data.moose import VARIABLE_CODES, raw_nc_filepath, processed_nc_filepath, remove_forecast
+from ml_downscaling_emulator.data.moose import VARIABLE_CODES, raw_nc_filepath, processed_nc_filepath, remove_forecast, remove_pressure
 from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
 from ml_downscaling_emulator.preprocessing.constrain import Constrain
+from ml_downscaling_emulator.preprocessing.diff import Diff
 from ml_downscaling_emulator.preprocessing.regrid import Regrid
 from ml_downscaling_emulator.preprocessing.remapcon import Remapcon
 from ml_downscaling_emulator.preprocessing.resample import Resample
@@ -49,40 +50,58 @@ def create(config_path: Path = typer.Option(...), year: int = typer.Option(...),
         "target_resolution": target_resolution
     }
 
+    data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
+
     collection = CollectionOption(config['sources']['collection'])
-    if collection == CollectionOption.cpm:
-        variable_resolution = "2.2km"
-        source_domain = "uk"
-    elif collection == CollectionOption.gcm:
-        variable_resolution = "60km"
-        source_domain = "global"
-    else:
-        raise f"Unknown collection {collection}"
 
     sources = {}
 
-    # ds = xr.open_mfdataset([raw_nc_filepath(variable=source, year=year, frequency=frequency) for source in config['sources']['moose']])
-    # for source in config['sources']['moose']:
-    #     if "moose_name" in VARIABLE_CODES[source]:
-    #         logger.info(f"Renaming {VARIABLE_CODES[source]['moose_name']} to {source}...")
-    #         ds = ds.rename({VARIABLE_CODES[source]["moose_name"]: source})
+    if config["sources"]["type"] == "moose":
+        if collection == CollectionOption.cpm:
+            variable_resolution = "2.2km"
+            source_domain = "uk"
+        elif collection == CollectionOption.gcm:
+            variable_resolution = "60km"
+            source_domain = "global"
+        else:
+            raise f"Unknown collection {collection}"
+        # ds = xr.open_mfdataset([raw_nc_filepath(variable=source, year=year, frequency=frequency) for source in config['sources']['moose']])
+        # for source in config['sources']['moose']:
+        #     if "moose_name" in VARIABLE_CODES[source]:
+        #         logger.info(f"Renaming {VARIABLE_CODES[source]['moose_name']} to {source}...")
+        #         ds = ds.rename({VARIABLE_CODES[source]["moose_name"]: source})
 
-    # currently only support data from moose
-    assert(config["sources"]["type"] == "moose")
+        for src_variable in config['sources']['variables']:
+            source_nc_filepath = raw_nc_filepath(variable=src_variable["name"], year=year, frequency=src_variable["frequency"], resolution=variable_resolution, collection=collection.value, domain=source_domain)
+            logger.info(f"Opening {source_nc_filepath}")
+            ds = xr.open_dataset(source_nc_filepath)
 
-    for src_variable in config['sources']['variables']:
-        source_nc_filepath = raw_nc_filepath(variable=src_variable["name"], year=year, frequency=src_variable["frequency"], resolution=variable_resolution, collection=collection.value, domain=source_domain)
-        logger.info(f"Opening {source_nc_filepath}")
-        ds = xr.open_dataset(source_nc_filepath)
+            if "moose_name" in VARIABLE_CODES[src_variable["name"]]:
+                logger.info(f"Renaming {VARIABLE_CODES[src_variable['name']]['moose_name']} to {src_variable['name']}...")
+                ds = ds.rename({VARIABLE_CODES[src_variable["name"]]["moose_name"]: src_variable["name"]})
 
-        if "moose_name" in VARIABLE_CODES[src_variable["name"]]:
-            logger.info(f"Renaming {VARIABLE_CODES[src_variable['name']]['moose_name']} to {src_variable['name']}...")
-            ds = ds.rename({VARIABLE_CODES[src_variable["name"]]["moose_name"]: src_variable["name"]})
+            # remove forecast related coords that we don't need
+            ds = remove_forecast(ds)
 
-        # remove forecast related coords that we don't need
-        ds = remove_forecast(ds)
+            sources[src_variable["name"]] = ds
+    elif config["sources"]["type"] == "bp":
+        if collection == CollectionOption.cpm:
+            variable_resolution = "2.2km-coarsened-gcm"
+        elif collection == CollectionOption.gcm:
+            variable_resolution = "60km"
+        else:
+            raise f"Unknown collection {collection}"
+        for src_variable in config['sources']['variables']:
+            source_metadata = VariableMetadata(data_basedir, frequency=src_variable["frequency"], domain=f"{domain.value}-{target_size}", resolution=f"{variable_resolution}-{target_resolution}", ensemble_member='01', variable=src_variable["name"])
+            source_nc_filepath = source_metadata.filepath(year)
+            logger.info(f"Opening {source_nc_filepath}")
+            ds = xr.open_dataset(source_nc_filepath)
 
-        sources[src_variable["name"]] = ds
+            ds = remove_pressure(ds)
+
+            sources[src_variable["name"]] = ds
+    else:
+        raise RuntimeError(f"Unknown souce type {config['sources']['type']}")
 
     logger.info(f"Combining {config['sources']}...")
     ds = xr.combine_by_coords(sources.values(), compat='no_conflicts', combine_attrs="drop_conflicts", coords="all", join="inner", data_vars="all")
@@ -91,6 +110,11 @@ def create(config_path: Path = typer.Option(...), year: int = typer.Option(...),
         if job_spec['action'] == "sum":
             logger.info(f"Summing {job_spec['variables']}")
             ds = Sum(job_spec['variables'], config['variable']).run(ds)
+            ds[config['variable']] = ds[config['variable']].assign_attrs(config['attrs'])
+        if job_spec['action'] == "diff":
+            logger.info(f"Difference between {job_spec['params']['left']} and {job_spec['params']['right']}")
+            ds = Diff(**job_spec['params']).run(ds)
+            import pdb; pdb.set_trace()
             ds[config['variable']] = ds[config['variable']].assign_attrs(config['attrs'])
         elif job_spec['action'] == "coarsen":
             if scale_factor == "gcm":
@@ -135,8 +159,6 @@ def create(config_path: Path = typer.Option(...), year: int = typer.Option(...),
 
     # there should be no missing values in this dataset
     assert ds[config["variable"]].isnull().sum().values.item() == 0
-
-    data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
 
     output_metadata = VariableMetadata(data_basedir, frequency=frequency, domain=f"{domain.value}-{target_size}", resolution=f"{variable_resolution}-{target_resolution}", ensemble_member='01', variable=config['variable'])
 
