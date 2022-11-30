@@ -1,3 +1,4 @@
+from collections import defaultdict
 from enum import Enum
 import logging
 import os
@@ -89,7 +90,8 @@ def validate():
     splits = ["train", "val", "test"]
 
     for dataset in datasets:
-        bad_splits = {"no file": set(), "forecast_encoding": set(), "forecast_vars": set()}
+
+        bad_splits = defaultdict(set)
         for split in splits:
             print(f"Checking {split} of {dataset}")
             dataset_path = os.path.join(os.getenv("MOOSE_DERIVED_DATA"), "nc-datasets", dataset, f"{split}.nc")
@@ -105,6 +107,13 @@ def validate():
                     bad_splits["forecast_encoding"].add(split)
                 if v in ["forecast_period", "forecast_reference_time", "realization", "forecast_period_bnds"]:
                     bad_splits["forecast_vars"].add(split)
+
+            # check for pressure related metadata (should have been stripped)
+            for v in ds.variables:
+                if "coordinates" in ds[v].encoding and (re.match("(pressure) ?", ds[v].encoding["coordinates"]) is not None):
+                    bad_splits["pressure_encoding"].add(split)
+                if v in ["pressure"]:
+                    bad_splits["pressure_vars"].add(split)
 
         # report findings
         for reason, error_splits in bad_splits.items():
