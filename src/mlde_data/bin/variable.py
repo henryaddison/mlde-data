@@ -86,6 +86,7 @@ def create(config_path: Path = typer.Option(...), year: int = typer.Option(...),
 
             sources[src_variable["name"]] = ds
     elif config["sources"]["type"] == "bp":
+        # assume bp sourced data is at the desired resolution already
         if collection == CollectionOption.cpm:
             variable_resolution = "2.2km-coarsened-gcm"
         elif collection == CollectionOption.gcm:
