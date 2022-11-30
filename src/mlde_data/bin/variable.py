@@ -1,3 +1,4 @@
+from collections import defaultdict
 import logging
 import os
 from pathlib import Path
@@ -220,7 +221,7 @@ def validate():
                 sys.stdout.write("\033[K")
                 print(f"Checking {var} over {domain} at {res}", end="\r")
 
-                bad_years = {"NaNs": set(), "no file": set(), "forecast_encoding": set(), "forecast_vars": set()}
+                bad_years = defaultdict(set)
                 for year in years:
                     var_meta = VariableMetadata(os.getenv("MOOSE_DERIVED_DATA"), variable=var, frequency="day", domain=domain, resolution=res)
 
@@ -241,6 +242,13 @@ def validate():
                             bad_years["forecast_encoding"].add(year)
                         if v in ["forecast_period", "forecast_reference_time", "realization", "forecast_period_bnds"]:
                             bad_years["forecast_vars"].add(year)
+
+                    # check for pressure related metadata (should have been stripped)
+                    for v in ds.variables:
+                        if "coordinates" in ds[v].encoding and (re.match("(pressure) ?", ds[v].encoding["coordinates"]) is not None):
+                            bad_years["pressure_encoding"].add(year)
+                        if v in ["pressure"]:
+                            bad_years["pressure_vars"].add(year)
 
                 # report findings
                 for reason, error_years in bad_years.items():
