@@ -9,12 +9,8 @@ sources:
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - temp
+    - temp700
 spec:
-  - action: constrain
-    query: {pressure: 700.0}
-  - action: rename
-    mapping: {"temp": "temp700"}
   - action: coarsen
     parameters:
       scale_factor: $scale_factor
