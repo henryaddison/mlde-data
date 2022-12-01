@@ -31,8 +31,11 @@ def samples_to_xr(samples, xr_eval_ds, target_transform):
 
     data_vars = {**cf_data_vars, "target_pr": pred_pr_var}
 
+    pred_ds = xr.Dataset(data_vars=data_vars, coords=coords, attrs={})
+
     if target_transform is not None:
-        pred_ds = target_transform.invert(xr.Dataset(data_vars=data_vars, coords=coords, attrs={}))
+        pred_ds = target_transform.invert(pred_ds)
+
     pred_ds = pred_ds.rename({"target_pr": "pred_pr"})
 
     return pred_ds
