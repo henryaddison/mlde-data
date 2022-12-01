@@ -14,40 +14,12 @@ import re
 # Data streams for 6-hourly data is apc.pp. For daily mean data it is ape.pp.
 
 VARIABLE_CODES = {
-    "temp": {
-        "query": {
-            "stash": 30204
-        },
-        "stream": {"land-cpm": {"day": "apb", "3hrinst": "aph",}, "land-gcm": {"day": "ape"}},
-        "moose_name": "air_temperature"
-    },
     "psl": {
         "query": {
             "stash": 16222,
         },
         "stream": {"land-cpm": {"day": "apa", "3hrinst": "apc", "6hr": "apc"}, "land-gcm": {"day": "ape"}},
         "moose_name": "air_pressure_at_sea_level"
-    },
-    "xwind": {
-        "query": {
-            "stash": 30201,
-        },
-        "stream": {"land-cpm": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"}, "land-gcm": {"day": "ape"}},
-        "moose_name": "x_wind"
-    },
-    "ywind": {
-        "query": {
-            "stash": 30202,
-        },
-        "stream": {"land-cpm": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"}, "land-gcm": {"day": "ape"}},
-        "moose_name": "y_wind"
-    },
-    "spechum": {
-        "query": {
-            "stash": 30205,
-        },
-        "stream": {"land-cpm": {"day": "apb", "3hrinst": "aph"}, "land-gcm": {"day": "ape"}},
-        "moose_name": "specific_humidity"
     },
     "tmean150cm": {
         "query": {
@@ -110,6 +82,14 @@ VARIABLE_CODES = {
 }
 
 for theta in [250, 500, 700, 850, 925]:
+    VARIABLE_CODES[f"temp{theta}"] = {
+        "query": {
+            "stash": 30204,
+            "lblev": theta,
+        },
+        "stream": {"land-cpm": {"day": "apb", "3hrinst": "aph",}, "land-gcm": {"day": "ape"}},
+        "moose_name": "air_temperature"
+    }
     VARIABLE_CODES[f"spechum{theta}"] = {
         "query": {
             "stash": 30205,
