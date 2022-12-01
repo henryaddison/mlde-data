@@ -4,6 +4,7 @@ import logging
 import os
 from pathlib import Path
 import re
+import sys
 import yaml
 
 import typer
@@ -94,7 +95,8 @@ def validate():
 
         bad_splits = defaultdict(set)
         for split in splits:
-            print(f"Checking {split} of {dataset}")
+            sys.stdout.write("\033[K")
+            print(f"Checking {split} of {dataset}", end="\r")
             dataset_path = os.path.join(os.getenv("MOOSE_DERIVED_DATA"), "nc-datasets", dataset, f"{split}.nc")
             try:
                 ds = xr.open_dataset(dataset_path)
