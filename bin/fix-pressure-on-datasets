@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+# remove extraneous pressure metadata from datasets
+
+import logging
+import os
+import xarray as xr
+from ml_downscaling_emulator.data.moose import remove_pressure
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')
+
+def fix_file(nc_filepath):
+    if os.path.exists(nc_filepath):
+        logger.info(f"Fixing {nc_filepath}")
+        ds = xr.load_dataset(nc_filepath)
+        ds = remove_pressure(ds)
+        ds.to_netcdf(nc_filepath)
+
+datasets = [
+    "2.2km-coarsened-8x_london_vorticity850_random",
+    "bham_gcmx-4x_spechum-temp-vorticity850_random",
+    "bham_gcmx-4x_spechum-temp-vort_random",
+    "bham_gcmx-4x_temp-vort850_random",
+    "60km-2.2km-coarsened-4x_birmingham_vorticity850_random",
+    "60km-2.2km_london_vorticity850_random",
+    "bham_60km-4x_spechum-temp-vorticity850_random",
+    "bham_60km-4x_spechum-temp-vort_random",
+    "bham_60km-4x_temp-vort_random",
+]
+splits = ["train", "val", "test"]
+
+for dataset in datasets:
+    for split in splits:
+        nc_filepath = os.path.join(os.getenv("MOOSE_DERIVED_DATA"), "nc-datasets", dataset, f"{split}.nc")
+        fix_file(nc_filepath)
