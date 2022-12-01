@@ -81,11 +81,13 @@ def validate():
         "bham_gcmx-4x_spechum-temp-vort_random",
         "bham_gcmx-4x_temp-vort_random",
         "bham_gcmx-4x_tempgrad-vort_random",
+        "bham_gcmx-4x_pr_random",
         "60km-2.2km-coarsened-4x_birmingham_vorticity850_random",
         "bham_60km-4x_spechum-temp-vorticity850_random",
         "bham_60km-4x_spechum-temp-vort_random",
         "bham_60km-4x_temp-vort_random",
         "bham_60km-4x_tempgrad-vort_random",
+        "bham_60km-4x_pr_random",
         "60km-2.2km_london_vorticity850_random",
     ]
 
