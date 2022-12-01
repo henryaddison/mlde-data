@@ -19,41 +19,17 @@ def fix_file(nc_filepath):
 
 years = list(range(1981, 2001))+list(range(2021, 2041))+list(range(2061, 2081))
 
-domain = "birmingham-64"
-resolutions = ["2.2km-coarsened-gcm-2.2km-coarsened-4x", "60km-2.2km-coarsened-4x"]
-variables = [ f"{vartype}{theta}" for vartype in ["temp", "spechum"] for theta in [250, 500, 700, 850, 925] ]
-
-for res in resolutions:
-    for variable in variables:
-        var_meta = VariableMetadata(os.getenv("MOOSE_DERIVED_DATA"), variable=variable, frequency="day", domain=domain, resolution=res)
-        for year in years:
-
-            fix_file(var_meta.filepath(year))
-
 domain_res = {
         "birmingham-64": [
-            "2.2km-coarsened-gcm-2.2km-coarsened-4x",
             "60km-2.2km-coarsened-4x",
-            "2.2km-coarsened-gcm-2.2km",
-            "60km-2.2km",
         ],
-        "london-64": [
-            "2.2km-2.2km",
-            "60km-2.2km",
-            "60km-2.2km-coarsened-4x",
-            "2.2km-coarsened-8x-2.2km",
-            "2.2km-coarsened-gcm-2.2km",
-        ],
-        "birmingham-256": [
-            "2.2km-coarsened-gcm-2.2km",
-            "60km-2.2km",
-        ]
     }
-variable = "vorticity850"
+variables = [ f"vorticity{theta}" for theta in [250, 500, 700, 925] ]
 
 for domain, resolutions in domain_res.items():
     for res in resolutions:
-        var_meta = VariableMetadata(os.getenv("MOOSE_DERIVED_DATA"), variable=variable, frequency="day", domain=domain, resolution=res)
+        for variable in variables:
+            var_meta = VariableMetadata(os.getenv("MOOSE_DERIVED_DATA"), variable=variable, frequency="day", domain=domain, resolution=res)
 
-        for year in years:
-            fix_file(var_meta.filepath(year))
+            for year in years:
+                fix_file(var_meta.filepath(year))
