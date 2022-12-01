@@ -86,7 +86,6 @@ def validate():
         "bham_60km-4x_temp-vort_random",
         "bham_60km-4x_tempgrad-vort_random",
         "60km-2.2km_london_vorticity850_random",
-        "60km-2.2km_london_vorticity850_random"
     ]
 
     splits = ["train", "val", "test"]
