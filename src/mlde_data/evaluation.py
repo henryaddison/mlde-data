@@ -46,8 +46,8 @@ def predict(model, eval_dl, target_transform):
             samples = generate_samples(model, cond_batch)
             preds.append(samples)
 
-    # combine the samples along the time axis
-    preds = np.concatenate(preds, axis=1)
+    # combine the samples along the time/batch axis
+    preds = np.concatenate(preds, axis=0)
     xr_data_eval  = eval_dl.dataset.ds
 
     preds_ds = samples_to_xr(samples, xr_data_eval, target_transform)
