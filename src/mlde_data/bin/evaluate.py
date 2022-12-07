@@ -25,8 +25,8 @@ def callback():
     pass
 
 @app.command()
-# @Timer(name="sample", text="{name}: {minutes:.1f} minutes", logger=logging.info)
-# @slack_sender(webhook_url=os.getenv("KK_SLACK_WH_URL"), channel="general")
+@Timer(name="sample", text="{name}: {minutes:.1f} minutes", logger=logging.info)
+@slack_sender(webhook_url=os.getenv("KK_SLACK_WH_URL"), channel="general")
 def sample(
         workdir: Path,
         dataset: str = typer.Option(...),
