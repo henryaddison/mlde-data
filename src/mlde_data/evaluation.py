@@ -14,8 +14,6 @@ def generate_samples(model, cond_batch):
     samples = model(cond_batch)
     # drop the feature channel dimension (only have target pr as output)
     samples = samples.squeeze(dim=1)
-    # add a dimension for sample_id
-    samples = samples.unsqueeze(dim=0)
     # extract numpy array
     samples = samples.cpu().detach().numpy()
     return samples
