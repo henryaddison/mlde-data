@@ -1,0 +1,18 @@
+variable: psl
+attrs:
+  units: Pa
+  standard_name: air_pressure_at_sea_level
+  grid_mapping: rotated_latitude_longitude
+sources:
+  type: moose
+  collection: land-cpm
+  variables:
+    # assumes already extracted and converted to nc
+    # implicit here is rename variable
+    - psl
+spec:
+  - action: regrid_to_target
+  - action: select-subdomain
+    parameters:
+      domain: $domain
+  # implicit final actions: assign attrs, save, cleanup extraction?
