@@ -1,0 +1,18 @@
+domain: birmingham-64
+frequency: day
+ensemble_member: "01"
+scenario: rcp85
+resolution: 60km-2.2km-coarsened-4x
+predictand:
+  variable: pr
+  resolution: 60km-2.2km-coarsened-4x
+predictors:
+  - variable: psl
+  - variable: tempgrad700500
+  - variable: tempgrad850700
+  - variable: vorticity250
+  - variable: vorticity500
+  - variable: vorticity700
+  - variable: vorticity850
+  - variable: vorticity925
+split_scheme: random
