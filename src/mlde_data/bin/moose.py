@@ -1,3 +1,4 @@
+import glob
 import logging
 import os
 import shutil
@@ -69,7 +70,11 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     stdout = output.stdout.decode("utf8")
     print(stdout)
     print(output.stderr.decode("utf8"))
-    # os.execvp(query_cmd[0], query_cmd)
+
+    # make sure have the correct number of files from moose
+    pp_files_pattern = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain, cache=cache)/"*.pp"
+    pp_files_glob = glob.glob(pp_files_pattern)
+    assert len(pp_files_glob) == 360
 
     if cache:
         cache_path = moose_cache_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
