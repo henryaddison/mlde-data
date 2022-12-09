@@ -192,8 +192,8 @@ def xfer(variable: str = typer.Option(...), year: int = typer.Option(...), frequ
 def validate():
     domain_res_vars = {
         "birmingham-64": {
-            "2.2km-coarsened-gcm-2.2km-coarsened-4x": ["tempgrad700500", "tempgrad850700", "vorticity250", "vorticity500", "vorticity700", "vorticity850", "vorticity925", "spechum250", "spechum500", "spechum700", "spechum850", "spechum925", "temp250", "temp500", "temp700", "temp850", "temp925", "pr"],
-            "60km-2.2km-coarsened-4x": ["tempgrad700500", "tempgrad850700", "vorticity250", "vorticity500", "vorticity700", "vorticity850", "vorticity925", "spechum250", "spechum500", "spechum700", "spechum850", "spechum925", "temp250", "temp500", "temp700", "temp850", "temp925", "pr", "lin-pr"],
+            "2.2km-coarsened-gcm-2.2km-coarsened-4x": ["psl", "tempgrad700500", "tempgrad850700", "vorticity250", "vorticity500", "vorticity700", "vorticity850", "vorticity925", "spechum250", "spechum500", "spechum700", "spechum850", "spechum925", "temp250", "temp500", "temp700", "temp850", "temp925", "pr"],
+            "60km-2.2km-coarsened-4x": ["psl", "tempgrad700500", "tempgrad850700", "vorticity250", "vorticity500", "vorticity700", "vorticity850", "vorticity925", "spechum250", "spechum500", "spechum700", "spechum850", "spechum925", "temp250", "temp500", "temp700", "temp850", "temp925", "pr", "lin-pr"],
             "2.2km-coarsened-4x-2.2km-coarsened-4x": ["pr",],
             "2.2km-coarsened-gcm-2.2km": ["pr", "vorticity850"],
             "60km-2.2km": ["pr",  "vorticity850"],
