@@ -9,7 +9,8 @@ sources:
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - pr
+    - name: pr
+      frequency: day
 spec:
   - action: rename
     mapping: {"pr": "lin-pr"}

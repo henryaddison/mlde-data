@@ -9,7 +9,8 @@ sources:
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - temp500
+    - name: temp500
+      frequency: day
 spec:
   - action: regrid_to_target
   - action: select-subdomain
