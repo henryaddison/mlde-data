@@ -72,7 +72,7 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     print(output.stderr.decode("utf8"))
 
     # make sure have the correct number of files from moose
-    pp_files_glob = ppdata_dirpath(variable=variable, year=year, frequency=frequency, resolution=resolution, collection=collection.value, domain=domain, cache=cache).glob("*.pp")
+    pp_files_glob = pp_dirpath.glob("*.pp")
     assert len(list(pp_files_glob)) == 360
 
     if cache:
