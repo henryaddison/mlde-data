@@ -18,7 +18,7 @@ VARIABLE_CODES = {
         "query": {
             "stash": 16222,
         },
-        "stream": {"land-cpm": {"day": "apa", "3hrinst": "apc", "6hr": "apc"}, "land-gcm": {"day": "ape"}},
+        "stream": {"land-cpm": {"day": "apa", "3hrinst": "apc", "6hr": "apc"}, "land-gcm": {"day": "apd"}},
         "moose_name": "air_pressure_at_sea_level"
     },
     "tmean150cm": {
