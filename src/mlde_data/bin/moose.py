@@ -66,10 +66,11 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     logger.debug(f"Running {query_cmd}")
     logger.info(f"Extracting {variable} for {year}...")
 
-    output = subprocess.run(query_cmd, capture_output=True, check=True)
+    output = subprocess.run(query_cmd, capture_output=True, check=False)
     stdout = output.stdout.decode("utf8")
     print(stdout)
     print(output.stderr.decode("utf8"))
+    output.check_returncode()
 
     # make sure have the correct number of files from moose
     pp_files_glob = pp_dirpath.glob("*.pp")
