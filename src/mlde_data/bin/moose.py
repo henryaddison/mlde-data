@@ -72,9 +72,9 @@ def extract(variable: str = typer.Option(...), year: int = typer.Option(...), fr
     print(output.stderr.decode("utf8"))
     output.check_returncode()
 
-    # make sure have the correct number of files from moose
-    pp_files_glob = pp_dirpath.glob("*.pp")
-    assert len(list(pp_files_glob)) == 360
+    # make sure have the correct amount of data from moose
+    cube = iris.load_cube(pp_dirpath/"*.pp")
+    assert cube.coord("time").shape[0] == 360
 
     if cache:
         cache_path = moose_cache_dirpath(variable=variable, year=year, frequency=frequency, collection=collection.value, resolution=resolution, domain=domain)
