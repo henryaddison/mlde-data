@@ -2,6 +2,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class Constrain:
     def __init__(self, query):
         self.query = query

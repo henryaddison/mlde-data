@@ -4,6 +4,7 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+
 class RandomSplit:
     def __init__(self, time_encoding, val_prop=0.2, test_prop=0.1) -> None:
         self.val_prop = val_prop
@@ -15,17 +16,22 @@ class RandomSplit:
         rng = np.random.default_rng(seed=42)
         rng.shuffle(tc)
 
-        test_size = int(len(tc)*self.test_prop)
-        val_size = int(len(tc)*self.val_prop)
+        test_size = int(len(tc) * self.test_prop)
+        val_size = int(len(tc) * self.val_prop)
 
         test_times = tc[0:test_size]
-        val_times = tc[test_size:test_size+val_size]
-        train_times = tc[test_size+val_size:]
+        val_times = tc[test_size : test_size + val_size]
+        train_times = tc[test_size + val_size :]
 
-        test_set = combined_dataset.where(combined_dataset.time.isin(test_times) == True, drop=True)
-        val_set = combined_dataset.where(combined_dataset.time.isin(val_times) == True, drop=True)
-        train_set = combined_dataset.where(combined_dataset.time.isin(train_times) == True, drop=True)
-
+        test_set = combined_dataset.where(
+            combined_dataset.time.isin(test_times) == True, drop=True
+        )
+        val_set = combined_dataset.where(
+            combined_dataset.time.isin(val_times) == True, drop=True
+        )
+        train_set = combined_dataset.where(
+            combined_dataset.time.isin(train_times) == True, drop=True
+        )
 
         # https://github.com/pydata/xarray/issues/2436 - time dim encoding lost when opened using open_mfdataset
         test_set.time.encoding.update(self.time_encoding)

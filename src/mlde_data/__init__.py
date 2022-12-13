@@ -1,8 +1,18 @@
 import glob
 import os
 
+
 class VariableMetadata:
-    def __init__(self, base_dir, variable, frequency, domain, resolution, scenario="rcp85", ensemble_member="01"):
+    def __init__(
+        self,
+        base_dir,
+        variable,
+        frequency,
+        domain,
+        resolution,
+        scenario="rcp85",
+        ensemble_member="01",
+    ):
         self.base_dir = base_dir
         self.variable = variable
         self.frequency = frequency
@@ -17,13 +27,30 @@ class VariableMetadata:
             self.collection = "land-gcm"
 
     def filename_prefix(self):
-        return "_".join([self.variable, self.scenario, self.collection, self.domain, self.resolution, self.ensemble_member, self.frequency])
+        return "_".join(
+            [
+                self.variable,
+                self.scenario,
+                self.collection,
+                self.domain,
+                self.resolution,
+                self.ensemble_member,
+                self.frequency,
+            ]
+        )
 
     def filename(self, year):
         return f"{self.filename_prefix()}_{year-1}1201-{year}1130.nc"
 
     def subdir(self):
-        return os.path.join(self.domain, self.resolution, self.scenario, self.ensemble_member, self.variable, self.frequency)
+        return os.path.join(
+            self.domain,
+            self.resolution,
+            self.scenario,
+            self.ensemble_member,
+            self.variable,
+            self.frequency,
+        )
 
     def dirpath(self):
         return os.path.join(self.base_dir, self.subdir())
@@ -38,5 +65,7 @@ class VariableMetadata:
         return glob.glob(f"{self.filepath_prefix()}_*.nc")
 
     def years(self):
-        filenames = [os.path.basename(filepath) for filepath in self.existing_filepaths()]
+        filenames = [
+            os.path.basename(filepath) for filepath in self.existing_filepaths()
+        ]
         return list([int(filename[-20:-16]) for filename in filenames])

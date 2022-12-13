@@ -7,7 +7,8 @@ import xarray as xr
 from ml_downscaling_emulator.data.moose import remove_pressure
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
+
 
 def fix_file(nc_filepath):
     if os.path.exists(nc_filepath):
@@ -16,6 +17,7 @@ def fix_file(nc_filepath):
         ds = remove_pressure(ds)
         ds.to_netcdf(nc_filepath)
 
+
 datasets = [
     "bham_gcmx-4x_temp-vort_random",
 ]
@@ -23,5 +25,7 @@ splits = ["train", "val", "test"]
 
 for dataset in datasets:
     for split in splits:
-        nc_filepath = os.path.join(os.getenv("MOOSE_DERIVED_DATA"), "nc-datasets", dataset, f"{split}.nc")
+        nc_filepath = os.path.join(
+            os.getenv("MOOSE_DERIVED_DATA"), "nc-datasets", dataset, f"{split}.nc"
+        )
         fix_file(nc_filepath)
