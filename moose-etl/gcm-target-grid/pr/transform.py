@@ -7,15 +7,22 @@ import xarray as xr
 working_grid_pp_path = "pp-data/*.pp"
 working_grid_nc_path = "moose_grid.nc"
 
-target_grid_path = Path("../../../src/ml_downscaling_emulator/utils/target-grids/60km/global/pr/moose_grid.nc")
+target_grid_path = Path(
+    "../../../src/ml_downscaling_emulator/utils/target-grids/60km/global/pr/moose_grid.nc"
+)
 
 # convert pp data to netcdf and open with xr
-target_cube = iris.load_cube(working_grid_pp_path, iris.Constraint(cube_func=lambda cube: cube.cell_methods[0].method == "mean"))
+target_cube = iris.load_cube(
+    working_grid_pp_path,
+    iris.Constraint(cube_func=lambda cube: cube.cell_methods[0].method == "mean"),
+)
 iris.save(target_cube, working_grid_nc_path)
 ds = xr.load_dataset(working_grid_nc_path).isel(time=0)
 
 # remove forecast related attributes
-ds = ds.reset_coords(["forecast_period", "forecast_reference_time", "realization"], drop=True).drop_vars(["forecast_period_bnds"])
+ds = ds.reset_coords(
+    ["forecast_period", "forecast_reference_time", "realization"], drop=True
+).drop_vars(["forecast_period_bnds"])
 for v in ds.variables:
     print(v, ds[v].encoding.pop("coordinates", None))
 

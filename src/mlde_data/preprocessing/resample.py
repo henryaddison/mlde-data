@@ -4,12 +4,13 @@ import datetime
 
 logger = logging.getLogger(__name__)
 
+
 class Resample:
     def __init__(self, target_frequency):
         self.target_frequency = target_frequency
         if target_frequency == "day":
-            self.freq="1D"
-            self.offset=datetime.timedelta(hours=12)
+            self.freq = "1D"
+            self.offset = datetime.timedelta(hours=12)
         else:
             raise RuntimeError(f"Unknown target frequency {target_frequency}")
 

@@ -5,14 +5,17 @@ from typing import List
 import typer
 import xarray as xr
 
+
 class DomainOption(str, Enum):
     uk = "uk"
     london = "london"
     birmingham = "birmingham"
 
+
 class CollectionOption(str, Enum):
     gcm = "land-gcm"
     cpm = "land-cpm"
+
 
 from . import ceda
 from . import dataset
@@ -29,17 +32,21 @@ app.add_typer(moose.app, name="moose")
 app.add_typer(preprocess.app, name="preprocess")
 app.add_typer(variable.app, name="variable")
 
+
 @app.command()
 def sample(files: List[Path]):
     for file in files:
         ds = xr.open_dataset(file)
         # take something from each season and each decade
-        sampled_ds = ds.sel(time=((ds["time.month"] % 3 == 0) & (ds["time.year"] % 10 == 0))).load()
+        sampled_ds = ds.sel(
+            time=((ds["time.month"] % 3 == 0) & (ds["time.year"] % 10 == 0))
+        ).load()
         ds.close()
         del ds
         print(f"Saving {file}")
         sampled_ds.to_netcdf(file)
         del sampled_ds
+
 
 if __name__ == "__main__":
     app()

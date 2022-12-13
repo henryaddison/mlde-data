@@ -1,7 +1,8 @@
-
 """
 Create a new dataset with a variable formed from the difference of two given
 """
+
+
 class Diff:
     def __init__(self, left, right, new_variable):
         self.left = left
