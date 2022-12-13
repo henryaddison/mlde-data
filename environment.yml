@@ -380,6 +380,7 @@ dependencies:
     - alembic==1.4.1
     - appdirs==1.4.4
     - apscheduler==3.6.3
+    - black==22.12.0
     - cachetools==4.2.2
     - configparser==5.1.0
     - contextlib2==21.6.0
@@ -405,8 +406,11 @@ dependencies:
     - metpy==1.2.0
     - ml-collections==0.1.1
     - mlflow==1.21.0
+    - mypy-extensions==0.4.3
+    - pathspec==0.10.3
     - pathtools==0.1.2
     - pint==0.18
+    - platformdirs==2.6.0
     - pooch==1.6.0
     - premailer==3.10.0
     - prometheus-client==0.12.0
