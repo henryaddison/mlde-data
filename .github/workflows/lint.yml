@@ -7,4 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: psf/black@stable
+      - name: Black
+        uses: psf/black@stable
+      - name: Flake8
+        uses: suo/flake8-github-action@v1
