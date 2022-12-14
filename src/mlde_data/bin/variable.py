@@ -25,7 +25,6 @@ from ml_downscaling_emulator.preprocessing.constrain import Constrain
 from ml_downscaling_emulator.preprocessing.diff import Diff
 from ml_downscaling_emulator.preprocessing.regrid import Regrid
 from ml_downscaling_emulator.preprocessing.remapcon import Remapcon
-from ml_downscaling_emulator.preprocessing.resample import Resample
 from ml_downscaling_emulator.preprocessing.select_domain import SelectDomain
 from ml_downscaling_emulator.preprocessing.sum import Sum
 from ml_downscaling_emulator.preprocessing.vorticity import Vorticity
@@ -298,7 +297,8 @@ def xfer(
         jasmin_filepath,
         bp_filepath,
     ]
-    config_xfer_cmd = []
+    # TODO: also transfer to config used for the variable
+    # config_xfer_cmd = []
     run_cmd(file_xfer_cmd)
 
 

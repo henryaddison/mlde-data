@@ -1,7 +1,6 @@
 from importlib_resources import files
 import logging
 import os
-from typing import List
 import yaml
 
 import typer

@@ -1,8 +1,5 @@
 import logging
 
-import iris.analysis
-import xarray as xr
-
 logger = logging.getLogger(__name__)
 
 

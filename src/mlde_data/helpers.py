@@ -43,7 +43,7 @@ def plots_at_ts(data_arrays, timestamp, vmin=0, vmax=None, cmap="Blues", titles=
         )
         if titles:
             ax.set_title(f"{titles[i]}@{timestamp}")
-        if titles == False:
+        if titles is False:
             ax.set_title(f"")
 
 

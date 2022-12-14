@@ -5,6 +5,13 @@ from typing import List
 import typer
 import xarray as xr
 
+from . import ceda
+from . import dataset
+from . import evaluate
+from . import moose
+from . import preprocess
+from . import variable
+
 
 class DomainOption(str, Enum):
     uk = "uk"
@@ -16,13 +23,6 @@ class CollectionOption(str, Enum):
     gcm = "land-gcm"
     cpm = "land-cpm"
 
-
-from . import ceda
-from . import dataset
-from . import evaluate
-from . import moose
-from . import preprocess
-from . import variable
 
 app = typer.Typer()
 app.add_typer(ceda.app, name="ceda")

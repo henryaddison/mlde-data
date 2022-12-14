@@ -1,5 +1,4 @@
 from collections import defaultdict
-from enum import Enum
 import logging
 import os
 from pathlib import Path
@@ -13,7 +12,6 @@ import typer
 import xarray as xr
 
 from ml_downscaling_emulator import VariableMetadata
-from ml_downscaling_emulator.bin import DomainOption
 from ml_downscaling_emulator.data.dataset import (
     RandomSplit,
     SeasonStratifiedIntensitySplit,
