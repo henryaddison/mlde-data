@@ -7,7 +7,7 @@ import typer
 import xarray as xr
 
 from ml_downscaling_emulator import VariableMetadata
-from ml_downscaling_emulator.bin import DomainOption
+from ml_downscaling_emulator.bin.options import DomainOption
 from ml_downscaling_emulator.preprocessing.sum import Sum
 
 logger = logging.getLogger(__name__)

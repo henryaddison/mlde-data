@@ -1,4 +1,3 @@
-from enum import Enum
 from pathlib import Path
 from typing import List
 
@@ -11,18 +10,6 @@ from . import evaluate
 from . import moose
 from . import preprocess
 from . import variable
-
-
-class DomainOption(str, Enum):
-    uk = "uk"
-    london = "london"
-    birmingham = "birmingham"
-
-
-class CollectionOption(str, Enum):
-    gcm = "land-gcm"
-    cpm = "land-cpm"
-
 
 app = typer.Typer()
 app.add_typer(ceda.app, name="ceda")

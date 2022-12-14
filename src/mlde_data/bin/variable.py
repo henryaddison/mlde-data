@@ -12,7 +12,7 @@ import typer
 import xarray as xr
 
 from ml_downscaling_emulator import VariableMetadata
-from ml_downscaling_emulator.bin import DomainOption, CollectionOption
+from ml_downscaling_emulator.bin.options import DomainOption, CollectionOption
 from ml_downscaling_emulator.data.moose import (
     VARIABLE_CODES,
     raw_nc_filepath,
