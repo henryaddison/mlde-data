@@ -14,7 +14,7 @@ srcs=(
 destination="xfer1.jasmin:/gws/nopw/j04/bris_climdyn/henrya/bp-backups/moose/${domain}/"
 
 cd ${src_root}
-for src in ${srcs}; do
+for src in ${srcs[@]}; do
   set -x
   rsync -avz ${src} ${destination}
   set +x
