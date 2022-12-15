@@ -1,0 +1,19 @@
+#!/bin/bash
+# Sync data for backup from BluePebble to GWS on JASMIN
+
+set -euo pipefail
+
+domain="birmingham-64"
+
+src_root="/user/work/vf20964/moose/${domain}/"
+srcs=(
+  2.2km-coarsened-4x-2.2km-coarsened-4x/
+  2.2km-coarsened-gcm-2.2km-coarsened-4x/
+  60km-2.2km-coarsened-4x/
+)
+destination="xfer1.jasmin:/gws/nopw/j04/bris_climdyn/henrya/bp-backups/moose/${domain}/"
+
+cd ${src_root}
+for src in ${srcs}; do
+  rsync -avz ${src} ${destination}
+done
