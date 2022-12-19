@@ -40,45 +40,42 @@ def callback():
     pass
 
 
-@app.command()
-@Timer(name="create-variable", text="{name}: {minutes:.1f} minutes", logger=logger.info)
-def create(
-    config_path: Path = typer.Option(...),
-    year: int = typer.Option(...),
-    frequency: str = "day",
-    domain: DomainOption = DomainOption.london,
-    scenario="rcp85",
-    scale_factor: str = typer.Option(...),
-    target_resolution: str = "2.2km",
-    target_size: int = 64,
+def get_variable_resolution(config, collection):
+    if config["sources"]["type"] == "moose":
+        if collection == CollectionOption.cpm:
+            variable_resolution = "2.2km"
+        elif collection == CollectionOption.gcm:
+            variable_resolution = "60km"
+        else:
+            raise f"Unknown collection {collection}"
+    elif config["sources"]["type"] == "bp":
+        # assume bp sourced data is at the desired resolution already
+        if collection == CollectionOption.cpm:
+            variable_resolution = "2.2km-coarsened-gcm"
+        elif collection == CollectionOption.gcm:
+            variable_resolution = "60km"
+        else:
+            raise f"Unknown collection {collection}"
+
+    return variable_resolution
+
+
+def get_sources(
+    config,
+    collection,
+    year,
+    data_basedir,
+    domain,
+    target_size,
+    variable_resolution,
+    target_resolution,
 ):
-    """
-    Create a new variable from moose data
-    """
-    with open(config_path, "r") as config_file:
-        config = yaml.safe_load(config_file)
-
-    # add cli parameters to config
-    config["parameters"] = {
-        "frequency": frequency,
-        "domain": domain.value,
-        "scenario": scenario,
-        "scale_factor": scale_factor,
-        "target_resolution": target_resolution,
-    }
-
-    data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
-
-    collection = CollectionOption(config["sources"]["collection"])
-
     sources = {}
 
     if config["sources"]["type"] == "moose":
         if collection == CollectionOption.cpm:
-            variable_resolution = "2.2km"
             source_domain = "uk"
         elif collection == CollectionOption.gcm:
-            variable_resolution = "60km"
             source_domain = "global"
         else:
             raise f"Unknown collection {collection}"
@@ -117,13 +114,6 @@ def create(
 
             sources[src_variable["name"]] = ds
     elif config["sources"]["type"] == "bp":
-        # assume bp sourced data is at the desired resolution already
-        if collection == CollectionOption.cpm:
-            variable_resolution = "2.2km-coarsened-gcm"
-        elif collection == CollectionOption.gcm:
-            variable_resolution = "60km"
-        else:
-            raise f"Unknown collection {collection}"
         for src_variable in config["sources"]["variables"]:
             source_metadata = VariableMetadata(
                 data_basedir,
@@ -151,6 +141,54 @@ def create(
         coords="all",
         join="inner",
         data_vars="all",
+    )
+
+    return ds
+
+
+@app.command()
+@Timer(name="create-variable", text="{name}: {minutes:.1f} minutes", logger=logger.info)
+def create(
+    config_path: Path = typer.Option(...),
+    year: int = typer.Option(...),
+    frequency: str = "day",
+    domain: DomainOption = DomainOption.london,
+    scenario="rcp85",
+    scale_factor: str = typer.Option(...),
+    target_resolution: str = "2.2km",
+    target_size: int = 64,
+):
+    """
+    Create a new variable from moose data
+    """
+    with open(config_path, "r") as config_file:
+        config = yaml.safe_load(config_file)
+
+    # add cli parameters to config
+    config["parameters"] = {
+        "frequency": frequency,
+        "domain": domain.value,
+        "scenario": scenario,
+        "scale_factor": scale_factor,
+        "target_resolution": target_resolution,
+    }
+
+    data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
+
+    collection = CollectionOption(config["sources"]["collection"])
+
+    variable_resolution = get_variable_resolution(config, collection)
+
+    ds = get_sources(
+        config,
+        collection,
+        year,
+        data_basedir,
+        domain,
+        domain,
+        target_size,
+        variable_resolution,
+        target_size,
     )
 
     for job_spec in config["spec"]:
