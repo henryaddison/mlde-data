@@ -4,7 +4,9 @@ import logging
 import os
 from pathlib import Path
 import re
+import shutil
 import sys
+import numpy as np
 import yaml
 
 import typer
@@ -188,3 +190,34 @@ def validate():
         for reason, error_splits in bad_splits.items():
             if len(error_splits) > 0:
                 print(f"Failed '{reason}': {dataset} for {error_splits}")
+
+
+@app.command()
+def random_subset(
+    src_dataset: str,
+    dest_dataset: str,
+    pc: int = 50,
+    split: str = "train",
+    seed: int = 42,
+):
+    datasets_dir = Path(os.getenv("MOOSE_DERIVED_DATA")) / "nc-datasets"
+
+    src_dataset_dir = datasets_dir / src_dataset
+    dest_dataset_dir = datasets_dir / dest_dataset
+
+    logger.info(f"Copying {src_dataset_dir} to {dest_dataset_dir}...")
+    # os.makedirs(dest_dataset_dir, exist_ok=True)
+    shutil.copytree(src_dataset_dir, dest_dataset_dir)
+
+    new_split_filepath = dest_dataset_dir / f"{split}.nc"
+
+    logger.info(f"Subsetting {new_split_filepath}")
+    original_split = xr.open_dataset(new_split_filepath)
+    new_size = int(len(original_split["time"]) * pc / 100.0)
+    rng = np.random.default_rng(seed=seed)
+    time_subset = rng.choice(
+        original_split["time"].values, size=new_size, replace=False
+    )
+    new_split = original_split.sel(time=time_subset).load()
+    original_split.close()
+    new_split.to_netcdf(new_split_filepath)
