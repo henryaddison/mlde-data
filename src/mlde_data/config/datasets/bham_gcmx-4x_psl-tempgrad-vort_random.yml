@@ -7,8 +7,12 @@ predictand:
   variable: pr
   resolution: 2.2km-coarsened-4x-2.2km-coarsened-4x
 predictors:
+  - variable: psl
+  - variable: temp250
+  - variable: tempgrad500250
   - variable: tempgrad700500
   - variable: tempgrad850700
+  - variable: tempgrad9250850
   - variable: vorticity250
   - variable: vorticity500
   - variable: vorticity700
