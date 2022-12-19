@@ -2,12 +2,14 @@ import os
 from pathlib import Path
 import re
 
-### CPM details
-
+###############
+# CPM details #
+###############
 # moose uris: moose:crum/{suite_id}/{stream_code}.pp
 
-### GCM details
-
+###############
+# GCM details #
+###############
 # moose uris: moose:ens/{suite_id}/{rip_code}/{stream_code}.pp
 
 # stream codes

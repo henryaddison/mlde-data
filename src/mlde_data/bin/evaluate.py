@@ -6,7 +6,6 @@ from knockknock import slack_sender
 import shortuuid
 import torch
 import typer
-import xarray as xr
 import yaml
 
 import ml_downscaling_emulator.sampling as sampling

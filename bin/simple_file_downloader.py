@@ -94,12 +94,12 @@ def setup_credentials():
     onlineca_client.ca_cert_dir = TRUSTROOTS_DIR
 
     # Set up trust roots
-    trustroots = onlineca_client.get_trustroots(
+    onlineca_client.get_trustroots(
         TRUSTROOTS_SERVICE, bootstrap=True, write_to_ca_cert_dir=True
     )
 
     # Write certificate credentials file
-    key_pair, certs = onlineca_client.get_certificate(
+    onlineca_client.get_certificate(
         username, password, CERT_SERVICE, pem_out_filepath=CREDENTIALS_FILE_PATH
     )
 

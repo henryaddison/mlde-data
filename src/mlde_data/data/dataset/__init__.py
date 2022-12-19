@@ -1,4 +1,4 @@
-from ml_downscaling_emulator.data.dataset.random_split import RandomSplit
-from ml_downscaling_emulator.data.dataset.season_stratified_intensity_split import (
+from .random_split import RandomSplit  # noqa: F401
+from .season_stratified_intensity_split import (  # noqa: F401
     SeasonStratifiedIntensitySplit,
 )

@@ -2,7 +2,6 @@ import itertools
 
 import cftime
 import xarray
-import glob
 
 """
 Split up an nc multifile dataset into single file per year.

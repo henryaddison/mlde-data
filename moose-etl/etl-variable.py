@@ -8,7 +8,7 @@ import yaml
 
 import typer
 
-from ml_downscaling_emulator.bin import DomainOption, CollectionOption
+from ml_downscaling_emulator.bin.options import DomainOption, CollectionOption
 from ml_downscaling_emulator.bin.moose import extract, convert, clean
 from ml_downscaling_emulator.bin.variable import create as create_variable, xfer
 
@@ -91,7 +91,7 @@ def main(
                     resolution=resolution,
                     target_size=target_size,
                 )
-            except:
+            except Exception:
                 if attempts >= MAX_ATTEMPTS:
                     raise
                 else:

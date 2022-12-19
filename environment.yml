@@ -412,6 +412,7 @@ dependencies:
     - docker==5.0.3
     - docker-pycreds==0.4.0
     - entrypoints==0.3
+    - filelock==3.8.2
     - flake8==6.0.0
     - flask==2.0.2
     - gitdb==4.0.9
@@ -449,6 +450,7 @@ dependencies:
     - python-telegram-bot==13.13
     - pytz-deprecation-shim==0.1.0.post0
     - querystring-parser==1.2.4
+    - score-sde-pytorch-hja22==0.0.1
     - secretstorage==3.3.2
     - sentry-sdk==1.4.3
     - shortuuid==1.0.8

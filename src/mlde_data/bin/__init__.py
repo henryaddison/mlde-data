@@ -1,21 +1,8 @@
-from enum import Enum
 from pathlib import Path
 from typing import List
 
 import typer
 import xarray as xr
-
-
-class DomainOption(str, Enum):
-    uk = "uk"
-    london = "london"
-    birmingham = "birmingham"
-
-
-class CollectionOption(str, Enum):
-    gcm = "land-gcm"
-    cpm = "land-cpm"
-
 
 from . import ceda
 from . import dataset

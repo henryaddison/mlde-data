@@ -24,13 +24,13 @@ class RandomSplit:
         train_times = tc[test_size + val_size :]
 
         test_set = combined_dataset.where(
-            combined_dataset.time.isin(test_times) == True, drop=True
+            combined_dataset.time.isin(test_times) == True, drop=True  # noqa: E712
         )
         val_set = combined_dataset.where(
-            combined_dataset.time.isin(val_times) == True, drop=True
+            combined_dataset.time.isin(val_times) == True, drop=True  # noqa: E712
         )
         train_set = combined_dataset.where(
-            combined_dataset.time.isin(train_times) == True, drop=True
+            combined_dataset.time.isin(train_times) == True, drop=True  # noqa: E712
         )
 
         # https://github.com/pydata/xarray/issues/2436 - time dim encoding lost when opened using open_mfdataset
