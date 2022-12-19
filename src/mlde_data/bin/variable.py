@@ -308,8 +308,10 @@ def validate():
         "birmingham-64": {
             "2.2km-coarsened-gcm-2.2km-coarsened-4x": [
                 "psl",
+                "tempgrad500250",
                 "tempgrad700500",
                 "tempgrad850700",
+                "tempgrad925850",
                 "vorticity250",
                 "vorticity500",
                 "vorticity700",
@@ -329,8 +331,10 @@ def validate():
             ],
             "60km-2.2km-coarsened-4x": [
                 "psl",
+                "tempgrad500250",
                 "tempgrad700500",
                 "tempgrad850700",
+                "tempgrad925850",
                 "vorticity250",
                 "vorticity500",
                 "vorticity700",
