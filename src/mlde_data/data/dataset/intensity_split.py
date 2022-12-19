@@ -55,15 +55,15 @@ class IntensitySplit:
         print(f"all times: {len(sorted_time)}")
 
         extreme_test_set = combined_dataset.where(
-            combined_dataset.time.isin(list(test_times)) == True,
-            drop=True,  # noqa: E712
+            combined_dataset.time.isin(list(test_times)) == True,  # noqa: E712
+            drop=True,
         )
         extreme_val_set = combined_dataset.where(
             combined_dataset.time.isin(list(val_times)) == True, drop=True  # noqa: E712
         )
         extreme_train_set = combined_dataset.where(
-            combined_dataset.time.isin(list(train_times)) == True,
-            drop=True,  # noqa: E712
+            combined_dataset.time.isin(list(train_times)) == True,  # noqa: E712
+            drop=True,
         )
 
         splits = RandomSplit(

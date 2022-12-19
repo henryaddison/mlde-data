@@ -91,7 +91,7 @@ def main(
                     resolution=resolution,
                     target_size=target_size,
                 )
-            except:
+            except Exception:
                 if attempts >= MAX_ATTEMPTS:
                     raise
                 else:
