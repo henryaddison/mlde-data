@@ -198,7 +198,7 @@ def create(
             ds[config["variable"]] = ds[config["variable"]].assign_attrs(
                 config["attrs"]
             )
-        if job_spec["action"] == "diff":
+        elif job_spec["action"] == "diff":
             logger.info(
                 f"Difference between {job_spec['params']['left']} and {job_spec['params']['right']}"
             )
