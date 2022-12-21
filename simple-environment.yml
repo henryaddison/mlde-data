@@ -38,5 +38,5 @@ dependencies:
     - pre-commit==2.20.0
     - shortuuid==1.0.8
     - typer==0.7.0
-    - wandb==0.12.6
+    - wandb==0.13.7
 prefix: /home/henry/anaconda3/envs/cuda-downscaling
