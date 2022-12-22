@@ -16,18 +16,18 @@ dependencies:
   - arrow-cpp=10.0.1=h27aab58_3_cpu
   - async-timeout=4.0.2=pyhd8ed1ab_0
   - attrs=22.2.0=pyh71513ae_0
-  - aws-c-auth=0.6.21=h3cb7b9d_0
+  - aws-c-auth=0.6.21=h774e2f3_1
   - aws-c-cal=0.5.20=hff2c3d7_3
   - aws-c-common=0.8.5=h166bdaf_0
   - aws-c-compression=0.2.16=hf5f93bc_0
   - aws-c-event-stream=0.2.16=h52dae97_0
-  - aws-c-http=0.6.27=hb11a807_3
+  - aws-c-http=0.6.29=hf21410f_0
   - aws-c-io=0.13.11=h4f448d1_2
-  - aws-c-mqtt=0.7.13=h93e60df_9
-  - aws-c-s3=0.2.1=hce085c9_1
+  - aws-c-mqtt=0.7.13=hefb3e95_10
+  - aws-c-s3=0.2.1=h927de71_2
   - aws-c-sdkutils=0.1.7=hf5f93bc_0
   - aws-checksums=0.1.14=h6027aba_0
-  - aws-crt-cpp=0.18.16=h9831516_4
+  - aws-crt-cpp=0.18.16=h89864ff_5
   - aws-sdk-cpp=1.9.379=h33d5b13_6
   - bcrypt=3.2.2=py39hb9d737c_1
   - black=22.10.0=py39hf3d152e_2
@@ -57,9 +57,6 @@ dependencies:
   - codetiming=1.4.0=pyhd8ed1ab_0
   - colorama=0.4.6=pyhd8ed1ab_0
   - commonmark=0.9.1=py_0
-  - conda=22.11.1=py39hf3d152e_1
-  - conda-package-handling=2.0.2=pyh38be061_0
-  - conda-package-streaming=0.7.0=pyhd8ed1ab_1
   - configparser=5.3.0=pyhd8ed1ab_0
   - contextlib2=21.6.0=pyhd8ed1ab_0
   - contourpy=1.0.6=py39hf939315_0
@@ -258,7 +255,6 @@ dependencies:
   - pyasn1=0.4.8=py_0
   - pyasn1-modules=0.2.7=py_0
   - pycodestyle=2.10.0=pyhd8ed1ab_0
-  - pycosat=0.6.4=py39hb9d737c_1
   - pycparser=2.21=pyhd8ed1ab_0
   - pyflakes=3.0.1=pyhd8ed1ab_0
   - pygments=2.13.0=pyhd8ed1ab_0
@@ -290,8 +286,6 @@ dependencies:
   - rfc3986=1.5.0=pyhd8ed1ab_0
   - rich=12.6.0=pyhd8ed1ab_0
   - rsa=4.9=pyhd8ed1ab_0
-  - ruamel.yaml=0.17.21=py39hb9d737c_2
-  - ruamel.yaml.clib=0.2.7=py39h72bdee0_1
   - s2n=1.3.30=h3358134_0
   - scikit-learn=1.2.0=py39h86b2a18_0
   - scipy=1.9.3=py39hddc5342_2
@@ -367,7 +361,6 @@ dependencies:
   - zict=2.2.0=pyhd8ed1ab_0
   - zipp=3.11.0=pyhd8ed1ab_0
   - zlib=1.2.13=h166bdaf_4
-  - zstandard=0.19.0=py39h29414ee_1
   - zstd=1.5.2=h6239696_4
   - pip:
       - atpublic==3.1.1
