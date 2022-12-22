@@ -194,7 +194,7 @@ def create(
     for job_spec in config["spec"]:
         if job_spec["action"] == "sum":
             logger.info(f"Summing {job_spec['variables']}")
-            ds = Sum(job_spec["variables"], config["variable"]).run(ds)
+            ds = Sum(**job_spec["params"]).run(ds)
             ds[config["variable"]] = ds[config["variable"]].assign_attrs(
                 config["attrs"]
             )
