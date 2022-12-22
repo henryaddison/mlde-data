@@ -91,6 +91,7 @@ def sample(
 def sample_id(
     workdir: Path,
     dataset: str = typer.Option(...),
+    variable: str = "pr",
     split: str = "val",
     num_samples: int = 1,
 ):
@@ -101,7 +102,7 @@ def sample_id(
     for sample_id in range(num_samples):
         typer.echo(f"Sample run {sample_id}...")
         eval_ds = load_raw_dataset_split(dataset, split)
-        samples = eval_ds["pr"].values
+        samples = eval_ds[variable].values
         predictions = sampling.np_samples_to_xr(samples, eval_ds, target_transform=None)
 
         output_filepath = os.path.join(
