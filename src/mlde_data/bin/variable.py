@@ -366,6 +366,7 @@ def validate():
                 "temp850",
                 "temp925",
                 "pr",
+                "linpr",
             ],
             "60km-2.2km-coarsened-4x": [
                 "psl",
@@ -389,7 +390,7 @@ def validate():
                 "temp850",
                 "temp925",
                 "pr",
-                "lin-pr",
+                "linpr",
             ],
             "2.2km-coarsened-4x-2.2km-coarsened-4x": [
                 "pr",
