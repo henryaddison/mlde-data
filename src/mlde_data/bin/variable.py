@@ -185,10 +185,9 @@ def create(
         year,
         data_basedir,
         domain,
-        domain,
         target_size,
         variable_resolution,
-        target_size,
+        target_resolution,
     )
 
     for job_spec in config["spec"]:
