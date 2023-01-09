@@ -185,16 +185,15 @@ def create(
         year,
         data_basedir,
         domain,
-        domain,
         target_size,
         variable_resolution,
-        target_size,
+        target_resolution,
     )
 
     for job_spec in config["spec"]:
         if job_spec["action"] == "sum":
-            logger.info(f"Summing {job_spec['variables']}")
-            ds = Sum(job_spec["variables"], config["variable"]).run(ds)
+            logger.info(f"Summing {job_spec['params']['variables']}")
+            ds = Sum(**job_spec["params"]).run(ds)
             ds[config["variable"]] = ds[config["variable"]].assign_attrs(
                 config["attrs"]
             )
@@ -366,6 +365,7 @@ def validate():
                 "temp850",
                 "temp925",
                 "pr",
+                "linpr",
             ],
             "60km-2.2km-coarsened-4x": [
                 "psl",
@@ -389,7 +389,7 @@ def validate():
                 "temp850",
                 "temp925",
                 "pr",
-                "lin-pr",
+                "linpr",
             ],
             "2.2km-coarsened-4x-2.2km-coarsened-4x": [
                 "pr",

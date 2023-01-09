@@ -1,29 +1,23 @@
-variable: pr
+variable: linpr
 attrs:
   units: kg m-2 s-1
   standard_name: precipitation_flux
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
-  collection: land-cpm
+  collection: land-gcm
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - name: lssnow
-      frequency: day
-    - name: lsrain
+    - name: pr
       frequency: day
 spec:
-  - action: coarsen
-    parameters:
-      scale_factor: $scale_factor
-      grid: pr
-  - action: sum
-    params:
-      variables: [lssnow, lsrain]
-      new_variable: pr
+  - action: rename
+    mapping: {"pr": "linpr"}
   - action: regrid_to_target
-    variable: pr
+    variable: linpr
+    parameters:
+      scheme: linear
   - action: select-subdomain
     parameters:
       domain: $domain
