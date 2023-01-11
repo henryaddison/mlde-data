@@ -221,3 +221,30 @@ def random_subset(
     new_split = original_split.sel(time=time_subset).load()
     original_split.close()
     new_split.to_netcdf(new_split_filepath)
+
+
+@app.command()
+def random_subset_split(
+    dataset: str,
+    split: str,
+    pc: int = 50,
+    new_split: str = None,
+    seed: int = 42,
+):
+    dataset_dir = Path(os.getenv("MOOSE_DERIVED_DATA")) / "nc-datasets" / dataset
+
+    orig_split_filepath = dataset_dir / f"{split}.nc"
+    if new_split is None:
+        new_split = f"{split}-{pc}pc"
+    new_split_filepath = dataset_dir / f"{new_split}.nc"
+
+    logger.info(f"Subsetting {orig_split_filepath}")
+    original_split = xr.open_dataset(orig_split_filepath)
+    new_size = int(len(original_split["time"]) * pc / 100.0)
+    rng = np.random.default_rng(seed=seed)
+    time_subset = rng.choice(
+        original_split["time"].values, size=new_size, replace=False
+    )
+    new_split = original_split.sel(time=time_subset).load()
+    original_split.close()
+    new_split.to_netcdf(new_split_filepath)
