@@ -245,6 +245,7 @@ def random_subset_split(
     time_subset = rng.choice(
         original_split["time"].values, size=new_size, replace=False
     )
+    time_subset.sort()
     new_split = original_split.sel(time=time_subset).load()
     original_split.close()
     new_split.to_netcdf(new_split_filepath)
