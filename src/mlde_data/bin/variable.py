@@ -215,7 +215,7 @@ def create(
                 target_grid_filepath = os.path.join(
                     os.path.dirname(__file__),
                     "..",
-                    "utils",
+                    "data",
                     "target-grids",
                     "60km",
                     "global",
@@ -241,7 +241,7 @@ def create(
                 target_grid_filepath = os.path.join(
                     os.path.dirname(__file__),
                     "..",
-                    "utils",
+                    "data",
                     "target-grids",
                     target_resolution,
                     "uk",
