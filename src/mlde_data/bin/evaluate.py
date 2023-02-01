@@ -8,10 +8,10 @@ import torch
 import typer
 import yaml
 
-import ml_downscaling_emulator.sampling as sampling
-from ml_downscaling_emulator.training import restore_checkpoint
-from ml_downscaling_emulator.training.dataset import get_dataset, load_raw_dataset_split
-from ml_downscaling_emulator.unet import unet
+from .. import sampling
+from ..training import restore_checkpoint
+from ..training.dataset import get_dataset, load_raw_dataset_split
+from ..unet import unet
 
 logging.basicConfig(
     level=logging.INFO,

@@ -11,8 +11,8 @@ import yaml
 import typer
 import xarray as xr
 
-from ml_downscaling_emulator import VariableMetadata
-from ml_downscaling_emulator.data.dataset import (
+from .. import VariableMetadata
+from ..data.dataset import (
     RandomSplit,
     SeasonStratifiedIntensitySplit,
 )
