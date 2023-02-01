@@ -12,7 +12,7 @@ import typer
 import xarray as xr
 
 from .. import VariableMetadata
-from ..data.dataset import (
+from ..dataset import (
     RandomSplit,
     SeasonStratifiedIntensitySplit,
 )
