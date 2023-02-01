@@ -13,7 +13,7 @@ import xarray as xr
 
 from .. import VariableMetadata
 from .options import DomainOption, CollectionOption
-from ..data.moose import (
+from ..moose import (
     VARIABLE_CODES,
     raw_nc_filepath,
     processed_nc_filepath,
@@ -215,7 +215,6 @@ def create(
                 target_grid_filepath = os.path.join(
                     os.path.dirname(__file__),
                     "..",
-                    "data",
                     "target-grids",
                     "60km",
                     "global",
@@ -241,7 +240,6 @@ def create(
                 target_grid_filepath = os.path.join(
                     os.path.dirname(__file__),
                     "..",
-                    "data",
                     "target-grids",
                     target_resolution,
                     "uk",

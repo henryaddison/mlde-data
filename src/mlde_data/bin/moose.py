@@ -10,7 +10,7 @@ import typer
 import xarray as xr
 
 from ..bin.options import CollectionOption
-from ..data.moose import (
+from ..moose import (
     select_query,
     moose_path,
     moose_extract_dirpath,
