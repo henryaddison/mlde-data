@@ -6,7 +6,6 @@ import xarray as xr
 
 from . import ceda
 from . import dataset
-from . import evaluate
 from . import moose
 from . import preprocess
 from . import variable
@@ -14,7 +13,6 @@ from . import variable
 app = typer.Typer()
 app.add_typer(ceda.app, name="ceda")
 app.add_typer(dataset.app, name="dataset")
-app.add_typer(evaluate.app, name="evaluate")
 app.add_typer(moose.app, name="moose")
 app.add_typer(preprocess.app, name="preprocess")
 app.add_typer(variable.app, name="variable")
