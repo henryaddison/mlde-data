@@ -29,9 +29,7 @@ def create_variable(
     Create a new variable
     """
     config = (
-        files("mlde_data.config")
-        .joinpath(f"variables/day/{variable}.yml")
-        .read_text()
+        files("mlde_data.config").joinpath(f"variables/day/{variable}.yml").read_text()
     )
     config = yaml.safe_load(config)
 
