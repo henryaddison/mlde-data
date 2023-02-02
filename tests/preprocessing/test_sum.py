@@ -1,7 +1,7 @@
 import numpy as np
 import xarray as xr
 
-from ml_downscaling_emulator.preprocessing.sum import Sum
+from mlde_data.preprocessing.sum import Sum
 
 
 def test_sum():

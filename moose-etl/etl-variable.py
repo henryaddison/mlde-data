@@ -8,9 +8,9 @@ import yaml
 
 import typer
 
-from ml_downscaling_emulator.bin.options import DomainOption, CollectionOption
-from ml_downscaling_emulator.bin.moose import extract, convert, clean
-from ml_downscaling_emulator.bin.variable import create as create_variable, xfer
+from mlde_data.bin.options import DomainOption, CollectionOption
+from mlde_data.bin.moose import extract, convert, clean
+from mlde_data.bin.variable import create as create_variable, xfer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")

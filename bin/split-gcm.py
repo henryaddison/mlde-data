@@ -2,7 +2,7 @@ import argparse
 import os
 from pathlib import Path
 
-from ml_downscaling_emulator.preprocessing.split_by_year import SplitByYear
+from mlde_data.preprocessing.split_by_year import SplitByYear
 
 
 def get_args():

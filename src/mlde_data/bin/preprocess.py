@@ -29,7 +29,7 @@ def create_variable(
     Create a new variable
     """
     config = (
-        files("ml_downscaling_emulator.config")
+        files("mlde_data.config")
         .joinpath(f"variables/day/{variable}.yml")
         .read_text()
     )

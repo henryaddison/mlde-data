@@ -2,7 +2,7 @@ import argparse
 import os
 from pathlib import Path
 
-from ml_downscaling_emulator.preprocessing.regrid import Regrid
+from mlde_data.preprocessing.regrid import Regrid
 
 
 def get_args():

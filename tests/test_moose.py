@@ -1,4 +1,4 @@
-from ml_downscaling_emulator.moose import moose_path, select_query
+from mlde_data.moose import moose_path, select_query
 
 
 def test_moose_path():

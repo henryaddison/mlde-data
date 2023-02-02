@@ -3,7 +3,7 @@ import os
 import pytest
 import xarray as xr
 
-from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
+from mlde_data.preprocessing.coarsen import Coarsen
 
 
 @pytest.mark.skip(reason="not getting the expected coarsen calculation correct")

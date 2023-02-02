@@ -328,7 +328,7 @@ def xfer(
     )
 
     file_xfer_cmd = [
-        f"{os.getenv('HOME')}/code/ml-downscaling-emulation/moose-etl/xfer-script-direct",
+        f"{os.getenv('HOME')}/code/mlde-data/moose-etl/xfer-script-direct",
         jasmin_filepath,
         bp_filepath,
     ]
