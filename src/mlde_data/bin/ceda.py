@@ -5,10 +5,10 @@ from pathlib import Path
 import typer
 import xarray as xr
 
-from ml_downscaling_emulator import VariableMetadata
-from ml_downscaling_emulator.bin.options import DomainOption
-from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
-from ml_downscaling_emulator.preprocessing.select_domain import SelectDomain
+from .. import VariableMetadata
+from .options import DomainOption
+from ..preprocessing.coarsen import Coarsen
+from ..preprocessing.select_domain import SelectDomain
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")

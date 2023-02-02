@@ -3,7 +3,7 @@ import logging
 
 import numpy as np
 
-from ml_downscaling_emulator.data.dataset.random_split import RandomSplit
+from .random_split import RandomSplit
 
 logger = logging.getLogger(__name__)
 

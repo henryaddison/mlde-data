@@ -11,23 +11,23 @@ from codetiming import Timer
 import typer
 import xarray as xr
 
-from ml_downscaling_emulator import VariableMetadata
-from ml_downscaling_emulator.bin.options import DomainOption, CollectionOption
-from ml_downscaling_emulator.data.moose import (
+from .. import VariableMetadata
+from .options import DomainOption, CollectionOption
+from ..moose import (
     VARIABLE_CODES,
     raw_nc_filepath,
     processed_nc_filepath,
     remove_forecast,
     remove_pressure,
 )
-from ml_downscaling_emulator.preprocessing.coarsen import Coarsen
-from ml_downscaling_emulator.preprocessing.constrain import Constrain
-from ml_downscaling_emulator.preprocessing.diff import Diff
-from ml_downscaling_emulator.preprocessing.regrid import Regrid
-from ml_downscaling_emulator.preprocessing.remapcon import Remapcon
-from ml_downscaling_emulator.preprocessing.select_domain import SelectDomain
-from ml_downscaling_emulator.preprocessing.sum import Sum
-from ml_downscaling_emulator.preprocessing.vorticity import Vorticity
+from ..preprocessing.coarsen import Coarsen
+from ..preprocessing.constrain import Constrain
+from ..preprocessing.diff import Diff
+from ..preprocessing.regrid import Regrid
+from ..preprocessing.remapcon import Remapcon
+from ..preprocessing.select_domain import SelectDomain
+from ..preprocessing.sum import Sum
+from ..preprocessing.vorticity import Vorticity
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
@@ -215,7 +215,6 @@ def create(
                 target_grid_filepath = os.path.join(
                     os.path.dirname(__file__),
                     "..",
-                    "utils",
                     "target-grids",
                     "60km",
                     "global",
@@ -241,7 +240,6 @@ def create(
                 target_grid_filepath = os.path.join(
                     os.path.dirname(__file__),
                     "..",
-                    "utils",
                     "target-grids",
                     target_resolution,
                     "uk",

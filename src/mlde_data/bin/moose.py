@@ -9,8 +9,8 @@ import numpy as np
 import typer
 import xarray as xr
 
-from ml_downscaling_emulator.bin.options import CollectionOption
-from ml_downscaling_emulator.data.moose import (
+from ..bin.options import CollectionOption
+from ..moose import (
     select_query,
     moose_path,
     moose_extract_dirpath,

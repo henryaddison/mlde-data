@@ -12,9 +12,7 @@ for res in [
         domain = "global"
     else:
         domain = "uk"
-    path = (
-        f"src/ml_downscaling_emulator/utils/target-grids/{res}/{domain}/moose_grid.nc"
-    )
+    path = f"src/ml_downscaling_emulator/data/target-grids/{res}/{domain}/moose_grid.nc"
     ds = xr.load_dataset(path)
     for v in ds.variables:
         print(v, ds[v].attrs.pop("coordinates", None))
