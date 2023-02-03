@@ -26,6 +26,9 @@ while getopts ":c:v:s:t:d:p:" opt; do
     p )
       target_size=${OPTARG}
       ;;
+    f )
+      frequency=${OPTARG}
+      ;;
    \? )
      echo "Invalid Option: -${OPTARG}" 1>&2
      exit 1
@@ -40,4 +43,4 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 ETL_VARIABLE_SCRIPT_PATH=${HOME}/code/mlde-data/moose-etl/etl-variable.py
 
-python ${ETL_VARIABLE_SCRIPT_PATH} --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} ${years}
+python ${ETL_VARIABLE_SCRIPT_PATH} --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} ${years} --frequency ${frequency}
