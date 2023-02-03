@@ -73,14 +73,20 @@ VARIABLE_CODES = {
         "query": {
             "stash": 4203,
         },
-        "stream": {"land-cpm": {"day": "apa"}, "land-gcm": {"day": "ape"}},
+        "stream": {
+            "land-cpm": {"day": "apa", "1hr": "apc"},
+            "land-gcm": {"day": "ape"},
+        },
         "moose_name": "stratiform_rainfall_flux",
     },
     "lssnow": {
         "query": {
             "stash": 4204,
         },
-        "stream": {"land-cpm": {"day": "apa"}, "land-gcm": {"day": "ape"}},
+        "stream": {
+            "land-cpm": {"day": "apa", "1hr": "apc"},
+            "land-gcm": {"day": "ape"},
+        },
         "moose_name": "stratiform_snowfall_flux",
     },
     "pr": {
