@@ -42,6 +42,7 @@ def main(
                 year=year,
                 frequency=src_variable["frequency"],
                 collection=src_collection,
+                cache=False,
             )
 
             convert(
@@ -49,6 +50,7 @@ def main(
                 year=year,
                 frequency=src_variable["frequency"],
                 collection=src_collection,
+                cache=False,
             )
 
         # run create variable
