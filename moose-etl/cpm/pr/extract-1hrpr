@@ -19,5 +19,5 @@ BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../../batch-wrapper
 job_id=0
 
 years=$(seq 1981 1 1990)
-job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} ${years} -f ${frequency})
+job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} ${years})
 echo $job_id
