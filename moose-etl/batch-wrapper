@@ -6,7 +6,7 @@ conda activate cuda-downscaling
 
 set -euo pipefail
 
-while getopts ":c:v:s:t:d:p:" opt; do
+while getopts ":c:v:s:t:d:p:f:" opt; do
   case ${opt} in
     c)
       collection=${OPTARG}
