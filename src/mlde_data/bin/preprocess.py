@@ -6,7 +6,7 @@ import yaml
 import typer
 import xarray as xr
 
-from .. import VariableMetadata
+from mlde_utils import VariableMetadata
 from .options import DomainOption
 from ..preprocessing.sum import Sum
 

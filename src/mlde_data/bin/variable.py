@@ -11,7 +11,7 @@ from codetiming import Timer
 import typer
 import xarray as xr
 
-from .. import VariableMetadata
+from mlde_utils import VariableMetadata
 from .options import DomainOption, CollectionOption
 from ..moose import (
     VARIABLE_CODES,

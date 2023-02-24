@@ -5,7 +5,7 @@ from pathlib import Path
 import typer
 import xarray as xr
 
-from .. import VariableMetadata
+from mlde_utils import VariableMetadata
 from .options import DomainOption
 from ..preprocessing.coarsen import Coarsen
 from ..preprocessing.select_domain import SelectDomain
