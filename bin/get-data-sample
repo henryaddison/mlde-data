@@ -53,3 +53,5 @@ for year in 1981 2000 2021 2040 2061 2080; do
 
   scp ${bp_host}:${bp_dirpath}/${filename} ${local_dirpath}
 done
+
+mlde-data sample ${local_dirpath}/*.nc
