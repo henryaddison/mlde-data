@@ -14,6 +14,7 @@ import xarray as xr
 from mlde_utils import VariableMetadata
 from ..dataset import (
     RandomSplit,
+    RandomSeasonSplit,
     SeasonStratifiedIntensitySplit,
 )
 
@@ -97,6 +98,10 @@ def create(
         )
     elif config["split_scheme"] == "random":
         splitter = RandomSplit(
+            val_prop=val_prop, test_prop=test_prop, time_encoding=time_encoding
+        )
+    elif config["split_scheme"] == "random-season":
+        splitter = RandomSeasonSplit(
             val_prop=val_prop, test_prop=test_prop, time_encoding=time_encoding
         )
     else:
