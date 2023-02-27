@@ -2,7 +2,7 @@
 
 eval "$(conda shell.bash hook)"
 
-conda activate cuda-downscaling
+conda activate downscaling-data
 
 bp_host="bp"
 

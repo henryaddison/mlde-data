@@ -30,6 +30,12 @@ def callback():
     pass
 
 
+FREQ2TIMELEN = {
+    "day": 360,
+    "1hr": 360 * 24,
+}
+
+
 @app.command()
 @Timer(name="extract", text="{name}: {minutes:.1f} minutes", logger=logger.info)
 def extract(
@@ -121,7 +127,7 @@ def extract(
 
     # make sure have the correct amount of data from moose
     cube = iris.load_cube(pp_dirpath / "*.pp")
-    assert cube.coord("time").shape[0] == 360
+    assert cube.coord("time").shape[0] == FREQ2TIMELEN[frequency]
 
     if cache:
         cache_path = moose_cache_dirpath(
@@ -223,7 +229,7 @@ def convert(
     os.makedirs(output_filepath.parent, exist_ok=True)
     iris.save(src_cube, output_filepath)
 
-    assert len(xr.open_dataset(output_filepath).time) == 360
+    assert len(xr.open_dataset(output_filepath).time) == FREQ2TIMELEN[frequency]
 
 
 @app.command()

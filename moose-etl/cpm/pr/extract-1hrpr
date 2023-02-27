@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+domain="birmingham"
+scale_factor="gcm"
+target_resolution="2.2km-coarsened-4x"
+target_size=64
+frequency="1hr"
+variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/${frequency}/land-cpm/pr.yml"
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+QUEUE_DEP_PATH=${SCRIPT_DIR}/../../queue-dep-func
+BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../../batch-wrapper
+
+# TS1
+# no job initially to wait on
+job_id=0
+
+years=$(seq 1981 1 1990)
+job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} ${years})
+echo $job_id
