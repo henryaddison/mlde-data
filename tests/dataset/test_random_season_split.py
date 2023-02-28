@@ -36,6 +36,15 @@ def test_split():
     assert splits["val"]["measurement"].shape == (1440, 10, 10)
     assert splits["train"]["measurement"].shape == (5040, 10, 10)
 
+    # check time is sorted
+    assert np.all(
+        splits["test"]["time"].values[:-1] <= splits["test"]["time"].values[1:]
+    )
+    assert np.all(splits["val"]["time"].values[:-1] <= splits["val"]["time"].values[1:])
+    assert np.all(
+        splits["train"]["time"].values[:-1] <= splits["train"]["time"].values[1:]
+    )
+
     # there should be no overlap between the splits
     assert not any(np.isin(splits["train"]["time"], splits["val"]["time"]))
     assert not any(np.isin(splits["train"]["time"], splits["test"]["time"]))
