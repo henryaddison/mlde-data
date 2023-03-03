@@ -125,6 +125,7 @@ def validate():
     datasets = [
         "2.2km-coarsened-8x_london_vorticity850_random",
         "2.2km-coarsened-gcm-2.2km-coarsened-4x_birmingham_vorticity850_random",
+        "bham_gcmx-4x_psl-temp-vort_random-season",
         "bham_gcmx-4x_psl-spechum-temp-vort_random",
         "bham_gcmx-4x_psl-temp-vort_random",
         "bham_gcmx-4x_psl-tempgrad-vort_random",
@@ -134,8 +135,10 @@ def validate():
         "bham_gcmx-4x_tempgrad-vort_random",
         "bham_gcmx-4x_vort850_random",
         "bham_gcmx-4x_pr_random",
+        "bham_gcmx-4x_linpr_random-season",
         "bham_gcmx-4x_linpr_random",
         "60km-2.2km-coarsened-4x_birmingham_vorticity850_random",
+        "bham_60km-4x_psl-temp-vort_random-season",
         "bham_60km-4x_psl-spechum-temp-vort_random",
         "bham_60km-4x_psl-temp-vort_random",
         "bham_60km-4x_psl-tempgrad-vort_random",
@@ -145,6 +148,7 @@ def validate():
         "bham_60km-4x_tempgrad-vort_random",
         "bham_60km-4x_vort850_random",
         "bham_60km-4x_pr_random",
+        "bham_60km-4x_linpr_random-season",
         "bham_60km-4x_linpr_random",
         "60km-2.2km_london_vorticity850_random",
     ]
