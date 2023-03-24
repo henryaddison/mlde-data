@@ -23,11 +23,16 @@ def sample(files: List[Path]):
     for file in files:
         ds = xr.open_dataset(file)
         # take something from each season and each decade
-        sampled_ds = ds.sel(
-            time=((ds["time.month"] % 3 == 0) & (ds["time.year"] % 10 == 0))
-        ).load()
+        time_mask = (ds["time.month"] % 3 == 0) & (ds["time.year"] % 10 == 0)
+        # if empty mask then assume a small set and allow all years
+        if not time_mask.any().item():
+            time_mask = ds["time.month"] % 3 == 0
+
+        sampled_ds = ds.sel(time=time_mask).load()
+
         ds.close()
         del ds
+
         print(f"Saving {file}")
         sampled_ds.to_netcdf(file)
         del sampled_ds

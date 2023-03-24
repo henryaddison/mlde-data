@@ -1,4 +1,5 @@
 from collections import defaultdict
+import glob
 import logging
 import os
 from pathlib import Path
@@ -8,6 +9,7 @@ import sys
 import numpy as np
 import yaml
 
+import cftime
 import typer
 import xarray as xr
 
@@ -260,3 +262,65 @@ def random_subset_split(
     new_split = original_split.sel(time=time_subset).load()
     original_split.close()
     new_split.to_netcdf(new_split_filepath)
+
+
+TIME_PERIODS = {
+    "historic": slice(
+        cftime.Datetime360Day(1980, 12, 1, 12, 0, 0, 0, has_year_zero=True),
+        cftime.Datetime360Day(2000, 11, 30, 12, 0, 0, 0, has_year_zero=True),
+    ),
+    "present": slice(
+        cftime.Datetime360Day(2020, 12, 1, 12, 0, 0, 0, has_year_zero=True),
+        cftime.Datetime360Day(2040, 11, 30, 12, 0, 0, 0, has_year_zero=True),
+    ),
+    "future": slice(
+        cftime.Datetime360Day(2060, 12, 1, 12, 0, 0, 0, has_year_zero=True),
+        cftime.Datetime360Day(2080, 11, 30, 12, 0, 0, 0, has_year_zero=True),
+    ),
+}
+
+
+@app.command()
+def filter(
+    dataset: str,
+    time_period: str,
+    base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"),
+):
+
+    input_dir = os.path.join(base_dir, "nc-datasets", dataset)
+    input_config_path = os.path.join(input_dir, "ds-config.yml")
+    with open(input_config_path, "r") as f:
+        config = yaml.safe_load(f)
+
+    config_filters = config.get("filters", list())
+    config_filters.append({"time_period": time_period})
+    config["filters"] = config_filters
+
+    output_dir = os.path.join(base_dir, "nc-datasets", f"{dataset}-{time_period}")
+    os.makedirs(output_dir, exist_ok=False)
+    for split_filepath in glob.glob(os.path.join(input_dir, "*.nc")):
+        split_file = os.path.basename(split_filepath)
+        logger.info(f"Filtering {split_file} to {output_dir}")
+        split_ds = xr.open_dataset(split_filepath)
+        output_filepath = os.path.join(output_dir, split_file)
+        # t_start, t_end = TIME_PERIODS[time_period]
+        split_ds.sel(time=TIME_PERIODS[time_period]).to_netcdf(output_filepath)
+
+    output_config_path = os.path.join(output_dir, "ds-config.yml")
+    with open(output_config_path, "w") as f:
+        yaml.dump(config, f)
+
+
+@app.command()
+def quantile(
+    dataset: str,
+    p: float,
+    variable: str = "target_pr",
+    base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"),
+    split: str = "train",
+):
+    input_dir = os.path.join(base_dir, "nc-datasets", dataset)
+
+    split_ds = xr.open_dataset(os.path.join(input_dir, f"{split}.nc"))
+    Q_p = split_ds[variable].quantile(p)
+    typer.echo(Q_p.values.item())
