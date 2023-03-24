@@ -3,7 +3,7 @@ import math
 
 import numpy as np
 
-from mlde_utils.plotting import cp_model_rotated_pole, platecarree
+from mlde_utils import cp_model_rotated_pole, platecarree
 
 logger = logging.getLogger(__name__)
 
