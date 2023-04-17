@@ -399,20 +399,6 @@ def validate(variable: str == typer.Argument("all")):
             "2.2km-coarsened-4x-2.2km-coarsened-4x": [
                 "pr",
             ],
-            "2.2km-coarsened-gcm-2.2km": ["pr", "vorticity850"],
-            "60km-2.2km": ["pr", "vorticity850"],
-        },
-        "london-64": {
-            "2.2km-2.2km": ["pr", "vorticity850"],
-            "60km-2.2km": ["pr", "vorticity850"],
-            "60km-2.2km-coarsened-4x": ["pr", "vorticity850"],
-            "2.2km-coarsened-8x-2.2km": ["vorticity850"],
-            "2.2km-coarsened-gcm-2.2km": ["vorticity850"],
-        },
-        "birmingham-256": {
-            "2.2km-2.2km": ["pr"],
-            "2.2km-coarsened-gcm-2.2km": ["vorticity850"],
-            "60km-2.2km": ["pr", "vorticity850"],
         },
     }
 
