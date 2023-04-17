@@ -345,7 +345,7 @@ def xfer(
 
 
 @app.command()
-def validate(variable: str == typer.Argument("all")):
+def validate(variable: str = typer.Argument("all")):
     domain_res_vars = {
         "birmingham-64": {
             "2.2km-coarsened-gcm-2.2km-coarsened-4x": [
