@@ -417,64 +417,68 @@ def validate():
 
     years = list(range(1981, 2001)) + list(range(2021, 2041)) + list(range(2061, 2081))
 
-    for domain, res_variables in domain_res_vars.items():
-        for res, variables in res_variables.items():
-            for var in variables:
-                sys.stdout.write("\033[K")
-                print(f"Checking {var} over {domain} at {res}", end="\r")
+    ensemble_members = ["01"]
 
-                bad_years = defaultdict(set)
-                for year in years:
-                    var_meta = VariableMetadata(
-                        os.getenv("MOOSE_DERIVED_DATA"),
-                        variable=var,
-                        frequency="day",
-                        domain=domain,
-                        resolution=res,
-                    )
+    for ensemble_member in ensemble_members:
+        for domain, res_variables in domain_res_vars.items():
+            for res, variables in res_variables.items():
+                for var in variables:
+                    sys.stdout.write("\033[K")
+                    print(f"Checking {var} over {domain} at {res}", end="\r")
 
-                    try:
-                        ds = xr.load_dataset(var_meta.filepath(year))
-                    except FileNotFoundError:
-                        bad_years["no file"].add(year)
-                        continue
-
-                    nan_count = ds[var].isnull().sum().values.item()
-
-                    if nan_count > 0:
-                        bad_years["NaNs"].add(year)
-
-                    # check for forecast related metadata (should have been stripped)
-                    for v in ds.variables:
-                        if "coordinates" in ds[v].encoding and (
-                            re.match(
-                                "(realization|forecast_period|forecast_reference_time) ?",
-                                ds[v].encoding["coordinates"],
-                            )
-                            is not None
-                        ):
-                            bad_years["forecast_encoding"].add(year)
-                        if v in [
-                            "forecast_period",
-                            "forecast_reference_time",
-                            "realization",
-                            "forecast_period_bnds",
-                        ]:
-                            bad_years["forecast_vars"].add(year)
-
-                    # check for pressure related metadata (should have been stripped)
-                    for v in ds.variables:
-                        if "coordinates" in ds[v].encoding and (
-                            re.match("(pressure) ?", ds[v].encoding["coordinates"])
-                            is not None
-                        ):
-                            bad_years["pressure_encoding"].add(year)
-                        if v in ["pressure"]:
-                            bad_years["pressure_vars"].add(year)
-
-                # report findings
-                for reason, error_years in bad_years.items():
-                    if len(error_years) > 0:
-                        print(
-                            f"Failed '{reason}': {var} over {domain} at {res} for {len(error_years)}\n{sorted(error_years)}"
+                    bad_years = defaultdict(set)
+                    for year in years:
+                        var_meta = VariableMetadata(
+                            os.getenv("MOOSE_DERIVED_DATA"),
+                            variable=var,
+                            frequency="day",
+                            domain=domain,
+                            resolution=res,
+                            ensemble_member=ensemble_member,
                         )
+
+                        try:
+                            ds = xr.load_dataset(var_meta.filepath(year))
+                        except FileNotFoundError:
+                            bad_years["no file"].add(year)
+                            continue
+
+                        nan_count = ds[var].isnull().sum().values.item()
+
+                        if nan_count > 0:
+                            bad_years["NaNs"].add(year)
+
+                        # check for forecast related metadata (should have been stripped)
+                        for v in ds.variables:
+                            if "coordinates" in ds[v].encoding and (
+                                re.match(
+                                    "(realization|forecast_period|forecast_reference_time) ?",
+                                    ds[v].encoding["coordinates"],
+                                )
+                                is not None
+                            ):
+                                bad_years["forecast_encoding"].add(year)
+                            if v in [
+                                "forecast_period",
+                                "forecast_reference_time",
+                                "realization",
+                                "forecast_period_bnds",
+                            ]:
+                                bad_years["forecast_vars"].add(year)
+
+                        # check for pressure related metadata (should have been stripped)
+                        for v in ds.variables:
+                            if "coordinates" in ds[v].encoding and (
+                                re.match("(pressure) ?", ds[v].encoding["coordinates"])
+                                is not None
+                            ):
+                                bad_years["pressure_encoding"].add(year)
+                            if v in ["pressure"]:
+                                bad_years["pressure_vars"].add(year)
+
+                    # report findings
+                    for reason, error_years in bad_years.items():
+                        if len(error_years) > 0:
+                            print(
+                                f"Failed '{reason}': {var} over {domain} of {ensemble_member} at {res} for {len(error_years)}\n{sorted(error_years)}"
+                            )
