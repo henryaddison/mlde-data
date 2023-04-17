@@ -65,6 +65,7 @@ def extract(
         collection=collection.value,
         resolution=resolution,
         domain=domain,
+        ensemble_member=ensemble_member,
     )
     cache_check_filepath = cache_path / ".cache-ready"
 
