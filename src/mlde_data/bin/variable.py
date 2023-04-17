@@ -404,7 +404,7 @@ def validate(variable: str == typer.Argument("all")):
 
     years = list(range(1981, 2001)) + list(range(2021, 2041)) + list(range(2061, 2081))
 
-    ensemble_members = ["01"]
+    ensemble_members = ["01", "04"]
 
     for ensemble_member in ensemble_members:
         for domain, res_variables in domain_res_vars.items():
