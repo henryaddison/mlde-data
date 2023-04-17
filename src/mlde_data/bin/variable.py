@@ -404,11 +404,25 @@ def validate(variable: str = typer.Argument("all")):
 
     years = list(range(1981, 2001)) + list(range(2021, 2041)) + list(range(2061, 2081))
 
+    cpm_ensemble_members = [
+        "01",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+        "13",
+        "15",
+    ]
     ensemble_members = defaultdict(
         lambda: ["01"],
         {
-            "2.2km-coarsened-gcm-2.2km-coarsened-4x": ["01", "04"],
-            "2.2km-coarsened-4x-2.2km-coarsened-4x": ["01", "04"],
+            "2.2km-coarsened-gcm-2.2km-coarsened-4x": cpm_ensemble_members,
+            "2.2km-coarsened-4x-2.2km-coarsened-4x": cpm_ensemble_members,
         },
     )
 
