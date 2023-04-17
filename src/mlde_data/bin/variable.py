@@ -405,7 +405,11 @@ def validate(variable: str = typer.Argument("all")):
     years = list(range(1981, 2001)) + list(range(2021, 2041)) + list(range(2061, 2081))
 
     ensemble_members = defaultdict(
-        lambda: ["01"], {"2.2km-coarsened-gcm-2.2km-coarsened-4x": ["01", "04"]}
+        lambda: ["01"],
+        {
+            "2.2km-coarsened-gcm-2.2km-coarsened-4x": ["01", "04"],
+            "2.2km-coarsened-4x-2.2km-coarsened-4x": ["01", "04"],
+        },
     )
 
     for domain, res_variables in domain_res_vars.items():
