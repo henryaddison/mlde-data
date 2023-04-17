@@ -345,7 +345,7 @@ def xfer(
 
 
 @app.command()
-def validate():
+def validate(variable: str == typer.Argument("all")):
     domain_res_vars = {
         "birmingham-64": {
             "2.2km-coarsened-gcm-2.2km-coarsened-4x": [
@@ -424,6 +424,8 @@ def validate():
         for domain, res_variables in domain_res_vars.items():
             for res, variables in res_variables.items():
                 for var in variables:
+                    if (variable != "all") and (variable != var):
+                        continue
                     sys.stdout.write("\033[K")
                     print(f"Checking {var} over {domain} at {res}", end="\r")
 
