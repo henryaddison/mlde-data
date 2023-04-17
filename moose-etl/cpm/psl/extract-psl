@@ -25,7 +25,7 @@ job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${d
 echo $job_id
 
 years=$(seq 1991 1 2000)
-job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
+job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
 echo $job_id
 
 # TS2
@@ -37,7 +37,7 @@ job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${d
 echo $job_id
 
 years=$(seq 2031 1 2040)
-job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
+job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
 echo $job_id
 
 # TS3
@@ -49,5 +49,5 @@ job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${d
 echo $job_id
 
 years=$(seq 2071 1 2080)
-job_id=$(${QUEUE_DEP_PATH} -j 0 -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
+job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
 echo $job_id
