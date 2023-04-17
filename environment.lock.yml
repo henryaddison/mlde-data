@@ -116,6 +116,7 @@ dependencies:
   - libiconv=1.17=h166bdaf_0
   - libjpeg-turbo=2.1.4=h166bdaf_0
   - liblapack=3.9.0=16_linux64_openblas
+  - libmo_unpack=3.1.2=hf484d3e_1001
   - libnetcdf=4.8.1=nompi_h261ec11_106
   - libnghttp2=1.51.0=hff17c54_0
   - libnsl=2.0.0=h7f98852_0
@@ -141,6 +142,7 @@ dependencies:
   - matrix_client=0.4.0=pyhd8ed1ab_0
   - mccabe=0.7.0=pyhd8ed1ab_0
   - metpy=1.4.0=pyhd8ed1ab_0
+  - mo_pack=0.2.0=py39h2ae25f5_1008
   - more-itertools=9.0.0=pyhd8ed1ab_0
   - msgpack-python=1.0.4=py39hf939315_1
   - munkres=1.1.4=pyh9f0ad1d_0
@@ -151,7 +153,7 @@ dependencies:
   - nodeenv=1.7.0=pyhd8ed1ab_0
   - numpy=1.24.1=py39h7360e5f_0
   - openjpeg=2.5.0=hfec8fc6_2
-  - openssl=3.0.7=h0b41bf4_2
+  - openssl=3.1.0=h0b41bf4_0
   - packaging=23.0=pyhd8ed1ab_0
   - pandas=1.5.3=py39h2ad29b5_0
   - pango=1.50.12=hd33c08f_1

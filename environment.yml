@@ -12,6 +12,7 @@ dependencies:
   - iris
   - knockknock
   - metpy
+  - mo_pack
   - netcdf4
   - ninja
   - pint
