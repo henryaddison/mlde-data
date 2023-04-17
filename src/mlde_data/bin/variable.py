@@ -404,16 +404,21 @@ def validate(variable: str = typer.Argument("all")):
 
     years = list(range(1981, 2001)) + list(range(2021, 2041)) + list(range(2061, 2081))
 
-    ensemble_members = ["01", "04"]
+    ensemble_members = defaultdict(
+        lambda: ["01"], {"2.2km-coarsened-gcm-2.2km-coarsened-4x": ["01", "04"]}
+    )
 
-    for ensemble_member in ensemble_members:
-        for domain, res_variables in domain_res_vars.items():
-            for res, variables in res_variables.items():
+    for domain, res_variables in domain_res_vars.items():
+        for res, variables in res_variables.items():
+            for ensemble_member in ensemble_members[res]:
                 for var in variables:
                     if (variable != "all") and (variable != var):
                         continue
                     sys.stdout.write("\033[K")
-                    print(f"Checking {var} over {domain} at {res}", end="\r")
+                    print(
+                        f"Checking {var} of {ensemble_member} over {domain} at {res}",
+                        end="\r",
+                    )
 
                     bad_years = defaultdict(set)
                     for year in years:
