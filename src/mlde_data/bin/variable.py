@@ -69,6 +69,7 @@ def get_sources(
     target_size,
     variable_resolution,
     target_resolution,
+    ensemble_member,
 ):
     sources = {}
 
@@ -120,7 +121,7 @@ def get_sources(
                 frequency=src_variable["frequency"],
                 domain=f"{domain.value}-{target_size}",
                 resolution=f"{variable_resolution}-{target_resolution}",
-                ensemble_member="01",
+                ensemble_member=ensemble_member,
                 variable=src_variable["name"],
             )
             source_nc_filepath = source_metadata.filepath(year)
@@ -157,6 +158,7 @@ def create(
     scale_factor: str = typer.Option(...),
     target_resolution: str = "2.2km",
     target_size: int = 64,
+    ensemble_member: str = typer.Option(...),
 ):
     """
     Create a new variable from moose data
@@ -188,6 +190,7 @@ def create(
         target_size,
         variable_resolution,
         target_resolution,
+        ensemble_member=ensemble_member,
     )
 
     for job_spec in config["spec"]:
@@ -275,7 +278,7 @@ def create(
         frequency=frequency,
         domain=f"{domain.value}-{target_size}",
         resolution=f"{variable_resolution}-{target_resolution}",
-        ensemble_member="01",
+        ensemble_member=ensemble_member,
         variable=config["variable"],
     )
 
@@ -302,6 +305,7 @@ def run_cmd(cmd):
 def xfer(
     variable: str = typer.Option(...),
     year: int = typer.Option(...),
+    ensemble_member: str = typer.Option(...),
     frequency: str = "day",
     domain: DomainOption = DomainOption.london,
     collection: CollectionOption = typer.Option(...),
@@ -316,6 +320,7 @@ def xfer(
         domain=f"{domain.value}-{target_size}",
         resolution=resolution,
         collection=collection.value,
+        ensemble_member=ensemble_member,
     )
     bp_filepath = processed_nc_filepath(
         variable=variable,
@@ -325,6 +330,7 @@ def xfer(
         resolution=resolution,
         collection=collection.value,
         base_dir="/user/work/vf20964",
+        ensemble_member=ensemble_member,
     )
 
     file_xfer_cmd = [
