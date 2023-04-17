@@ -94,6 +94,7 @@ def get_sources(
                 resolution=variable_resolution,
                 collection=collection.value,
                 domain=source_domain,
+                ensemble_member=ensemble_member,
             )
             logger.info(f"Opening {source_nc_filepath}")
             ds = xr.open_dataset(source_nc_filepath)
