@@ -169,17 +169,33 @@ TSFarF = range(2077, 2100)
 SUITE_IDS = {
     "land-cpm": {
         # r001i1p00000
-        1: RangeDict(
-            {
-                TS1: "mi-bb171",
-                TS2: "mi-bb188",
-                TS3: "mi-bb189",
-            }
-        ),
+        "01": RangeDict({TS1: "mi-bb171", TS2: "mi-bb188", TS3: "mi-bb189"}),
+        # r001i1p01113
+        "04": RangeDict({TS1: "mi-bb190", TS2: "mi-bb191", TS3: "mi-bb192"}),
+        # r001i1p01554
+        "05": RangeDict({TS1: "mi-bb193", TS2: "mi-bb194", TS3: "mi-bb195"}),
+        # r001i1p01649
+        "06": RangeDict({TS1: "mi-bb196", TS2: "mi-bb197", TS3: "mi-bb198"}),
+        # r001i1p01843
+        "07": RangeDict({TS1: "mi-bb199", TS2: "mi-bb200", TS3: "mi-bb201"}),
+        # r001i1p01935
+        "08": RangeDict({TS1: "mi-bb202", TS2: "mi-bb203", TS3: "mi-bb204"}),
+        # r001i1p02868
+        "09": RangeDict({TS1: "mi-bb205", TS2: "mi-bb206", TS3: "mi-bb208"}),
+        # r001i1p02123
+        "10": RangeDict({TS1: "mi-bb209", TS2: "mi-bb210", TS3: "mi-bb211"}),
+        # r001i1p02242
+        "11": RangeDict({TS1: "mi-bb214", TS2: "mi-bb215", TS3: "mi-bb216"}),
+        # r001i1p02305
+        "12": RangeDict({TS1: "mi-bb217", TS2: "mi-bb218", TS3: "mi-bb219"}),
+        # r001i1p02335
+        "13": RangeDict({TS1: "mi-bb220", TS2: "mi-bb221", TS3: "mi-bb222"}),
+        # r001i1p02491
+        "15": RangeDict({TS1: "mi-bb223", TS2: "mi-bb224", TS3: "mi-bb225"}),
     },
     "land-gcm": {
         # r001i1p00000
-        1: RangeDict(
+        "01": RangeDict(
             {
                 TSRecent: "u-ap977",
                 TSNearF: "u-ar095",
@@ -189,18 +205,6 @@ SUITE_IDS = {
     },
 }
 
-# Suite ids for other CPM ensemble members
-# r001i1p01113 - {TS1: "mi-bb190", TS2: "mi-bb191", TS3: "mi-bb192"}
-# r001i1p01554 - {TS1: "mi-bb193", TS2: "mi-bb194", TS3: "mi-bb195"}
-# r001i1p01649 - {TS1: "mi-bb196", TS2: "mi-bb197", TS3: "mi-bb198"}
-# r001i1p01843 - {TS1: "mi-bb199", TS2: "mi-bb200", TS3: "mi-bb201"}
-# r001i1p01935 - {TS1: "mi-bb202", TS2: "mi-bb203", TS3: "mi-bb204"}
-# r001i1p02868 - {TS1: "mi-bb205", TS2: "mi-bb206", TS3: "mi-bb208"}
-# r001i1p02123 - {TS1: "mi-bb209", TS2: "mi-bb210", TS3: "mi-bb211"}
-# r001i1p02242 - {TS1: "mi-bb214", TS2: "mi-bb215", TS3: "mi-bb216"}
-# r001i1p02305 - {TS1: "mi-bb217", TS2: "mi-bb218", TS3: "mi-bb219"}
-# r001i1p02335 - {TS1: "mi-bb220", TS2: "mi-bb221", TS3: "mi-bb222"}
-# r001i1p02491 - {TS1: "mi-bb223", TS2: "mi-bb224", TS3: "mi-bb225"}
 
 # Suite names for GCM time periods
 # The four suite names covering the historical and RCP8.5 experiments are:
@@ -216,9 +220,7 @@ RIP_CODES = {"land-gcm": {1: "r001i1p00000"}}
 # r001i1p00834  r001i1p01843  r001i1p02242  r001i1p02753  r001i1p02914
 
 
-def moose_path(
-    variable, year, ensemble_member=1, frequency="day", collection="land-cpm"
-):
+def moose_path(variable, year, ensemble_member, frequency="day", collection="land-cpm"):
     if collection == "land-cpm":
         suite_id = SUITE_IDS[collection][ensemble_member][year]
         stream_code = VARIABLE_CODES[variable]["stream"][collection][frequency]
@@ -257,6 +259,7 @@ def moose_extract_dirpath(
     resolution: str,
     collection: str,
     domain: str,
+    ensemble_member: str,
     cache: bool = False,
 ):
     if cache:
@@ -270,7 +273,7 @@ def moose_extract_dirpath(
         / domain
         / resolution
         / "rcp85"
-        / "01"
+        / ensemble_member
         / variable
         / frequency
         / str(year)
@@ -288,6 +291,7 @@ def ppdata_dirpath(
     domain: str,
     resolution: str,
     collection: str,
+    ensemble_member: str,
     cache: bool = False,
 ):
     return (
@@ -298,6 +302,7 @@ def ppdata_dirpath(
             domain=domain,
             resolution=resolution,
             collection=collection,
+            ensemble_member=ensemble_member,
             cache=cache,
         )
         / "data"
@@ -311,8 +316,9 @@ def nc_filename(
     domain: str,
     resolution: str,
     collection: str,
+    ensemble_member: str,
 ):
-    return f"{variable}_rcp85_{collection}_{domain}_{resolution}_01_{frequency}_{year-1}1201-{year}1130.nc"
+    return f"{variable}_rcp85_{collection}_{domain}_{resolution}_{ensemble_member}_{frequency}_{year-1}1201-{year}1130.nc"
 
 
 def raw_nc_filepath(
@@ -321,14 +327,15 @@ def raw_nc_filepath(
     frequency: str,
     domain: str,
     resolution: str,
-    collection: str = "land-cpm",
+    ensemble_member: str,
+    collection: str,
 ):
     return (
         Path(os.getenv("MOOSE_DATA"))
         / domain
         / resolution
         / "rcp85"
-        / "01"
+        / ensemble_member
         / variable
         / frequency
         / nc_filename(
@@ -338,6 +345,7 @@ def raw_nc_filepath(
             domain=domain,
             resolution=resolution,
             collection=collection,
+            ensemble_member=ensemble_member,
         )
     )
 
@@ -349,6 +357,7 @@ def processed_nc_filepath(
     domain: str,
     resolution: str,
     collection: str,
+    ensemble_member: str,
     base_dir=os.getenv("DERIVED_DATA"),
 ):
     return (
@@ -357,7 +366,7 @@ def processed_nc_filepath(
         / domain
         / resolution
         / "rcp85"
-        / "01"
+        / ensemble_member
         / variable
         / frequency
         / nc_filename(
@@ -367,6 +376,7 @@ def processed_nc_filepath(
             domain=domain,
             resolution=resolution,
             collection=collection,
+            ensemble_member=ensemble_member,
         )
     )
 

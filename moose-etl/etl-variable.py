@@ -22,11 +22,12 @@ app = typer.Typer()
 def main(
     years: List[int],
     variable_config: Path = typer.Option(...),
-    domain: DomainOption = DomainOption.london,
-    frequency: str = "day",
-    scenario="rcp85",
+    ensemble_member: str = typer.Option(...),
+    domain: DomainOption = typer.Option(...),
+    frequency: str = typer.Option(...),
     scale_factor: str = typer.Option(...),
-    target_resolution: str = "2.2km",
+    target_resolution: str = typer.Option(...),
+    scenario: str = "rcp85",
     target_size: int = 64,
 ):
 
@@ -42,6 +43,7 @@ def main(
                 year=year,
                 frequency=src_variable["frequency"],
                 collection=src_collection,
+                ensemble_member=ensemble_member,
                 cache=False,
             )
 
@@ -50,6 +52,7 @@ def main(
                 year=year,
                 frequency=src_variable["frequency"],
                 collection=src_collection,
+                ensemble_member=ensemble_member,
                 cache=False,
             )
 
@@ -61,6 +64,7 @@ def main(
             target_resolution=target_resolution,
             target_size=target_size,
             scale_factor=scale_factor,
+            ensemble_member=ensemble_member,
         )
 
         # run transfer
@@ -92,6 +96,7 @@ def main(
                     collection=src_collection,
                     resolution=resolution,
                     target_size=target_size,
+                    ensemble_member=ensemble_member,
                 )
             except Exception:
                 if attempts >= MAX_ATTEMPTS:
@@ -115,6 +120,7 @@ def main(
                 year=year,
                 frequency=src_variable["frequency"],
                 collection=src_collection,
+                ensemble_member=ensemble_member,
             )
 
 

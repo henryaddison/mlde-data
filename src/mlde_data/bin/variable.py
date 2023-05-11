@@ -69,6 +69,7 @@ def get_sources(
     target_size,
     variable_resolution,
     target_resolution,
+    ensemble_member,
 ):
     sources = {}
 
@@ -93,6 +94,7 @@ def get_sources(
                 resolution=variable_resolution,
                 collection=collection.value,
                 domain=source_domain,
+                ensemble_member=ensemble_member,
             )
             logger.info(f"Opening {source_nc_filepath}")
             ds = xr.open_dataset(source_nc_filepath)
@@ -120,7 +122,7 @@ def get_sources(
                 frequency=src_variable["frequency"],
                 domain=f"{domain.value}-{target_size}",
                 resolution=f"{variable_resolution}-{target_resolution}",
-                ensemble_member="01",
+                ensemble_member=ensemble_member,
                 variable=src_variable["name"],
             )
             source_nc_filepath = source_metadata.filepath(year)
@@ -157,6 +159,7 @@ def create(
     scale_factor: str = typer.Option(...),
     target_resolution: str = "2.2km",
     target_size: int = 64,
+    ensemble_member: str = typer.Option(...),
 ):
     """
     Create a new variable from moose data
@@ -188,6 +191,7 @@ def create(
         target_size,
         variable_resolution,
         target_resolution,
+        ensemble_member=ensemble_member,
     )
 
     for job_spec in config["spec"]:
@@ -275,7 +279,7 @@ def create(
         frequency=frequency,
         domain=f"{domain.value}-{target_size}",
         resolution=f"{variable_resolution}-{target_resolution}",
-        ensemble_member="01",
+        ensemble_member=ensemble_member,
         variable=config["variable"],
     )
 
@@ -302,6 +306,7 @@ def run_cmd(cmd):
 def xfer(
     variable: str = typer.Option(...),
     year: int = typer.Option(...),
+    ensemble_member: str = typer.Option(...),
     frequency: str = "day",
     domain: DomainOption = DomainOption.london,
     collection: CollectionOption = typer.Option(...),
@@ -316,6 +321,7 @@ def xfer(
         domain=f"{domain.value}-{target_size}",
         resolution=resolution,
         collection=collection.value,
+        ensemble_member=ensemble_member,
     )
     bp_filepath = processed_nc_filepath(
         variable=variable,
@@ -325,6 +331,7 @@ def xfer(
         resolution=resolution,
         collection=collection.value,
         base_dir="/user/work/vf20964",
+        ensemble_member=ensemble_member,
     )
 
     file_xfer_cmd = [
@@ -338,7 +345,7 @@ def xfer(
 
 
 @app.command()
-def validate():
+def validate(variable: str = typer.Argument("all")):
     domain_res_vars = {
         "birmingham-64": {
             "2.2km-coarsened-gcm-2.2km-coarsened-4x": [
@@ -392,83 +399,98 @@ def validate():
             "2.2km-coarsened-4x-2.2km-coarsened-4x": [
                 "pr",
             ],
-            "2.2km-coarsened-gcm-2.2km": ["pr", "vorticity850"],
-            "60km-2.2km": ["pr", "vorticity850"],
-        },
-        "london-64": {
-            "2.2km-2.2km": ["pr", "vorticity850"],
-            "60km-2.2km": ["pr", "vorticity850"],
-            "60km-2.2km-coarsened-4x": ["pr", "vorticity850"],
-            "2.2km-coarsened-8x-2.2km": ["vorticity850"],
-            "2.2km-coarsened-gcm-2.2km": ["vorticity850"],
-        },
-        "birmingham-256": {
-            "2.2km-2.2km": ["pr"],
-            "2.2km-coarsened-gcm-2.2km": ["vorticity850"],
-            "60km-2.2km": ["pr", "vorticity850"],
         },
     }
 
     years = list(range(1981, 2001)) + list(range(2021, 2041)) + list(range(2061, 2081))
 
+    cpm_ensemble_members = [
+        "01",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+        "13",
+        "15",
+    ]
+    ensemble_members = defaultdict(
+        lambda: ["01"],
+        {
+            "2.2km-coarsened-gcm-2.2km-coarsened-4x": cpm_ensemble_members,
+            "2.2km-coarsened-4x-2.2km-coarsened-4x": cpm_ensemble_members,
+        },
+    )
+
     for domain, res_variables in domain_res_vars.items():
         for res, variables in res_variables.items():
-            for var in variables:
-                sys.stdout.write("\033[K")
-                print(f"Checking {var} over {domain} at {res}", end="\r")
-
-                bad_years = defaultdict(set)
-                for year in years:
-                    var_meta = VariableMetadata(
-                        os.getenv("MOOSE_DERIVED_DATA"),
-                        variable=var,
-                        frequency="day",
-                        domain=domain,
-                        resolution=res,
+            for ensemble_member in ensemble_members[res]:
+                for var in variables:
+                    if (variable != "all") and (variable != var):
+                        continue
+                    sys.stdout.write("\033[K")
+                    print(
+                        f"Checking {var} of {ensemble_member} over {domain} at {res}",
+                        end="\r",
                     )
 
-                    try:
-                        ds = xr.load_dataset(var_meta.filepath(year))
-                    except FileNotFoundError:
-                        bad_years["no file"].add(year)
-                        continue
-
-                    nan_count = ds[var].isnull().sum().values.item()
-
-                    if nan_count > 0:
-                        bad_years["NaNs"].add(year)
-
-                    # check for forecast related metadata (should have been stripped)
-                    for v in ds.variables:
-                        if "coordinates" in ds[v].encoding and (
-                            re.match(
-                                "(realization|forecast_period|forecast_reference_time) ?",
-                                ds[v].encoding["coordinates"],
-                            )
-                            is not None
-                        ):
-                            bad_years["forecast_encoding"].add(year)
-                        if v in [
-                            "forecast_period",
-                            "forecast_reference_time",
-                            "realization",
-                            "forecast_period_bnds",
-                        ]:
-                            bad_years["forecast_vars"].add(year)
-
-                    # check for pressure related metadata (should have been stripped)
-                    for v in ds.variables:
-                        if "coordinates" in ds[v].encoding and (
-                            re.match("(pressure) ?", ds[v].encoding["coordinates"])
-                            is not None
-                        ):
-                            bad_years["pressure_encoding"].add(year)
-                        if v in ["pressure"]:
-                            bad_years["pressure_vars"].add(year)
-
-                # report findings
-                for reason, error_years in bad_years.items():
-                    if len(error_years) > 0:
-                        print(
-                            f"Failed '{reason}': {var} over {domain} at {res} for {len(error_years)}\n{sorted(error_years)}"
+                    bad_years = defaultdict(set)
+                    for year in years:
+                        var_meta = VariableMetadata(
+                            os.getenv("MOOSE_DERIVED_DATA"),
+                            variable=var,
+                            frequency="day",
+                            domain=domain,
+                            resolution=res,
+                            ensemble_member=ensemble_member,
                         )
+
+                        try:
+                            ds = xr.load_dataset(var_meta.filepath(year))
+                        except FileNotFoundError:
+                            bad_years["no file"].add(year)
+                            continue
+
+                        nan_count = ds[var].isnull().sum().values.item()
+
+                        if nan_count > 0:
+                            bad_years["NaNs"].add(year)
+
+                        # check for forecast related metadata (should have been stripped)
+                        for v in ds.variables:
+                            if "coordinates" in ds[v].encoding and (
+                                re.match(
+                                    "(realization|forecast_period|forecast_reference_time) ?",
+                                    ds[v].encoding["coordinates"],
+                                )
+                                is not None
+                            ):
+                                bad_years["forecast_encoding"].add(year)
+                            if v in [
+                                "forecast_period",
+                                "forecast_reference_time",
+                                "realization",
+                                "forecast_period_bnds",
+                            ]:
+                                bad_years["forecast_vars"].add(year)
+
+                        # check for pressure related metadata (should have been stripped)
+                        for v in ds.variables:
+                            if "coordinates" in ds[v].encoding and (
+                                re.match("(pressure) ?", ds[v].encoding["coordinates"])
+                                is not None
+                            ):
+                                bad_years["pressure_encoding"].add(year)
+                            if v in ["pressure"]:
+                                bad_years["pressure_vars"].add(year)
+
+                    # report findings
+                    for reason, error_years in bad_years.items():
+                        if len(error_years) > 0:
+                            print(
+                                f"Failed '{reason}': {var} over {domain} of {ensemble_member} at {res} for {len(error_years)}\n{sorted(error_years)}"
+                            )

@@ -6,7 +6,7 @@ conda activate downscaling-data
 
 set -euo pipefail
 
-while getopts ":c:v:s:t:d:p:f:" opt; do
+while getopts ":c:v:s:t:d:p:f:e:" opt; do
   case ${opt} in
     c)
       collection=${OPTARG}
@@ -29,6 +29,9 @@ while getopts ":c:v:s:t:d:p:f:" opt; do
     f )
       frequency=${OPTARG}
       ;;
+    e )
+      ensemble_member=${OPTARG}
+      ;;
    \? )
      echo "Invalid Option: -${OPTARG}" 1>&2
      exit 1
@@ -43,4 +46,4 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 ETL_VARIABLE_SCRIPT_PATH=${HOME}/code/mlde-data/moose-etl/etl-variable.py
 
-python ${ETL_VARIABLE_SCRIPT_PATH} --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} ${years} --frequency ${frequency}
+python ${ETL_VARIABLE_SCRIPT_PATH} --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} ${years} --frequency ${frequency} --ensemble-member ${ensemble_member}

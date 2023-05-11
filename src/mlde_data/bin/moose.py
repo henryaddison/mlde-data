@@ -43,6 +43,7 @@ def extract(
     year: int = typer.Option(...),
     frequency: str = "day",
     collection: CollectionOption = typer.Option(...),
+    ensemble_member: str = typer.Option(...),
     cache: bool = True,
 ):
     """
@@ -64,6 +65,7 @@ def extract(
         collection=collection.value,
         resolution=resolution,
         domain=domain,
+        ensemble_member=ensemble_member,
     )
     cache_check_filepath = cache_path / ".cache-ready"
 
@@ -83,6 +85,7 @@ def extract(
         resolution=resolution,
         collection=collection.value,
         domain=domain,
+        ensemble_member=ensemble_member,
         cache=False,
     )
     query_filepath = output_dirpath / "searchfile"
@@ -93,6 +96,7 @@ def extract(
         resolution=resolution,
         collection=collection.value,
         domain=domain,
+        ensemble_member=ensemble_member,
         cache=False,
     )
 
@@ -105,7 +109,11 @@ def extract(
     query_filepath.write_text(query)
 
     moose_uri = moose_path(
-        variable, year, frequency=frequency, collection=collection.value
+        variable,
+        year,
+        frequency=frequency,
+        collection=collection.value,
+        ensemble_member=ensemble_member,
     )
 
     query_cmd = [
@@ -137,6 +145,7 @@ def extract(
             collection=collection.value,
             resolution=resolution,
             domain=domain,
+            ensemble_member=ensemble_member,
         )
         logger.info(f"Copying {output_dirpath} to {cache_path}...")
         os.makedirs(cache_path, exist_ok=True)
@@ -151,6 +160,7 @@ def convert(
     year: int = typer.Option(...),
     frequency: str = "day",
     collection: CollectionOption = typer.Option(...),
+    ensemble_member: str = typer.Option(...),
     cache: bool = True,
 ):
     """
@@ -172,6 +182,7 @@ def convert(
         collection=collection.value,
         resolution=resolution,
         domain=domain,
+        ensemble_member=ensemble_member,
     )
     cache_check_filepath = cache_path / ".cache-ready"
 
@@ -191,6 +202,7 @@ def convert(
             collection=collection.value,
             domain=domain,
             cache=cache,
+            ensemble_member=ensemble_member,
         )
         / "*.pp"
     )
@@ -201,6 +213,7 @@ def convert(
         resolution=resolution,
         collection=collection.value,
         domain=domain,
+        ensemble_member=ensemble_member,
     )
 
     if variable == "pr" and collection == CollectionOption.gcm:
@@ -238,6 +251,7 @@ def clean(
     year: int = typer.Option(...),
     frequency: str = "day",
     collection: CollectionOption = typer.Option(...),
+    ensemble_member: str = typer.Option(...),
 ):
     """
     Remove any unneccessary files once processing is done
@@ -258,6 +272,7 @@ def clean(
         collection=collection.value,
         resolution=resolution,
         domain=domain,
+        ensemble_member=ensemble_member,
         cache=False,
     )
     typer.echo(f"Removing {pp_path}...")
@@ -269,6 +284,7 @@ def clean(
         collection=collection.value,
         resolution=resolution,
         domain=domain,
+        ensemble_member=ensemble_member,
     )
     typer.echo(f"Removing {raw_nc_path}...")
     if os.path.exists(raw_nc_path):
