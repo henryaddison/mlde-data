@@ -369,7 +369,7 @@ def validate(variable: str = typer.Argument("all")):
                 "temp700",
                 "temp850",
                 "temp925",
-                "pr",
+                # "pr",
                 "linpr",
             ],
             "60km-2.2km-coarsened-4x": [
@@ -393,7 +393,7 @@ def validate(variable: str = typer.Argument("all")):
                 "temp700",
                 "temp850",
                 "temp925",
-                "pr",
+                # "pr",
                 "linpr",
             ],
             "2.2km-coarsened-4x-2.2km-coarsened-4x": [
@@ -410,13 +410,13 @@ def validate(variable: str = typer.Argument("all")):
         "05",
         "06",
         "07",
-        # "08",
-        # "09",
-        # "10",
-        # "11",
-        # "12",
-        # "13",
-        # "15",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+        "13",
+        "15",
     ]
     ensemble_members = defaultdict(
         lambda: ["01"],
