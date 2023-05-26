@@ -10,4 +10,4 @@ set -euo pipefail
 
 ssh -a -J seis ${bp_host} mkdir -p $(dirname ${bp_filepath})
 set -x
-scp -oProxyJump=seis ${xfer_host}:${jasmin_filepath} ${bp_host}:${bp_filepath}
+scp -oProxyJump=seis ${jasmin_filepath} ${bp_host}:${bp_filepath}
