@@ -431,7 +431,7 @@ def validate(
     for domain, res_variables in domain_res_vars.items():
         for res, variables in res_variables.items():
             for em in ensemble_members[res]:
-                if (ensemble_member != "all") and (ensemble_member != ensemble_member):
+                if (ensemble_member != "all") and (ensemble_member != em):
                     continue
                 for var in variables:
                     if (variable != "all") and (variable != var):
