@@ -345,7 +345,9 @@ def xfer(
 
 
 @app.command()
-def validate(variable: str = typer.Argument("all")):
+def validate(
+    variable: str = typer.Argument("all"), ensemble_member: str = typer.Argument("all")
+):
     domain_res_vars = {
         "birmingham-64": {
             "2.2km-coarsened-gcm-2.2km-coarsened-4x": [
@@ -428,13 +430,15 @@ def validate(variable: str = typer.Argument("all")):
 
     for domain, res_variables in domain_res_vars.items():
         for res, variables in res_variables.items():
-            for ensemble_member in ensemble_members[res]:
+            for em in ensemble_members[res]:
+                if (ensemble_member != "all") and (ensemble_member != ensemble_member):
+                    continue
                 for var in variables:
                     if (variable != "all") and (variable != var):
                         continue
                     sys.stdout.write("\033[K")
                     print(
-                        f"Checking {var} of {ensemble_member} over {domain} at {res}",
+                        f"Checking {var} of {em} over {domain} at {res}",
                         end="\r",
                     )
 
@@ -446,7 +450,7 @@ def validate(variable: str = typer.Argument("all")):
                             frequency="day",
                             domain=domain,
                             resolution=res,
-                            ensemble_member=ensemble_member,
+                            ensemble_member=em,
                         )
 
                         try:
@@ -492,5 +496,5 @@ def validate(variable: str = typer.Argument("all")):
                     for reason, error_years in bad_years.items():
                         if len(error_years) > 0:
                             print(
-                                f"Failed '{reason}': {var} over {domain} of {ensemble_member} at {res} for {len(error_years)}\n{sorted(error_years)}"
+                                f"Failed '{reason}': {var} over {domain} of {em} at {res} for {len(error_years)}\n{sorted(error_years)}"
                             )
