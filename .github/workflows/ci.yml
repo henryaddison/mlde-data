@@ -9,11 +9,17 @@ jobs:
       max-parallel: 5
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v2
+    - name: Clone repo
+      uses: actions/checkout@v2
+    - name: Clone mlde_utils repo
+      uses: actions/checkout@v2
       with:
-        python-version: 3.9
+        repository: henryaddison/mlde_utils
+        path: src/mlde_utils
+    # - name: Set up Python 3.9
+    #   uses: actions/setup-python@v2
+    #   with:
+    #     python-version: 3.9
     - name: setup-micromamba
       uses: mamba-org/setup-micromamba@v1.4.1
       with:
@@ -23,6 +29,7 @@ jobs:
         post-cleanup: 'all'
     - name: Install package
       run: |
+        pip install -e src/mlde_utils
         pip install -e .
     - name: Test with pytest
       run: |
