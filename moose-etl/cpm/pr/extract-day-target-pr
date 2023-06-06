@@ -2,16 +2,14 @@
 
 set -euo pipefail
 
-theta=$1
-
-ensemble_member=$2
+ensemble_member=$1
 
 domain="birmingham"
-scale_factor="1"
+scale_factor="4"
 target_resolution="2.2km-coarsened-4x"
 target_size=64
 frequency="day"
-variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/${frequency}/land-gcm/spechum${theta}.yml"
+variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/${frequency}/land-cpm/pr.yml"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -36,7 +34,7 @@ echo $job_id
 
 # TS2
 # no job initially to wait on
-job_id=0
+# job_id=0
 
 years=$(seq 2021 1 2030)
 job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
@@ -48,7 +46,7 @@ echo $job_id
 
 # TS3
 # no job initially to wait on
-job_id=0
+# job_id=0
 
 years=$(seq 2061 1 2070)
 job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})

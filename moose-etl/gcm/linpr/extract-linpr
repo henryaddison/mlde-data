@@ -2,16 +2,14 @@
 
 set -euo pipefail
 
-theta=$1
-
-ensemble_member=$2
+ensemble_member=$1
 
 domain="birmingham"
-scale_factor="1"
+scale_factor=1
 target_resolution="2.2km-coarsened-4x"
 target_size=64
 frequency="day"
-variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/${frequency}/land-gcm/spechum${theta}.yml"
+variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/${frequency}/land-gcm/linpr.yml"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 

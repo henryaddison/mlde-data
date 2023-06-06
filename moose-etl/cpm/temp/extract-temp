@@ -11,7 +11,7 @@ scale_factor="gcm"
 target_resolution="2.2km-coarsened-4x"
 target_size=64
 frequency="day"
-variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/day/land-cpm/temp${theta}.yml"
+variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/${frequency}/land-cpm/temp${theta}.yml"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -19,7 +19,7 @@ QUEUE_DEP_PATH=${SCRIPT_DIR}/../../queue-dep-func
 BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../../batch-wrapper
 
 echo
-echo $ensemble_member
+echo ${ensemble_member}
 echo
 
 # TS1

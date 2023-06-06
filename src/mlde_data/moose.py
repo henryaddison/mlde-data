@@ -193,16 +193,13 @@ SUITE_IDS = {
         # r001i1p02491
         "15": RangeDict({TS1: "mi-bb223", TS2: "mi-bb224", TS3: "mi-bb225"}),
     },
-    "land-gcm": {
-        # r001i1p00000
-        "01": RangeDict(
-            {
-                TSRecent: "u-ap977",
-                TSNearF: "u-ar095",
-                TSFarF: "u-au084",
-            }
-        ),
-    },
+    "land-gcm": RangeDict(
+        {
+            TSRecent: "u-ap977",
+            TSNearF: "u-ar095",
+            TSFarF: "u-au084",
+        }
+    ),
 }
 
 
@@ -211,7 +208,22 @@ SUITE_IDS = {
 # Historical: u-an398 (Dec 1896 - Nov 1970), u-ap977 (Dec 1970 - Nov 2005)
 # RCP8.5    : u-ar095 (Dec 2005 – Nov 2076), u-au084 (Dec 2076 – Nov 2099)
 
-RIP_CODES = {"land-gcm": {1: "r001i1p00000"}}
+RIP_CODES = {
+    "land-gcm": {
+        "01": "r001i1p00000",
+        "04": "r001i1p01113",
+        "05": "r001i1p01554",
+        "06": "r001i1p01649",
+        "07": "r001i1p01843",
+        "08": "r001i1p01935",
+        "09": "r001i1p02868",
+        "10": "r001i1p02123",
+        "11": "r001i1p02242",
+        "12": "r001i1p02305",
+        "13": "r001i1p02335",
+        "15": "r001i1p02491",
+    }
+}
 
 # other GCM rip codes
 # r001i1p00000 (standard physics model) r001i1p01113  r001i1p01935  r001i1p02305 r001i1p02832
@@ -226,7 +238,7 @@ def moose_path(variable, year, ensemble_member, frequency="day", collection="lan
         stream_code = VARIABLE_CODES[variable]["stream"][collection][frequency]
         return f"moose:crum/{suite_id}/{stream_code}.pp"
     elif collection == "land-gcm":
-        suite_id = SUITE_IDS[collection][ensemble_member][year]
+        suite_id = SUITE_IDS[collection][year]
         stream_code = VARIABLE_CODES[variable]["stream"][collection][frequency]
         rip_code = RIP_CODES[collection][ensemble_member]
         return f"moose:ens/{suite_id}/{rip_code}/{stream_code}.pp"
