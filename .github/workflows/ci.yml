@@ -14,13 +14,13 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
-    - name: Add conda to system path
-      run: |
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        echo $CONDA/bin >> $GITHUB_PATH
-    - name: Install dependencies
-      run: |
-        conda env update --file environment.lock.yml --name base
+    - name: setup-micromamba
+      uses: mamba-org/setup-micromamba@v1.4.1
+      with:
+        environment-file: environment.lock.yml
+        init-shell: bash
+        cache-environment: true
+        post-cleanup: 'all'
     - name: Install package
       run: |
         pip install -e .
