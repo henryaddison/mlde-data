@@ -5,7 +5,7 @@ set -euo pipefail
 ensemble_member=$1
 
 domain="birmingham"
-scale_factor="gcm"
+scale_factor="4"
 target_resolution="2.2km-coarsened-4x"
 target_size=64
 frequency="day"
