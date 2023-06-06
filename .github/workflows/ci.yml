@@ -16,6 +16,7 @@ jobs:
       with:
         repository: henryaddison/mlde_utils
         path: src/mlde_utils
+        ref: main
     # - name: Set up Python 3.9
     #   uses: actions/setup-python@v2
     #   with:
