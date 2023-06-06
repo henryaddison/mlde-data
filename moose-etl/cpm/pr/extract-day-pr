@@ -16,6 +16,10 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 QUEUE_DEP_PATH=${SCRIPT_DIR}/../../queue-dep-func
 BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../../batch-wrapper
 
+echo
+echo ${ensemble_member}
+echo
+
 # TS1
 # no job initially to wait on
 job_id=0
