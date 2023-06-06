@@ -406,7 +406,7 @@ def validate(
 
     years = list(range(1981, 2001)) + list(range(2021, 2041)) + list(range(2061, 2081))
 
-    cpm_ensemble_members = [
+    ensemble_members = [
         "01",
         "04",
         "05",
@@ -420,17 +420,10 @@ def validate(
         "13",
         "15",
     ]
-    ensemble_members = defaultdict(
-        lambda: ["01"],
-        {
-            "2.2km-coarsened-gcm-2.2km-coarsened-4x": cpm_ensemble_members,
-            "2.2km-coarsened-4x-2.2km-coarsened-4x": cpm_ensemble_members,
-        },
-    )
 
     for domain, res_variables in domain_res_vars.items():
         for res, variables in res_variables.items():
-            for em in ensemble_members[res]:
+            for em in ensemble_members:
                 if (ensemble_member != "all") and (ensemble_member != em):
                     continue
                 for var in variables:
