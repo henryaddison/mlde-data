@@ -113,6 +113,8 @@ def get_sources(
 
             # remove forecast related coords that we don't need
             ds = remove_forecast(ds)
+            # remove pressure related dims and encoding data that we don't need
+            ds = remove_pressure(ds)
 
             sources[src_variable["name"]] = ds
     elif config["sources"]["type"] == "bp":
