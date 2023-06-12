@@ -46,53 +46,65 @@ def create(
     with open(config, "r") as f:
         config = yaml.safe_load(f)
 
-    predictand_var_params = {
-        k: config[k] for k in ["domain", "ensemble_member", "scenario", "frequency"]
-    }
-    predictand_var_params.update(
-        {
-            "variable": config["predictand"]["variable"],
-            "resolution": config["predictand"]["resolution"],
+    combined_datasets = []
+
+    for em in config["ensemble_members"]:
+
+        predictand_var_params = {
+            k: config[k] for k in ["domain", "scenario", "frequency"]
         }
-    )
-    predictand_meta = VariableMetadata(input_base_dir, **predictand_var_params)
+        predictand_var_params.update(
+            {
+                "variable": config["predictand"]["variable"],
+                "resolution": config["predictand"]["resolution"],
+            }
+        )
+        predictand_meta = VariableMetadata(
+            input_base_dir, ensemble_member=em, **predictand_var_params
+        )
 
-    predictors_meta = []
-    for predictor_var_config in config["predictors"]:
-        var_params = {
-            k: config[k]
-            for k in [
-                "domain",
-                "ensemble_member",
-                "scenario",
-                "frequency",
-                "resolution",
-            ]
-        }
-        var_params.update({k: predictor_var_config[k] for k in ["variable"]})
-        predictors_meta.append(VariableMetadata(input_base_dir, **var_params))
+        predictors_meta = []
+        for predictor_var_config in config["predictors"]:
+            var_params = {
+                k: config[k]
+                for k in [
+                    "domain",
+                    "scenario",
+                    "frequency",
+                    "resolution",
+                ]
+            }
+            var_params.update({k: predictor_var_config[k] for k in ["variable"]})
+            predictors_meta.append(
+                VariableMetadata(input_base_dir, ensemble_member=em, **var_params)
+            )
 
-    example_predictor_filepath = predictors_meta[0].existing_filepaths()[0]
-    time_encoding = xr.open_dataset(example_predictor_filepath).time_bnds.encoding
+        example_predictor_filepath = predictors_meta[0].existing_filepaths()[0]
+        time_encoding = xr.open_dataset(example_predictor_filepath).time_bnds.encoding
 
-    predictor_datasets = [
-        xr.open_mfdataset(dsmeta.existing_filepaths()) for dsmeta in predictors_meta
-    ]
-    predictand_dataset = xr.open_mfdataset(predictand_meta.existing_filepaths()).rename(
-        {predictand_meta.variable: f"target_{predictand_meta.variable}"}
-    )
+        predictor_datasets = [
+            xr.open_mfdataset(dsmeta.existing_filepaths()) for dsmeta in predictors_meta
+        ]
+        predictand_dataset = xr.open_mfdataset(
+            predictand_meta.existing_filepaths()
+        ).rename({predictand_meta.variable: f"target_{predictand_meta.variable}"})
 
-    combined_dataset = xr.combine_by_coords(
-        [*predictor_datasets, predictand_dataset],
-        compat="override",
-        combine_attrs="drop_conflicts",
-        coords="all",
-        join="inner",
-        data_vars="all",
-    )
-    combined_dataset = combined_dataset.assign_coords(
-        season=(("time"), (combined_dataset["time.month"].values % 12 // 3))
-    )
+        combined_dataset = xr.combine_by_coords(
+            [*predictor_datasets, predictand_dataset],
+            compat="override",
+            combine_attrs="drop_conflicts",
+            coords="all",
+            join="inner",
+            data_vars="all",
+        )
+        combined_dataset = combined_dataset.assign_coords(
+            season=(("time"), (combined_dataset["time.month"].values % 12 // 3))
+        )
+
+        combined_dataset = combined_dataset.expand_dims(dict(ensemble_member=[em]))
+        combined_datasets.append(combined_dataset)
+
+    combined_dataset = xr.concat(combined_datasets, dim="ensemble_member")
 
     if config["split_scheme"] == "ssi":
         splitter = SeasonStratifiedIntensitySplit(
