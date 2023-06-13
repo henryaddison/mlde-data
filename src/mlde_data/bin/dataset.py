@@ -135,7 +135,7 @@ def create(
 
 
 @app.command()
-def validate():
+def validate(dataset_name: str = typer.Argument("all")):
     datasets = [
         "2.2km-coarsened-8x_london_vorticity850_random",
         "2.2km-coarsened-gcm-2.2km-coarsened-4x_birmingham_vorticity850_random",
@@ -180,7 +180,8 @@ def validate():
     splits = ["train", "val", "test"]
 
     for dataset in datasets:
-
+        if (dataset_name != "all") and (dataset_name != dataset):
+            continue
         bad_splits = defaultdict(set)
         for split in splits:
             sys.stdout.write("\033[K")
