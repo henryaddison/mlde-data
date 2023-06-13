@@ -18,4 +18,4 @@ predictors:
   - variable: vorticity700
   - variable: vorticity850
   - variable: vorticity925
-split_scheme: random
+split_scheme: random-season
