@@ -221,6 +221,12 @@ def validate():
                 if v in ["pressure"]:
                     bad_splits["pressure_vars"].add(split)
 
+            # check for NaNs
+            for v in ds.variables:
+                nan_count = ds[v].isnull().sum().values.item()
+                if nan_count > 0:
+                    bad_splits["NaNs"].add(split)
+
         # report findings
         for reason, error_splits in bad_splits.items():
             if len(error_splits) > 0:
