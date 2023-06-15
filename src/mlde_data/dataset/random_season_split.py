@@ -8,17 +8,18 @@ logger = logging.getLogger(__name__)
 
 
 class RandomSeasonSplit:
-    def __init__(self, time_encoding, val_prop=0.2, test_prop=0.1) -> None:
+    def __init__(self, time_encoding, val_prop=0.2, test_prop=0.1, seed=42) -> None:
         self.val_prop = val_prop
         self.test_prop = test_prop
         self.time_encoding = time_encoding
+        self.seed = seed
 
     def run(self, combined_dataset):
 
         split_chunks = defaultdict(list)
         for years in map(lambda x: list(range(x, x + 20)), [1981, 2021, 2061]):
             for season in ["DJF", "MAM", "JJA", "SON"]:
-                rng = np.random.default_rng(seed=42)
+                rng = np.random.default_rng(seed=self.seed)
                 rng.shuffle(years)
 
                 test_year_count = int(len(years) * self.test_prop)

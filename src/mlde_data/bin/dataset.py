@@ -36,8 +36,6 @@ def create(
     config: Path,
     input_base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"),
     output_base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"),
-    val_prop: float = 0.2,
-    test_prop: float = 0.1,
 ):
     """
     Create a dataset
@@ -45,6 +43,11 @@ def create(
     config_name = config.stem
     with open(config, "r") as f:
         config = yaml.safe_load(f)
+
+    split_scheme = config["split"]["scheme"]
+    val_prop: float = config["split"]["val_prop"]
+    test_prop: float = config["split"]["test_prop"]
+    split_seed: int = config["split"]["seed"]
 
     combined_datasets = []
 
@@ -106,20 +109,29 @@ def create(
 
     combined_dataset = xr.concat(combined_datasets, dim="ensemble_member")
 
-    if config["split_scheme"] == "ssi":
+    if split_scheme == "ssi":
         splitter = SeasonStratifiedIntensitySplit(
-            val_prop=val_prop, test_prop=test_prop, time_encoding=time_encoding
+            val_prop=val_prop,
+            test_prop=test_prop,
+            time_encoding=time_encoding,
+            seed=split_seed,
         )
-    elif config["split_scheme"] == "random":
+    elif split_scheme == "random":
         splitter = RandomSplit(
-            val_prop=val_prop, test_prop=test_prop, time_encoding=time_encoding
+            val_prop=val_prop,
+            test_prop=test_prop,
+            time_encoding=time_encoding,
+            seed=split_seed,
         )
-    elif config["split_scheme"] == "random-season":
+    elif split_scheme == "random-season":
         splitter = RandomSeasonSplit(
-            val_prop=val_prop, test_prop=test_prop, time_encoding=time_encoding
+            val_prop=val_prop,
+            test_prop=test_prop,
+            time_encoding=time_encoding,
+            seed=split_seed,
         )
     else:
-        raise RuntimeError(f"Unknown split scheme {config['split_scheme']}")
+        raise RuntimeError(f"Unknown split scheme {split_scheme}")
 
     split_sets = splitter.run(combined_dataset)
 
