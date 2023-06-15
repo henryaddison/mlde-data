@@ -149,8 +149,6 @@ def create(
 @app.command()
 def validate(dataset_name: str = typer.Argument("all")):
     datasets = [
-        "2.2km-coarsened-8x_london_vorticity850_random",
-        "2.2km-coarsened-gcm-2.2km-coarsened-4x_birmingham_vorticity850_random",
         "bham_gcmx-4x_psl-temp-vort_random-season",
         "bham_gcmx-4x_psl-temp-vort_random-season-historic",
         "bham_gcmx-4x_psl-temp-vort_random-season-present",
@@ -158,19 +156,8 @@ def validate(dataset_name: str = typer.Argument("all")):
         "bham_gcmx-4x_psl-temp4th-vort4th_random-season"
         "bham_gcmx-4x_12em_psl-temp4th-vort4th_eqvt_random-season",
         "bham_gcmx-4x_psl-vort_random-season",
-        "bham_gcmx-4x_psl-vort4th_random-season"
-        "bham_gcmx-4x_psl-spechum-temp-vort_random",
-        "bham_gcmx-4x_psl-temp-vort_random",
-        "bham_gcmx-4x_psl-tempgrad-vort_random",
-        "bham_gcmx-4x_spechum-temp-vorticity850_random",
-        "bham_gcmx-4x_spechum-temp-vort_random",
-        "bham_gcmx-4x_temp-vort_random",
-        "bham_gcmx-4x_tempgrad-vort_random",
-        "bham_gcmx-4x_vort850_random",
-        "bham_gcmx-4x_pr_random",
+        "bham_gcmx-4x_psl-vort4th_random-season",
         "bham_gcmx-4x_linpr_random-season",
-        "bham_gcmx-4x_linpr_random",
-        "60km-2.2km-coarsened-4x_birmingham_vorticity850_random",
         "bham_60km-4x_psl-temp-vort_random-season",
         "bham_60km-4x_psl-temp-vort_random-season-historic",
         "bham_60km-4x_psl-temp-vort_random-season-present",
@@ -178,19 +165,8 @@ def validate(dataset_name: str = typer.Argument("all")):
         "bham_60km-4x_psl-temp4th-vort4th_random-season",
         # "bham_60km-4x_12em_psl-temp4th-vort4th_eqvt_random-season",
         "bham_60km-4x_psl-vort_random-season",
-        "bham_gcmx-4x_psl-vort4th_random-season"
-        "bham_60km-4x_psl-spechum-temp-vort_random",
-        "bham_60km-4x_psl-temp-vort_random",
-        "bham_60km-4x_psl-tempgrad-vort_random",
-        "bham_60km-4x_spechum-temp-vorticity850_random",
-        "bham_60km-4x_spechum-temp-vort_random",
-        "bham_60km-4x_temp-vort_random",
-        "bham_60km-4x_tempgrad-vort_random",
-        "bham_60km-4x_vort850_random",
-        "bham_60km-4x_pr_random",
+        "bham_gcmx-4x_psl-vort4th_random-season",
         "bham_60km-4x_linpr_random-season",
-        "bham_60km-4x_linpr_random",
-        "60km-2.2km_london_vorticity850_random",
     ]
 
     splits = ["train", "val", "test"]
