@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+# make sure all datasets have ensemble member and add default to any that don't
+
+import glob
+import logging
+import os
+import xarray as xr
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
+
+DEFAULT_ENSEMBLE_MEMBER = "01"
+
+
+def fix_file(nc_filepath):
+    logger.info(f"Working on {nc_filepath}")
+    ds = xr.open_dataset(nc_filepath)
+
+    if "ensemble_member" in ds.dims:
+        logger.info(f"Already has ensemble member: {nc_filepath}")
+        ds.close()
+        return
+
+    logger.info(f"Fixing {nc_filepath}")
+    ds = ds.load()
+    ds.close()
+    ds.expand_dims(dict(ensemble_member=[DEFAULT_ENSEMBLE_MEMBER]))
+    # import pdb; pdb.set_trace()
+
+    ds.to_netcdf(nc_filepath)
+
+
+def main():
+    datasets_glob = os.path.join(os.getenv("DERIVED_DATA"), "moose", "nc-datasets", "*")
+    datasets_dirs = glob.glob(datasets_glob)
+    for dataset_dir in datasets_dirs:
+        splits_glob = os.path.join(dataset_dir, "*.nc")
+        splits_filepaths = glob.glob(splits_glob)
+        for split_filepath in splits_filepaths:
+            fix_file(split_filepath)
+
+
+if __name__ == "__main__":
+    main()
