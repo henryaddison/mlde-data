@@ -459,6 +459,15 @@ def validate(
                         if nan_count > 0:
                             bad_years["NaNs"].add(year)
 
+                        # check dims
+                        if list(ds[var].dims.keys()) != [
+                            "time",
+                            "grid_latitude",
+                            "grid_longitude",
+                            "bnds",
+                        ]:
+                            bad_years["bad dimensions"].add(year)
+
                         # check for forecast related metadata (should have been stripped)
                         for v in ds.variables:
                             if "coordinates" in ds[v].encoding and (

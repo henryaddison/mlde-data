@@ -191,6 +191,16 @@ def validate(dataset_name: str = typer.Argument("all")):
                 bad_splits["no file"].add(split)
                 continue
 
+            # check dims
+            if list(ds.dims.keys()) != [
+                "ensemble_member",
+                "time",
+                "grid_latitude",
+                "grid_longitude",
+                "bnds",
+            ]:
+                bad_splits["bad dimensions"].add(split)
+
             # check for forecast related metadata (should have been stripped)
             for v in ds.variables:
                 if "coordinates" in ds[v].encoding and (
