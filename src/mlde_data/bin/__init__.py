@@ -36,7 +36,7 @@ def sample(files: List[Path], output_dir: Path = None):
 
         if output_dir is not None:
             output_file = Path(output_dir) / Path(file).relative_to(Path(file).anchor)
-            os.makedirs(output_file.dirpath(), exist_ok=True)
+            os.makedirs(output_file.parent, exist_ok=True)
             output_file = str(output_file)
         else:
             output_file = file
