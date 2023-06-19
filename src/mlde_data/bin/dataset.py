@@ -223,7 +223,7 @@ def validate(dataset_name: str = typer.Argument("all")):
                 continue
 
             # check dims
-            if check_dims(ds, dataset, split, ds_config):
+            if not check_dims(ds, dataset, split, ds_config):
                 bad_splits["bad dimensions"].add(split)
 
             # check shape
