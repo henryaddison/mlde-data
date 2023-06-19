@@ -460,7 +460,7 @@ def validate(
                             bad_years["NaNs"].add(year)
 
                         # check dims
-                        if list(ds[var].dims.keys()) != [
+                        if list(ds[var].dims) != [
                             "time",
                             "grid_latitude",
                             "grid_longitude",
