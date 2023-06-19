@@ -146,6 +146,29 @@ def create(
         split_ds.to_netcdf(os.path.join(output_dir, f"{split_name}.nc"))
 
 
+def check_dims(ds, dataset, split, ds_config):
+    return list(ds.dims.keys()) == [
+        "ensemble_member",
+        "time",
+        "grid_latitude",
+        "grid_longitude",
+        "bnds",
+    ]
+
+
+def check_shape(ds, dataset, split, ds_config):
+    ems = ds_config["ensemble_members"]
+    if split == "train":
+        expected_shape = (len(ems), 360 * 14 * 3, 64, 64)
+    elif "_eqvt_" in dataset:
+        expected_shape = (len(ems), 360 * 3 * 3, 64, 64)
+    elif split == "test":
+        expected_shape = (len(ems), 360 * 2 * 3, 64, 64)
+    else:
+        expected_shape = (len(ems), 360 * 4 * 3, 64, 64)
+    return ds["target_pr"].shape == expected_shape
+
+
 @app.command()
 def validate(dataset_name: str = typer.Argument("all")):
     datasets = [
@@ -187,23 +210,25 @@ def validate(dataset_name: str = typer.Argument("all")):
             sys.stdout.write("\033[K")
             print(f"Checking {split} of {dataset}", end="\r")
             dataset_path = os.path.join(
-                os.getenv("MOOSE_DERIVED_DATA"), "nc-datasets", dataset, f"{split}.nc"
+                os.getenv("MOOSE_DERIVED_DATA"), "nc-datasets", dataset
             )
+            ds_config_path = os.path.join(dataset_path, "ds-config.yml")
+            with open(ds_config_path, "r") as f:
+                ds_config = yaml.safe_load(f)
+            split_path = os.path.join(dataset_path, f"{split}.nc")
             try:
-                ds = xr.open_dataset(dataset_path)
+                ds = xr.open_dataset(split_path)
             except FileNotFoundError:
                 bad_splits["no file"].add(split)
                 continue
 
             # check dims
-            if list(ds.dims.keys()) != [
-                "ensemble_member",
-                "time",
-                "grid_latitude",
-                "grid_longitude",
-                "bnds",
-            ]:
+            if check_dims(ds, dataset, split, ds_config):
                 bad_splits["bad dimensions"].add(split)
+
+            # check shape
+            if not check_shape(ds, dataset, split, ds_config):
+                bad_splits["bad shape"].add(split)
 
             # check for forecast related metadata (should have been stripped)
             for v in ds.variables:
