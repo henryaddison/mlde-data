@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from typing import List
 
@@ -35,7 +34,9 @@ def sample(files: List[Path], output_dir: Path = None):
         del ds
 
         if output_dir is not None:
-            output_file = os.path.join(output_dir, file)
+            output_file = str(
+                Path(output_dir) / Path(file).relative_to(Path(file).anchor)
+            )
         else:
             output_file = file
         print(f"Saving {output_file}")
