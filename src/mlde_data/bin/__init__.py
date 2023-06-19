@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import List
 
@@ -34,12 +35,13 @@ def sample(files: List[Path], output_dir: Path = None):
         del ds
 
         if output_dir is not None:
-            output_file = str(
-                Path(output_dir) / Path(file).relative_to(Path(file).anchor)
-            )
+            output_file = Path(output_dir) / Path(file).relative_to(Path(file).anchor)
+            os.makedirs(output_file.dirpath(), exist_ok=True)
+            output_file = str(output_file)
         else:
             output_file = file
         print(f"Saving {output_file}")
+
         sampled_ds.to_netcdf(output_file)
         del sampled_ds
 
