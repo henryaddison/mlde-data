@@ -1,0 +1,13 @@
+#!/bin/bash
+# Sync models (including samples) for backup from BluePebble to GWS on JASMIN
+
+set -euo pipefail
+
+src="/user/work/vf20964/workdirs"
+dest="xfer1.jasmin:/gws/nopw/j04/bris_climdyn/henrya/bp-backups"
+
+set -x
+rsync -avhz --delete --include='/*/' --exclude='archive/' ${src} ${dest}
+
+rsync -avhz --include='/archive/*/' ${src} ${dest}
+set +x

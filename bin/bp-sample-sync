@@ -1,0 +1,21 @@
+#!/bin/bash
+# Sync samples from a model run on bluepebble to local filesystem
+
+set -euo pipefail
+
+run_name=$1
+checkpoint=$2
+dataset=$3
+bp_host=${4:-"bp"}
+
+samples_path="workdirs/${run_name}/samples/${checkpoint}/${dataset}/"
+
+bp_path="/user/work/vf20964/${samples_path}"
+local_path="${DERIVED_DATA}/${samples_path}"
+
+mkdir -p ${local_path}
+
+set -x
+rsync -avhz ${bp_host}:${bp_path} ${local_path}
+
+mlde-data sample ${local_path}/*/*/*/predictions-*.nc
