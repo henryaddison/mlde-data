@@ -54,7 +54,7 @@ def main():
     datasets_glob = os.path.join(os.getenv("DERIVED_DATA"), "moose", "nc-datasets", "*")
     datasets_dirs = glob.glob(datasets_glob)
     for dataset_dir in datasets_dirs:
-        if dataset_dir == "archive":
+        if os.path.basename(dataset_dir) == "archive":
             continue
         splits_glob = os.path.join(dataset_dir, "*.nc")
         splits_filepaths = glob.glob(splits_glob)
