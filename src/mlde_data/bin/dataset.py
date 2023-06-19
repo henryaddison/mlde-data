@@ -161,7 +161,7 @@ def validate(dataset_name: str = typer.Argument("all")):
         "bham_gcmx-4x_psl-vort4th_random-season",
         "bham_gcmx-4x_linpr_random-season",
         "bham_gcmx-4x_linpr_eqvt_random-season",
-        # "bham_gcmx-4x_12em_linpr_eqvt_random-season",
+        "bham_gcmx-4x_12em_linpr_eqvt_random-season",
         "bham_60km-4x_psl-temp-vort_random-season",
         "bham_60km-4x_psl-temp-vort_random-season-historic",
         "bham_60km-4x_psl-temp-vort_random-season-present",
