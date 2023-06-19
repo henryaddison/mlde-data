@@ -464,7 +464,6 @@ def validate(
                             "time",
                             "grid_latitude",
                             "grid_longitude",
-                            "bnds",
                         ]:
                             bad_years["bad dimensions"].add(year)
 
