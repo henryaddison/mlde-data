@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import List
 
@@ -19,7 +20,7 @@ app.add_typer(variable.app, name="variable")
 
 
 @app.command()
-def sample(files: List[Path]):
+def sample(files: List[Path], output_dir: Path = None):
     for file in files:
         ds = xr.open_dataset(file)
         # take something from each season and each decade
@@ -33,8 +34,12 @@ def sample(files: List[Path]):
         ds.close()
         del ds
 
-        print(f"Saving {file}")
-        sampled_ds.to_netcdf(file)
+        if output_dir is not None:
+            output_file = os.path.join(output_dir, file)
+        else:
+            output_file = file
+        print(f"Saving {output_file}")
+        sampled_ds.to_netcdf(output_file)
         del sampled_ds
 
 
