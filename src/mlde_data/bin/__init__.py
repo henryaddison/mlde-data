@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import List
 
@@ -19,22 +20,26 @@ app.add_typer(variable.app, name="variable")
 
 
 @app.command()
-def sample(files: List[Path]):
+def sample(files: List[Path], output_dir: Path = None):
     for file in files:
         ds = xr.open_dataset(file)
-        # take something from each season and each decade
-        time_mask = (ds["time.month"] % 3 == 0) & (ds["time.year"] % 10 == 0)
-        # if empty mask then assume a small set and allow all years
-        if not time_mask.any().item():
-            time_mask = ds["time.month"] % 3 == 0
+        # take something from first day of each month
+        time_mask = ds["time.dayofyear"] % 30 == 0
 
         sampled_ds = ds.sel(time=time_mask).load()
 
         ds.close()
         del ds
 
-        print(f"Saving {file}")
-        sampled_ds.to_netcdf(file)
+        if output_dir is not None:
+            output_file = Path(output_dir) / Path(file).relative_to(Path(file).anchor)
+            os.makedirs(output_file.parent, exist_ok=True)
+            output_file = str(output_file)
+        else:
+            output_file = file
+        print(f"Saving {output_file}")
+
+        sampled_ds.to_netcdf(output_file)
         del sampled_ds
 
 

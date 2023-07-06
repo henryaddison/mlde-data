@@ -354,34 +354,10 @@ def validate(
         "birmingham-64": {
             "2.2km-coarsened-gcm-2.2km-coarsened-4x": [
                 "psl",
-                "tempgrad500250",
-                "tempgrad700500",
-                "tempgrad850700",
-                "tempgrad925850",
-                "vorticity250",
-                "vorticity500",
-                "vorticity700",
-                "vorticity850",
-                "vorticity925",
-                "spechum250",
-                "spechum500",
-                "spechum700",
-                "spechum850",
-                "spechum925",
-                "temp250",
-                "temp500",
-                "temp700",
-                "temp850",
-                "temp925",
-                # "pr",
-                "linpr",
-            ],
-            "60km-2.2km-coarsened-4x": [
-                "psl",
-                "tempgrad500250",
-                "tempgrad700500",
-                "tempgrad850700",
-                "tempgrad925850",
+                # "tempgrad500250",
+                # "tempgrad700500",
+                # "tempgrad850700",
+                # "tempgrad925850",
                 "vorticity250",
                 "vorticity500",
                 "vorticity700",
@@ -401,6 +377,30 @@ def validate(
                 "linpr",
             ],
             "2.2km-coarsened-4x-2.2km-coarsened-4x": [
+                "pr",
+            ],
+            "60km-2.2km-coarsened-4x": [
+                "psl",
+                # "tempgrad500250",
+                # "tempgrad700500",
+                # "tempgrad850700",
+                # "tempgrad925850",
+                "vorticity250",
+                "vorticity500",
+                "vorticity700",
+                "vorticity850",
+                "vorticity925",
+                "spechum250",
+                "spechum500",
+                "spechum700",
+                "spechum850",
+                "spechum925",
+                "temp250",
+                "temp500",
+                "temp700",
+                "temp850",
+                "temp925",
+                "linpr",
                 "pr",
             ],
         },
@@ -458,6 +458,14 @@ def validate(
 
                         if nan_count > 0:
                             bad_years["NaNs"].add(year)
+
+                        # check dims
+                        if list(ds[var].dims) != [
+                            "time",
+                            "grid_latitude",
+                            "grid_longitude",
+                        ]:
+                            bad_years["bad dimensions"].add(year)
 
                         # check for forecast related metadata (should have been stripped)
                         for v in ds.variables:

@@ -2,10 +2,10 @@ domain: birmingham-64
 frequency: day
 ensemble_members: ["01"]
 scenario: rcp85
-resolution: 60km-2.2km-coarsened-4x
+resolution: 2.2km-coarsened-gcm-2.2km-coarsened-4x
 predictand:
   variable: pr
-  resolution: 60km-2.2km-coarsened-4x
+  resolution: 2.2km-coarsened-4x-2.2km-coarsened-4x
 predictors:
   - variable: psl
   - variable: temp250
@@ -20,6 +20,6 @@ predictors:
   - variable: vorticity925
 split:
   scheme: random-season
-  val_prop: 0.2
-  test_prop: 0.1
+  val_prop: 0.15
+  test_prop: 0.15
   seed: 42

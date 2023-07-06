@@ -6,14 +6,15 @@ logger = logging.getLogger(__name__)
 
 
 class RandomSplit:
-    def __init__(self, time_encoding, val_prop=0.2, test_prop=0.1) -> None:
+    def __init__(self, time_encoding, val_prop=0.2, test_prop=0.1, seed=42) -> None:
         self.val_prop = val_prop
         self.test_prop = test_prop
         self.time_encoding = time_encoding
+        self.seed = 42
 
     def run(self, combined_dataset):
         tc = combined_dataset.time.values.copy()
-        rng = np.random.default_rng(seed=42)
+        rng = np.random.default_rng(seed=self.seed)
         rng.shuffle(tc)
 
         test_size = int(len(tc) * self.test_prop)

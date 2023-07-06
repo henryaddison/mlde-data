@@ -9,10 +9,11 @@ logger = logging.getLogger(__name__)
 
 
 class SeasonStratifiedIntensitySplit:
-    def __init__(self, time_encoding, val_prop=0.2, test_prop=0.1) -> None:
+    def __init__(self, time_encoding, val_prop=0.2, test_prop=0.1, seed=42) -> None:
         self.val_prop = val_prop
         self.test_prop = test_prop
         self.time_encoding = time_encoding
+        self.seed = seed
 
     def run(self, combined_dataset):
         test_times = set()
@@ -77,6 +78,7 @@ class SeasonStratifiedIntensitySplit:
             time_encoding=self.time_encoding,
             val_prop=self.val_prop,
             test_prop=self.test_prop,
+            seed=self.seed,
         ).run(extreme_train_set)
         splits.update(
             {"extreme_val": extreme_val_set, "extreme_test": extreme_test_set}
