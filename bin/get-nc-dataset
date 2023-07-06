@@ -19,4 +19,5 @@ bp_tmpdir="/user/work/vf20964/tmp"
 
 ssh ${bp_host} "lsub -a geog022743 -m 64 -q short,compute,cnu --condaenv downscaling-data -- mlde-data sample --output-dir ${bp_tmpdir} ${bp_path}/*.nc"
 rsync -avz ${bp_host}:${bp_tmpdir}/${bp_path} ${local_path}
+rsync -avz ${bp_host}:${bp_path}/ds-config.yml ${local_path}
 ssh ${bp_host} "rm ${bp_tmpdir}/${bp_path}/*.nc"
