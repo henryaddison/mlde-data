@@ -6,7 +6,9 @@ variable=$1
 domain=$2
 target_sf=$3
 variable_sf=$4
-unscaled_variable_resolution=${5:-"2.2km"}
+ensemble_member=${5:-"01"}
+unscaled_variable_resolution=${6:-"2.2km"}
+
 
 if [[ ${unscaled_variable_resolution} == "2.2km" ]]; then
   collection="land-cpm"
