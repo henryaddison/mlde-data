@@ -21,8 +21,6 @@ class Regrid:
         self.variables = variables
         self.scheme = self.SCHEMES[scheme]()
 
-        pass
-
     def run(self, ds):
         # regrid the coarsened data to match the original horizontal grid (using NN interpolation)
         # NB iris and xarray can only comminicate in dataarrays not datasets
@@ -62,7 +60,7 @@ class Regrid:
 
         for variable in self.variables:
             src_cube = ds[variable].to_iris()
-            # conversion to iris looses the coordinate system on the lat and long dimensions but iris it needs to do regrid
+            # conversion to iris loses the coordinate system on the lat and long dimensions but iris it needs to do regrid
             src_cube.coords(src_lon_name)[0].coord_system = src_coord_sys
             src_cube.coords(src_lat_name)[0].coord_system = src_coord_sys
 
