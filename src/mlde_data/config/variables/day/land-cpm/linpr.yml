@@ -22,6 +22,7 @@ spec:
     params:
       variables: [lssnow, lsrain]
       new_variable: linpr
+  - action: shift_lon_break
   - action: regrid_to_target
     variable: linpr
     parameters:

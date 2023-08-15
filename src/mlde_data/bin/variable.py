@@ -26,6 +26,7 @@ from ..preprocessing.diff import Diff
 from ..preprocessing.regrid import Regrid
 from ..preprocessing.remapcon import Remapcon
 from ..preprocessing.select_domain import SelectDomain
+from ..preprocessing.shift_lon_break import ShiftLonBreak
 from ..preprocessing.sum import Sum
 from ..preprocessing.vorticity import Vorticity
 
@@ -240,6 +241,8 @@ def create(
                         f"{variable_resolution}-coarsened-{scale_factor}x"
                     )
                     ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
+        elif job_spec["action"] == "shift_lon_break":
+            ds = ShiftLonBreak().run(ds)
         elif job_spec["action"] == "regrid_to_target":
             if target_resolution != variable_resolution:
                 typer.echo(f"Regridding to target resolution...")

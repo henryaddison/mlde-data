@@ -14,6 +14,7 @@ sources:
 spec:
   - action: rename
     mapping: {"pr": "linpr"}
+  - action: shift_lon_break
   - action: regrid_to_target
     variable: linpr
     parameters:
