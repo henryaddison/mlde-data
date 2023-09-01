@@ -9,11 +9,10 @@ import sys
 import numpy as np
 import yaml
 
-import cftime
 import typer
 import xarray as xr
 
-from mlde_utils import VariableMetadata
+from mlde_utils import VariableMetadata, TIME_PERIODS
 from ..dataset import (
     RandomSplit,
     RandomSeasonSplit,
@@ -336,22 +335,6 @@ def random_subset_split(
     new_split.to_netcdf(new_split_filepath)
 
 
-TIME_PERIODS = {
-    "historic": slice(
-        cftime.Datetime360Day(1980, 12, 1, 12, 0, 0, 0, has_year_zero=True),
-        cftime.Datetime360Day(2000, 11, 30, 12, 0, 0, 0, has_year_zero=True),
-    ),
-    "present": slice(
-        cftime.Datetime360Day(2020, 12, 1, 12, 0, 0, 0, has_year_zero=True),
-        cftime.Datetime360Day(2040, 11, 30, 12, 0, 0, 0, has_year_zero=True),
-    ),
-    "future": slice(
-        cftime.Datetime360Day(2060, 12, 1, 12, 0, 0, 0, has_year_zero=True),
-        cftime.Datetime360Day(2080, 11, 30, 12, 0, 0, 0, has_year_zero=True),
-    ),
-}
-
-
 @app.command()
 def filter(
     dataset: str,
@@ -375,8 +358,7 @@ def filter(
         logger.info(f"Filtering {split_file} to {output_dir}")
         split_ds = xr.open_dataset(split_filepath)
         output_filepath = os.path.join(output_dir, split_file)
-        # t_start, t_end = TIME_PERIODS[time_period]
-        split_ds.sel(time=TIME_PERIODS[time_period]).to_netcdf(output_filepath)
+        split_ds.sel(time=slice(*TIME_PERIODS[time_period])).to_netcdf(output_filepath)
 
     output_config_path = os.path.join(output_dir, "ds-config.yml")
     with open(output_config_path, "w") as f:
