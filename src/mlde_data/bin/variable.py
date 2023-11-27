@@ -266,7 +266,7 @@ def create(
         elif job_spec["action"] == "select-subdomain":
             typer.echo(f"Select {domain.value} subdomain...")
             ds = SelectDomain(subdomain=domain.value, size=target_size).run(ds)
-        elif job_spec["action"] == "select-gcm-domain":
+        elif job_spec["action"] == "select-gcm-subdomain":
             typer.echo(f"Select GCM subdomain...")
             ds = SelectGCMDomain(**job_spec["parameters"]).run(ds)
         elif job_spec["action"] == "constrain":
@@ -276,7 +276,7 @@ def create(
             typer.echo(f"Renaming...")
             ds = ds.rename(job_spec["mapping"])
         else:
-            raise f"Unknown action {job_spec['action']}"
+            raise RuntimeError(f"Unknown action {job_spec['action']}")
 
     assert len(ds.grid_latitude) == target_size
     assert len(ds.grid_longitude) == target_size
