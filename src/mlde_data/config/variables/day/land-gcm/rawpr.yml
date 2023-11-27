@@ -14,4 +14,4 @@ sources:
 spec:
   - action: select-gcm-subdomain
     parameters:
-      domain: "2.2km-coarsened-4x_bham-64"
+      subdomain: "2.2km-coarsened-4x_bham-64"
