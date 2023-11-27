@@ -12,6 +12,8 @@ import typer
 import xarray as xr
 
 from mlde_utils import VariableMetadata
+
+from mlde_data.preprocessing.select_gcm_domain import SelectGCMDomain
 from .options import DomainOption, CollectionOption
 from ..moose import (
     VARIABLE_CODES,
@@ -264,6 +266,9 @@ def create(
         elif job_spec["action"] == "select-subdomain":
             typer.echo(f"Select {domain.value} subdomain...")
             ds = SelectDomain(subdomain=domain.value, size=target_size).run(ds)
+        elif job_spec["action"] == "select-gcm-domain":
+            typer.echo(f"Select GCM subdomain...")
+            ds = SelectGCMDomain(**job_spec["parameters"]).run(ds)
         elif job_spec["action"] == "constrain":
             typer.echo(f"Filtering...")
             ds = Constrain(query=job_spec["query"]).run(ds)
