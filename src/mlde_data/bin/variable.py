@@ -278,8 +278,15 @@ def create(
         else:
             raise RuntimeError(f"Unknown action {job_spec['action']}")
 
-    assert len(ds.grid_latitude) == target_size
-    assert len(ds.grid_longitude) == target_size
+    grid_mapping = ds[config["variable"]].attrs["grid_mapping"]
+    if grid_mapping == "rotated_latitude_longitude":
+        assert len(ds.grid_latitude) == target_size
+        assert len(ds.grid_longitude) == target_size
+    elif grid_mapping == "latitude_longitude":
+        assert len(ds.latitude) == target_size
+        assert len(ds.longitude) == target_size
+    else:
+        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
 
     # there should be no missing values in this dataset
     assert ds[config["variable"]].isnull().sum().values.item() == 0
