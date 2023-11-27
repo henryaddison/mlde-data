@@ -15,3 +15,4 @@ spec:
   - action: select-gcm-subdomain
     parameters:
       subdomain: "2.2km-coarsened-4x_bham-64"
+  - action: shift_lon_break
