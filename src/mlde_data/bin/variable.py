@@ -419,6 +419,7 @@ def validate(
                 "pr",
             ],
         },
+        "birmingham-9": {"60km-60km": ["pr"]},
     }
 
     years = list(range(1981, 2001)) + list(range(2021, 2041)) + list(range(2061, 2081))
