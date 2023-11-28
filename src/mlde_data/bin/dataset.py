@@ -146,13 +146,24 @@ def create(
 
 
 def check_dims(ds, dataset, split, ds_config):
-    return list(ds.dims.keys()) == [
-        "ensemble_member",
-        "time",
-        "grid_latitude",
-        "grid_longitude",
-        "bnds",
-    ]
+    var = "target_pr"
+    grid_mapping = ds[var].attrs["grid_mapping"]
+    if grid_mapping == "rotated_latitude_longitude":
+        return list(ds[var].dims) == [
+            "ensemble_member",
+            "time",
+            "grid_latitude",
+            "grid_longitude",
+        ]
+    elif grid_mapping == "latitude_longitude":
+        return list(ds[var].dims) == [
+            "ensemble_member",
+            "time",
+            "latitude",
+            "longitude",
+        ]
+    else:
+        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
 
 
 def check_shape(ds, dataset, split, ds_config):
@@ -205,6 +216,10 @@ def validate(dataset_name: str = typer.Argument("all")):
         "bham_60km-4x_linpr_random-season",
         "bham_60km-4x_linpr_eqvt_random-season",
         "bham_60km-4x_12em_linpr_eqvt_random-season",
+        "bham_2.2km-gcmx-60km_pr_eqvt_random-season",
+        "bham_60km-60km_pr_eqvt_random-season",
+        "bham_2.2km-gcmx-60km_12em_pr_eqvt_random-season",
+        "bham_60km-60km_12em_pr_eqvt_random-season",
     ]
 
     splits = ["train", "val", "test"]
