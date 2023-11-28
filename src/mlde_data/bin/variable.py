@@ -257,8 +257,8 @@ def create(
             typer.echo(f"Select {domain.value} subdomain...")
             ds = SelectDomain(subdomain=domain.value, size=target_size).run(ds)
         elif job_spec["action"] == "select-gcm-subdomain":
-            typer.echo(f"Select GCM subdomain...")
-            ds = SelectGCMDomain(**job_spec["parameters"]).run(ds)
+            typer.echo(f"Select {domain.value} GCM subdomain...")
+            ds = SelectGCMDomain(subdomain=domain.value, size=target_size).run(ds)
         elif job_spec["action"] == "constrain":
             typer.echo(f"Filtering...")
             ds = Constrain(query=job_spec["query"]).run(ds)
