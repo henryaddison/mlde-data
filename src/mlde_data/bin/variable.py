@@ -1,4 +1,5 @@
 from collections import defaultdict
+from importlib.resources import files
 import logging
 import os
 from pathlib import Path
@@ -13,7 +14,6 @@ import xarray as xr
 
 from mlde_utils import VariableMetadata
 
-from mlde_data.preprocessing.select_gcm_domain import SelectGCMDomain
 from .options import DomainOption, CollectionOption
 from ..moose import (
     VARIABLE_CODES,
@@ -22,15 +22,16 @@ from ..moose import (
     remove_forecast,
     remove_pressure,
 )
-from ..preprocessing.coarsen import Coarsen
-from ..preprocessing.constrain import Constrain
-from ..preprocessing.diff import Diff
-from ..preprocessing.regrid import Regrid
-from ..preprocessing.remapcon import Remapcon
-from ..preprocessing.select_domain import SelectDomain
-from ..preprocessing.shift_lon_break import ShiftLonBreak
-from ..preprocessing.sum import Sum
-from ..preprocessing.vorticity import Vorticity
+from mlde_utils.data.coarsen import Coarsen
+from mlde_utils.data.constrain import Constrain
+from mlde_utils.data.diff import Diff
+from mlde_utils.data.regrid import Regrid
+from mlde_utils.data.remapcon import Remapcon
+from mlde_utils.data.select_domain import SelectDomain
+from mlde_utils.data.select_gcm_domain import SelectGCMDomain
+from mlde_utils.data.shift_lon_break import ShiftLonBreak
+from mlde_utils.data.sum import Sum
+from mlde_utils.data.vorticity import Vorticity
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
@@ -221,14 +222,8 @@ def create(
                 # pick the target grid based on the job spec
                 # some variables use one grid, others a slightly offset one
                 grid_type = job_spec["parameters"]["grid"]
-                target_grid_filepath = os.path.join(
-                    os.path.dirname(__file__),
-                    "..",
-                    "target-grids",
-                    "60km",
-                    "global",
-                    grid_type,
-                    "moose_grid.nc",
+                target_grid_filepath = files("mlde_utils.data").joinpath(
+                    f"target_grids/60km/global/{grid_type}/moose_grid.nc"
                 )
                 ds = Remapcon(target_grid_filepath).run(ds)
             else:
@@ -248,17 +243,12 @@ def create(
         elif job_spec["action"] == "regrid_to_target":
             if target_resolution != variable_resolution:
                 typer.echo(f"Regridding to target resolution...")
-                target_grid_filepath = os.path.join(
-                    os.path.dirname(__file__),
-                    "..",
-                    "target-grids",
-                    target_resolution,
-                    "uk",
-                    "moose_grid.nc",
+                target_grid_path = files("mlde_utils.data").joinpath(
+                    f"target_grids/{target_resolution}/uk/moose_grid.nc"
                 )
                 kwargs = job_spec.get("parameters", {})
                 ds = Regrid(
-                    target_grid_filepath, variables=[config["variable"]], **kwargs
+                    target_grid_path, variables=[config["variable"]], **kwargs
                 ).run(ds)
         elif job_spec["action"] == "vorticity":
             typer.echo(f"Computing vorticity...")
