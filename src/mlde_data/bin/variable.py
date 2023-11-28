@@ -351,6 +351,24 @@ def xfer(
     run_cmd(file_xfer_cmd)
 
 
+def check_dims(ds, var):
+    grid_mapping = ds[var].attrs["grid_mapping"]
+    if grid_mapping == "rotated_latitude_longitude":
+        return list(ds[var].dims) == [
+            "time",
+            "grid_latitude",
+            "grid_longitude",
+        ]
+    elif grid_mapping == "latitude_longitude":
+        return list(ds[var].dims) == [
+            "time",
+            "latitude",
+            "longitude",
+        ]
+    else:
+        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
+
+
 @app.command()
 def validate(
     variable: str = typer.Argument("all"), ensemble_member: str = typer.Argument("all")
@@ -409,7 +427,7 @@ def validate(
                 "pr",
             ],
         },
-        "birmingham-9": {"60km-60km": ["pr"]},
+        "birmingham-9": {"60km-60km": ["pr"], "2.2km-coarsened-gcm-60km": ["pr"]},
     }
 
     years = list(range(1981, 2001)) + list(range(2021, 2041)) + list(range(2061, 2081))
@@ -466,11 +484,7 @@ def validate(
                             bad_years["NaNs"].add(year)
 
                         # check dims
-                        if list(ds[var].dims) != [
-                            "time",
-                            "grid_latitude",
-                            "grid_longitude",
-                        ]:
+                        if not check_dims(ds, var):
                             bad_years["bad dimensions"].add(year)
 
                         # check for forecast related metadata (should have been stripped)
