@@ -16,7 +16,7 @@ sources:
 spec:
   - action: coarsen
     parameters:
-      scale_factor: gcm
+      scale_factor: $scale_factor
       grid: pr
   - action: shift_lon_break
   - action: sum
