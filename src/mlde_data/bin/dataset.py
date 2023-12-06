@@ -179,6 +179,22 @@ def check_shape(ds, dataset, split, ds_config):
     return ds["target_pr"].shape == expected_shape
 
 
+def check_meta_vars(ds, dataset, split, ds_config):
+    meta_vars = (
+        "rotated_latitude_longitude",
+        "time_bnds",
+        "grid_latitude_bnds",
+        "grid_longitude_bnds",
+    )
+
+    return all(
+        [
+            ("ensemble_member" not in ds[var].dims) and ("time" not in ds[var].dims)
+            for var in meta_vars
+        ]
+    )
+
+
 @app.command()
 def validate(dataset_name: str = typer.Argument("all")):
     datasets = [
@@ -234,6 +250,10 @@ def validate(dataset_name: str = typer.Argument("all")):
             # check dims
             if not check_dims(ds, dataset, split, ds_config):
                 bad_splits["bad dimensions"].add(split)
+
+            # check meta vars
+            if not check_meta_vars(ds, dataset, split, ds_config):
+                bad_splits["bad meta vars"].add(split)
 
             # check shape
             if not check_shape(ds, dataset, split, ds_config):
