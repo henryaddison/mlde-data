@@ -191,6 +191,55 @@ def check_meta_vars(ds, dataset, split, ds_config):
     )
 
 
+def check_forecast_encoding(ds, dataset, split, ds_config):
+    for v in ds.variables:
+        if "coordinates" in ds[v].encoding and (
+            re.match(
+                "(realization|forecast_period|forecast_reference_time) ?",
+                ds[v].encoding["coordinates"],
+            )
+            is not None
+        ):
+            return False
+    return True
+
+
+def check_forecast_variables(ds, dataset, split, ds_config):
+    for v in ds.variables:
+        if v in [
+            "forecast_period",
+            "forecast_reference_time",
+            "realization",
+            "forecast_period_bnds",
+        ]:
+            return False
+    return True
+
+
+def check_pressure_encoding(ds, dataset, split, ds_config):
+    for v in ds.variables:
+        if "coordinates" in ds[v].encoding and (
+            re.match("(pressure) ?", ds[v].encoding["coordinates"]) is not None
+        ):
+            return False
+    return True
+
+
+def check_pressure_variables(ds, dataset, split, ds_config):
+    for v in ds.variables:
+        if v in ["pressure"]:
+            return False
+    return True
+
+
+def check_nans(ds, dataset, split, ds_config):
+    for v in ds.variables:
+        nan_count = ds[v].isnull().sum().values.item()
+        if nan_count > 0:
+            return False
+    return True
+
+
 @app.command()
 def validate(dataset_name: str = typer.Argument("all")):
     datasets = [
@@ -247,37 +296,20 @@ def validate(dataset_name: str = typer.Argument("all")):
                 bad_splits["bad shape"].add(split)
 
             # check for forecast related metadata (should have been stripped)
-            for v in ds.variables:
-                if "coordinates" in ds[v].encoding and (
-                    re.match(
-                        "(realization|forecast_period|forecast_reference_time) ?",
-                        ds[v].encoding["coordinates"],
-                    )
-                    is not None
-                ):
-                    bad_splits["forecast_encoding"].add(split)
-                if v in [
-                    "forecast_period",
-                    "forecast_reference_time",
-                    "realization",
-                    "forecast_period_bnds",
-                ]:
-                    bad_splits["forecast_vars"].add(split)
+            if not check_forecast_encoding(ds, dataset, split, ds_config):
+                bad_splits["forecast_encoding"].add(split)
+            if not check_forecast_variables(ds, dataset, split, ds_config):
+                bad_splits["forecast_vars"].add(split)
 
             # check for pressure related metadata (should have been stripped)
-            for v in ds.variables:
-                if "coordinates" in ds[v].encoding and (
-                    re.match("(pressure) ?", ds[v].encoding["coordinates"]) is not None
-                ):
-                    bad_splits["pressure_encoding"].add(split)
-                if v in ["pressure"]:
-                    bad_splits["pressure_vars"].add(split)
+            if not check_pressure_encoding(ds, dataset, split, ds_config):
+                bad_splits["pressure_encoding"].add(split)
+            if not check_forecast_variables(ds, dataset, split, ds_config):
+                bad_splits["pressure_vars"].add(split)
 
             # check for NaNs
-            for v in ds.variables:
-                nan_count = ds[v].isnull().sum().values.item()
-                if nan_count > 0:
-                    bad_splits["NaNs"].add(split)
+            if not check_nans(ds, dataset, split, ds_config):
+                bad_splits["NaNs"].add(split)
 
         # report findings
         for reason, error_splits in bad_splits.items():
