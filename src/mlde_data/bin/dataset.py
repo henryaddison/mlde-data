@@ -258,6 +258,12 @@ def check_nans(ds, dataset, split, ds_config):
     return True
 
 
+def report_bad_splits(bad_splits):
+    for reason, error_splits in bad_splits.items():
+        if len(error_splits) > 0:
+            print(f"Failed '{reason}': {error_splits}")
+
+
 @app.command()
 def validate(dataset_name: str = typer.Argument("all")):
     datasets = [
@@ -290,6 +296,7 @@ def validate(dataset_name: str = typer.Argument("all")):
             ds_config = dataset_config(dataset)
         except FileNotFoundError:
             bad_splits["no config"].update(splits)
+            report_bad_splits(bad_splits)
             continue
 
         for split in splits:
@@ -332,9 +339,7 @@ def validate(dataset_name: str = typer.Argument("all")):
                 bad_splits["NaNs"].add(split)
 
         # report findings
-        for reason, error_splits in bad_splits.items():
-            if len(error_splits) > 0:
-                print(f"Failed '{reason}': {dataset} for {error_splits}")
+        report_bad_splits(bad_splits)
 
 
 @app.command()
