@@ -136,7 +136,12 @@ def create(
 
         combined_datasets.append(combined_dataset)
 
-    combined_dataset = xr.concat(combined_datasets, dim="ensemble_member")
+    combined_dataset = xr.merge(
+        combined_datasets,
+        compat="no_conflicts",
+        combine_attrs="no_conflicts",
+        join="exact",
+    )
 
     if split_scheme == "ssi":
         splitter = SeasonStratifiedIntensitySplit(
