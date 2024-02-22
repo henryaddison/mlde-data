@@ -1,5 +1,5 @@
+from importlib.resources import files
 import os
-from pathlib import Path
 
 import iris
 import xarray as xr
@@ -7,8 +7,8 @@ import xarray as xr
 working_grid_pp_path = "pp-data/*.pp"
 working_grid_nc_path = "moose_grid.nc"
 
-target_grid_path = Path(
-    "../../../src/mlde_data/data/target-grids/60km/global/vorticity850/moose_grid.nc"
+target_grid_path = files("mlde_utils.data").joinpath(
+    f"target_grids/60km/global/vorticity850/moose_grid.nc"
 )
 
 # convert pp data to netcdf and open with xr

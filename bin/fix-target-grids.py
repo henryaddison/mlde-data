@@ -1,3 +1,4 @@
+from importlib.resources import files
 import xarray as xr
 
 for res in [
@@ -12,7 +13,10 @@ for res in [
         domain = "global"
     else:
         domain = "uk"
-    path = f"src/mlde_data/target-grids/{res}/{domain}/moose_grid.nc"
+
+    path = files("mlde_utils.data").joinpath(
+        f"target_grids/{res}/{domain}/moose_grid.nc"
+    )
     ds = xr.load_dataset(path)
     for v in ds.variables:
         print(v, ds[v].attrs.pop("coordinates", None))

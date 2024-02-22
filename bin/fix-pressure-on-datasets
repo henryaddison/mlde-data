@@ -26,6 +26,6 @@ splits = ["train", "val", "test"]
 for dataset in datasets:
     for split in splits:
         nc_filepath = os.path.join(
-            os.getenv("MOOSE_DERIVED_DATA"), "nc-datasets", dataset, f"{split}.nc"
+            os.getenv("DERIVED_DATA"), "moose", "nc-datasets", dataset, f"{split}.nc"
         )
         fix_file(nc_filepath)

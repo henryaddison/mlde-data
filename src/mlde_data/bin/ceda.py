@@ -7,8 +7,8 @@ import xarray as xr
 
 from mlde_utils import VariableMetadata
 from .options import DomainOption
-from ..preprocessing.coarsen import Coarsen
-from ..preprocessing.select_domain import SelectDomain
+from mlde_utils.data.coarsen import Coarsen
+from mlde_utils.data.select_domain import SelectDomain
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")

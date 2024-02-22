@@ -12,7 +12,14 @@ import yaml
 import typer
 import xarray as xr
 
-from mlde_utils import VariableMetadata, TIME_PERIODS
+from mlde_utils import (
+    VariableMetadata,
+    TIME_PERIODS,
+    dataset_path,
+    dataset_config_path,
+    dataset_config,
+    dataset_split_path,
+)
 from ..dataset import (
     RandomSplit,
     RandomSeasonSplit,
@@ -33,8 +40,8 @@ def callback():
 @app.command()
 def create(
     config: Path,
-    input_base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"),
-    output_base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"),
+    input_base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"),
+    output_base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"),
 ):
     """
     Create a dataset
@@ -62,7 +69,7 @@ def create(
             }
         )
         predictand_meta = VariableMetadata(
-            input_base_dir, ensemble_member=em, **predictand_var_params
+            input_base_dir / "moose", ensemble_member=em, **predictand_var_params
         )
 
         predictors_meta = []
@@ -78,7 +85,9 @@ def create(
             }
             var_params.update({k: predictor_var_config[k] for k in ["variable"]})
             predictors_meta.append(
-                VariableMetadata(input_base_dir, ensemble_member=em, **var_params)
+                VariableMetadata(
+                    input_base_dir / "moose", ensemble_member=em, **var_params
+                )
             )
 
         example_predictor_filepath = predictors_meta[0].existing_filepaths()[0]
@@ -134,77 +143,146 @@ def create(
 
     split_sets = splitter.run(combined_dataset)
 
-    output_dir = os.path.join(output_base_dir, "nc-datasets", config_name)
+    output_dir = dataset_path(config_name, base_dir=output_base_dir)
 
     os.makedirs(output_dir, exist_ok=False)
 
     logger.info(f"Saving data to {output_dir}")
-    with open(os.path.join(output_dir, "ds-config.yml"), "w") as f:
+    with open(dataset_config_path(config_name, base_dir=output_base_dir), "w") as f:
         yaml.dump(config, f)
     for split_name, split_ds in split_sets.items():
         split_ds.to_netcdf(os.path.join(output_dir, f"{split_name}.nc"))
 
 
 def check_dims(ds, dataset, split, ds_config):
-    return list(ds.dims.keys()) == [
-        "ensemble_member",
-        "time",
-        "grid_latitude",
-        "grid_longitude",
-        "bnds",
-    ]
+    var = "target_pr"
+    grid_mapping = ds[var].attrs["grid_mapping"]
+    if grid_mapping == "rotated_latitude_longitude":
+        return list(ds[var].dims) == [
+            "ensemble_member",
+            "time",
+            "grid_latitude",
+            "grid_longitude",
+        ]
+    elif grid_mapping == "latitude_longitude":
+        return list(ds[var].dims) == [
+            "ensemble_member",
+            "time",
+            "latitude",
+            "longitude",
+        ]
+    else:
+        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
 
 
 def check_shape(ds, dataset, split, ds_config):
     ems = ds_config["ensemble_members"]
-    if split == "train":
-        expected_shape = (len(ems), 360 * 14 * 3, 64, 64)
-    elif "_eqvt_" in dataset:
-        expected_shape = (len(ems), 360 * 3 * 3, 64, 64)
-    elif split == "test":
-        expected_shape = (len(ems), 360 * 2 * 3, 64, 64)
+    grid_mapping = ds["target_pr"].attrs["grid_mapping"]
+    if grid_mapping == "rotated_latitude_longitude":
+        size = 64
+    elif grid_mapping == "latitude_longitude":
+        size = 9
     else:
-        expected_shape = (len(ems), 360 * 4 * 3, 64, 64)
+        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
+
+    if split == "train":
+        expected_shape = (len(ems), 360 * 14 * 3, size, size)
+    else:
+        expected_shape = (len(ems), 360 * 3 * 3, size, size)
     return ds["target_pr"].shape == expected_shape
+
+
+def check_meta_vars(ds, dataset, split, ds_config):
+    grid_mapping = ds["target_pr"].attrs["grid_mapping"]
+    meta_vars = [
+        grid_mapping,
+        "time_bnds",
+    ]
+    if grid_mapping == "rotated_latitude_longitude":
+        meta_vars.extend(["grid_latitude_bnds", "grid_longitude_bnds"])
+
+    return all(
+        [
+            ("ensemble_member" not in ds[var].dims) and ("time" not in ds[var].dims)
+            for var in meta_vars
+        ]
+    )
+
+
+def check_forecast_encoding(ds, dataset, split, ds_config):
+    for v in ds.variables:
+        if "coordinates" in ds[v].encoding and (
+            re.match(
+                "(realization|forecast_period|forecast_reference_time) ?",
+                ds[v].encoding["coordinates"],
+            )
+            is not None
+        ):
+            return False
+    return True
+
+
+def check_forecast_variables(ds, dataset, split, ds_config):
+    for v in ds.variables:
+        if v in [
+            "forecast_period",
+            "forecast_reference_time",
+            "realization",
+            "forecast_period_bnds",
+        ]:
+            return False
+    return True
+
+
+def check_pressure_encoding(ds, dataset, split, ds_config):
+    for v in ds.variables:
+        if "coordinates" in ds[v].encoding and (
+            re.match("(pressure) ?", ds[v].encoding["coordinates"]) is not None
+        ):
+            return False
+    return True
+
+
+def check_pressure_variables(ds, dataset, split, ds_config):
+    for v in ds.variables:
+        if v in ["pressure"]:
+            return False
+    return True
+
+
+def check_nans(ds, dataset, split, ds_config):
+    for v in ds.variables:
+        nan_count = ds[v].isnull().sum().values.item()
+        if nan_count > 0:
+            return False
+    return True
+
+
+def report_bad_splits(bad_splits):
+    for reason, error_splits in bad_splits.items():
+        if len(error_splits) > 0:
+            print(f"Failed '{reason}': {error_splits}")
 
 
 @app.command()
 def validate(dataset_name: str = typer.Argument("all")):
     datasets = [
-        "bham_gcmx-4x_psl-temp-vort_random-season",
-        "bham_gcmx-4x_psl-temp-vort_random-season-historic",
-        "bham_gcmx-4x_psl-temp-vort_random-season-present",
-        "bham_gcmx-4x_psl-temp-vort_random-season-future",
-        "bham_gcmx-4x_psl-temp-vort_eqvt_random-season",
-        "bham_gcmx-4x_psl-temp4th-vort4th_random-season",
-        "bham_gcmx-4x_psl-temp4th-vort4th_eqvt_random-season",
-        "bham_gcmx-4x_12em_psl-temp4th-vort4th_eqvt_random-season",
-        "bham_gcmx-4x_12em_psl-temp4th-vort4th_eqvt_random-season-historic",
-        "bham_gcmx-4x_12em_psl-temp4th-vort4th_eqvt_random-season-present",
-        "bham_gcmx-4x_12em_psl-temp4th-vort4th_eqvt_random-season-future",
-        "bham_gcmx-4x_12em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
-        "bham_gcmx-4x_psl-vort_random-season",
-        "bham_gcmx-4x_psl-vort4th_random-season",
-        "bham_gcmx-4x_linpr_random-season",
-        "bham_gcmx-4x_linpr_eqvt_random-season",
-        "bham_gcmx-4x_12em_linpr_eqvt_random-season",
-        "bham_60km-4x_psl-temp-vort_random-season",
-        "bham_60km-4x_psl-temp-vort_random-season-historic",
-        "bham_60km-4x_psl-temp-vort_random-season-present",
-        "bham_60km-4x_psl-temp-vort_random-season-future",
-        "bham_60km-4x_psl-temp-vort_eqvt_random-season",
-        "bham_60km-4x_psl-temp4th-vort4th_random-season",
-        "bham_60km-4x_psl-temp4th-vort4th_eqvt_random-season",
-        "bham_60km-4x_12em_psl-temp4th-vort4th_eqvt_random-season",
-        "bham_60km-4x_12em_psl-temp4th-vort4th_eqvt_random-season-historic",
-        "bham_60km-4x_12em_psl-temp4th-vort4th_eqvt_random-season-present",
-        "bham_60km-4x_12em_psl-temp4th-vort4th_eqvt_random-season-future",
-        "bham_60km-4x_12em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
-        "bham_60km-4x_psl-vort_random-season",
-        "bham_60km-4x_psl-vort4th_random-season",
-        "bham_60km-4x_linpr_random-season",
-        "bham_60km-4x_linpr_eqvt_random-season",
+        "bham_60km-4x_1em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
         "bham_60km-4x_12em_linpr_eqvt_random-season",
+        "bham_60km-4x_12em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
+        "bham_60km-4x_12em_psl-temp4th-vort4th_eqvt_random-season",
+        "bham_60km-4x_12em_vort4th_eqvt_random-season",
+        "bham_60km-4x_12em_vort850_eqvt_random-season",
+        "bham_60km-60km_1em_rawpr_eqvt_random-season",
+        "bham_60km-60km_12em_rawpr_eqvt_random-season",
+        "bham_gcmx-4x_1em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
+        "bham_gcmx-4x_12em_linpr_eqvt_random-season",
+        "bham_gcmx-4x_12em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
+        "bham_gcmx-4x_12em_psl-temp4th-vort4th_eqvt_random-season",
+        "bham_gcmx-4x_12em_vort4th_eqvt_random-season",
+        "bham_gcmx-4x_12em_vort850_eqvt_random-season",
+        "bham_gcmx-60km_1em_pr_eqvt_random-season",
+        "bham_gcmx-60km_12em_pr_eqvt_random-season",
     ]
 
     splits = ["train", "val", "test"]
@@ -213,16 +291,19 @@ def validate(dataset_name: str = typer.Argument("all")):
         if (dataset_name != "all") and (dataset_name != dataset):
             continue
         bad_splits = defaultdict(set)
+
+        try:
+            ds_config = dataset_config(dataset)
+        except FileNotFoundError:
+            bad_splits["no config"].update(splits)
+            report_bad_splits(bad_splits)
+            continue
+
         for split in splits:
             sys.stdout.write("\033[K")
             print(f"Checking {split} of {dataset}", end="\r")
-            dataset_path = os.path.join(
-                os.getenv("MOOSE_DERIVED_DATA"), "nc-datasets", dataset
-            )
-            ds_config_path = os.path.join(dataset_path, "ds-config.yml")
-            with open(ds_config_path, "r") as f:
-                ds_config = yaml.safe_load(f)
-            split_path = os.path.join(dataset_path, f"{split}.nc")
+
+            split_path = dataset_split_path(dataset, split)
             try:
                 ds = xr.open_dataset(split_path)
             except FileNotFoundError:
@@ -233,47 +314,32 @@ def validate(dataset_name: str = typer.Argument("all")):
             if not check_dims(ds, dataset, split, ds_config):
                 bad_splits["bad dimensions"].add(split)
 
+            # check meta vars
+            if not check_meta_vars(ds, dataset, split, ds_config):
+                bad_splits["bad meta vars"].add(split)
+
             # check shape
             if not check_shape(ds, dataset, split, ds_config):
                 bad_splits["bad shape"].add(split)
 
             # check for forecast related metadata (should have been stripped)
-            for v in ds.variables:
-                if "coordinates" in ds[v].encoding and (
-                    re.match(
-                        "(realization|forecast_period|forecast_reference_time) ?",
-                        ds[v].encoding["coordinates"],
-                    )
-                    is not None
-                ):
-                    bad_splits["forecast_encoding"].add(split)
-                if v in [
-                    "forecast_period",
-                    "forecast_reference_time",
-                    "realization",
-                    "forecast_period_bnds",
-                ]:
-                    bad_splits["forecast_vars"].add(split)
+            if not check_forecast_encoding(ds, dataset, split, ds_config):
+                bad_splits["forecast_encoding"].add(split)
+            if not check_forecast_variables(ds, dataset, split, ds_config):
+                bad_splits["forecast_vars"].add(split)
 
             # check for pressure related metadata (should have been stripped)
-            for v in ds.variables:
-                if "coordinates" in ds[v].encoding and (
-                    re.match("(pressure) ?", ds[v].encoding["coordinates"]) is not None
-                ):
-                    bad_splits["pressure_encoding"].add(split)
-                if v in ["pressure"]:
-                    bad_splits["pressure_vars"].add(split)
+            if not check_pressure_encoding(ds, dataset, split, ds_config):
+                bad_splits["pressure_encoding"].add(split)
+            if not check_forecast_variables(ds, dataset, split, ds_config):
+                bad_splits["pressure_vars"].add(split)
 
             # check for NaNs
-            for v in ds.variables:
-                nan_count = ds[v].isnull().sum().values.item()
-                if nan_count > 0:
-                    bad_splits["NaNs"].add(split)
+            if not check_nans(ds, dataset, split, ds_config):
+                bad_splits["NaNs"].add(split)
 
         # report findings
-        for reason, error_splits in bad_splits.items():
-            if len(error_splits) > 0:
-                print(f"Failed '{reason}': {dataset} for {error_splits}")
+        report_bad_splits(bad_splits)
 
 
 @app.command()
@@ -284,10 +350,8 @@ def random_subset(
     split: str = "train",
     seed: int = 42,
 ):
-    datasets_dir = Path(os.getenv("MOOSE_DERIVED_DATA")) / "nc-datasets"
-
-    src_dataset_dir = datasets_dir / src_dataset
-    dest_dataset_dir = datasets_dir / dest_dataset
+    src_dataset_dir = dataset_path(src_dataset)
+    dest_dataset_dir = dataset_path(dest_dataset)
 
     logger.info(f"Copying {src_dataset_dir} to {dest_dataset_dir}...")
     # os.makedirs(dest_dataset_dir, exist_ok=True)
@@ -315,7 +379,7 @@ def random_subset_split(
     new_split: str = None,
     seed: int = 42,
 ):
-    dataset_dir = Path(os.getenv("MOOSE_DERIVED_DATA")) / "nc-datasets" / dataset
+    dataset_dir = dataset_path(dataset)
 
     orig_split_filepath = dataset_dir / f"{split}.nc"
     if new_split is None:
@@ -339,19 +403,18 @@ def random_subset_split(
 def filter(
     dataset: str,
     time_period: str,
-    base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"),
+    base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"),
 ):
 
-    input_dir = os.path.join(base_dir, "nc-datasets", dataset)
-    input_config_path = os.path.join(input_dir, "ds-config.yml")
-    with open(input_config_path, "r") as f:
-        config = yaml.safe_load(f)
+    input_dir = dataset_path(dataset, base_dir=base_dir)
+    config = dataset_config(dataset, base_dir=base_dir)
 
     config_filters = config.get("filters", list())
     config_filters.append({"time_period": time_period})
     config["filters"] = config_filters
 
-    output_dir = os.path.join(base_dir, "nc-datasets", f"{dataset}-{time_period}")
+    new_dataset = f"{dataset}-{time_period}"
+    output_dir = dataset_path(new_dataset, base_dir=base_dir)
     os.makedirs(output_dir, exist_ok=False)
     for split_filepath in glob.glob(os.path.join(input_dir, "*.nc")):
         split_file = os.path.basename(split_filepath)
@@ -360,8 +423,7 @@ def filter(
         output_filepath = os.path.join(output_dir, split_file)
         split_ds.sel(time=slice(*TIME_PERIODS[time_period])).to_netcdf(output_filepath)
 
-    output_config_path = os.path.join(output_dir, "ds-config.yml")
-    with open(output_config_path, "w") as f:
+    with open(dataset_config_path(new_dataset, base_dir=base_dir), "w") as f:
         yaml.dump(config, f)
 
 
@@ -370,10 +432,10 @@ def quantile(
     dataset: str,
     p: float,
     variable: str = "target_pr",
-    base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"),
+    base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"),
     split: str = "train",
 ):
-    input_dir = os.path.join(base_dir, "nc-datasets", dataset)
+    input_dir = dataset_path(dataset, base_dir=base_dir)
 
     split_ds = xr.open_dataset(os.path.join(input_dir, f"{split}.nc"))
     Q_p = split_ds[variable].quantile(p)

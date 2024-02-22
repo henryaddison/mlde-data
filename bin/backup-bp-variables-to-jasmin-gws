@@ -12,6 +12,17 @@ set -x
 rsync -avhz --delete --include '2.2km-coarsened-4x-2.2km-coarsened-4x/***' --include '2.2km-coarsened-gcm-2.2km-coarsened-4x/***' --include '60km-2.2km-coarsened-4x/***' --exclude '*/' ${src_root} ${destination}
 
 rsync -avhz --include='/archive/*/' ${src_root} ${destination}
+set +x
+
+domain="birmingham-9"
+
+src_root="/user/work/vf20964/moose/${domain}/"
+destination="xfer1.jasmin:/gws/nopw/j04/bris_climdyn/henrya/bp-backups/moose/${domain}/"
+
+set -x
+rsync -avhz --delete --include '2.2km-coarsened-gcm-60km/***' --include '60km-60km/***' --exclude '*/' ${src_root} ${destination}
+
+rsync -avhz --include='/archive/*/' ${src_root} ${destination}
 
 set +x
 

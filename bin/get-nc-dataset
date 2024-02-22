@@ -9,7 +9,7 @@ bp_host=${2:-"bp"}
 ds_path="nc-datasets/${dataset}"
 
 bp_path="/user/work/vf20964/moose/${ds_path}"
-local_path="${MOOSE_DERIVED_DATA}/${ds_path}"
+local_path="${DERIVED_DATA}/moose/${ds_path}"
 
 mkdir -p ${local_path}
 

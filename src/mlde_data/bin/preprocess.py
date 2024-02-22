@@ -8,7 +8,7 @@ import xarray as xr
 
 from mlde_utils import VariableMetadata
 from .options import DomainOption
-from ..preprocessing.sum import Sum
+from mlde_utils.data.sum import Sum
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")

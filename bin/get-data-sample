@@ -4,44 +4,15 @@ set -euo pipefail
 
 variable=$1
 domain=$2
-target_sf=$3
-variable_sf=$4
-ensemble_member=${5:-"01"}
-unscaled_variable_resolution=${6:-"2.2km"}
+resolution=$3
+ensemble_member=${4:-"01"}
+bp_host=bp-remote
 
-
-if [[ ${unscaled_variable_resolution} == "2.2km" ]]; then
+if [[ ${resolution} == 2.2km-* ]]; then
   collection="land-cpm"
-elif [[ ${unscaled_variable_resolution} == "60km" ]]; then
+elif [[ ${resolution} == 60km-* ]]; then
   collection="land-gcm"
 fi
-
-if [ ${target_sf} -eq 1 ]
-then
-  target_resolution="2.2km"
-else
-  target_resolution="2.2km-coarsened-${target_sf}x"
-fi
-
-# target_pr is a pseudo-variable for this script to indicate data and grid resolutions should match
-# since pr can be used as target and as input variable depending on the resolution
-if [[ "${variable}" == "target_pr" ]]
-then
-  variable="pr"
-  variable_resolution=${target_resolution}
-else
-  if [ $variable_sf == "gcm" ]; then
-    variable_resolution="${unscaled_variable_resolution}-coarsened-gcm"
-  elif [ $variable_sf -eq 1 ]; then
-    variable_resolution=${unscaled_variable_resolution}
-  else
-    variable_resolution="${unscaled_variable_resolution}-coarsened-${variable_sf}x"
-  fi
-fi
-
-resolution="${variable_resolution}-${target_resolution}"
-
-bp_host=bp-remote
 
 local_dirpath=${DERIVED_DATA}/moose/${domain}/${resolution}/rcp85/01/${variable}/day/
 bp_dirpath=/user/work/vf20964/moose/${domain}/${resolution}/rcp85/01/${variable}/day

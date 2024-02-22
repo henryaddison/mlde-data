@@ -1,4 +1,5 @@
 from collections import defaultdict
+from importlib.resources import files
 import logging
 import os
 from pathlib import Path
@@ -12,6 +13,7 @@ import typer
 import xarray as xr
 
 from mlde_utils import VariableMetadata
+
 from .options import DomainOption, CollectionOption
 from ..moose import (
     VARIABLE_CODES,
@@ -20,15 +22,16 @@ from ..moose import (
     remove_forecast,
     remove_pressure,
 )
-from ..preprocessing.coarsen import Coarsen
-from ..preprocessing.constrain import Constrain
-from ..preprocessing.diff import Diff
-from ..preprocessing.regrid import Regrid
-from ..preprocessing.remapcon import Remapcon
-from ..preprocessing.select_domain import SelectDomain
-from ..preprocessing.shift_lon_break import ShiftLonBreak
-from ..preprocessing.sum import Sum
-from ..preprocessing.vorticity import Vorticity
+from mlde_utils.data.coarsen import Coarsen
+from mlde_utils.data.constrain import Constrain
+from mlde_utils.data.diff import Diff
+from mlde_utils.data.regrid import Regrid
+from mlde_utils.data.remapcon import Remapcon
+from mlde_utils.data.select_domain import SelectDomain
+from mlde_utils.data.select_gcm_domain import SelectGCMDomain
+from mlde_utils.data.shift_lon_break import ShiftLonBreak
+from mlde_utils.data.sum import Sum
+from mlde_utils.data.vorticity import Vorticity
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
@@ -219,14 +222,8 @@ def create(
                 # pick the target grid based on the job spec
                 # some variables use one grid, others a slightly offset one
                 grid_type = job_spec["parameters"]["grid"]
-                target_grid_filepath = os.path.join(
-                    os.path.dirname(__file__),
-                    "..",
-                    "target-grids",
-                    "60km",
-                    "global",
-                    grid_type,
-                    "moose_grid.nc",
+                target_grid_filepath = files("mlde_utils.data").joinpath(
+                    f"target_grids/60km/global/{grid_type}/moose_grid.nc"
                 )
                 ds = Remapcon(target_grid_filepath).run(ds)
             else:
@@ -246,17 +243,12 @@ def create(
         elif job_spec["action"] == "regrid_to_target":
             if target_resolution != variable_resolution:
                 typer.echo(f"Regridding to target resolution...")
-                target_grid_filepath = os.path.join(
-                    os.path.dirname(__file__),
-                    "..",
-                    "target-grids",
-                    target_resolution,
-                    "uk",
-                    "moose_grid.nc",
+                target_grid_path = files("mlde_utils.data").joinpath(
+                    f"target_grids/{target_resolution}/uk/moose_grid.nc"
                 )
                 kwargs = job_spec.get("parameters", {})
                 ds = Regrid(
-                    target_grid_filepath, variables=[config["variable"]], **kwargs
+                    target_grid_path, variables=[config["variable"]], **kwargs
                 ).run(ds)
         elif job_spec["action"] == "vorticity":
             typer.echo(f"Computing vorticity...")
@@ -264,6 +256,9 @@ def create(
         elif job_spec["action"] == "select-subdomain":
             typer.echo(f"Select {domain.value} subdomain...")
             ds = SelectDomain(subdomain=domain.value, size=target_size).run(ds)
+        elif job_spec["action"] == "select-gcm-subdomain":
+            typer.echo(f"Select {domain.value} GCM subdomain...")
+            ds = SelectGCMDomain(subdomain=domain.value, size=target_size).run(ds)
         elif job_spec["action"] == "constrain":
             typer.echo(f"Filtering...")
             ds = Constrain(query=job_spec["query"]).run(ds)
@@ -271,10 +266,17 @@ def create(
             typer.echo(f"Renaming...")
             ds = ds.rename(job_spec["mapping"])
         else:
-            raise f"Unknown action {job_spec['action']}"
+            raise RuntimeError(f"Unknown action {job_spec['action']}")
 
-    assert len(ds.grid_latitude) == target_size
-    assert len(ds.grid_longitude) == target_size
+    grid_mapping = ds[config["variable"]].attrs["grid_mapping"]
+    if grid_mapping == "rotated_latitude_longitude":
+        assert len(ds.grid_latitude) == target_size
+        assert len(ds.grid_longitude) == target_size
+    elif grid_mapping == "latitude_longitude":
+        assert len(ds.latitude) == target_size
+        assert len(ds.longitude) == target_size
+    else:
+        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
 
     # there should be no missing values in this dataset
     assert ds[config["variable"]].isnull().sum().values.item() == 0
@@ -349,6 +351,24 @@ def xfer(
     run_cmd(file_xfer_cmd)
 
 
+def check_dims(ds, var):
+    grid_mapping = ds[var].attrs["grid_mapping"]
+    if grid_mapping == "rotated_latitude_longitude":
+        return list(ds[var].dims) == [
+            "time",
+            "grid_latitude",
+            "grid_longitude",
+        ]
+    elif grid_mapping == "latitude_longitude":
+        return list(ds[var].dims) == [
+            "time",
+            "latitude",
+            "longitude",
+        ]
+    else:
+        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
+
+
 @app.command()
 def validate(
     variable: str = typer.Argument("all"), ensemble_member: str = typer.Argument("all")
@@ -407,6 +427,7 @@ def validate(
                 "pr",
             ],
         },
+        "birmingham-9": {"60km-60km": ["pr"], "2.2km-coarsened-gcm-60km": ["pr"]},
     }
 
     years = list(range(1981, 2001)) + list(range(2021, 2041)) + list(range(2061, 2081))
@@ -443,7 +464,7 @@ def validate(
                     bad_years = defaultdict(set)
                     for year in years:
                         var_meta = VariableMetadata(
-                            os.getenv("MOOSE_DERIVED_DATA"),
+                            f"{os.getenv('DERIVED_DATA')}/moose",
                             variable=var,
                             frequency="day",
                             domain=domain,
@@ -463,11 +484,7 @@ def validate(
                             bad_years["NaNs"].add(year)
 
                         # check dims
-                        if list(ds[var].dims) != [
-                            "time",
-                            "grid_latitude",
-                            "grid_longitude",
-                        ]:
+                        if not check_dims(ds, var):
                             bad_years["bad dimensions"].add(year)
 
                         # check for forecast related metadata (should have been stripped)

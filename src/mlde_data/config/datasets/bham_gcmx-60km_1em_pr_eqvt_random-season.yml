@@ -1,0 +1,15 @@
+domain: birmingham-9
+frequency: day
+ensemble_members: ["01"]
+scenario: rcp85
+resolution: 2.2km-coarsened-gcm-60km
+predictand:
+  variable: pr
+  resolution: 2.2km-coarsened-gcm-60km
+predictors:
+  - variable: pr
+split:
+  scheme: random-season
+  val_prop: 0.15
+  test_prop: 0.15
+  seed: 42
