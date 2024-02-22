@@ -95,11 +95,10 @@ def create(
 
         predictor_datasets = []
         for dsmeta in predictors_meta:
-            # predictor_ds = xr.open_mfdataset(dsmeta.existing_filepaths())
             predictor_ds = xr.merge(
                 [xr.open_dataset(f) for f in dsmeta.existing_filepaths()],
                 join="outer",
-                combine_attrs="no_conflicts",
+                combine_attrs="override",  # history attr is different for each file
                 compat="no_conflicts",
             )
             predictor_ds[dsmeta.variable] = predictor_ds[dsmeta.variable].expand_dims(
