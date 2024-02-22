@@ -413,6 +413,27 @@ def check_pressure_vars(ds, var):
     return True
 
 
+def check_grid_vars(ds, var):
+    grid_mapping = ds[var].attrs["grid_mapping"]
+    meta_vars = [
+        grid_mapping,
+        "time_bnds",
+    ]
+    if grid_mapping == "rotated_latitude_longitude":
+        meta_vars.extend(["grid_latitude_bnds", "grid_longitude_bnds"])
+
+    return all(
+        [
+            ("ensemble_member" not in ds[mvar].dims) and ("time" not in ds[mvar].dims)
+            for mvar in meta_vars
+        ]
+    )
+
+
+def check_time_bnds(ds, var):
+    return "ensemble_member" not in ds["time_bnds"].dims
+
+
 @app.command()
 def validate(
     variable: str = typer.Argument("all"), ensemble_member: str = typer.Argument("all")
@@ -540,6 +561,11 @@ def validate(
                             bad_years["pressure_encoding"].add(year)
                         if not check_pressure_vars(ds, var):
                             bad_years["pressure_vars"].add(year)
+                        # check grid and time vars
+                        if not check_grid_vars(ds, var):
+                            bad_years["grid_meta_vars"].add(year)
+                        if not check_time_bnds(ds, var):
+                            bad_years["time_bnds"].add(year)
 
                     # report findings
                     for reason, error_years in bad_years.items():

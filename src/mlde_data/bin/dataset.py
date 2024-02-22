@@ -192,21 +192,24 @@ def check_shape(ds, dataset, split, ds_config):
     return ds["target_pr"].shape == expected_shape
 
 
-def check_meta_vars(ds, dataset, split, ds_config):
+def check_grid_vars(ds, dataset, split, ds_config):
     grid_mapping = ds["target_pr"].attrs["grid_mapping"]
     meta_vars = [
         grid_mapping,
-        "time_bnds",
     ]
     if grid_mapping == "rotated_latitude_longitude":
         meta_vars.extend(["grid_latitude_bnds", "grid_longitude_bnds"])
 
     return all(
         [
-            ("ensemble_member" not in ds[var].dims) and ("time" not in ds[var].dims)
-            for var in meta_vars
+            ("ensemble_member" not in ds[mvar].dims) and ("time" not in ds[mvar].dims)
+            for mvar in meta_vars
         ]
     )
+
+
+def check_time_bnds(ds, dataset, split, ds_config):
+    return "ensemble_member" not in ds["time_bnds"].dims
 
 
 def check_forecast_encoding(ds, dataset, split, ds_config):
@@ -314,9 +317,11 @@ def validate(dataset_name: str = typer.Argument("all")):
             if not check_dims(ds, dataset, split, ds_config):
                 bad_splits["bad dimensions"].add(split)
 
-            # check meta vars
-            if not check_meta_vars(ds, dataset, split, ds_config):
-                bad_splits["bad meta vars"].add(split)
+            # check grid and time
+            if not check_grid_vars(ds, dataset, split, ds_config):
+                bad_splits["bad grid vars"].add(split)
+            if not check_time_bnds(ds, dataset, split, ds_config):
+                bad_splits["bad time_bnds"].add(split)
 
             # check shape
             if not check_shape(ds, dataset, split, ds_config):
