@@ -351,6 +351,10 @@ def xfer(
     run_cmd(file_xfer_cmd)
 
 
+def check_nans(ds, var):
+    return ds[var].isnull().sum().values.item() == 0
+
+
 def check_dims(ds, var):
     grid_mapping = ds[var].attrs["grid_mapping"]
     if grid_mapping == "rotated_latitude_longitude":
@@ -367,6 +371,46 @@ def check_dims(ds, var):
         ]
     else:
         raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
+
+
+def check_forecast_encoding(ds, var):
+    if "coordinates" in ds[var].encoding and (
+        re.match(
+            "(realization|forecast_period|forecast_reference_time) ?",
+            ds[var].encoding["coordinates"],
+        )
+        is not None
+    ):
+        return True
+    return False
+
+
+def check_forecast_vars(ds, var):
+    for v in ds.variables:
+        if v in [
+            "forecast_period",
+            "forecast_reference_time",
+            "realization",
+            "forecast_period_bnds",
+        ]:
+            return True
+    return False
+
+
+def check_pressure_encoding(ds, var):
+    for v in ds.variables:
+        if "coordinates" in ds[v].encoding and (
+            re.match("(pressure) ?", ds[v].encoding["coordinates"]) is not None
+        ):
+            return False
+    return True
+
+
+def check_pressure_vars(ds, var):
+    for v in ds.variables:
+        if v in ["pressure"]:
+            return False
+    return True
 
 
 @app.command()
@@ -478,9 +522,8 @@ def validate(
                             bad_years["no file"].add(year)
                             continue
 
-                        nan_count = ds[var].isnull().sum().values.item()
-
-                        if nan_count > 0:
+                        # check for NaNs
+                        if not check_nans(ds, var):
                             bad_years["NaNs"].add(year)
 
                         # check dims
@@ -488,32 +531,15 @@ def validate(
                             bad_years["bad dimensions"].add(year)
 
                         # check for forecast related metadata (should have been stripped)
-                        for v in ds.variables:
-                            if "coordinates" in ds[v].encoding and (
-                                re.match(
-                                    "(realization|forecast_period|forecast_reference_time) ?",
-                                    ds[v].encoding["coordinates"],
-                                )
-                                is not None
-                            ):
-                                bad_years["forecast_encoding"].add(year)
-                            if v in [
-                                "forecast_period",
-                                "forecast_reference_time",
-                                "realization",
-                                "forecast_period_bnds",
-                            ]:
-                                bad_years["forecast_vars"].add(year)
-
+                        if not check_forecast_encoding(ds, var):
+                            bad_years["forecast_encoding"].add(year)
+                        if not check_forecast_vars(ds, var):
+                            bad_years["forecast_vars"].add(year)
                         # check for pressure related metadata (should have been stripped)
-                        for v in ds.variables:
-                            if "coordinates" in ds[v].encoding and (
-                                re.match("(pressure) ?", ds[v].encoding["coordinates"])
-                                is not None
-                            ):
-                                bad_years["pressure_encoding"].add(year)
-                            if v in ["pressure"]:
-                                bad_years["pressure_vars"].add(year)
+                        if not check_pressure_encoding(ds, var):
+                            bad_years["pressure_encoding"].add(year)
+                        if not check_pressure_vars(ds, var):
+                            bad_years["pressure_vars"].add(year)
 
                     # report findings
                     for reason, error_years in bad_years.items():
