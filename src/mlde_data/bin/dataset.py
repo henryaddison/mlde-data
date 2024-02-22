@@ -177,10 +177,18 @@ def check_dims(ds, dataset, split, ds_config):
 
 def check_shape(ds, dataset, split, ds_config):
     ems = ds_config["ensemble_members"]
-    if split == "train":
-        expected_shape = (len(ems), 360 * 14 * 3, 64, 64)
+    grid_mapping = ds["target_pr"].attrs["grid_mapping"]
+    if grid_mapping == "rotated_latitude_longitude":
+        size = 64
+    elif grid_mapping == "latitude_longitude":
+        size = 9
     else:
-        expected_shape = (len(ems), 360 * 3 * 3, 64, 64)
+        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
+
+    if split == "train":
+        expected_shape = (len(ems), 360 * 14 * 3, size, size)
+    else:
+        expected_shape = (len(ems), 360 * 3 * 3, size, size)
     return ds["target_pr"].shape == expected_shape
 
 
