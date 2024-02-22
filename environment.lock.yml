@@ -1,5 +1,6 @@
 name: downscaling-data
 channels:
+  - pyviz
   - conda-forge
   - defaults
 dependencies:
@@ -246,4 +247,6 @@ dependencies:
   - zipp=3.12.0=pyhd8ed1ab_0
   - zlib=1.2.13=h166bdaf_4
   - zstd=1.5.2=h3eb15da_6
-prefix: /home/henry/miniconda3/envs/downscaling-data
+  - pip:
+      - mlde-utils==0.0.4
+prefix: /home/henry/mambaforge/envs/downscaling-data
