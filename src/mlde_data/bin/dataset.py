@@ -186,12 +186,12 @@ def check_shape(ds, dataset, split, ds_config):
 
 def check_meta_vars(ds, dataset, split, ds_config):
     grid_mapping = ds["target_pr"].attrs["grid_mapping"]
-    meta_vars = (
+    meta_vars = [
         grid_mapping,
         "time_bnds",
-        "grid_latitude_bnds",
-        "grid_longitude_bnds",
-    )
+    ]
+    if grid_mapping == "rotated_latitude_longitude":
+        meta_vars.extend(["grid_latitude_bnds", "grid_longitude_bnds"])
 
     return all(
         [
