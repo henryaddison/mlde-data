@@ -12,7 +12,14 @@ import yaml
 import typer
 import xarray as xr
 
-from mlde_utils import VariableMetadata, TIME_PERIODS
+from mlde_utils import (
+    VariableMetadata,
+    TIME_PERIODS,
+    dataset_path,
+    dataset_config_path,
+    dataset_config,
+    dataset_split_path,
+)
 from ..dataset import (
     RandomSplit,
     RandomSeasonSplit,
@@ -33,8 +40,8 @@ def callback():
 @app.command()
 def create(
     config: Path,
-    input_base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"),
-    output_base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"),
+    input_base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"),
+    output_base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"),
 ):
     """
     Create a dataset
@@ -62,7 +69,7 @@ def create(
             }
         )
         predictand_meta = VariableMetadata(
-            input_base_dir, ensemble_member=em, **predictand_var_params
+            input_base_dir / "moose", ensemble_member=em, **predictand_var_params
         )
 
         predictors_meta = []
@@ -78,7 +85,9 @@ def create(
             }
             var_params.update({k: predictor_var_config[k] for k in ["variable"]})
             predictors_meta.append(
-                VariableMetadata(input_base_dir, ensemble_member=em, **var_params)
+                VariableMetadata(
+                    input_base_dir / "moose", ensemble_member=em, **var_params
+                )
             )
 
         example_predictor_filepath = predictors_meta[0].existing_filepaths()[0]
@@ -134,12 +143,12 @@ def create(
 
     split_sets = splitter.run(combined_dataset)
 
-    output_dir = os.path.join(output_base_dir, "nc-datasets", config_name)
+    output_dir = dataset_path(config_name, base_dir=output_base_dir)
 
     os.makedirs(output_dir, exist_ok=False)
 
     logger.info(f"Saving data to {output_dir}")
-    with open(os.path.join(output_dir, "ds-config.yml"), "w") as f:
+    with open(dataset_config_path(config_name, base_dir=output_base_dir), "w") as f:
         yaml.dump(config, f)
     for split_name, split_ds in split_sets.items():
         split_ds.to_netcdf(os.path.join(output_dir, f"{split_name}.nc"))
@@ -267,16 +276,18 @@ def validate(dataset_name: str = typer.Argument("all")):
         if (dataset_name != "all") and (dataset_name != dataset):
             continue
         bad_splits = defaultdict(set)
+
+        try:
+            ds_config = dataset_config(dataset)
+        except FileNotFoundError:
+            bad_splits["no config"].add(splits)
+            continue
+
         for split in splits:
             sys.stdout.write("\033[K")
             print(f"Checking {split} of {dataset}", end="\r")
-            dataset_path = os.path.join(
-                os.getenv("MOOSE_DERIVED_DATA"), "nc-datasets", dataset
-            )
-            ds_config_path = os.path.join(dataset_path, "ds-config.yml")
-            with open(ds_config_path, "r") as f:
-                ds_config = yaml.safe_load(f)
-            split_path = os.path.join(dataset_path, f"{split}.nc")
+
+            split_path = dataset_split_path(dataset, split)
             try:
                 ds = xr.open_dataset(split_path)
             except FileNotFoundError:
@@ -325,10 +336,8 @@ def random_subset(
     split: str = "train",
     seed: int = 42,
 ):
-    datasets_dir = Path(os.getenv("MOOSE_DERIVED_DATA")) / "nc-datasets"
-
-    src_dataset_dir = datasets_dir / src_dataset
-    dest_dataset_dir = datasets_dir / dest_dataset
+    src_dataset_dir = dataset_path(src_dataset)
+    dest_dataset_dir = dataset_path(dest_dataset)
 
     logger.info(f"Copying {src_dataset_dir} to {dest_dataset_dir}...")
     # os.makedirs(dest_dataset_dir, exist_ok=True)
@@ -356,7 +365,7 @@ def random_subset_split(
     new_split: str = None,
     seed: int = 42,
 ):
-    dataset_dir = Path(os.getenv("MOOSE_DERIVED_DATA")) / "nc-datasets" / dataset
+    dataset_dir = dataset_path(dataset)
 
     orig_split_filepath = dataset_dir / f"{split}.nc"
     if new_split is None:
@@ -380,19 +389,18 @@ def random_subset_split(
 def filter(
     dataset: str,
     time_period: str,
-    base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"),
+    base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"),
 ):
 
-    input_dir = os.path.join(base_dir, "nc-datasets", dataset)
-    input_config_path = os.path.join(input_dir, "ds-config.yml")
-    with open(input_config_path, "r") as f:
-        config = yaml.safe_load(f)
+    input_dir = dataset_path(dataset, base_dir=base_dir)
+    config = dataset_config(dataset, base_dir=base_dir)
 
     config_filters = config.get("filters", list())
     config_filters.append({"time_period": time_period})
     config["filters"] = config_filters
 
-    output_dir = os.path.join(base_dir, "nc-datasets", f"{dataset}-{time_period}")
+    new_dataset = f"{dataset}-{time_period}"
+    output_dir = dataset_path(new_dataset, base_dir=base_dir)
     os.makedirs(output_dir, exist_ok=False)
     for split_filepath in glob.glob(os.path.join(input_dir, "*.nc")):
         split_file = os.path.basename(split_filepath)
@@ -401,8 +409,7 @@ def filter(
         output_filepath = os.path.join(output_dir, split_file)
         split_ds.sel(time=slice(*TIME_PERIODS[time_period])).to_netcdf(output_filepath)
 
-    output_config_path = os.path.join(output_dir, "ds-config.yml")
-    with open(output_config_path, "w") as f:
+    with open(dataset_config_path(new_dataset, base_dir=base_dir), "w") as f:
         yaml.dump(config, f)
 
 
@@ -411,10 +418,10 @@ def quantile(
     dataset: str,
     p: float,
     variable: str = "target_pr",
-    base_dir: Path = typer.Argument(..., envvar="MOOSE_DERIVED_DATA"),
+    base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"),
     split: str = "train",
 ):
-    input_dir = os.path.join(base_dir, "nc-datasets", dataset)
+    input_dir = dataset_path(dataset, base_dir=base_dir)
 
     split_ds = xr.open_dataset(os.path.join(input_dir, f"{split}.nc"))
     Q_p = split_ds[variable].quantile(p)
