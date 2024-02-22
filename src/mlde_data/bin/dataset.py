@@ -279,6 +279,7 @@ def report_issues(dataset, bad_splits):
 @app.command()
 def validate(dataset_name: str = typer.Argument("all")):
     datasets = [
+        "bham_60km-4x_1em_vort850_eqvt_random-season",
         "bham_60km-4x_1em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
         "bham_60km-4x_12em_linpr_eqvt_random-season",
         "bham_60km-4x_12em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
@@ -287,6 +288,7 @@ def validate(dataset_name: str = typer.Argument("all")):
         "bham_60km-4x_12em_vort850_eqvt_random-season",
         "bham_60km-60km_1em_rawpr_eqvt_random-season",
         "bham_60km-60km_12em_rawpr_eqvt_random-season",
+        "bham_gcmx-4x_1em_vort850_eqvt_random-season",
         "bham_gcmx-4x_1em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
         "bham_gcmx-4x_12em_linpr_eqvt_random-season",
         "bham_gcmx-4x_12em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
