@@ -464,7 +464,7 @@ def validate(
                     bad_years = defaultdict(set)
                     for year in years:
                         var_meta = VariableMetadata(
-                            os.getenv("MOOSE_DERIVED_DATA"),
+                            f"{os.getenv('DERIVED_DATA')}/moose",
                             variable=var,
                             frequency="day",
                             domain=domain,
