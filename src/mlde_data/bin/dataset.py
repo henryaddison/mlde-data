@@ -280,7 +280,7 @@ def validate(dataset_name: str = typer.Argument("all")):
         try:
             ds_config = dataset_config(dataset)
         except FileNotFoundError:
-            bad_splits["no config"].add(splits)
+            bad_splits["no config"].update(splits)
             continue
 
         for split in splits:
