@@ -170,12 +170,8 @@ def check_shape(ds, dataset, split, ds_config):
     ems = ds_config["ensemble_members"]
     if split == "train":
         expected_shape = (len(ems), 360 * 14 * 3, 64, 64)
-    elif "_eqvt_" in dataset:
-        expected_shape = (len(ems), 360 * 3 * 3, 64, 64)
-    elif split == "test":
-        expected_shape = (len(ems), 360 * 2 * 3, 64, 64)
     else:
-        expected_shape = (len(ems), 360 * 4 * 3, 64, 64)
+        expected_shape = (len(ems), 360 * 3 * 3, 64, 64)
     return ds["target_pr"].shape == expected_shape
 
 
