@@ -45,7 +45,11 @@ class RandomSeasonSplit:
                     split_chunks[split].append(split_chunk)
 
         splits = {
-            split: xr.concat(split_chunks, dim="time").sortby("time")
+            split: xr.merge(
+                split_chunks,
+                compat="no_conflicts",
+                combine_attrs="no_conflicts",
+            ).sortby("time")
             for split, split_chunks in split_chunks.items()
         }
         # for split_ds in splits.values():
