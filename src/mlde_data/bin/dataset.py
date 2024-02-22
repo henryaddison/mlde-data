@@ -95,14 +95,26 @@ def create(
 
         predictor_datasets = []
         for dsmeta in predictors_meta:
-            predictor_ds = xr.open_mfdataset(dsmeta.existing_filepaths())
+            # predictor_ds = xr.open_mfdataset(dsmeta.existing_filepaths())
+            predictor_ds = xr.merge(
+                [xr.open_dataset(f) for f in dsmeta.existing_filepaths()],
+                join="outer",
+                combine_attrs="no_conflicts",
+                compat="no_conflicts",
+            )
             predictor_ds[dsmeta.variable] = predictor_ds[dsmeta.variable].expand_dims(
                 dict(ensemble_member=[em])
             )
 
             predictor_datasets.append(predictor_ds)
 
-        predictand_dataset = xr.open_mfdataset(predictand_meta.existing_filepaths())
+        # predictand_dataset = xr.open_mfdataset(predictand_meta.existing_filepaths())
+        predictand_dataset = xr.merge(
+            [xr.open_dataset(f) for f in predictand_meta.existing_filepaths()],
+            join="outer",
+            combine_attrs="no_conflicts",
+            compat="no_conflicts",
+        )
         predictand_dataset[predictand_meta.variable] = predictand_dataset[
             predictand_meta.variable
         ].expand_dims(dict(ensemble_member=[em]))
@@ -110,13 +122,13 @@ def create(
             {predictand_meta.variable: f"target_{predictand_meta.variable}"}
         )
 
-        combined_dataset = xr.combine_by_coords(
+        combined_dataset = xr.merge(
             [*predictor_datasets, predictand_dataset],
-            compat="override",
-            combine_attrs="drop_conflicts",
-            coords="all",
-            join="inner",
-            data_vars="all",
+            compat="no_conflicts",
+            combine_attrs="no_conflicts",
+            # coords="all",
+            join="exact",
+            # data_vars="all",
         )
         combined_dataset = combined_dataset.assign_coords(
             season=(("time"), (combined_dataset["time.month"].values % 12 // 3))
