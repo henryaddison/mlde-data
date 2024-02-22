@@ -93,12 +93,22 @@ def create(
         example_predictor_filepath = predictors_meta[0].existing_filepaths()[0]
         time_encoding = xr.open_dataset(example_predictor_filepath).time_bnds.encoding
 
-        predictor_datasets = [
-            xr.open_mfdataset(dsmeta.existing_filepaths()) for dsmeta in predictors_meta
-        ]
-        predictand_dataset = xr.open_mfdataset(
-            predictand_meta.existing_filepaths()
-        ).rename({predictand_meta.variable: f"target_{predictand_meta.variable}"})
+        predictor_datasets = []
+        for dsmeta in predictors_meta:
+            predictor_ds = xr.open_mfdataset(dsmeta.existing_filepaths())
+            predictor_ds[dsmeta.variable] = predictor_ds[dsmeta.variable].expand_dims(
+                dict(ensemble_member=[em])
+            )
+
+            predictor_datasets.append(predictor_ds)
+
+        predictand_dataset = xr.open_mfdataset(predictand_meta.existing_filepaths())
+        predictand_dataset[predictand_meta.variable] = predictand_dataset[
+            predictand_meta.variable
+        ].expand_dims(dict(ensemble_member=[em]))
+        predictand_dataset = predictand_dataset.rename(
+            {predictand_meta.variable: f"target_{predictand_meta.variable}"}
+        )
 
         combined_dataset = xr.combine_by_coords(
             [*predictor_datasets, predictand_dataset],
@@ -112,7 +122,6 @@ def create(
             season=(("time"), (combined_dataset["time.month"].values % 12 // 3))
         )
 
-        combined_dataset = combined_dataset.expand_dims(dict(ensemble_member=[em]))
         combined_datasets.append(combined_dataset)
 
     combined_dataset = xr.concat(combined_datasets, dim="ensemble_member")
