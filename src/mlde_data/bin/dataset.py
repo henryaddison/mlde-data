@@ -124,7 +124,7 @@ def create(
         combined_dataset = xr.merge(
             [*predictor_datasets, predictand_dataset],
             compat="no_conflicts",
-            combine_attrs="no_conflicts",
+            combine_attrs="drop_conflicts",
             # coords="all",
             join="exact",
             # data_vars="all",
