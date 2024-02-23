@@ -1,4 +1,5 @@
 from collections import defaultdict
+import gc
 import glob
 import logging
 import os
@@ -55,7 +56,7 @@ def create(
     test_prop: float = config["split"]["test_prop"]
     split_seed: int = config["split"]["seed"]
 
-    combined_datasets = []
+    single_em_datasets = []
 
     for em in config["ensemble_members"]:
 
@@ -107,7 +108,6 @@ def create(
 
             predictor_datasets.append(predictor_ds)
 
-        # predictand_dataset = xr.open_mfdataset(predictand_meta.existing_filepaths())
         predictand_dataset = xr.merge(
             [xr.open_dataset(f) for f in predictand_meta.existing_filepaths()],
             join="outer",
@@ -121,26 +121,29 @@ def create(
             {predictand_meta.variable: f"target_{predictand_meta.variable}"}
         )
 
-        combined_dataset = xr.merge(
+        single_em_dataset = xr.merge(
             [*predictor_datasets, predictand_dataset],
             compat="no_conflicts",
             combine_attrs="drop_conflicts",
-            # coords="all",
             join="exact",
-            # data_vars="all",
         )
-        combined_dataset = combined_dataset.assign_coords(
-            season=(("time"), (combined_dataset["time.month"].values % 12 // 3))
+        single_em_dataset = single_em_dataset.assign_coords(
+            season=(("time"), (single_em_dataset["time.month"].values % 12 // 3))
         )
 
-        combined_datasets.append(combined_dataset)
+        single_em_datasets.append(single_em_dataset)
+
+        del predictor_datasets, predictand_dataset, single_em_dataset
+        gc.collect()
 
     combined_dataset = xr.merge(
-        combined_datasets,
+        single_em_datasets,
         compat="no_conflicts",
         combine_attrs="no_conflicts",
         join="exact",
     )
+    del single_em_datasets
+    gc.collect()
 
     if split_scheme == "ssi":
         splitter = SeasonStratifiedIntensitySplit(
