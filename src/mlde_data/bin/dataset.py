@@ -179,6 +179,8 @@ def create(
     with open(dataset_config_path(config_name, base_dir=output_base_dir), "w") as f:
         yaml.dump(config, f)
     for split_name, split_ds in split_sets.items():
+        for var in split_ds.data_vars:
+            var.encoding.update(zlib=True, complevel=5)
         split_ds.to_netcdf(os.path.join(output_dir, f"{split_name}.nc"))
 
 
