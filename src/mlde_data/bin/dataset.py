@@ -125,7 +125,7 @@ def create(
             [*predictor_datasets, predictand_dataset],
             compat="no_conflicts",
             combine_attrs="drop_conflicts",
-            join="exact",
+            join="outer",
         )
         single_em_dataset = single_em_dataset.assign_coords(
             season=(("time"), (single_em_dataset["time.month"].values % 12 // 3))
