@@ -125,7 +125,7 @@ def create(
             [*predictor_datasets, predictand_dataset],
             compat="no_conflicts",
             combine_attrs="drop_conflicts",
-            join="outer",
+            join="exact",
         )
         single_em_dataset = single_em_dataset.assign_coords(
             season=(("time"), (single_em_dataset["time.month"].values % 12 // 3))
@@ -140,7 +140,7 @@ def create(
         single_em_datasets,
         compat="no_conflicts",
         combine_attrs="no_conflicts",
-        join="exact",
+        join="outer",
     )
     del single_em_datasets
     gc.collect()
