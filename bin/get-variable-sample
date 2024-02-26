@@ -1,0 +1,51 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+domain="birmingham-64"
+resolution="2.2km-coarsened-gcm-2.2km-coarsened-4x"
+ensemble_member="01"
+scenario="rcp85"
+
+while getopts ":d:e:r:" opt; do
+  case ${opt} in
+    d)
+      domain=${OPTARG}
+      ;;
+    e )
+      ensemble_member=${OPTARG}
+      ;;
+    r )
+      resolution=${OPTARG}
+      ;;
+   \? )
+     echo "Invalid Option: -${OPTARG}" 1>&2
+     exit 1
+     ;;
+  esac
+done
+shift $((OPTIND -1))
+
+variable=$1
+bp_host=${2:-"bp"}
+
+if [[ ${resolution} == 2.2km-* ]]; then
+  collection="land-cpm"
+elif [[ ${resolution} == 60km-* ]]; then
+  collection="land-gcm"
+fi
+
+local_dirpath=${DERIVED_DATA}/moose/${domain}/${resolution}/${scenario}/${ensemble_member}/${variable}/day/
+bp_dirpath=/user/work/vf20964/moose/${domain}/${resolution}/${scenario}/${ensemble_member}/${variable}/day
+
+mkdir -p ${local_dirpath}
+
+for year in 1981 2000 2021 2040 2061 2080; do
+  let "dec_year=year-1"
+  time_range="${dec_year}1201-${year}1130"
+  filename=${variable}_${scenario}_${collection}_${domain}_${resolution}_${ensemble_member}_day_${time_range}.nc
+
+  scp ${bp_host}:${bp_dirpath}/${filename} ${local_dirpath}
+done
+
+mlde-data sample ${local_dirpath}/*.nc
