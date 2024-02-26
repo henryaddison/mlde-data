@@ -96,11 +96,12 @@ def create(
 
         predictor_datasets = []
         for dsmeta in predictors_meta:
-            predictor_ds = xr.merge(
-                [xr.open_dataset(f) for f in dsmeta.existing_filepaths()],
-                join="outer",
-                combine_attrs="override",  # history attr is different for each file
+            predictor_ds = xr.open_mfdataset(
+                dsmeta.existing_filepaths(),
+                data_vars="minimal",
+                combine="by_coords",
                 compat="no_conflicts",
+                combine_attrs="drop_conflicts",
             )
             predictor_ds[dsmeta.variable] = predictor_ds[dsmeta.variable].expand_dims(
                 dict(ensemble_member=[em])
@@ -108,39 +109,44 @@ def create(
 
             predictor_datasets.append(predictor_ds)
 
-        predictand_dataset = xr.merge(
-            [xr.open_dataset(f) for f in predictand_meta.existing_filepaths()],
-            join="outer",
-            combine_attrs="no_conflicts",
+        predictand_ds = xr.open_mfdataset(
+            predictand_meta.existing_filepaths(),
+            data_vars="minimal",
+            combine="by_coords",
             compat="no_conflicts",
+            combine_attrs="drop_conflicts",
         )
-        predictand_dataset[predictand_meta.variable] = predictand_dataset[
+        predictand_ds[predictand_meta.variable] = predictand_ds[
             predictand_meta.variable
         ].expand_dims(dict(ensemble_member=[em]))
-        predictand_dataset = predictand_dataset.rename(
+        predictand_ds = predictand_ds.rename(
             {predictand_meta.variable: f"target_{predictand_meta.variable}"}
         )
 
-        single_em_dataset = xr.merge(
-            [*predictor_datasets, predictand_dataset],
+        single_em_ds = xr.combine_by_coords(
+            [*predictor_datasets, predictand_ds],
             compat="no_conflicts",
             combine_attrs="drop_conflicts",
             join="exact",
-        )
-        single_em_dataset = single_em_dataset.assign_coords(
-            season=(("time"), (single_em_dataset["time.month"].values % 12 // 3))
+            data_vars="minimal",
         )
 
-        single_em_datasets.append(single_em_dataset)
+        single_em_ds = single_em_ds.assign_coords(
+            season=(("time"), (single_em_ds["time.month"].values % 12 // 3))
+        )
 
-        del predictor_datasets, predictand_dataset, single_em_dataset
+        single_em_datasets.append(single_em_ds)
+
+        del predictor_datasets, predictand_ds, single_em_ds
         gc.collect()
 
-    combined_dataset = xr.merge(
+    multi_em_ds = xr.concat(
         single_em_datasets,
+        dim="ensemble_member",
         compat="no_conflicts",
-        combine_attrs="no_conflicts",
-        join="outer",
+        combine_attrs="drop_conflicts",
+        join="exact",
+        data_vars="minimal",
     )
     del single_em_datasets
     gc.collect()
@@ -169,7 +175,7 @@ def create(
     else:
         raise RuntimeError(f"Unknown split scheme {split_scheme}")
 
-    split_sets = splitter.run(combined_dataset)
+    split_sets = splitter.run(multi_em_ds)
 
     output_dir = dataset_path(config_name, base_dir=output_base_dir)
 
