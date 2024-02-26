@@ -11,7 +11,7 @@ from . import moose
 from . import preprocess
 from . import variable
 
-app = typer.Typer()
+app = typer.Typer(pretty_exceptions_show_locals=False)
 app.add_typer(ceda.app, name="ceda")
 app.add_typer(dataset.app, name="dataset")
 app.add_typer(moose.app, name="moose")
