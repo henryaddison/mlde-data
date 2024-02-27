@@ -1,7 +1,9 @@
+import logging
 import os
 from pathlib import Path
 from typing import List
 
+from dotenv import load_dotenv
 import typer
 import xarray as xr
 
@@ -10,6 +12,13 @@ from . import dataset
 from . import moose
 from . import preprocess
 from . import variable
+
+load_dotenv()  # take environment variables from .env.
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
+logger = logging.getLogger(__name__)
+log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
+logger.setLevel(log_level)
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
 app.add_typer(ceda.app, name="ceda")

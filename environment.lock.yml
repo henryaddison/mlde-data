@@ -18,11 +18,11 @@ dependencies:
   - brotlipy=0.7.0=py39hb9d737c_1005
   - bzip2=1.0.8=h7f98852_4
   - c-ares=1.18.1=h7f98852_0
-  - ca-certificates=2022.12.7=ha878542_0
+  - ca-certificates=2024.2.2=hbcca054_0
   - cairo=1.16.0=ha61ee94_1014
   - cartopy=0.21.1=py39h6e7ad6e_0
   - cdo=2.1.1=h2b8e28a_0
-  - certifi=2022.12.7=pyhd8ed1ab_0
+  - certifi=2024.2.2=pyhd8ed1ab_0
   - cf-units=3.1.1=py39h2ae25f5_2
   - cffi=1.15.1=py39he91dace_3
   - cfgv=3.3.1=pyhd8ed1ab_0
@@ -154,7 +154,7 @@ dependencies:
   - nodeenv=1.7.0=pyhd8ed1ab_0
   - numpy=1.24.1=py39h7360e5f_0
   - openjpeg=2.5.0=hfec8fc6_2
-  - openssl=3.1.0=h0b41bf4_0
+  - openssl=3.2.1=hd590300_0
   - packaging=23.0=pyhd8ed1ab_0
   - pandas=1.5.3=py39h2ad29b5_0
   - pango=1.50.12=hd33c08f_1
@@ -186,6 +186,7 @@ dependencies:
   - python=3.9.15=hba424b6_0_cpython
   - python-cdo=1.5.7=pyhd8ed1ab_0
   - python-dateutil=2.8.2=pyhd8ed1ab_0
+  - python-dotenv=1.0.1=pyhd8ed1ab_0
   - python-telegram-bot=20.0=pyhd8ed1ab_0
   - python-xxhash=3.2.0=py39h72bdee0_0
   - python_abi=3.9=3_cp39
@@ -258,4 +259,4 @@ dependencies:
       - time-machine==2.13.0
       - tzdata==2024.1
       - validators==0.22.0
-prefix: /home/henry/mambaforge/envs/downscaling-data
+prefix: /home/henry/miniforge3/envs/downscaling-data
