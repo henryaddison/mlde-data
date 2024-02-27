@@ -138,6 +138,7 @@ def create(
 
         del predictor_datasets, predictand_ds, single_em_ds
         gc.collect()
+        logger.debug(f"Gathered data for {em}")
 
     multi_em_ds = xr.concat(
         single_em_datasets,
@@ -173,20 +174,21 @@ def create(
         )
     else:
         raise RuntimeError(f"Unknown split scheme {split_scheme}")
-
+    logger.info(f"Splitting data...")
     split_sets = splitter.run(multi_em_ds)
 
     output_dir = dataset_path(config_name, base_dir=output_base_dir)
 
     os.makedirs(output_dir, exist_ok=False)
 
-    logger.info(f"Saving data to {output_dir}")
+    logger.info(f"Saving data to {output_dir}...")
     with open(dataset_config_path(config_name, base_dir=output_base_dir), "w") as f:
         yaml.dump(config, f)
     for split_name, split_ds in split_sets.items():
         for varname in split_ds.data_vars:
             split_ds[varname].encoding.update(zlib=True, complevel=5)
         split_ds.to_netcdf(os.path.join(output_dir, f"{split_name}.nc"))
+        logger.info(f"{split_name} done")
 
 
 def check_dims(ds, dataset, split, ds_config):
