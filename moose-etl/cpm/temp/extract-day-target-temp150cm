@@ -4,14 +4,14 @@ set -euo pipefail
 
 ensemble_member=$1
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 domain="birmingham"
 scale_factor="4"
 target_resolution="2.2km-coarsened-4x"
 target_size=64
 frequency="day"
-variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/${frequency}/land-cpm/tmean150cm.yml"
-
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+variable="${SCRIPT_DIR}/../../../src/mlde_data/config/variables/${frequency}/land-cpm/tmean150cm.yml"
 
 QUEUE_DEP_PATH=${SCRIPT_DIR}/../../queue-dep-func
 BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../../batch-wrapper
