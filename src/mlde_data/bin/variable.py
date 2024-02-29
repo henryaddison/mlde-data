@@ -381,8 +381,8 @@ def check_forecast_encoding(ds, var):
         )
         is not None
     ):
-        return True
-    return False
+        return False
+    return True
 
 
 def check_forecast_vars(ds, var):
@@ -393,8 +393,8 @@ def check_forecast_vars(ds, var):
             "realization",
             "forecast_period_bnds",
         ]:
-            return True
-    return False
+            return False
+    return True
 
 
 def check_pressure_encoding(ds, var):
