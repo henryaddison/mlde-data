@@ -417,17 +417,14 @@ def check_grid_vars(ds, var):
     grid_mapping = ds[var].attrs["grid_mapping"]
     meta_vars = [
         grid_mapping,
-        "time_bnds",
     ]
     if grid_mapping == "rotated_latitude_longitude":
         meta_vars.extend(["grid_latitude_bnds", "grid_longitude_bnds"])
 
-    return all(
-        [
-            ("ensemble_member" not in ds[mvar].dims) and ("time" not in ds[mvar].dims)
-            for mvar in meta_vars
-        ]
-    )
+    for mvar in meta_vars:
+        if ("ensemble_member" in ds[mvar].dims) or ("time" in ds[mvar].dims):
+            return False
+    return True
 
 
 def check_time_bnds(ds, var):
