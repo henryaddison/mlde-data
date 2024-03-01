@@ -1,5 +1,4 @@
 from collections import defaultdict
-import gc
 import glob
 import logging
 import os
@@ -14,18 +13,14 @@ import typer
 import xarray as xr
 
 from mlde_utils import (
-    VariableMetadata,
     TIME_PERIODS,
     dataset_path,
     dataset_config_path,
     dataset_config,
     dataset_split_path,
 )
-from ..dataset import (
-    RandomSplit,
-    RandomSeasonSplit,
-    SeasonStratifiedIntensitySplit,
-)
+
+from .. import dataset as dataset_lib
 
 logger = logging.getLogger(__name__)
 
@@ -44,138 +39,13 @@ def create(
     output_base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"),
 ):
     """
-    Create a dataset
+    Create and save a dataset
     """
     config_name = config.stem
     with open(config, "r") as f:
         config = yaml.safe_load(f)
 
-    split_scheme = config["split"]["scheme"]
-    val_prop: float = config["split"]["val_prop"]
-    test_prop: float = config["split"]["test_prop"]
-    split_seed: int = config["split"]["seed"]
-
-    single_em_datasets = []
-
-    for em in config["ensemble_members"]:
-
-        predictand_var_params = {
-            k: config[k] for k in ["domain", "scenario", "frequency"]
-        }
-        predictand_var_params.update(
-            {
-                "variable": config["predictand"]["variable"],
-                "resolution": config["predictand"]["resolution"],
-            }
-        )
-        predictand_meta = VariableMetadata(
-            input_base_dir / "moose", ensemble_member=em, **predictand_var_params
-        )
-
-        predictors_meta = []
-        for predictor_var_config in config["predictors"]:
-            var_params = {
-                k: config[k]
-                for k in [
-                    "domain",
-                    "scenario",
-                    "frequency",
-                    "resolution",
-                ]
-            }
-            var_params.update({k: predictor_var_config[k] for k in ["variable"]})
-            predictors_meta.append(
-                VariableMetadata(
-                    input_base_dir / "moose", ensemble_member=em, **var_params
-                )
-            )
-
-        example_predictor_filepath = predictors_meta[0].existing_filepaths()[0]
-        time_encoding = xr.open_dataset(example_predictor_filepath).time_bnds.encoding
-
-        predictor_datasets = []
-        for dsmeta in predictors_meta:
-            predictor_ds = xr.open_mfdataset(
-                dsmeta.existing_filepaths(),
-                data_vars="minimal",
-                combine="by_coords",
-                compat="no_conflicts",
-                combine_attrs="drop_conflicts",
-            )
-            predictor_ds[dsmeta.variable] = predictor_ds[dsmeta.variable].expand_dims(
-                dict(ensemble_member=[em])
-            )
-
-            predictor_datasets.append(predictor_ds)
-
-        predictand_ds = xr.open_mfdataset(
-            predictand_meta.existing_filepaths(),
-            data_vars="minimal",
-            combine="by_coords",
-            compat="no_conflicts",
-            combine_attrs="drop_conflicts",
-        )
-        predictand_ds[predictand_meta.variable] = predictand_ds[
-            predictand_meta.variable
-        ].expand_dims(dict(ensemble_member=[em]))
-        predictand_ds = predictand_ds.rename(
-            {predictand_meta.variable: f"target_{predictand_meta.variable}"}
-        )
-
-        single_em_ds = xr.combine_by_coords(
-            [*predictor_datasets, predictand_ds],
-            compat="no_conflicts",
-            combine_attrs="drop_conflicts",
-            join="exact",
-            data_vars="minimal",
-        )
-
-        single_em_ds = single_em_ds.assign_coords(
-            season=(("time"), (single_em_ds["time.month"].values % 12 // 3))
-        )
-
-        single_em_datasets.append(single_em_ds)
-
-        del predictor_datasets, predictand_ds, single_em_ds
-        gc.collect()
-        logger.debug(f"Gathered data for {em}")
-
-    multi_em_ds = xr.concat(
-        single_em_datasets,
-        dim="ensemble_member",
-        compat="no_conflicts",
-        combine_attrs="drop_conflicts",
-        join="exact",
-        data_vars="minimal",
-    )
-    del single_em_datasets
-    gc.collect()
-
-    if split_scheme == "ssi":
-        splitter = SeasonStratifiedIntensitySplit(
-            val_prop=val_prop,
-            test_prop=test_prop,
-            time_encoding=time_encoding,
-            seed=split_seed,
-        )
-    elif split_scheme == "random":
-        splitter = RandomSplit(
-            val_prop=val_prop,
-            test_prop=test_prop,
-            time_encoding=time_encoding,
-            seed=split_seed,
-        )
-    elif split_scheme == "random-season":
-        splitter = RandomSeasonSplit(
-            val_prop=val_prop,
-            test_prop=test_prop,
-            time_encoding=time_encoding,
-            seed=split_seed,
-        )
-    else:
-        raise RuntimeError(f"Unknown split scheme {split_scheme}")
-    logger.info(f"Splitting data...")
-    split_sets = splitter.run(multi_em_ds)
+    split_sets = dataset_lib.create(config, input_base_dir)
 
     output_dir = dataset_path(config_name, base_dir=output_base_dir)
 
@@ -298,6 +168,16 @@ def check_nans(ds, dataset, split, ds_config):
     return True
 
 
+def check_time_encoding(ds, dataset, split, ds_config):
+    for enc in [ds.time.encoding, ds.time_bnds.encoding]:
+        if enc["units"] != "hours since 1970-01-01":
+            return False
+        if enc["calendar"] != "360_day":
+            return False
+
+    return True
+
+
 def report_issues(dataset, bad_splits):
     for reason, error_splits in bad_splits.items():
         if len(error_splits) > 0:
@@ -361,6 +241,8 @@ def validate(dataset_name: str = typer.Argument("all")):
                 bad_splits["bad grid vars"].add(split)
             if not check_time_bnds(ds, dataset, split, ds_config):
                 bad_splits["bad time_bnds"].add(split)
+            if not check_time_encoding(ds, dataset, split, ds_config):
+                bad_splits["bad time encodings"].add(split)
 
             # check shape
             if not check_shape(ds, dataset, split, ds_config):
