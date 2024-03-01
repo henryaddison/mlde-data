@@ -51,64 +51,40 @@ def _combine_variables(em: str, config: dict, input_base_dir: Path):
     """
     Combine predictor and predictand variables for a given ensemble into a single dataset
     """
-    predictand_var_params = {k: config[k] for k in ["domain", "scenario", "frequency"]}
-    predictand_var_params.update(
-        {
-            "variable": config["predictand"]["variable"],
-            "resolution": config["predictand"]["resolution"],
-        }
-    )
-    predictand_meta = VariableMetadata(
-        input_base_dir / "moose", ensemble_member=em, **predictand_var_params
-    )
 
-    predictors_meta = []
-    for predictor_var_config in config["predictors"]:
-        var_params = {
-            k: config[k]
-            for k in [
-                "domain",
-                "scenario",
-                "frequency",
-                "resolution",
-            ]
-        }
-        var_params.update({k: predictor_var_config[k] for k in ["variable"]})
-        predictors_meta.append(
-            VariableMetadata(input_base_dir / "moose", ensemble_member=em, **var_params)
-        )
+    common_var_params = {k: config[k] for k in ["domain", "scenario", "frequency"]}
 
-    predictor_datasets = []
-    for dsmeta in predictors_meta:
-        predictor_ds = xr.open_mfdataset(
-            dsmeta.existing_filepaths(),
-            data_vars="minimal",
-            combine="by_coords",
-            compat="no_conflicts",
-            combine_attrs="drop_conflicts",
-        )
-        predictor_ds[dsmeta.variable] = predictor_ds[dsmeta.variable].expand_dims(
-            dict(ensemble_member=[em])
-        )
+    variable_datasets = []
+    for var_type in ["predictors", "predictands"]:
+        var_type_config = config[var_type]
+        for predictor_var_name in var_type_config["variables"]:
+            dsmeta = VariableMetadata(
+                input_base_dir / "moose",
+                ensemble_member=em,
+                variable=predictor_var_name,
+                resolution=var_type_config["resolution"],
+                **common_var_params,
+            )
 
-        predictor_datasets.append(predictor_ds)
+            variable_ds = xr.open_mfdataset(
+                dsmeta.existing_filepaths(),
+                data_vars="minimal",
+                combine="by_coords",
+                compat="no_conflicts",
+                combine_attrs="drop_conflicts",
+            )
+            variable_ds[dsmeta.variable] = variable_ds[dsmeta.variable].expand_dims(
+                dict(ensemble_member=[em])
+            )
+            if var_type == "predictands":
+                variable_ds = variable_ds.rename(
+                    {dsmeta.variable: f"target_{dsmeta.variable}"}
+                )
 
-    predictand_ds = xr.open_mfdataset(
-        predictand_meta.existing_filepaths(),
-        data_vars="minimal",
-        combine="by_coords",
-        compat="no_conflicts",
-        combine_attrs="drop_conflicts",
-    )
-    predictand_ds[predictand_meta.variable] = predictand_ds[
-        predictand_meta.variable
-    ].expand_dims(dict(ensemble_member=[em]))
-    predictand_ds = predictand_ds.rename(
-        {predictand_meta.variable: f"target_{predictand_meta.variable}"}
-    )
+            variable_datasets.append(variable_ds)
 
     single_em_ds = xr.combine_by_coords(
-        [*predictor_datasets, predictand_ds],
+        variable_datasets,
         compat="no_conflicts",
         combine_attrs="drop_conflicts",
         join="exact",
