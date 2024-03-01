@@ -48,6 +48,9 @@ def create(config: dict, input_base_dir: Path):
 
 
 def _combine_variables(em: str, config: dict, input_base_dir: Path):
+    """
+    Combine predictor and predictand variables for a given ensemble into a single dataset
+    """
     predictand_var_params = {k: config[k] for k in ["domain", "scenario", "frequency"]}
     predictand_var_params.update(
         {
