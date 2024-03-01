@@ -115,12 +115,6 @@ def _combine_variables(em: str, config: dict, input_base_dir: Path):
         data_vars="minimal",
     )
 
-    # https://github.com/pydata/xarray/issues/2436 - time dim encoding lost when opened using open_mfdataset
-    example_predictor_filepath = predictors_meta[0].existing_filepaths()[0]
-    example_ds = xr.open_dataset(example_predictor_filepath)
-    single_em_ds.time.encoding.update(example_ds.time.encoding)
-    single_em_ds.time_bnds.encoding.update(example_ds.time_bnds.encoding)
-
     return single_em_ds
 
 
