@@ -209,9 +209,14 @@ def validate(dataset_name: str = typer.Argument("all")):
 
     splits = ["train", "val", "test"]
 
+    if datasets != "all":
+        if dataset_name not in datasets:
+            logger.warning(
+                f"Dataset {dataset_name} not found in standard list. Continuing but may not be valid."
+            )
+        datasets = [dataset_name]
+
     for dataset in datasets:
-        if (dataset_name != "all") and (dataset_name != dataset):
-            continue
         bad_splits = defaultdict(set)
 
         try:
