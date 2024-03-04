@@ -196,7 +196,7 @@ def validate(dataset_name: str = typer.Argument("all")):
 
     splits = ["train", "val", "test"]
 
-    if datasets != "all":
+    if dataset_name != "all":
         if dataset_name not in datasets:
             logger.warning(
                 f"Dataset {dataset_name} not found in standard list. Continuing but may not be valid."
