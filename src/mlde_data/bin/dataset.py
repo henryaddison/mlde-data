@@ -1,5 +1,6 @@
 from collections import defaultdict
 import glob
+from importlib.resources import files
 import logging
 import os
 from pathlib import Path
@@ -186,26 +187,12 @@ def report_issues(dataset, bad_splits):
 
 @app.command()
 def validate(dataset_name: str = typer.Argument("all")):
-    datasets = [
-        "bham_60km-4x_1em_vort850_eqvt_random-season",
-        "bham_60km-4x_1em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
-        "bham_60km-4x_12em_linpr_eqvt_random-season",
-        "bham_60km-4x_12em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
-        "bham_60km-4x_12em_psl-temp4th-vort4th_eqvt_random-season",
-        "bham_60km-4x_12em_vort4th_eqvt_random-season",
-        "bham_60km-4x_12em_vort850_eqvt_random-season",
-        "bham_60km-60km_1em_rawpr_eqvt_random-season",
-        "bham_60km-60km_12em_rawpr_eqvt_random-season",
-        "bham_gcmx-4x_1em_vort850_eqvt_random-season",
-        "bham_gcmx-4x_1em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
-        "bham_gcmx-4x_12em_linpr_eqvt_random-season",
-        "bham_gcmx-4x_12em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
-        "bham_gcmx-4x_12em_psl-temp4th-vort4th_eqvt_random-season",
-        "bham_gcmx-4x_12em_vort4th_eqvt_random-season",
-        "bham_gcmx-4x_12em_vort850_eqvt_random-season",
-        "bham_gcmx-60km_1em_pr_eqvt_random-season",
-        "bham_gcmx-60km_12em_pr_eqvt_random-season",
-    ]
+    datasets = list(
+        map(
+            lambda f: f.stem,
+            files("mlde_data.config").joinpath("datasets").glob("*.yml"),
+        )
+    )
 
     splits = ["train", "val", "test"]
 
