@@ -9,6 +9,14 @@ for fpath in sys.argv[1:]:
     with open(fpath, "r") as f:
         config = yaml.safe_load(f)
 
+    if "predictands" in config:
+        print(f"Skipping {fpath}. Already in expected format.", flush=True)
+        continue
+
+    # backup existing config
+    with open("{fpath}.bak", "w") as f:
+        yaml.dump(config, f, default_flow_style=False)
+
     orig_predictand = config.pop("predictand")
 
     new_predictands = {
@@ -31,5 +39,6 @@ for fpath in sys.argv[1:]:
     if "split" in config:
         config["split"] = config.pop("split")
 
+    print(f"Updating {fpath}.", flush=True)
     with open(fpath, "w") as f:
         yaml.dump(config, f, default_flow_style=False)
