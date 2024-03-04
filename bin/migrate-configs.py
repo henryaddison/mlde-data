@@ -14,7 +14,7 @@ for fpath in sys.argv[1:]:
         continue
 
     # backup existing config
-    with open("{fpath}.bak", "w") as f:
+    with open(f"{fpath}.bak", "w") as f:
         yaml.dump(config, f, default_flow_style=False)
 
     orig_predictand = config.pop("predictand")
