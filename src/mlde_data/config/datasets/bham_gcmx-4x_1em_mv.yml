@@ -3,11 +3,12 @@ ensemble_members:
 - '01'
 frequency: day
 predictands:
-  resolution: 60km-2.2km-coarsened-4x
+  resolution: 2.2km-coarsened-4x-2.2km-coarsened-4x
   variables:
   - pr
+  - tmean150cm
 predictors:
-  resolution: 60km-2.2km-coarsened-4x
+  resolution: 2.2km-coarsened-gcm-2.2km-coarsened-4x
   variables:
   - psl
   - spechum250

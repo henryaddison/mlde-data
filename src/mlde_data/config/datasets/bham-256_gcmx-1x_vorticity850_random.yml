@@ -1,11 +1,13 @@
 domain: birmingham-256
+ensemble_member: '01'
 frequency: day
-ensemble_member: "01"
-scenario: rcp85
-resolution: 2.2km-coarsened-gcm-2.2km
-predictand:
-  variable: pr
+predictands:
   resolution: 2.2km-2.2km
+  variables:
+  - pr
 predictors:
-  - variable: vorticity850
+  resolution: 2.2km-coarsened-gcm-2.2km
+  variables:
+  - vorticity850
+scenario: rcp85
 split_scheme: random
