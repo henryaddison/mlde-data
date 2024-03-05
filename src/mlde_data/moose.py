@@ -26,6 +26,45 @@ VARIABLE_CODES = {
         },
         "moose_name": "air_pressure_at_sea_level",
     },
+    "relhum150cm": {
+        "query": {
+            "stash": 3245,
+        },
+        "stream": {"land-cpm": {"day": "apa"}},
+        "moose_name": "relative_humidity",
+    },
+    "windmax10m": {
+        "query": {
+            "stash": 3227,
+        },
+        "stream": {
+            "land-cpm": {"day": "apa"},
+        },
+    },
+    "windmean10m": {
+        "query": {
+            "stash": 3227,
+        },
+        "stream": {
+            "land-cpm": {"day": "apk"},
+        },
+    },
+    "uwind10m": {
+        "query": {
+            "stash": 3225,
+        },
+        "stream": {
+            "land-cpm": {"day": "apa", "1hrinst": "apd"},
+        },
+    },
+    "vwind10m": {
+        "query": {
+            "stash": 3226,
+        },
+        "stream": {
+            "land-cpm": {"day": "apa", "1hrinst": "apd"},
+        },
+    },
     "tmean150cm": {
         "query": {
             "stash": 3236,

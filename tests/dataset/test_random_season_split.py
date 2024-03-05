@@ -29,7 +29,7 @@ def test_split():
         ),
     )
 
-    splits = RandomSeasonSplit({}).run(ds)
+    splits = RandomSeasonSplit().run(ds)
 
     # Should not change the lon and lat but divide up by time
     assert splits["test"]["measurement"].shape == (720, 10, 10)
