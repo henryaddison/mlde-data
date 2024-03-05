@@ -1,6 +1,7 @@
 domain: birmingham-64
 ensemble_members:
 - '01'
+- '04'
 frequency: day
 predictands:
   resolution: 2.2km-coarsened-4x-2.2km-coarsened-4x
