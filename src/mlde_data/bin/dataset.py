@@ -1,24 +1,21 @@
-from collections import defaultdict
 import glob
 from importlib.resources import files
 import logging
+import numpy as np
 import os
 from pathlib import Path
-import re
 import shutil
 import sys
-import numpy as np
-import yaml
-
 import typer
 import xarray as xr
+import yaml
+
 
 from mlde_utils import (
     TIME_PERIODS,
     dataset_path,
     dataset_config_path,
     dataset_config,
-    dataset_split_path,
 )
 
 from .. import dataset as dataset_lib
@@ -62,123 +59,6 @@ def create(
         logger.info(f"{split_name} done")
 
 
-def check_dims(ds, dataset, split, ds_config):
-    var = "target_pr"
-    grid_mapping = ds[var].attrs["grid_mapping"]
-    if grid_mapping == "rotated_latitude_longitude":
-        return list(ds[var].dims) == [
-            "ensemble_member",
-            "time",
-            "grid_latitude",
-            "grid_longitude",
-        ]
-    elif grid_mapping == "latitude_longitude":
-        return list(ds[var].dims) == [
-            "ensemble_member",
-            "time",
-            "latitude",
-            "longitude",
-        ]
-    else:
-        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
-
-
-def check_shape(ds, dataset, split, ds_config):
-    ems = ds_config["ensemble_members"]
-    grid_mapping = ds["target_pr"].attrs["grid_mapping"]
-    if grid_mapping == "rotated_latitude_longitude":
-        size = 64
-    elif grid_mapping == "latitude_longitude":
-        size = 9
-    else:
-        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
-
-    if split == "train":
-        expected_shape = (len(ems), 360 * 14 * 3, size, size)
-    else:
-        expected_shape = (len(ems), 360 * 3 * 3, size, size)
-    return ds["target_pr"].shape == expected_shape
-
-
-def check_grid_vars(ds, dataset, split, ds_config):
-    grid_mapping = ds["target_pr"].attrs["grid_mapping"]
-    meta_vars = [
-        grid_mapping,
-    ]
-    if grid_mapping == "rotated_latitude_longitude":
-        meta_vars.extend(["grid_latitude_bnds", "grid_longitude_bnds"])
-
-    return all(
-        [
-            ("ensemble_member" not in ds[mvar].dims) and ("time" not in ds[mvar].dims)
-            for mvar in meta_vars
-        ]
-    )
-
-
-def check_time_bnds(ds, dataset, split, ds_config):
-    return "ensemble_member" not in ds["time_bnds"].dims
-
-
-def check_forecast_encoding(ds, dataset, split, ds_config):
-    for v in ds.variables:
-        if "coordinates" in ds[v].encoding and (
-            re.match(
-                "(realization|forecast_period|forecast_reference_time) ?",
-                ds[v].encoding["coordinates"],
-            )
-            is not None
-        ):
-            return False
-    return True
-
-
-def check_forecast_variables(ds, dataset, split, ds_config):
-    for v in ds.variables:
-        if v in [
-            "forecast_period",
-            "forecast_reference_time",
-            "realization",
-            "forecast_period_bnds",
-        ]:
-            return False
-    return True
-
-
-def check_pressure_encoding(ds, dataset, split, ds_config):
-    for v in ds.variables:
-        if "coordinates" in ds[v].encoding and (
-            re.match("(pressure) ?", ds[v].encoding["coordinates"]) is not None
-        ):
-            return False
-    return True
-
-
-def check_pressure_variables(ds, dataset, split, ds_config):
-    for v in ds.variables:
-        if v in ["pressure"]:
-            return False
-    return True
-
-
-def check_nans(ds, dataset, split, ds_config):
-    for v in ds.variables:
-        nan_count = ds[v].isnull().sum().values.item()
-        if nan_count > 0:
-            return False
-    return True
-
-
-def check_time_encoding(ds, dataset, split, ds_config):
-    for enc in [ds.time.encoding, ds.time_bnds.encoding]:
-        if enc["units"] != "hours since 1970-01-01":
-            return False
-        if enc["calendar"] != "360_day":
-            return False
-
-    return True
-
-
 def report_issues(dataset, bad_splits):
     for reason, error_splits in bad_splits.items():
         if len(error_splits) > 0:
@@ -194,8 +74,6 @@ def validate(dataset_name: str = typer.Argument("all")):
         )
     )
 
-    splits = ["train", "val", "test"]
-
     if dataset_name != "all":
         if dataset_name not in datasets:
             logger.warning(
@@ -204,58 +82,9 @@ def validate(dataset_name: str = typer.Argument("all")):
         datasets = [dataset_name]
 
     for dataset in datasets:
-        bad_splits = defaultdict(set)
-
-        try:
-            ds_config = dataset_config(dataset)
-        except FileNotFoundError:
-            bad_splits["no config"].update(splits)
-            report_issues(dataset, bad_splits)
-            continue
-
-        for split in splits:
-            sys.stdout.write("\033[K")
-            print(f"Checking {split} of {dataset}", end="\r")
-
-            split_path = dataset_split_path(dataset, split)
-            try:
-                ds = xr.open_dataset(split_path)
-            except FileNotFoundError:
-                bad_splits["no file"].add(split)
-                continue
-
-            # check dims
-            if not check_dims(ds, dataset, split, ds_config):
-                bad_splits["bad dimensions"].add(split)
-
-            # check grid and time
-            if not check_grid_vars(ds, dataset, split, ds_config):
-                bad_splits["bad grid vars"].add(split)
-            if not check_time_bnds(ds, dataset, split, ds_config):
-                bad_splits["bad time_bnds"].add(split)
-            if not check_time_encoding(ds, dataset, split, ds_config):
-                bad_splits["bad time encodings"].add(split)
-
-            # check shape
-            if not check_shape(ds, dataset, split, ds_config):
-                bad_splits["bad shape"].add(split)
-
-            # check for forecast related metadata (should have been stripped)
-            if not check_forecast_encoding(ds, dataset, split, ds_config):
-                bad_splits["forecast_encoding"].add(split)
-            if not check_forecast_variables(ds, dataset, split, ds_config):
-                bad_splits["forecast_vars"].add(split)
-
-            # check for pressure related metadata (should have been stripped)
-            if not check_pressure_encoding(ds, dataset, split, ds_config):
-                bad_splits["pressure_encoding"].add(split)
-            if not check_forecast_variables(ds, dataset, split, ds_config):
-                bad_splits["pressure_vars"].add(split)
-
-            # check for NaNs
-            if not check_nans(ds, dataset, split, ds_config):
-                bad_splits["NaNs"].add(split)
-
+        sys.stdout.write("\033[K")
+        print(f"Checking {dataset}", end="\r")
+        bad_splits = dataset_lib.validate(dataset)
         # report findings
         report_issues(dataset, bad_splits)
 
