@@ -250,7 +250,7 @@ dependencies:
       - compliance-checker==5.1.0
       - isodate==0.6.1
       - lxml==5.1.0
-      - mlde-utils==0.0.6
+      - mlde-utils==0.0.7
       - owslib==0.29.3
       - pendulum==3.0.0
       - pygeoif==1.3.0
