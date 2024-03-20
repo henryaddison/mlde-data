@@ -3,18 +3,13 @@ import logging
 
 import numpy as np
 
+from .base_split import BaseSplit
 from .random_split import RandomSplit
 
 logger = logging.getLogger(__name__)
 
 
-class IntensitySplit:
-    def __init__(self, time_encoding, val_prop=0.2, test_prop=0.1, seed=42) -> None:
-        self.val_prop = val_prop
-        self.test_prop = test_prop
-        self.time_encoding = time_encoding
-        self.seed
-
+class IntensitySplit(BaseSplit):
     def run(self, combined_dataset):
         sorted_time = np.flipud(
             combined_dataset.isel(ensemble_member=0)
@@ -68,7 +63,6 @@ class IntensitySplit:
         )
 
         splits = RandomSplit(
-            time_encoding=self.time_encoding,
             val_prop=self.val_prop,
             test_prop=self.test_prop,
             seed=self.seed,
@@ -76,9 +70,5 @@ class IntensitySplit:
         splits.update(
             {"extreme_val": extreme_val_set, "extreme_test": extreme_test_set}
         )
-
-        for ds in splits.values():
-            # https://github.com/pydata/xarray/issues/2436 - time dim encoding lost when opened using open_mfdataset
-            ds.time.encoding.update(self.time_encoding)
 
         return splits

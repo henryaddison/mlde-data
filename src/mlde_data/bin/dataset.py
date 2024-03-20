@@ -1,33 +1,26 @@
-from collections import defaultdict
 import glob
+from importlib.resources import files
 import logging
+import numpy as np
 import os
 from pathlib import Path
-import re
 import shutil
 import sys
-import numpy as np
-import yaml
-
 import typer
 import xarray as xr
+import yaml
+
 
 from mlde_utils import (
-    VariableMetadata,
     TIME_PERIODS,
     dataset_path,
     dataset_config_path,
     dataset_config,
-    dataset_split_path,
-)
-from ..dataset import (
-    RandomSplit,
-    RandomSeasonSplit,
-    SeasonStratifiedIntensitySplit,
 )
 
+from .. import dataset as dataset_lib
+
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
 
 app = typer.Typer()
 
@@ -44,302 +37,56 @@ def create(
     output_base_dir: Path = typer.Argument(..., envvar="DERIVED_DATA"),
 ):
     """
-    Create a dataset
+    Create and save a dataset
     """
     config_name = config.stem
     with open(config, "r") as f:
         config = yaml.safe_load(f)
 
-    split_scheme = config["split"]["scheme"]
-    val_prop: float = config["split"]["val_prop"]
-    test_prop: float = config["split"]["test_prop"]
-    split_seed: int = config["split"]["seed"]
-
-    combined_datasets = []
-
-    for em in config["ensemble_members"]:
-
-        predictand_var_params = {
-            k: config[k] for k in ["domain", "scenario", "frequency"]
-        }
-        predictand_var_params.update(
-            {
-                "variable": config["predictand"]["variable"],
-                "resolution": config["predictand"]["resolution"],
-            }
-        )
-        predictand_meta = VariableMetadata(
-            input_base_dir / "moose", ensemble_member=em, **predictand_var_params
-        )
-
-        predictors_meta = []
-        for predictor_var_config in config["predictors"]:
-            var_params = {
-                k: config[k]
-                for k in [
-                    "domain",
-                    "scenario",
-                    "frequency",
-                    "resolution",
-                ]
-            }
-            var_params.update({k: predictor_var_config[k] for k in ["variable"]})
-            predictors_meta.append(
-                VariableMetadata(
-                    input_base_dir / "moose", ensemble_member=em, **var_params
-                )
-            )
-
-        example_predictor_filepath = predictors_meta[0].existing_filepaths()[0]
-        time_encoding = xr.open_dataset(example_predictor_filepath).time_bnds.encoding
-
-        predictor_datasets = [
-            xr.open_mfdataset(dsmeta.existing_filepaths()) for dsmeta in predictors_meta
-        ]
-        predictand_dataset = xr.open_mfdataset(
-            predictand_meta.existing_filepaths()
-        ).rename({predictand_meta.variable: f"target_{predictand_meta.variable}"})
-
-        combined_dataset = xr.combine_by_coords(
-            [*predictor_datasets, predictand_dataset],
-            compat="override",
-            combine_attrs="drop_conflicts",
-            coords="all",
-            join="inner",
-            data_vars="all",
-        )
-        combined_dataset = combined_dataset.assign_coords(
-            season=(("time"), (combined_dataset["time.month"].values % 12 // 3))
-        )
-
-        combined_dataset = combined_dataset.expand_dims(dict(ensemble_member=[em]))
-        combined_datasets.append(combined_dataset)
-
-    combined_dataset = xr.concat(combined_datasets, dim="ensemble_member")
-
-    if split_scheme == "ssi":
-        splitter = SeasonStratifiedIntensitySplit(
-            val_prop=val_prop,
-            test_prop=test_prop,
-            time_encoding=time_encoding,
-            seed=split_seed,
-        )
-    elif split_scheme == "random":
-        splitter = RandomSplit(
-            val_prop=val_prop,
-            test_prop=test_prop,
-            time_encoding=time_encoding,
-            seed=split_seed,
-        )
-    elif split_scheme == "random-season":
-        splitter = RandomSeasonSplit(
-            val_prop=val_prop,
-            test_prop=test_prop,
-            time_encoding=time_encoding,
-            seed=split_seed,
-        )
-    else:
-        raise RuntimeError(f"Unknown split scheme {split_scheme}")
-
-    split_sets = splitter.run(combined_dataset)
+    split_sets = dataset_lib.create(config, input_base_dir)
 
     output_dir = dataset_path(config_name, base_dir=output_base_dir)
 
     os.makedirs(output_dir, exist_ok=False)
 
-    logger.info(f"Saving data to {output_dir}")
+    logger.info(f"Saving data to {output_dir}...")
     with open(dataset_config_path(config_name, base_dir=output_base_dir), "w") as f:
         yaml.dump(config, f)
     for split_name, split_ds in split_sets.items():
+        for varname in split_ds.data_vars:
+            split_ds[varname].encoding.update(zlib=True, complevel=5)
         split_ds.to_netcdf(os.path.join(output_dir, f"{split_name}.nc"))
+        logger.info(f"{split_name} done")
 
 
-def check_dims(ds, dataset, split, ds_config):
-    var = "target_pr"
-    grid_mapping = ds[var].attrs["grid_mapping"]
-    if grid_mapping == "rotated_latitude_longitude":
-        return list(ds[var].dims) == [
-            "ensemble_member",
-            "time",
-            "grid_latitude",
-            "grid_longitude",
-        ]
-    elif grid_mapping == "latitude_longitude":
-        return list(ds[var].dims) == [
-            "ensemble_member",
-            "time",
-            "latitude",
-            "longitude",
-        ]
-    else:
-        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
-
-
-def check_shape(ds, dataset, split, ds_config):
-    ems = ds_config["ensemble_members"]
-    grid_mapping = ds["target_pr"].attrs["grid_mapping"]
-    if grid_mapping == "rotated_latitude_longitude":
-        size = 64
-    elif grid_mapping == "latitude_longitude":
-        size = 9
-    else:
-        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
-
-    if split == "train":
-        expected_shape = (len(ems), 360 * 14 * 3, size, size)
-    else:
-        expected_shape = (len(ems), 360 * 3 * 3, size, size)
-    return ds["target_pr"].shape == expected_shape
-
-
-def check_meta_vars(ds, dataset, split, ds_config):
-    grid_mapping = ds["target_pr"].attrs["grid_mapping"]
-    meta_vars = [
-        grid_mapping,
-        "time_bnds",
-    ]
-    if grid_mapping == "rotated_latitude_longitude":
-        meta_vars.extend(["grid_latitude_bnds", "grid_longitude_bnds"])
-
-    return all(
-        [
-            ("ensemble_member" not in ds[var].dims) and ("time" not in ds[var].dims)
-            for var in meta_vars
-        ]
-    )
-
-
-def check_forecast_encoding(ds, dataset, split, ds_config):
-    for v in ds.variables:
-        if "coordinates" in ds[v].encoding and (
-            re.match(
-                "(realization|forecast_period|forecast_reference_time) ?",
-                ds[v].encoding["coordinates"],
-            )
-            is not None
-        ):
-            return False
-    return True
-
-
-def check_forecast_variables(ds, dataset, split, ds_config):
-    for v in ds.variables:
-        if v in [
-            "forecast_period",
-            "forecast_reference_time",
-            "realization",
-            "forecast_period_bnds",
-        ]:
-            return False
-    return True
-
-
-def check_pressure_encoding(ds, dataset, split, ds_config):
-    for v in ds.variables:
-        if "coordinates" in ds[v].encoding and (
-            re.match("(pressure) ?", ds[v].encoding["coordinates"]) is not None
-        ):
-            return False
-    return True
-
-
-def check_pressure_variables(ds, dataset, split, ds_config):
-    for v in ds.variables:
-        if v in ["pressure"]:
-            return False
-    return True
-
-
-def check_nans(ds, dataset, split, ds_config):
-    for v in ds.variables:
-        nan_count = ds[v].isnull().sum().values.item()
-        if nan_count > 0:
-            return False
-    return True
-
-
-def report_bad_splits(bad_splits):
+def report_issues(dataset, bad_splits):
     for reason, error_splits in bad_splits.items():
         if len(error_splits) > 0:
-            print(f"Failed '{reason}': {error_splits}")
+            print(f"Failed '{reason}': {dataset} for {error_splits}")
 
 
 @app.command()
 def validate(dataset_name: str = typer.Argument("all")):
-    datasets = [
-        "bham_60km-4x_1em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
-        "bham_60km-4x_12em_linpr_eqvt_random-season",
-        "bham_60km-4x_12em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
-        "bham_60km-4x_12em_psl-temp4th-vort4th_eqvt_random-season",
-        "bham_60km-4x_12em_vort4th_eqvt_random-season",
-        "bham_60km-4x_12em_vort850_eqvt_random-season",
-        "bham_60km-60km_1em_rawpr_eqvt_random-season",
-        "bham_60km-60km_12em_rawpr_eqvt_random-season",
-        "bham_gcmx-4x_1em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
-        "bham_gcmx-4x_12em_linpr_eqvt_random-season",
-        "bham_gcmx-4x_12em_psl-sphum4th-temp4th-vort4th_eqvt_random-season",
-        "bham_gcmx-4x_12em_psl-temp4th-vort4th_eqvt_random-season",
-        "bham_gcmx-4x_12em_vort4th_eqvt_random-season",
-        "bham_gcmx-4x_12em_vort850_eqvt_random-season",
-        "bham_gcmx-60km_1em_pr_eqvt_random-season",
-        "bham_gcmx-60km_12em_pr_eqvt_random-season",
-    ]
+    datasets = list(
+        map(
+            lambda f: f.stem,
+            files("mlde_data.config").joinpath("datasets").glob("*.yml"),
+        )
+    )
 
-    splits = ["train", "val", "test"]
+    if dataset_name != "all":
+        if dataset_name not in datasets:
+            logger.warning(
+                f"Dataset {dataset_name} not found in standard list. Continuing but may not be valid."
+            )
+        datasets = [dataset_name]
 
     for dataset in datasets:
-        if (dataset_name != "all") and (dataset_name != dataset):
-            continue
-        bad_splits = defaultdict(set)
-
-        try:
-            ds_config = dataset_config(dataset)
-        except FileNotFoundError:
-            bad_splits["no config"].update(splits)
-            report_bad_splits(bad_splits)
-            continue
-
-        for split in splits:
-            sys.stdout.write("\033[K")
-            print(f"Checking {split} of {dataset}", end="\r")
-
-            split_path = dataset_split_path(dataset, split)
-            try:
-                ds = xr.open_dataset(split_path)
-            except FileNotFoundError:
-                bad_splits["no file"].add(split)
-                continue
-
-            # check dims
-            if not check_dims(ds, dataset, split, ds_config):
-                bad_splits["bad dimensions"].add(split)
-
-            # check meta vars
-            if not check_meta_vars(ds, dataset, split, ds_config):
-                bad_splits["bad meta vars"].add(split)
-
-            # check shape
-            if not check_shape(ds, dataset, split, ds_config):
-                bad_splits["bad shape"].add(split)
-
-            # check for forecast related metadata (should have been stripped)
-            if not check_forecast_encoding(ds, dataset, split, ds_config):
-                bad_splits["forecast_encoding"].add(split)
-            if not check_forecast_variables(ds, dataset, split, ds_config):
-                bad_splits["forecast_vars"].add(split)
-
-            # check for pressure related metadata (should have been stripped)
-            if not check_pressure_encoding(ds, dataset, split, ds_config):
-                bad_splits["pressure_encoding"].add(split)
-            if not check_forecast_variables(ds, dataset, split, ds_config):
-                bad_splits["pressure_vars"].add(split)
-
-            # check for NaNs
-            if not check_nans(ds, dataset, split, ds_config):
-                bad_splits["NaNs"].add(split)
-
+        sys.stdout.write("\033[K")
+        print(f"Checking {dataset}", end="\r")
+        bad_splits = dataset_lib.validate(dataset)
         # report findings
-        report_bad_splits(bad_splits)
+        report_issues(dataset, bad_splits)
 
 
 @app.command()

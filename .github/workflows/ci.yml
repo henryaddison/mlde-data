@@ -11,13 +11,6 @@ jobs:
     steps:
     - name: Clone repo
       uses: actions/checkout@v2
-    - name: Clone mlde_utils repo
-      uses: actions/checkout@v2
-      with:
-        repository: henryaddison/mlde_utils
-        path: src/mlde_utils
-        ref: main
-        token: ${{secrets.MLDE_UTILS_RO}}
     # - name: Set up Python 3.9
     #   uses: actions/setup-python@v2
     #   with:
@@ -31,7 +24,6 @@ jobs:
         post-cleanup: 'all'
     - name: Install package
       run: |
-        pip install -e src/mlde_utils
         pip install -e .
       shell: micromamba-shell {0}
     - name: Test with pytest

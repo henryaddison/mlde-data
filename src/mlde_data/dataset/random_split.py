@@ -2,16 +2,12 @@ import logging
 
 import numpy as np
 
+from .base_split import BaseSplit
+
 logger = logging.getLogger(__name__)
 
 
-class RandomSplit:
-    def __init__(self, time_encoding, val_prop=0.2, test_prop=0.1, seed=42) -> None:
-        self.val_prop = val_prop
-        self.test_prop = test_prop
-        self.time_encoding = time_encoding
-        self.seed = 42
-
+class RandomSplit(BaseSplit):
     def run(self, combined_dataset):
         tc = combined_dataset.time.values.copy()
         rng = np.random.default_rng(seed=self.seed)
@@ -33,10 +29,5 @@ class RandomSplit:
         train_set = combined_dataset.where(
             combined_dataset.time.isin(train_times) == True, drop=True  # noqa: E712
         )
-
-        # https://github.com/pydata/xarray/issues/2436 - time dim encoding lost when opened using open_mfdataset
-        test_set.time.encoding.update(self.time_encoding)
-        val_set.time.encoding.update(self.time_encoding)
-        train_set.time.encoding.update(self.time_encoding)
 
         return {"train": train_set, "val": val_set, "test": test_set}

@@ -4,16 +4,12 @@ import logging
 import numpy as np
 import xarray as xr
 
+from .base_split import BaseSplit
+
 logger = logging.getLogger(__name__)
 
 
-class RandomSeasonSplit:
-    def __init__(self, time_encoding, val_prop=0.2, test_prop=0.1, seed=42) -> None:
-        self.val_prop = val_prop
-        self.test_prop = test_prop
-        self.time_encoding = time_encoding
-        self.seed = seed
-
+class RandomSeasonSplit(BaseSplit):
     def run(self, combined_dataset):
 
         split_chunks = defaultdict(list)
@@ -45,12 +41,13 @@ class RandomSeasonSplit:
                     split_chunks[split].append(split_chunk)
 
         splits = {
-            split: xr.concat(split_chunks, dim="time").sortby("time")
+            split: xr.merge(
+                split_chunks,
+                compat="no_conflicts",
+                combine_attrs="no_conflicts",
+            ).sortby("time")
             for split, split_chunks in split_chunks.items()
         }
-        # for split_ds in splits.values():
-        #     # https://github.com/pydata/xarray/issues/2436 - time dim encoding lost when opened using open_mfdataset
-        #     split_ds.time.encoding.update(self.time_encoding)
 
         return splits
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mlde_data"
-version = "0.0.1"
+version = "0.1.0"
 authors = [
   { name="Henry Addison", email="henry.addison@bristol.ac.uk" },
 ]
@@ -16,6 +16,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dynamic = ["dependencies"]
 
 [project.urls]
 "Homepage" = "https://github.com/henryaddison/mlde-data"
@@ -24,3 +25,6 @@ classifiers = [
 
 [project.scripts]
     mlde-data = "mlde_data.bin:app"
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
