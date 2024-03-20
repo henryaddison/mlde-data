@@ -11,15 +11,12 @@ authors = [
 description = "A package for preparing data for  ML downscaling emulator"
 readme = "README.md"
 requires-python = ">=3.7"
-dependencies = [
-  "mlde-utils~=0.0.6",
-  "compliance-checker~=5.1.0",
-]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dynamic = ["dependencies"]
 
 [project.urls]
 "Homepage" = "https://github.com/henryaddison/mlde-data"
@@ -28,3 +25,6 @@ classifiers = [
 
 [project.scripts]
     mlde-data = "mlde_data.bin:app"
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
