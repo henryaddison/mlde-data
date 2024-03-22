@@ -463,6 +463,7 @@ def validate(
             ],
             "2.2km-coarsened-4x-2.2km-coarsened-4x": [
                 "pr",
+                "relhum150cm",
                 "tmean150cm",
             ],
             "60km-2.2km-coarsened-4x": [
