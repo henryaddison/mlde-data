@@ -342,7 +342,8 @@ def xfer(
     )
 
     file_xfer_cmd = [
-        f"{os.getenv('HOME')}/code/mlde-data/moose-etl/xfer-script-direct",
+        # TODO: don't rely on hardcoded absolute path
+        f"{os.getenv('HOME')}/code/mlde-data/bin/moose/xfer-script-direct",
         jasmin_filepath,
         bp_filepath,
     ]
