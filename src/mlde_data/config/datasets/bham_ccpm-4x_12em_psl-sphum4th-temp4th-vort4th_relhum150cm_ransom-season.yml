@@ -16,7 +16,7 @@ frequency: day
 predictands:
   resolution: 2.2km-coarsened-4x-2.2km-coarsened-4x
   variables:
-  - tmean150cm
+  - relhum150cm
 predictors:
   resolution: 2.2km-coarsened-gcm-2.2km-coarsened-4x
   variables:
