@@ -3,7 +3,10 @@
 
 function rename_dataset() {
   o=${1?"orginal path is required"}
-  local t=${o/_eqvt/_pr}; t=${t/_random-season/}; t=${t/bham_gcmx/bham64_ccpm}; t=${t/bham_60km/bham64_gcm};
+  # V1 migration
+  # local t=${o/_eqvt/_pr}; t=${t/_random-season/}; t=${t/bham_gcmx/bham64_ccpm}; t=${t/bham_60km/bham64_gcm};
+  # V2 migration
+  local t=${o/bham_ccpm/bham64_ccpm};
   if [ $o != $t ]
   then
     set -x; mv $o $t;set +x;
