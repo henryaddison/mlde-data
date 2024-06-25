@@ -35,3 +35,12 @@ rsync -avhz --delete --include='/*/' --exclude='archive/' ${src} ${dest}
 
 rsync -avhz --include='/archive/*/' ${src} ${dest}
 set +x
+
+src="/user/work/vf20964/paper-submission/moose/nc-datasets"
+dest="xfer1.jasmin:/gws/nopw/j04/bris_climdyn/henrya/bp-backups/paper-submission/moose"
+
+set -x
+rsync -avhz --delete --include='/*/' --exclude='archive/' ${src} ${dest}
+
+rsync -avhz --include='/archive/*/' ${src} ${dest}
+set +x
