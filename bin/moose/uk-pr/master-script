@@ -28,5 +28,5 @@ for variable in lssnow lsrain; do
 done
 
 for variable in lssnow lsrain; do
-  mlde-data moose clean --variable ${variable} --year  ${year}
+  mlde-data moose clean --variable ${variable} --year ${year} --collection land-cpm --ensemble-member 01
 done
