@@ -17,7 +17,7 @@ done
 
 variable_config="${SCRIPT_DIR}/../../../src/mlde_data/config/variables/${frequency}/land-cpm/pr.yml"
 
-mlde-data variable create --year ${year} --target-size=256 --target-resolution=2.2km --ensemble-member 01 --domain="birmingham" --scale-factor=1  ${variable_config}
+mlde-data variable create --year ${year} --target-size=256 --target-resolution=2.2km --ensemble-member 01 --domain="birmingham" --scale-factor=1 --config-path=${variable_config}
 
 for variable in lssnow lsrain; do
   mlde-data moose clean --variable ${variable} --year ${year} --collection land-cpm --ensemble-member 01
