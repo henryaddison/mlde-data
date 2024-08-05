@@ -292,6 +292,8 @@ def create(
 
     logger.info(f"Saving data to {output_metadata.filepath(year)}")
     os.makedirs(output_metadata.dirpath(), exist_ok=True)
+
+    ds[config["variable"]].encoding.update(dict(zlib=True, complevel=5))
     ds.to_netcdf(output_metadata.filepath(year))
     with open(
         os.path.join(output_metadata.dirpath(), f"{config['variable']}-{year}.yml"), "w"
