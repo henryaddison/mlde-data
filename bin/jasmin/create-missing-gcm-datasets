@@ -1,0 +1,19 @@
+
+#!/bin/bash
+# Helper script for creating missing datasets on JASMIN
+
+source ~/.bashrc
+
+mamba activate downscaling-data
+
+set -euo pipefail
+
+cd /home/users/vf20964/code/mlde-data
+
+export DERIVED_DATA=/gws/nopw/j04/bris_climdyn/henrya/bp-backups
+
+for dataset in bham64_gcm-4x_12em_temp4th-vort4th_pr bham64_gcm-4x_12em_sphum4th-temp4th-vort4th_pr bham64_gcm-4x_1em_temp4th-vort4th_pr bham64_gcm-4x_1em_sphum4th-temp4th-vort4th_pr; do
+  echo ${dataset};
+  mlde-data dataset create src/mlde_data/config/datasets/${dataset}.yml;
+  mlde-data dataset validate ${dataset};
+done
