@@ -27,6 +27,6 @@ echo "Syncing to jasmin-active on GWS..."
 rsync -auzvh ${output_dir}/moose/nc-datasets/${dataset}/ /gws/nopw/j04/bris_climdyn/henrya/jasmin-active/moose/nc-datasets/${dataset}/
 
 # Cleanup scratch
-rm ${output_dir}/moose/nc-datasets/${dataset}
+rm -r ${output_dir}/moose/nc-datasets/${dataset}
 
-# bham64_gcm-4x_1em_temp4th-vort4th_pr bham64_gcm-4x_1em_sphum4th-temp4th-vort4th_pr bham64_gcm-4x_12em_temp4th-vort4th_pr bham64_gcm-4x_12em_sphum4th-temp4th-vort4th_pr
+# bham64_gcm-4x_1em_sphum4th-temp4th-vort4th_pr bham64_gcm-4x_12em_temp4th-vort4th_pr bham64_gcm-4x_12em_sphum4th-temp4th-vort4th_pr
