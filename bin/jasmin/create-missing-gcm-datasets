@@ -13,7 +13,7 @@ cd /home/users/vf20964/code/mlde-data
 
 export DERIVED_DATA=/work/scratch-pw2/vf20964/derived_data
 
-input_dir=${DERIVED_DATA}
+input_dir=/gws/nopw/j04/bris_climdyn/henrya/bp-backups
 output_dir=/work/scratch-pw2/vf20964/derived_data
 
 echo ${dataset};
