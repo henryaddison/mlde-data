@@ -1,0 +1,12 @@
+#!/bin/bash
+# Sync a model (ignoring samples) from JASMIN backup to an active working area on JASMIN.
+# Used when starting to work on a model in jasmin-active rather than blue pebble to ensure have latest version.
+
+set -euo pipefail
+
+model_id=$1
+
+# get the models (ignoring samples)
+# don't need samples as notebooks will read from backups so this is just for making new samples or further model training
+set +x
+rsync --dry-run -auvh --exclude='samples' /gws/nopw/j04/bris_climdyn/henrya/bp-backups/workdirs/${model_id}/ /gws/nopw/j04/bris_climdyn/henrya/jasmin-active/workdirs/${model_id}/
