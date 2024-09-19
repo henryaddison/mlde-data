@@ -1,0 +1,4 @@
+#!/bin/bash
+# Sync models from JASMIN active working area to BluePebble
+
+rsync -auvhz xfer1.jasmin:/gws/nopw/j04/bris_climdyn/henrya/jasmin-active/workdirs/ /user/work/vf20964/workdirs/

@@ -1,0 +1,32 @@
+#!/bin/bash
+# Helper script for creating missing datasets on JASMIN
+
+source ~/.bashrc
+
+mamba activate downscaling-data
+
+set -euo pipefail
+
+dataset=$1
+
+cd /home/users/vf20964/code/mlde-data
+
+export DERIVED_DATA=/work/scratch-pw2/vf20964/derived_data
+
+input_dir=/gws/nopw/j04/bris_climdyn/henrya/bp-backups
+output_dir=/work/scratch-pw2/vf20964/derived_data
+
+echo ${dataset};
+
+# Create and validate dataset on scratch
+mlde-data dataset create src/mlde_data/config/datasets/${dataset}.yml ${input_dir} ${output_dir}
+mlde-data dataset validate ${dataset};
+
+# Sync to GWS once writen
+echo "Syncing to jasmin-active on GWS..."
+rsync -auzvh ${output_dir}/moose/nc-datasets/${dataset}/ /gws/nopw/j04/bris_climdyn/henrya/jasmin-active/moose/nc-datasets/${dataset}/
+
+# Cleanup scratch
+rm -r ${output_dir}/moose/nc-datasets/${dataset}
+
+# bham64_gcm-4x_1em_sphum4th-temp4th-vort4th_pr bham64_gcm-4x_12em_temp4th-vort4th_pr bham64_gcm-4x_12em_sphum4th-temp4th-vort4th_pr
