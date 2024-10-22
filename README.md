@@ -34,6 +34,21 @@ Assumes you have conda (or equivalent like mamba installed).
 4. Install package: `pip install -e .`
 5. Configure application behaviour with environment variables. See `.env.example` for variables that can be set.
 
+### Updating conda environment
+
+To add new packages or update their version, it is recommended to use the `environment.txt` file (for conda packages) and `requirements.txt` file (for pip packages) then run:
+```sh
+conda env install -f environment.txt
+pip install -e . # this will implicitly use requirement.txt
+conda env export -f environment.lock.yml
+```
+then commit any changes (though make sure not to include mlde-notebooks package in the lock file since that is not distributed via PyPI).
+
+To sync environment with the lock file use:
+```sh
+conda env update -f environment.lock.yml --prune
+```
+
 ## Usage
 
 ### Creating variables
