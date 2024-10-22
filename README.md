@@ -42,15 +42,15 @@ See example scripts in `bin/moose/` for extracting and transforming data from Mo
 
 ### Creating datasets
 
-Use the `mlde-data dataset create` command to create a dataset
+Once you have extracted the variable files, use the `mlde-data dataset create` command to create a dataset from them ready for the machine learning code.
 
 Example usage:
 
 ```sh
-mlde-data dataset create src/mlde_data/config/datasets/bham_gcmx-4x_12em_psl-sphum4th-temp4th-vort4th_eqvt_random-season.yml
+mlde-data dataset create src/mlde_data/config/datasets/bham64_ccpm-4x_12em_psl-sphum4th-temp4th-vort4th_pr.yml
 ```
 
-This will create the files for a dataset in `${DERIVED_DATA}/moose/nc-datasets/bham_gcmx-4x_12em_psl-sphum4th-temp4th-vort4th_eqvt_random-season` based on the config file supplied.
+This will create the files for a dataset in `${DERIVED_DATA}/moose/nc-datasets/bham64_ccpm-4x_12em_psl-sphum4th-temp4th-vort4th_pr` based on the config file supplied.
 
 ### Validation
 
