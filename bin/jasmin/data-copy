@@ -3,13 +3,12 @@
 
 set -euo pipefail
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
 copy_root="/gws/nopw/j04/bris_climdyn/henrya/phd-submission"
 backups_root="/gws/nopw/j04/bris_climdyn/henrya/bp-backups"
 
 folder=$1
+shift 1
 
 set -x
-rsync -avhz ${backups_root}/${folder}/ ${copy_root}/${folder}/
+rsync -avhz $@ ${backups_root}/${folder}/ ${copy_root}/${folder}/
 set +x
