@@ -6,9 +6,34 @@ set -euo pipefail
 copy_root="/gws/nopw/j04/bris_climdyn/henrya/phd-submission"
 backups_root="/gws/nopw/j04/bris_climdyn/henrya/bp-backups"
 
+exclude_archive=false
+
+while getopts ":x" opt; do
+  case ${opt} in
+    x)
+      exclude_archive=true
+      ;;
+    \? )
+      # echo "Invalid option: -${OPTARG}" 1>&2
+     ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      exit 1
+      ;;
+  esac
+done
+shift "$((OPTIND -1))"
+
+
 folder=$1
 shift 1
 
-set -x
-rsync -avhz "$@" ${backups_root}/${folder}/ ${copy_root}/${folder}/
-set +x
+if [ "${exclude_archive}" = true ]; then
+  set -x
+  rsync -avhz --include='/*/' --exclude='archive/' ${backups_root}/${folder}/ ${copy_root}/${folder}/
+  set +x
+else
+  set -x
+  rsync -avhz ${backups_root}/${folder}/ ${copy_root}/${folder}/
+  set +x
+fi
