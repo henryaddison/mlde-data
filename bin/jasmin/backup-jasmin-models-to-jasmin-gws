@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-src=/gws/nopw/j04/bris_climdyn/henrya/workdirs/
+src=/gws/nopw/j04/bris_climdyn/henrya/jasmin-active/workdirs/
 dest=/gws/nopw/j04/bris_climdyn/henrya/bp-backups/workdirs/
 
 rsync -auvzh ${src} ${dest}
