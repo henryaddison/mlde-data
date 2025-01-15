@@ -12,7 +12,7 @@ folder=$1
 
 set -x
 cd ${copy_root}/${folder}
-find . -type f -exec md5sum '{}' ';' > checksum.txt
+find . -type f \( -not -name "checksum.txt" \) -exec md5sum '{}' ';' > checksum.txt
 cd ${backups_root}/${folder}
 md5sum --check --quiet ${copy_root}/${folder}/checksum.txt
 set +x
