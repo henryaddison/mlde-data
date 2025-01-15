@@ -10,5 +10,5 @@ folder=$1
 shift 1
 
 set -x
-rsync -avhz $@ ${backups_root}/${folder}/ ${copy_root}/${folder}/
+rsync -avhz "$@" ${backups_root}/${folder}/ ${copy_root}/${folder}/
 set +x
