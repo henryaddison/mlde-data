@@ -1,0 +1,15 @@
+#!/bin/bash
+# Script for copying data related to phd-submission from bp-backups on JASMIN
+
+set -euo pipefail
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+copy_root="/gws/nopw/j04/bris_climdyn/henrya/phd-submission"
+backups_root="/gws/nopw/j04/bris_climdyn/henrya/bp-backups"
+
+folder=$1
+
+set -x
+rsync -avhz ${backups_root}/${folder}/ ${copy_root}/${folder}/
+set +x
