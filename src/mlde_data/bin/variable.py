@@ -14,6 +14,8 @@ import xarray as xr
 
 from mlde_utils import VariableMetadata
 
+from mlde_data.canari_le_sprint import CarariLESprintVariableFile
+
 from .options import DomainOption, CollectionOption
 from ..moose import (
     VARIABLE_CODES,
@@ -136,6 +138,20 @@ def get_sources(
             ds = xr.open_dataset(source_nc_filepath)
 
             ds = remove_pressure(ds)
+
+            sources[src_variable["name"]] = ds
+    elif config["sources"]["type"] == "canari-le-sprint":
+        for src_variable in config["sources"]["variables"]:
+            source_metadata = CarariLESprintVariableFile(
+                frequency=src_variable["frequency"],
+                ensemble_member=ensemble_member,
+                variable=src_variable["name"],
+                year=year,
+            )
+            source_nc_filepath = source_metadata.filepath()
+            logger.info(f"Opening {source_nc_filepath}")
+            ds = xr.open_dataset(source_nc_filepath)
+            ds = ds.rename({source_metadata.varcode: src_variable["name"]})
 
             sources[src_variable["name"]] = ds
     else:
