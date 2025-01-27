@@ -153,7 +153,7 @@ def get_sources(
                 variable=src_variable["name"],
                 year=year,
             )
-            source_nc_filepath = source_metadata.filepath()
+            source_nc_filepath = source_metadata.filepath
             logger.info(f"Opening {source_nc_filepath}")
             ds = xr.open_dataset(source_nc_filepath)
             ds = ds.rename({source_metadata.varcode: src_variable["name"]})
