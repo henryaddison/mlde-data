@@ -133,6 +133,6 @@ class CarariLESprintVariableFile:
             self.ensemble_member,
             "ATM",
             "yearly",
-            self.year,
+            str(self.year),
             self.filename,
         )
