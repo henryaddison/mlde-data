@@ -62,6 +62,11 @@ def get_variable_resolution(config, collection):
             variable_resolution = "60km"
         else:
             raise f"Unknown collection {collection}"
+    elif config["sources"]["type"] == "canari-le-sprint":
+        # CANARI LE Sprint data is at 60km resolution
+        variable_resolution = "60km"
+    else:
+        raise RuntimeError(f"Unknown souce type {config['sources']['type']}")
 
     return variable_resolution
 
