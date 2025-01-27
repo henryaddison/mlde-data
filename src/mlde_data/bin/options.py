@@ -10,3 +10,4 @@ class DomainOption(str, Enum):
 class CollectionOption(str, Enum):
     gcm = "land-gcm"
     cpm = "land-cpm"
+    canari_le_sprint = "canari-le-sprint"
