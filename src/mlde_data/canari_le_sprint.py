@@ -130,8 +130,9 @@ class CarariLESprintVariableFile:
         return os.path.join(
             self.CANARI_LE_BASE_PATH,
             self.DIRS[self.year],
+            self.ensemble_member,
             "ATM",
             "yearly",
-            self.ensemble_member,
+            self.year,
             self.filename,
         )
