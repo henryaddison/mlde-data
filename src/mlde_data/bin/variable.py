@@ -317,6 +317,7 @@ def create(
         frequency=frequency,
         domain=f"{domain.value}-{target_size}",
         resolution=f"{variable_resolution}-{target_resolution}",
+        scenario=scenario,
         ensemble_member=ensemble_member,
         variable=config["variable"],
     )
