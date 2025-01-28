@@ -156,7 +156,17 @@ def get_sources(
             source_nc_filepath = source_metadata.filepath
             logger.info(f"Opening {source_nc_filepath}")
             ds = xr.open_dataset(source_nc_filepath)
-            ds = ds.rename({source_metadata.varcode: src_variable["name"]})
+            ds = ds.rename(
+                {
+                    source_metadata.varcode: src_variable["name"],
+                    "time_counter": "time",
+                    "lat_um_atmos_grid_t": "latitude",
+                    "lon_um_atmos_grid_t": "longitude",
+                    "axis_nbounds": "bnds",
+                    "bounds_lat_um_atmos_grid_t": "latitude_bnds",
+                    "bounds_lon_um_atmos_grid_t": "longitude_bnds",
+                }
+            )
 
             sources[src_variable["name"]] = ds
     else:
