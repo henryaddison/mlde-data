@@ -2,7 +2,7 @@ import os
 from . import RangeDict
 
 
-class CarariLESprintVariableFile:
+class CanariLESprintVariableFile:
     CANARI_LE_BASE_PATH = os.getenv(
         "CANARI_LE_BASE_PATH", "/gws/nopw/j04/canari/shared/large-ensemble/priority"
     )
