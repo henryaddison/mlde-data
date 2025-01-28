@@ -4,7 +4,7 @@ from . import RangeDict
 
 class CanariLESprintVariableFile:
     CANARI_LE_BASE_PATH = os.getenv(
-        "CANARI_LE_BASE_PATH", "/gws/nopw/j04/canari/shared/large-ensemble/priority"
+        "CANARI_LE_BASE_PATH", "/gws/nopw/j04/canari/shared/large-ensemble"
     )
 
     HIST2 = range(1950, 2015)
@@ -129,6 +129,7 @@ class CanariLESprintVariableFile:
 
         return os.path.join(
             self.CANARI_LE_BASE_PATH,
+            "priority",
             self.DIRS[self.year],
             self.ensemble_member,
             "ATM",
