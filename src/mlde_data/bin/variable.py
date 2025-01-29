@@ -159,18 +159,40 @@ def get_sources(
             ds = ds.rename(
                 {
                     source_metadata.varcode: src_variable["name"],
-                    "time_counter": "time",
-                    "lat_um_atmos_grid_t": "latitude",
-                    "lon_um_atmos_grid_t": "longitude",
-                    "lat_um_atmos_grid_uv": "latitude",
-                    "lon_um_atmos_grid_uv": "longitude",
-                    "axis_nbounds": "bnds",
-                    "bounds_lat_um_atmos_grid_t": "latitude_bnds",
-                    "bounds_lon_um_atmos_grid_t": "longitude_bnds",
-                    "bounds_lat_um_atmos_grid_uv": "latitude_bnds",
-                    "bounds_lon_um_atmos_grid_uv": "longitude_bnds",
                 }
             )
+            ds = ds.rename_dims(
+                {
+                    "time_counter": "time",
+                    "axis_nbounds": "bnds",
+                }
+            )
+            if "lat_um_atmos_grid_t" in ds.dims:
+                ds = ds.rename_dims(
+                    {
+                        "lat_um_atmos_grid_t": "latitude",
+                        "lon_um_atmos_grid_t": "longitude",
+                    }
+                )
+                ds = ds.rename_vars(
+                    {
+                        "bounds_lat_um_atmos_grid_t": "latitude_bnds",
+                        "bounds_lon_um_atmos_grid_t": "longitude_bnds",
+                    }
+                )
+            if "lat_um_atmos_grid_uv" in ds.dims:
+                ds = ds.rename_dims(
+                    {
+                        "lat_um_atmos_grid_uv": "latitude",
+                        "lon_um_atmos_grid_uv": "longitude",
+                    }
+                )
+                ds = ds.rename_vars(
+                    {
+                        "bounds_lat_um_atmos_grid_uv": "latitude_bnds",
+                        "bounds_lon_um_atmos_grid_uv": "longitude_bnds",
+                    }
+                )
 
             sources[src_variable["name"]] = ds
     else:
