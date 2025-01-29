@@ -276,9 +276,6 @@ def create(
                 f"Difference between {job_spec['params']['left']} and {job_spec['params']['right']}"
             )
             ds = Diff(**job_spec["params"]).run(ds)
-            ds[config["variable"]] = ds[config["variable"]].assign_attrs(
-                config["attrs"]
-            )
         elif job_spec["action"] == "query":
             logger.info(f"Selecting {job_spec['parameters']}")
             ds = ds.sel(**job_spec["parameters"])
