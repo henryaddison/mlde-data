@@ -101,8 +101,8 @@ class CanariLESprintVariableFile:
 
     VARIABLES = {
         "psl": {"day": "m01s16i222_4"},
-        "uwind": {"day": "m01s30i201_3"},
-        "vwind": {"day": "m01s30i202_3"},
+        "xwind": {"day": "m01s30i201_3"},
+        "ywind": {"day": "m01s30i202_3"},
         "air_temperature": {"day": "m01s30i204_3"},
     }
 
