@@ -239,9 +239,6 @@ def create(
         if job_spec["action"] == "sum":
             logger.info(f"Summing {job_spec['params']['variables']}")
             ds = Sum(**job_spec["params"]).run(ds)
-            ds[config["variable"]] = ds[config["variable"]].assign_attrs(
-                config["attrs"]
-            )
         elif job_spec["action"] == "diff":
             logger.info(
                 f"Difference between {job_spec['params']['left']} and {job_spec['params']['right']}"
@@ -302,6 +299,9 @@ def create(
             ds = ds.rename(job_spec["mapping"])
         else:
             raise RuntimeError(f"Unknown action {job_spec['action']}")
+
+    # assign any attributes from config file
+    ds[config["variable"]] = ds[config["variable"]].assign_attrs(config["attrs"])
 
     grid_mapping = ds[config["variable"]].attrs["grid_mapping"]
     if grid_mapping == "rotated_latitude_longitude":
