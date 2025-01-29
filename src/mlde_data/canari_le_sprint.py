@@ -101,10 +101,11 @@ class CanariLESprintVariableFile:
 
     VARIABLES = {
         "psl": {"day": "m01s16i222_4"},
-        "xwind": {"day": "m01s30i201_3"},
-        "ywind": {"day": "m01s30i202_3"},
         "air_temperature": {"day": "m01s30i204_3"},
     }
+    for theta in [250, 500, 700, 850, 925]:
+        VARIABLES[f"xwind{theta}"] = {"day": "m01s30i201_3"}
+        VARIABLES[f"ywind{theta}"] = {"day": "m01s30i201_3"}
 
     def __init__(self, variable, ensemble_member, frequency, year):
         self.variable = variable
