@@ -162,9 +162,13 @@ def get_sources(
                     "time_counter": "time",
                     "lat_um_atmos_grid_t": "latitude",
                     "lon_um_atmos_grid_t": "longitude",
+                    "lat_um_atmos_grid_uv": "latitude",
+                    "lon_um_atmos_grid_uv": "longitude",
                     "axis_nbounds": "bnds",
                     "bounds_lat_um_atmos_grid_t": "latitude_bnds",
                     "bounds_lon_um_atmos_grid_t": "longitude_bnds",
+                    "bounds_lat_um_atmos_grid_uv": "latitude_bnds",
+                    "bounds_lon_um_atmos_grid_uv": "longitude_bnds",
                 }
             )
 
