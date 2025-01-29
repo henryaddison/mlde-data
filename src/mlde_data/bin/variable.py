@@ -156,6 +156,7 @@ def get_sources(
             source_nc_filepath = source_metadata.filepath
             logger.info(f"Opening {source_nc_filepath}")
             ds = xr.open_dataset(source_nc_filepath)
+
             ds = ds.rename(
                 {
                     source_metadata.varcode: src_variable["name"],
@@ -193,6 +194,13 @@ def get_sources(
                         "bounds_lon_um_atmos_grid_uv": "longitude_bnds",
                     }
                 )
+
+            ds = ds.assign(
+                latitude_longitude=xr.DataArray(
+                    data=0, dims=[], coords=dict(), attrs=dict(earth_radius=6371229.0)
+                )
+            )
+            ds[src_variable["name"]].assign_attrs(grid_mapping="longitude_latitude")
 
             sources[src_variable["name"]] = ds
     else:
