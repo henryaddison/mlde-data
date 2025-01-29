@@ -1,4 +1,4 @@
-variable: psl
+variable: vorticity850
 attrs:
   units: s-1
   standard_name: atmosphere_relative_vorticity
