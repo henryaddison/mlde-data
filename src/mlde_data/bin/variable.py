@@ -247,6 +247,9 @@ def create(
             ds[config["variable"]] = ds[config["variable"]].assign_attrs(
                 config["attrs"]
             )
+        elif job_spec["action"] == "query":
+            logger.info(f"Selecting {job_spec['parameters']}")
+            ds = ds.sel(**job_spec["parameters"])
         elif job_spec["action"] == "coarsen":
             if scale_factor == "gcm":
                 typer.echo(f"Remapping conservatively to gcm grid...")

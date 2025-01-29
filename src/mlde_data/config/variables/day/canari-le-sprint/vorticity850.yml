@@ -13,6 +13,9 @@ sources:
     - name: ywind850
       frequency: day
 spec:
+  - action: query
+    parameters:
+      um_atmos_PLEV19: 850
   - action: vorticity
     parameters:
       theta: 850
