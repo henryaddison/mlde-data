@@ -200,7 +200,9 @@ def get_sources(
                     data=0, dims=[], coords=dict(), attrs=dict(earth_radius=6371229.0)
                 )
             )
-            ds[src_variable["name"]].assign_attrs(grid_mapping="longitude_latitude")
+            ds[src_variable["name"]] = ds[src_variable["name"]].assign_attrs(
+                grid_mapping="latitude_longitude"
+            )
 
             sources[src_variable["name"]] = ds
     else:
