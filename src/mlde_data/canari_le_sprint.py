@@ -120,29 +120,31 @@ class CanariLESprintVariable:
         return self.VARIABLES[self.variable][self.frequency]
 
     @property
-    def ensemble_code(self) -> str:
-        return self.ENSEMBLE_MEMBERS[self.year][self.ensemble_member]
-
-    @property
-    def filename(self) -> str:
-        return f"{self.ensemble_code}_{self.ensemble_member}_{self.frequency}_{self.varcode}.nc"
-
-    @property
     def filepaths(self) -> list[str]:
-
+        # canonical year for this project runs 12-01 to 11-30
+        # but for CANARI, years are split at 01-01, so need to consider
+        # two files for each canonical project year
         return [
-            os.path.join(
-                self.CANARI_LE_BASE_PATH,
-                "priority",
-                self.DIRS[self.year],
-                self.ensemble_member,
-                "ATM",
-                "yearly",
-                str(y),
-                self.filename,
-            )
-            for y in [self.year - 1, self.year]
+            self._filepath(canari_year) for canari_year in [self.year - 1, self.year]
         ]
+
+    def _filepath(self, canari_year: int) -> str:
+        return os.path.join(
+            self.CANARI_LE_BASE_PATH,
+            "priority",
+            self.DIRS[self.year],
+            self.ensemble_member,
+            "ATM",
+            "yearly",
+            str(canari_year),
+            self.filename(canari_year),
+        )
+
+    def _ensemble_code(self, canari_year: int) -> str:
+        return self.ENSEMBLE_MEMBERS[canari_year][self.ensemble_member]
+
+    def _filename(self, canari_year) -> str:
+        return f"{self.ensemble_code(canari_year)}_{self.ensemble_member}_{self.frequency}_{self.varcode}.nc"
 
     def open(self) -> xr.Dataset:
         logging.info(f"Opening {self.filepaths}")
