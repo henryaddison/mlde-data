@@ -185,7 +185,7 @@ def create(
     ensemble_member: str = typer.Option(...),
 ):
     """
-    Create a new variable from moose data
+    Create a variable file in project form from source data
     """
     with open(config_path, "r") as config_file:
         config = yaml.safe_load(config_file)
@@ -199,9 +199,10 @@ def create(
         "target_resolution": target_resolution,
     }
 
-    data_basedir = os.path.join(os.getenv("DERIVED_DATA"), "moose")
-
     collection = CollectionOption(config["sources"]["collection"])
+    src_type = config["sources"]["type"]
+
+    data_basedir: Path = os.path.join(os.getenv("DERIVED_DATA"), src_type)
 
     variable_resolution = get_variable_resolution(config, collection)
 
@@ -309,6 +310,7 @@ def create(
         scenario=scenario,
         ensemble_member=ensemble_member,
         variable=config["variable"],
+        collection=collection,
     )
 
     logger.info(f"Saving data to {output_metadata.filepath(year)}")
