@@ -2,15 +2,10 @@
 
 set -euo pipefail
 
-# LOTUS defaults
-saccount=mass
-spartition=mass
-# sqos=???
-
 # LOTUS2 defaults
-# saccount="canari"
-# spartition="standard"
-# sqos="standard"
+saccount="canari"
+spartition="standard"
+sqos="standard"
 
 # Common defaults
 smem=4G
@@ -54,18 +49,10 @@ shift $((OPTIND -1))
 
 cmd=$@
 
-# LOTUS
-
-if [ $job_id -eq 0 ]; then
-  sbatch --parsable --chdir=${directory} --mail-type=ALL --mail-user=vf20964@bristol.ac.uk --account=${saccount} --partition ${spartition} --mem=${smem} --time ${stime} -- ${cmd}
-else
-  sbatch --parsable --chdir=${directory} --mail-type=ALL --mail-user=vf20964@bristol.ac.uk --account=${saccount} --partition ${spartition} --mem=${smem} --time ${stime} --chdir=${directory} --dependency=afterok:${job_id} -- ${cmd}
-fi
-
 # LOTUS 2
 
-# if [ $job_id -eq 0 ]; then
-#   sbatch --parsable --chdir=${directory} --mail-type=ALL --mail-user=vf20964@bristol.ac.uk --account=${saccount} --partition=${spartition} --qos=${sqos} --time=${stime} --mem=${smem} -- ${cmd}
-# else
-#   sbatch --parsable --chdir=${directory} --mail-type=ALL --mail-user=vf20964@bristol.ac.uk --account=${saccount} --partition=${spartition} --qos=${sqos} --time=${stime} --mem=${smem} --dependency=afterok:${job_id} -- ${cmd}
-# fi
+if [ $job_id -eq 0 ]; then
+  sbatch --parsable --chdir=${directory} --mail-type=ALL --mail-user=vf20964@bristol.ac.uk --account=${saccount} --partition=${spartition} --qos=${sqos} --time=${stime} --mem=${smem} -- ${cmd}
+else
+  sbatch --parsable --chdir=${directory} --mail-type=ALL --mail-user=vf20964@bristol.ac.uk --account=${saccount} --partition=${spartition} --qos=${sqos} --time=${stime} --mem=${smem} --dependency=afterok:${job_id} -- ${cmd}
+fi
