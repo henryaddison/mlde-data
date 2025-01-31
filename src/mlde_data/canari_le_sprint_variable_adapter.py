@@ -156,6 +156,7 @@ class CanariLESprintVariableAdapter:
                 self.varcode: self.variable,
                 "time_counter": "time",
                 "axis_nbounds": "bnds",
+                "time_counter_bounds": "time_bnds",
             }
         )
         if "lat_um_atmos_grid_t" in ds.dims:
