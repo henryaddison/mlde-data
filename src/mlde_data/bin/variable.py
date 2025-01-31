@@ -406,12 +406,13 @@ def validate(
     collection: str = typer.Argument("land-cpm"),
     variable: str = typer.Argument("all"),
     ensemble_member: str = typer.Argument("all"),
-    years: List[int] = typer.Argument("all"),
+    years: List[int] = typer.Argument(["all"]),
 ):
     frequency = "day"
 
-    if years == "all":
-        years = validation.YEARS[source]
+    if "all" in years:
+        years.remove("all")
+        years = years.extend(validation.YEARS[source])
 
     for domain, res_variables in validation.DOMAIN_RES_VARS.items():
         for res, variables in res_variables[source][collection].items():
