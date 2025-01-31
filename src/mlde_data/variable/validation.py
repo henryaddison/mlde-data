@@ -145,6 +145,10 @@ def check_dims(ds: xr.Dataset, var: str) -> bool:
         raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
 
 
+def check_shape(ds: xr.Dataset, var: str) -> bool:
+    return len(ds[var]["time"]) == 360
+
+
 def check_forecast_encoding(ds: xr.Dataset, var: str) -> bool:
     if "coordinates" in ds[var].encoding and (
         re.match(
@@ -200,6 +204,8 @@ def check_grid_vars(ds: xr.Dataset, var: str) -> bool:
 
 
 def check_time_bnds(ds: xr.Dataset, var: str) -> bool:
+    if "time_bnds" not in ds.variables:
+        return False
     return "ensemble_member" not in ds["time_bnds"].dims
 
 
@@ -218,6 +224,8 @@ def validate(var_meta: VariableMetadata, year: int) -> List[str]:
     # check dims
     if not check_dims(ds, var_meta.variable):
         failures.append("bad dimensions")
+    if not check_shape(ds, var_meta.variable):
+        failures.append("bad shape")
 
     # check for forecast related metadata (should have been stripped)
     if not check_forecast_encoding(ds, var_meta.variable):
