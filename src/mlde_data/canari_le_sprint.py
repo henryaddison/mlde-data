@@ -103,6 +103,7 @@ class CanariLESprintVariableAdapter:
 
     VARIABLES = {
         "psl": {"day": "m01s16i222_4"},
+        "pr": {"1hr": "m01s05i216"},
     }
     for theta in [250, 500, 700, 850, 925]:
         VARIABLES[f"xwind{theta}"] = {"day": "m01s30i201_3"}
