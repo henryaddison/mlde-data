@@ -109,26 +109,26 @@ class CanariLESprintVariable:
         VARIABLES[f"ywind{theta}"] = {"day": "m01s30i201_3"}
         VARIABLES[f"temp{theta}"] = {"day": "m01s30i204_3"}
 
-    def __init__(self, variable, ensemble_member, frequency, year):
+    def __init__(self, variable: str, ensemble_member: str, frequency: str, year: int):
         self.variable = variable
         self.ensemble_member = ensemble_member
         self.frequency = frequency
         self.year = year
 
     @property
-    def varcode(self):
+    def varcode(self) -> str:
         return self.VARIABLES[self.variable][self.frequency]
 
     @property
-    def ensemble_code(self):
+    def ensemble_code(self) -> str:
         return self.ENSEMBLE_MEMBERS[self.year][self.ensemble_member]
 
     @property
-    def filename(self):
+    def filename(self) -> str:
         return f"{self.ensemble_code}_{self.ensemble_member}_{self.frequency}_{self.varcode}.nc"
 
     @property
-    def filepaths(self):
+    def filepaths(self) -> list[str]:
 
         return [
             os.path.join(
@@ -144,7 +144,7 @@ class CanariLESprintVariable:
             for y in [self.year - 1, self.year]
         ]
 
-    def open(self):
+    def open(self) -> xr.Dataset:
         logging.info(f"Opening {self.filepaths}")
         ds = xr.combine_by_coords([xr.open_dataset(f) for f in self.filepaths])
 
