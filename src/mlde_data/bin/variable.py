@@ -14,7 +14,7 @@ import xarray as xr
 
 from mlde_utils import VariableMetadata
 
-from mlde_data.canari_le_sprint import CanariLESprintVariableAdapter
+from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
 
 from .options import DomainOption, CollectionOption
 from ..moose import (
