@@ -160,7 +160,6 @@ def get_sources(
 
             logger.info(f"Opening {source_nc_filepaths}")
             ds = xr.combine_by_coords([xr.open_dataset(f) for f in source_nc_filepaths])
-            ds = ds.sel(time=slice(f"{year-1}-12-01", f"{year}-12-01")).load()
 
             ds = ds.rename(
                 {
@@ -197,7 +196,9 @@ def get_sources(
                 grid_mapping="latitude_longitude"
             )
 
-            sources[src_variable["name"]] = ds
+            ds = ds.sel(time=slice(f"{year-1}-12-01", f"{year}-12-01"))
+
+            sources[src_variable["name"]] = ds.load()
     else:
         raise RuntimeError(f"Unknown souce type {config['sources']['type']}")
 
