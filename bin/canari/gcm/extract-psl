@@ -27,7 +27,7 @@ echo
 job_id=0
 
 years=$(seq 1981 1 1990)
-job_id=$(${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} python ${ETL_VARIABLE_SCRIPT_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
+job_id=$(${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} python ${ETL_VARIABLE_SCRIPT_PATH} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} --variable-config ${variable} --frequency ${frequency} --ensemble-member ${ensemble_member} ${years})
 echo $job_id
 
 # 2071-2080 (TS3)
