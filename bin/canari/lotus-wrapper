@@ -1,5 +1,7 @@
-#! /usr/bin/env bash
+#!/bin/bash
+# Wrapper script around commands to be run on LOTUS queue
 
+source ~/.bashrc
 eval "$(conda shell.bash hook)"
 
 conda activate canari-mlde-data
@@ -8,6 +10,6 @@ set -euo pipefail
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-ETL_VARIABLE_SCRIPT_PATH=${SCRIPT_DIR}/etl-variable.py
-
-python ${ETL_VARIABLE_SCRIPT_PATH} $@
+set -x
+$@
+set +x

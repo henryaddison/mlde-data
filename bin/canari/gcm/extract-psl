@@ -14,8 +14,9 @@ variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/${frequency}/can
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-QUEUE_DEP_PATH=${SCRIPT_DIR}/../queue-dep-func
-BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../batch-wrapper
+QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
+LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
+ETL_VARIABLE_SCRIPT_PATH=${SCRIPT_DIR}/etl-variable.py
 
 echo
 echo ${ensemble_member}
@@ -26,7 +27,7 @@ echo
 job_id=0
 
 years=$(seq 1981 1 1990)
-job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
+job_id=$(${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} python ${ETL_VARIABLE_SCRIPT_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
 echo $job_id
 
 # 2071-2080 (TS3)
@@ -34,5 +35,5 @@ echo $job_id
 job_id=0
 
 years=$(seq 2071 1 2080)
-job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
+job_id=$(${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} python ${ETL_VARIABLE_SCRIPT_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
 echo $job_id
