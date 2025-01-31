@@ -428,23 +428,25 @@ def validate(
                         end="\r",
                     )
 
-                    bad_years = defaultdict(set)
-                    for year in years:
-                        var_meta = VariableMetadata(
-                            f"{os.getenv('DERIVED_DATA')}/{source}",
-                            variable=var,
-                            frequency=frequency,
-                            domain=domain,
-                            resolution=res,
-                            ensemble_member=em,
-                            collection=collection,
-                        )
-                        for error in validation.validate(var_meta, year):
-                            bad_years[error].add(year)
-
-                    # report findings
-                    for reason, error_years in bad_years.items():
-                        if len(error_years) > 0:
-                            print(
-                                f"Failed '{reason}': {var} over {domain} of {em} at {res} for {len(error_years)}\n{sorted(error_years)}"
+                    for scenario in validation.SCENARIOS[source]:
+                        bad_years = defaultdict(set)
+                        for year in years:
+                            var_meta = VariableMetadata(
+                                f"{os.getenv('DERIVED_DATA')}/{source}",
+                                variable=var,
+                                frequency=frequency,
+                                domain=domain,
+                                resolution=res,
+                                ensemble_member=em,
+                                collection=collection,
+                                scenario=scenario,
                             )
+                            for error in validation.validate(var_meta, year):
+                                bad_years[error].add(year)
+
+                        # report findings
+                        for reason, error_years in bad_years.items():
+                            if len(error_years) > 0:
+                                print(
+                                    f"Failed '{reason}': {var} over {domain} of {em} in {scenario} at {res} for {len(error_years)}\n{sorted(error_years)}"
+                                )

@@ -117,6 +117,11 @@ ENSEMBLE_MEMBERS = {
     },
 }
 
+SCENARIOS = {
+    "moose": ["rcp85"],
+    "canari-le-sprint": ["ssp370"],
+}
+
 
 def check_nans(ds: xr.Dataset, var: str) -> bool:
     return ds[var].isnull().sum().values.item() == 0
