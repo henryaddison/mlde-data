@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 ensemble_member=$1
 
 domain="birmingham"
@@ -10,9 +12,7 @@ target_resolution="2.2km-coarsened-4x"
 target_size=64
 frequency="day"
 scenario="ssp370"
-variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/${frequency}/canari-le-sprint/psl.yml"
-
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+variable="${SCRIPT_DIR}/../../../src/mlde_data/config/variables/${frequency}/canari-le-sprint/psl.yml"
 
 QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
 LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
