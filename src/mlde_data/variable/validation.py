@@ -14,6 +14,22 @@ from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAd
 
 DOMAIN_RES_VARS = {
     "birmingham-64": {
+        "canari-le-sprint": {
+            "canari-le-sprint": {
+                "60km-2.2km-coarsened-4x": [
+                    "psl",
+                    "pr",
+                    "temp250",
+                    "temp500",
+                    "temp700",
+                    "temp850",
+                    "vorticity250",
+                    "vorticity500",
+                    "vorticity700",
+                    "vorticity850",
+                ],
+            },
+        },
         "moose": {
             "land-cpm": {
                 "2.2km-coarsened-gcm-2.2km-coarsened-4x": [
