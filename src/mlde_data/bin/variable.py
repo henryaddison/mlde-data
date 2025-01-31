@@ -154,7 +154,7 @@ def get_sources(
                 year=year,
             )
 
-            sources[src_variable["name"]] = source_metadata.open().load
+            sources[src_variable["name"]] = source_metadata.open().load()
     else:
         raise RuntimeError(f"Unknown souce type {config['sources']['type']}")
 
