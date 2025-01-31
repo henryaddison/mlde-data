@@ -1,0 +1,38 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+ensemble_member=$1
+
+domain="birmingham"
+scale_factor="1"
+target_resolution="2.2km-coarsened-4x"
+target_size=64
+frequency="day"
+scenario="ssp370"
+variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/${frequency}/land-gcm/psl.yml"
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+QUEUE_DEP_PATH=${SCRIPT_DIR}/../../queue-dep-func
+BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../../batch-wrapper
+
+echo
+echo ${ensemble_member}
+echo
+
+# 1981-1990 (TS1)
+# no job initially to wait on
+job_id=0
+
+years=$(seq 1981 1 1990)
+job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
+echo $job_id
+
+# 2071-2080 (TS3)
+# no job initially to wait on
+job_id=0
+
+years=$(seq 2071 1 2080)
+job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} -d ${domain} -s ${scale_factor} -t ${target_resolution} -p ${target_size} -v ${variable} -f ${frequency} -e ${ensemble_member} ${years})
+echo $job_id
