@@ -417,8 +417,8 @@ def validate(
         years.remove("all")
         years = years.extend(validation.YEARS[source])
 
-    for domain, res_variables in validation.DOMAIN_RES_VARS.items():
-        for res, variables in res_variables[source][collection].items():
+    for domain, res_variables in validation.DOMAIN_RES_VARS[source][collection].items():
+        for res, variables in res_variables.items():
             for em in validation.ENSEMBLE_MEMBERS[source][collection]:
                 if (ensemble_member != "all") and (ensemble_member != em):
                     continue

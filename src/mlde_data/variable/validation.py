@@ -13,9 +13,9 @@ from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAd
 
 
 DOMAIN_RES_VARS = {
-    "birmingham-64": {
+    "canari-le-sprint": {
         "canari-le-sprint": {
-            "canari-le-sprint": {
+            "birmingham-64": {
                 "60km-2.2km-coarsened-4x": [
                     "psl",
                     "pr",
@@ -30,8 +30,10 @@ DOMAIN_RES_VARS = {
                 ],
             },
         },
-        "moose": {
-            "land-cpm": {
+    },
+    "moose": {
+        "land-cpm": {
+            "birmingham-64": {
                 "2.2km-coarsened-gcm-2.2km-coarsened-4x": [
                     "psl",
                     # "tempgrad500250",
@@ -62,7 +64,10 @@ DOMAIN_RES_VARS = {
                     "tmean150cm",
                 ],
             },
-            "land-gcm": {
+            "birmingham-9": {"2.2km-coarsened-gcm-60km": ["pr"]},
+        },
+        "land-gcm": {
+            "birmingham-64": {
                 "60km-2.2km-coarsened-4x": [
                     "psl",
                     # "tempgrad500250",
@@ -88,12 +93,7 @@ DOMAIN_RES_VARS = {
                     "pr",
                 ],
             },
-        },
-    },
-    "birmingham-9": {
-        "moose": {
-            "land-cpm": {"2.2km-coarsened-gcm-60km": ["pr"]},
-            "land-gcm": {"60km-60km": ["pr"]},
+            "birmingham-9": {"60km-60km": ["pr"]},
         },
     },
 }
