@@ -147,15 +147,20 @@ def get_sources(
             sources[src_variable["name"]] = ds
     elif config["sources"]["type"] == "canari-le-sprint":
         for src_variable in config["sources"]["variables"]:
-            source_metadata = CanariLESprintVariableFile(
-                frequency=src_variable["frequency"],
-                ensemble_member=ensemble_member,
-                variable=src_variable["name"],
-                year=year,
-            )
-            source_nc_filepath = source_metadata.filepath
-            logger.info(f"Opening {source_nc_filepath}")
-            ds = xr.open_dataset(source_nc_filepath)
+            source_metadata = [
+                CanariLESprintVariableFile(
+                    frequency=src_variable["frequency"],
+                    ensemble_member=ensemble_member,
+                    variable=src_variable["name"],
+                    year=y,
+                )
+                for y in [year - 1, year]
+            ]
+            source_nc_filepaths = [sm.filepath for sm in source_metadata]
+
+            logger.info(f"Opening {source_nc_filepaths}")
+            ds = xr.combine_by_coords([xr.open_dataset(f) for f in source_nc_filepaths])
+            ds = ds.sel(time=slice(f"{year-1}-12-01", f"{year}-12-01")).load()
 
             ds = ds.rename(
                 {
