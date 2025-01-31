@@ -14,7 +14,7 @@ import xarray as xr
 
 from mlde_utils import VariableMetadata
 
-from mlde_data.canari_le_sprint import CanariLESprintVariable
+from mlde_data.canari_le_sprint import CanariLESprintVariableAdapter
 
 from .options import DomainOption, CollectionOption
 from ..moose import (
@@ -147,7 +147,7 @@ def get_sources(
             sources[src_variable["name"]] = ds
     elif config["sources"]["type"] == "canari-le-sprint":
         for src_variable in config["sources"]["variables"]:
-            source_metadata = CanariLESprintVariable(
+            source_metadata = CanariLESprintVariableAdapter(
                 frequency=src_variable["frequency"],
                 ensemble_member=ensemble_member,
                 variable=src_variable["name"],

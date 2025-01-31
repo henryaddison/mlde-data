@@ -4,7 +4,7 @@ import xarray as xr
 from . import RangeDict
 
 
-class CanariLESprintVariable:
+class CanariLESprintVariableAdapter:
     CANARI_LE_BASE_PATH = os.getenv(
         "CANARI_LE_BASE_PATH", "/gws/nopw/j04/canari/shared/large-ensemble"
     )
