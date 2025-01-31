@@ -322,6 +322,9 @@ def create(
     else:
         raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
 
+    if frequency == "day":
+        assert len(ds.time) == 360
+
     # there should be no missing values in this dataset
     assert ds[config["variable"]].isnull().sum().values.item() == 0
 
