@@ -1,8 +1,10 @@
+import logging
 import os
+import xarray as xr
 from . import RangeDict
 
 
-class CanariLESprintVariableFile:
+class CanariLESprintVariable:
     CANARI_LE_BASE_PATH = os.getenv(
         "CANARI_LE_BASE_PATH", "/gws/nopw/j04/canari/shared/large-ensemble"
     )
@@ -126,15 +128,59 @@ class CanariLESprintVariableFile:
         return f"{self.ensemble_code}_{self.ensemble_member}_{self.frequency}_{self.varcode}.nc"
 
     @property
-    def filepath(self):
+    def filepaths(self):
 
-        return os.path.join(
-            self.CANARI_LE_BASE_PATH,
-            "priority",
-            self.DIRS[self.year],
-            self.ensemble_member,
-            "ATM",
-            "yearly",
-            str(self.year),
-            self.filename,
+        return [
+            os.path.join(
+                self.CANARI_LE_BASE_PATH,
+                "priority",
+                self.DIRS[self.year],
+                self.ensemble_member,
+                "ATM",
+                "yearly",
+                str(y),
+                self.filename,
+            )
+            for y in [self.year - 1, self.year]
+        ]
+
+    def open(self):
+        logging.info(f"Opening {self.filepaths}")
+        ds = xr.combine_by_coords([xr.open_dataset(f) for f in self.filepaths])
+
+        ds = ds.rename(
+            {
+                self.varcode: self.variable,
+                "time_counter": "time",
+                "axis_nbounds": "bnds",
+            }
         )
+        if "lat_um_atmos_grid_t" in ds.dims:
+            ds = ds.rename(
+                {
+                    "lat_um_atmos_grid_t": "latitude",
+                    "lon_um_atmos_grid_t": "longitude",
+                    "bounds_lat_um_atmos_grid_t": "latitude_bnds",
+                    "bounds_lon_um_atmos_grid_t": "longitude_bnds",
+                }
+            )
+        if "lat_um_atmos_grid_uv" in ds.dims:
+            ds = ds.rename(
+                {
+                    "lat_um_atmos_grid_uv": "latitude",
+                    "lon_um_atmos_grid_uv": "longitude",
+                    "bounds_lat_um_atmos_grid_uv": "latitude_bnds",
+                    "bounds_lon_um_atmos_grid_uv": "longitude_bnds",
+                }
+            )
+
+        ds = ds.assign(
+            latitude_longitude=xr.DataArray(
+                data=0, dims=[], coords=dict(), attrs=dict(earth_radius=6371229.0)
+            )
+        )
+        ds[self.variable] = ds[self.variable].assign_attrs(
+            grid_mapping="latitude_longitude"
+        )
+
+        ds = ds.sel(time=slice(f"{self.year-1}-12-01", f"{self.year}-12-01"))

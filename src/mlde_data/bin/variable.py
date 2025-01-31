@@ -14,7 +14,7 @@ import xarray as xr
 
 from mlde_utils import VariableMetadata
 
-from mlde_data.canari_le_sprint import CanariLESprintVariableFile
+from mlde_data.canari_le_sprint import CanariLESprintVariable
 
 from .options import DomainOption, CollectionOption
 from ..moose import (
@@ -147,58 +147,14 @@ def get_sources(
             sources[src_variable["name"]] = ds
     elif config["sources"]["type"] == "canari-le-sprint":
         for src_variable in config["sources"]["variables"]:
-            source_metadata = [
-                CanariLESprintVariableFile(
-                    frequency=src_variable["frequency"],
-                    ensemble_member=ensemble_member,
-                    variable=src_variable["name"],
-                    year=y,
-                )
-                for y in [year - 1, year]
-            ]
-            source_nc_filepaths = [sm.filepath for sm in source_metadata]
-
-            logger.info(f"Opening {source_nc_filepaths}")
-            ds = xr.combine_by_coords([xr.open_dataset(f) for f in source_nc_filepaths])
-
-            ds = ds.rename(
-                {
-                    source_metadata.varcode: src_variable["name"],
-                    "time_counter": "time",
-                    "axis_nbounds": "bnds",
-                }
-            )
-            if "lat_um_atmos_grid_t" in ds.dims:
-                ds = ds.rename(
-                    {
-                        "lat_um_atmos_grid_t": "latitude",
-                        "lon_um_atmos_grid_t": "longitude",
-                        "bounds_lat_um_atmos_grid_t": "latitude_bnds",
-                        "bounds_lon_um_atmos_grid_t": "longitude_bnds",
-                    }
-                )
-            if "lat_um_atmos_grid_uv" in ds.dims:
-                ds = ds.rename(
-                    {
-                        "lat_um_atmos_grid_uv": "latitude",
-                        "lon_um_atmos_grid_uv": "longitude",
-                        "bounds_lat_um_atmos_grid_uv": "latitude_bnds",
-                        "bounds_lon_um_atmos_grid_uv": "longitude_bnds",
-                    }
-                )
-
-            ds = ds.assign(
-                latitude_longitude=xr.DataArray(
-                    data=0, dims=[], coords=dict(), attrs=dict(earth_radius=6371229.0)
-                )
-            )
-            ds[src_variable["name"]] = ds[src_variable["name"]].assign_attrs(
-                grid_mapping="latitude_longitude"
+            source_metadata = CanariLESprintVariable(
+                frequency=src_variable["frequency"],
+                ensemble_member=ensemble_member,
+                variable=src_variable["name"],
+                year=year,
             )
 
-            ds = ds.sel(time=slice(f"{year-1}-12-01", f"{year}-12-01"))
-
-            sources[src_variable["name"]] = ds.load()
+            sources[src_variable["name"]] = source_metadata.open().load
     else:
         raise RuntimeError(f"Unknown souce type {config['sources']['type']}")
 
