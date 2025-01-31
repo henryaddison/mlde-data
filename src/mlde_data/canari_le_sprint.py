@@ -184,3 +184,5 @@ class CanariLESprintVariable:
         )
 
         ds = ds.sel(time=slice(f"{self.year-1}-12-01", f"{self.year}-12-01"))
+
+        return ds
