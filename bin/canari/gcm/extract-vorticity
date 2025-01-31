@@ -20,7 +20,7 @@ LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
 ETL_VARIABLE_SCRIPT_PATH=${SCRIPT_DIR}/../etl-variable.py
 
 echo
-echo ${ensemble_member}
+echo ${ensemble_member} - ${theta}
 echo
 
 function queue_years {
