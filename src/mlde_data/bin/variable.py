@@ -402,11 +402,11 @@ def xfer(
 
 @app.command()
 def validate(
-    source: str = typer.Argument("moose"),
-    collection: str = typer.Argument("land-cpm"),
-    variable: str = typer.Argument("all"),
-    ensemble_member: str = typer.Argument("all"),
-    years: List[int] = typer.Argument(["all"]),
+    years: List[int],
+    source: str = "moose",
+    collection: str = "land-cpm",
+    variable: str = "all",
+    ensemble_member: str = "all",
 ):
     frequency = "day"
 
