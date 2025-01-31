@@ -229,6 +229,9 @@ def create(
         elif job_spec["action"] == "query":
             logger.info(f"Selecting {job_spec['parameters']}")
             ds = ds.sel(**job_spec["parameters"])
+        elif job_spec["action"] == "resample":
+            logger.info(f"Resampling {job_spec['parameters']}")
+            ds = ds.resample(**job_spec["parameters"]).mean()
         elif job_spec["action"] == "coarsen":
             if scale_factor == "gcm":
                 typer.echo(f"Remapping conservatively to gcm grid...")
