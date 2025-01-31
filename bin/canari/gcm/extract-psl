@@ -14,8 +14,8 @@ variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/${frequency}/can
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-QUEUE_DEP_PATH=${SCRIPT_DIR}/../../queue-dep-func
-BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../../batch-wrapper
+QUEUE_DEP_PATH=${SCRIPT_DIR}/../queue-dep-func
+BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../batch-wrapper
 
 echo
 echo ${ensemble_member}
