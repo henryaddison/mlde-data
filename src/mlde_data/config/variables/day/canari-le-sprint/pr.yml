@@ -1,0 +1,22 @@
+variable: pr
+attrs:
+  units: kg m-2 s-1
+  standard_name: precipitation_flux
+  grid_mapping: rotated_latitude_longitude
+sources:
+  type: canari-le-sprint
+  collection: canari-le-sprint
+  variables:
+    # assumes already extracted and converted to nc
+    # implicit here is rename variable
+    - name: pr
+      frequency: 1hr
+spec:
+  - action: resample
+    parameters:
+      time: 1D
+  - action: regrid_to_target
+    variable: pr
+  - action: select-subdomain
+    parameters:
+      domain: $domain
