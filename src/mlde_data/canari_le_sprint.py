@@ -138,14 +138,14 @@ class CanariLESprintVariableAdapter:
             "ATM",
             "yearly",
             str(canari_year),
-            self.filename(canari_year),
+            self._filename(canari_year),
         )
 
     def _ensemble_code(self, canari_year: int) -> str:
         return self.ENSEMBLE_MEMBERS[canari_year][self.ensemble_member]
 
     def _filename(self, canari_year) -> str:
-        return f"{self.ensemble_code(canari_year)}_{self.ensemble_member}_{self.frequency}_{self.varcode}.nc"
+        return f"{self._ensemble_code(canari_year)}_{self.ensemble_member}_{self.frequency}_{self.varcode}.nc"
 
     def open(self) -> xr.Dataset:
         logging.info(f"Opening {self.filepaths}")
