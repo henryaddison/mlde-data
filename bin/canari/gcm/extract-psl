@@ -16,7 +16,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
 LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
-ETL_VARIABLE_SCRIPT_PATH=${SCRIPT_DIR}/etl-variable.py
+ETL_VARIABLE_SCRIPT_PATH=${SCRIPT_DIR}/../etl-variable.py
 
 echo
 echo ${ensemble_member}
