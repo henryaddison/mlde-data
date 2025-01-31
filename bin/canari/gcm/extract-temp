@@ -27,7 +27,7 @@ function queue_years {
   local job_id=$1
   shift 1;
   local years=$@
-  ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -m 8G -- ${LOTUS_WRAPPER_PATH} python ${ETL_VARIABLE_SCRIPT_PATH} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} --variable-config ${variable} --frequency ${frequency} --ensemble-member ${ensemble_member} ${years}
+  ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -m 16G -- ${LOTUS_WRAPPER_PATH} python ${ETL_VARIABLE_SCRIPT_PATH} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} --variable-config ${variable} --frequency ${frequency} --ensemble-member ${ensemble_member} ${years}
 }
 
 # 1981-1990 (TS1)
