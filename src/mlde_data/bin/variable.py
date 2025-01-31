@@ -3,9 +3,9 @@ from importlib.resources import files
 import logging
 import os
 from pathlib import Path
-import re
 import subprocess
 import sys
+from typing import List
 import yaml
 
 from codetiming import Timer
@@ -15,6 +15,7 @@ import xarray as xr
 from mlde_utils import VariableMetadata
 
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
+from mlde_data.variable import validation
 
 from .options import DomainOption, CollectionOption
 from ..moose import (
@@ -377,169 +378,22 @@ def xfer(
     run_cmd(file_xfer_cmd)
 
 
-def check_nans(ds, var):
-    return ds[var].isnull().sum().values.item() == 0
-
-
-def check_dims(ds, var):
-    grid_mapping = ds[var].attrs["grid_mapping"]
-    if grid_mapping == "rotated_latitude_longitude":
-        return list(ds[var].dims) == [
-            "time",
-            "grid_latitude",
-            "grid_longitude",
-        ]
-    elif grid_mapping == "latitude_longitude":
-        return list(ds[var].dims) == [
-            "time",
-            "latitude",
-            "longitude",
-        ]
-    else:
-        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
-
-
-def check_forecast_encoding(ds, var):
-    if "coordinates" in ds[var].encoding and (
-        re.match(
-            "(realization|forecast_period|forecast_reference_time) ?",
-            ds[var].encoding["coordinates"],
-        )
-        is not None
-    ):
-        return False
-    return True
-
-
-def check_forecast_vars(ds, var):
-    for v in ds.variables:
-        if v in [
-            "forecast_period",
-            "forecast_reference_time",
-            "realization",
-            "forecast_period_bnds",
-        ]:
-            return False
-    return True
-
-
-def check_pressure_encoding(ds, var):
-    for v in ds.variables:
-        if "coordinates" in ds[v].encoding and (
-            re.match("(pressure) ?", ds[v].encoding["coordinates"]) is not None
-        ):
-            return False
-    return True
-
-
-def check_pressure_vars(ds, var):
-    for v in ds.variables:
-        if v in ["pressure"]:
-            return False
-    return True
-
-
-def check_grid_vars(ds, var):
-    grid_mapping = ds[var].attrs["grid_mapping"]
-    meta_vars = [
-        grid_mapping,
-    ]
-    if grid_mapping == "rotated_latitude_longitude":
-        meta_vars.extend(["grid_latitude_bnds", "grid_longitude_bnds"])
-
-    for mvar in meta_vars:
-        if ("ensemble_member" in ds[mvar].dims) or ("time" in ds[mvar].dims):
-            return False
-    return True
-
-
-def check_time_bnds(ds, var):
-    return "ensemble_member" not in ds["time_bnds"].dims
-
-
 @app.command()
 def validate(
-    variable: str = typer.Argument("all"), ensemble_member: str = typer.Argument("all")
+    source: str = typer.Argument("moose"),
+    collection: str = typer.Argument("land-cpm"),
+    variable: str = typer.Argument("all"),
+    ensemble_member: str = typer.Argument("all"),
+    years: List[int] = typer.Argument("all"),
 ):
-    domain_res_vars = {
-        "birmingham-64": {
-            "2.2km-coarsened-gcm-2.2km-coarsened-4x": [
-                "psl",
-                # "tempgrad500250",
-                # "tempgrad700500",
-                # "tempgrad850700",
-                # "tempgrad925850",
-                "vorticity250",
-                "vorticity500",
-                "vorticity700",
-                "vorticity850",
-                "vorticity925",
-                "spechum250",
-                "spechum500",
-                "spechum700",
-                "spechum850",
-                "spechum925",
-                "temp250",
-                "temp500",
-                "temp700",
-                "temp850",
-                "temp925",
-                # "pr",
-                "linpr",
-            ],
-            "2.2km-coarsened-4x-2.2km-coarsened-4x": [
-                "pr",
-                "relhum150cm",
-                "tmean150cm",
-            ],
-            "60km-2.2km-coarsened-4x": [
-                "psl",
-                # "tempgrad500250",
-                # "tempgrad700500",
-                # "tempgrad850700",
-                # "tempgrad925850",
-                "vorticity250",
-                "vorticity500",
-                "vorticity700",
-                "vorticity850",
-                "vorticity925",
-                "spechum250",
-                "spechum500",
-                "spechum700",
-                "spechum850",
-                "spechum925",
-                "temp250",
-                "temp500",
-                "temp700",
-                "temp850",
-                "temp925",
-                "linpr",
-                "pr",
-            ],
-        },
-        "birmingham-9": {"60km-60km": ["pr"], "2.2km-coarsened-gcm-60km": ["pr"]},
-    }
+    frequency = "day"
 
-    years = list(range(1981, 2001)) + list(range(2021, 2041)) + list(range(2061, 2081))
+    if years == "all":
+        years = validation.YEARS[source]
 
-    ensemble_members = [
-        "01",
-        "04",
-        "05",
-        "06",
-        "07",
-        "08",
-        "09",
-        "10",
-        "11",
-        "12",
-        "13",
-        "15",
-    ]
-
-    for domain, res_variables in domain_res_vars.items():
-        for res, variables in res_variables.items():
-            for em in ensemble_members:
+    for domain, res_variables in validation.DOMAIN_RES_VARS.items():
+        for res, variables in res_variables[source][collection].items():
+            for em in validation.ENSEMBLE_MEMBERS[source][collection]:
                 if (ensemble_member != "all") and (ensemble_member != em):
                     continue
                 for var in variables:
@@ -554,43 +408,16 @@ def validate(
                     bad_years = defaultdict(set)
                     for year in years:
                         var_meta = VariableMetadata(
-                            f"{os.getenv('DERIVED_DATA')}/moose",
+                            f"{os.getenv('DERIVED_DATA')}/{source}",
                             variable=var,
-                            frequency="day",
+                            frequency=frequency,
                             domain=domain,
                             resolution=res,
                             ensemble_member=em,
+                            collection=collection,
                         )
-
-                        try:
-                            ds = xr.load_dataset(var_meta.filepath(year))
-                        except FileNotFoundError:
-                            bad_years["no file"].add(year)
-                            continue
-
-                        # check for NaNs
-                        if not check_nans(ds, var):
-                            bad_years["NaNs"].add(year)
-
-                        # check dims
-                        if not check_dims(ds, var):
-                            bad_years["bad dimensions"].add(year)
-
-                        # check for forecast related metadata (should have been stripped)
-                        if not check_forecast_encoding(ds, var):
-                            bad_years["forecast_encoding"].add(year)
-                        if not check_forecast_vars(ds, var):
-                            bad_years["forecast_vars"].add(year)
-                        # check for pressure related metadata (should have been stripped)
-                        if not check_pressure_encoding(ds, var):
-                            bad_years["pressure_encoding"].add(year)
-                        if not check_pressure_vars(ds, var):
-                            bad_years["pressure_vars"].add(year)
-                        # check grid and time vars
-                        if not check_grid_vars(ds, var):
-                            bad_years["grid_meta_vars"].add(year)
-                        if not check_time_bnds(ds, var):
-                            bad_years["time_bnds"].add(year)
+                        for error in validation.validate(var_meta, year):
+                            bad_years[error].add(year)
 
                     # report findings
                     for reason, error_years in bad_years.items():
