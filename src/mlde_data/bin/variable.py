@@ -172,53 +172,15 @@ def get_sources(
     return ds
 
 
-@app.command()
-@Timer(name="create-variable", text="{name}: {minutes:.1f} minutes", logger=logger.info)
-def create(
-    config_path: Path = typer.Option(...),
-    year: int = typer.Option(...),
-    frequency: str = "day",
-    domain: DomainOption = DomainOption.london,
-    scenario="rcp85",
-    scale_factor: str = typer.Option(...),
-    target_resolution: str = "2.2km",
-    target_size: int = 64,
-    ensemble_member: str = typer.Option(...),
+def _process(
+    ds,
+    config,
+    variable_resolution,
+    target_resolution,
+    domain,
+    scale_factor,
+    target_size,
 ):
-    """
-    Create a variable file in project form from source data
-    """
-    with open(config_path, "r") as config_file:
-        config = yaml.safe_load(config_file)
-
-    # add cli parameters to config
-    config["parameters"] = {
-        "frequency": frequency,
-        "domain": domain.value,
-        "scenario": scenario,
-        "scale_factor": scale_factor,
-        "target_resolution": target_resolution,
-    }
-
-    collection = CollectionOption(config["sources"]["collection"])
-    src_type = config["sources"]["type"]
-
-    data_basedir: Path = os.path.join(os.getenv("DERIVED_DATA"), src_type)
-
-    variable_resolution = get_variable_resolution(config, collection)
-
-    ds = get_sources(
-        config,
-        collection,
-        year,
-        data_basedir,
-        domain,
-        target_size,
-        variable_resolution,
-        target_resolution,
-        ensemble_member=ensemble_member,
-    )
-
     for job_spec in config["spec"]:
         if job_spec["action"] == "sum":
             logger.info(f"Summing {job_spec['params']['variables']}")
@@ -289,6 +251,66 @@ def create(
 
     # assign any attributes from config file
     ds[config["variable"]] = ds[config["variable"]].assign_attrs(config["attrs"])
+
+    return ds
+
+
+@app.command()
+@Timer(name="create-variable", text="{name}: {minutes:.1f} minutes", logger=logger.info)
+def create(
+    config_path: Path = typer.Option(...),
+    year: int = typer.Option(...),
+    frequency: str = "day",
+    domain: DomainOption = DomainOption.london,
+    scenario="rcp85",
+    scale_factor: str = typer.Option(...),
+    target_resolution: str = "2.2km",
+    target_size: int = 64,
+    ensemble_member: str = typer.Option(...),
+):
+    """
+    Create a variable file in project form from source data
+    """
+    with open(config_path, "r") as config_file:
+        config = yaml.safe_load(config_file)
+
+    # add cli parameters to config
+    config["parameters"] = {
+        "frequency": frequency,
+        "domain": domain.value,
+        "scenario": scenario,
+        "scale_factor": scale_factor,
+        "target_resolution": target_resolution,
+    }
+
+    collection = CollectionOption(config["sources"]["collection"])
+    src_type = config["sources"]["type"]
+
+    data_basedir: Path = os.path.join(os.getenv("DERIVED_DATA"), src_type)
+
+    variable_resolution = get_variable_resolution(config, collection)
+
+    ds = get_sources(
+        config,
+        collection,
+        year,
+        data_basedir,
+        domain,
+        target_size,
+        variable_resolution,
+        target_resolution,
+        ensemble_member=ensemble_member,
+    )
+
+    ds = _process(
+        ds,
+        config,
+        variable_resolution,
+        target_resolution,
+        domain,
+        scale_factor,
+        target_size,
+    )
 
     grid_mapping = ds[config["variable"]].attrs["grid_mapping"]
     if grid_mapping == "rotated_latitude_longitude":
