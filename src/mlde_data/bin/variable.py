@@ -448,8 +448,14 @@ def validate(
                                 bad_years[error].add(year)
 
                         # report findings
+                        sys.stdout.write("\033[K")
                         for reason, error_years in bad_years.items():
                             if len(error_years) > 0:
                                 print(
                                     f"Failed '{reason}': {var} over {domain} of {em} in {scenario} at {res} for {len(error_years)}\n{sorted(error_years)}"
                                 )
+
+                        if not any(map(lambda s: len(s) > 0, bad_years.values())):
+                            print(
+                                f"All years passed: {var} over {domain} of {em} in {scenario} at {res}"
+                            )
