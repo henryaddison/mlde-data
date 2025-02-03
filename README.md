@@ -29,7 +29,7 @@ Note that predictor and predictand variables may have different data resolutions
 Assumes you have conda (or equivalent like mamba installed).
 
 1. Clone repo and cd into it
-2. Create conda environment: `conda env create -f environment.lock.yml` (or add dependencies to your own: `conda env install -f environment.txt`)
+2. Create conda environment: `conda env create -f environment.lock.yml` (or add dependencies to your own: `conda install --file=environment.txt`)
 3. Activate the conda environment (if not already done so)
 4. Install package: `pip install -e .`
 5. Configure application behaviour with environment variables. See `.env.example` for variables that can be set.
@@ -38,7 +38,7 @@ Assumes you have conda (or equivalent like mamba installed).
 
 To add new packages or update their version, it is recommended to use the `environment.txt` file (for conda packages) and `requirements.txt` file (for pip packages) then run:
 ```sh
-conda env install -f environment.txt
+conda install --file=environment.txt
 pip install -e . # this will implicitly use requirement.txt
 conda env export -f environment.lock.yml
 ```
