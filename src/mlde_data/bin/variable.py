@@ -457,5 +457,5 @@ def validate(
 
                         if not any(map(lambda s: len(s) > 0, bad_years.values())):
                             print(
-                                f"All years passed: {var} over {domain} of {em} in {scenario} at {res}"
+                                f"Passed validation: {var} over {domain} of {em} in {scenario} at {res}"
                             )
