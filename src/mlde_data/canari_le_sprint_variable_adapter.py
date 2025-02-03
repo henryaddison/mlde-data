@@ -149,7 +149,17 @@ class CanariLESprintVariableAdapter:
 
     def open(self) -> xr.Dataset:
         logging.info(f"Opening {self.filepaths}")
-        ds = xr.combine_by_coords([xr.open_dataset(f) for f in self.filepaths])
+        ds = xr.concat(
+            [
+                xr.open_dataset(f).sel(
+                    time=slice(f"{self.year-1}-12-01", f"{self.year}-11-30")
+                )
+                for f in self.filepaths
+            ],
+            dim="time",
+            data_vars="minimal",
+            join="exact",
+        )
 
         ds = ds.rename(
             {
