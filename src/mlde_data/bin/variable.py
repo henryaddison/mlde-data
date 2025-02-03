@@ -413,8 +413,8 @@ def validate(
 ):
     frequency = "day"
 
-    if "all" in years:
-        years.remove("all")
+    if -1 in years:
+        years.remove(-1)
         years = years.extend(validation.YEARS[source])
 
     for domain, res_variables in validation.DOMAIN_RES_VARS[source][collection].items():
