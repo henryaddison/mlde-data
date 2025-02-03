@@ -177,6 +177,15 @@ class CanariLESprintVariableAdapter:
                     "bounds_lon_um_atmos_grid_uv": "longitude_bnds",
                 }
             )
+        if "lat" in ds.dims:
+            ds = ds.rename(
+                {
+                    "lat": "latitude",
+                    "lon": "longitude",
+                    "bounds_lat": "latitude_bnds",
+                    "bounds_lon": "longitude_bnds",
+                }
+            )
 
         ds = ds.assign(
             latitude_longitude=xr.DataArray(
