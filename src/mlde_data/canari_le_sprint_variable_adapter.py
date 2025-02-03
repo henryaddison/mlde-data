@@ -152,11 +152,11 @@ class CanariLESprintVariableAdapter:
         ds = xr.concat(
             [
                 xr.open_dataset(f).sel(
-                    time=slice(f"{self.year-1}-12-01", f"{self.year}-11-30")
+                    time_counter=slice(f"{self.year-1}-12-01", f"{self.year}-11-30")
                 )
                 for f in self.filepaths
             ],
-            dim="time",
+            dim="time_counter",
             data_vars="minimal",
             join="exact",
         )
