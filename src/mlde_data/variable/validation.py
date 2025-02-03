@@ -102,7 +102,7 @@ YEARS = {
     "moose": list(range(1981, 2001))
     + list(range(2021, 2041))
     + list(range(2061, 2081)),
-    "canari-le-sprint": list(range(1981, 1990)),
+    "canari-le-sprint": list(range(1981, 1990)) + list(range(2071, 2080)),
 }
 
 ENSEMBLE_MEMBERS = {
