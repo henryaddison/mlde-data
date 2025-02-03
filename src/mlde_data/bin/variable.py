@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import sys
 from typing import List
+import pandas as pd
 import yaml
 
 from codetiming import Timer
@@ -195,7 +196,17 @@ def _process(
             ds = ds.sel(**job_spec["parameters"])
         elif job_spec["action"] == "resample":
             logger.info(f"Resampling {job_spec['parameters']}")
+            new_bounds = (
+                ds["time_bnds"].isel(bnds=0).resample(**job_spec["parameters"]).min()
+            )
+            new_bounds = xr.concat(
+                [new_bounds, new_bounds + pd.Timedelta(days=1)], dim="bnds"
+            )
+            new_bounds.assign_attrs(ds["time_bnds"].attrs)
+            new_bounds.encoding = ds["time_bnds"].encoding
+
             ds = ds.resample(**job_spec["parameters"]).mean()
+            ds["time_bnds"] = new_bounds
         elif job_spec["action"] == "coarsen":
             if scale_factor == "gcm":
                 typer.echo(f"Remapping conservatively to gcm grid...")
