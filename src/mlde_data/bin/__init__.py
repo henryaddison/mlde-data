@@ -29,13 +29,13 @@ app.add_typer(variable.app, name="variable")
 
 
 @app.command()
-def sample(files: List[Path], output_dir: Path = None):
+def sample(files: List[Path], output_dir: Path = None, dim: str = "time"):
     for file in files:
         ds = xr.open_dataset(file)
         # take something from first day of each month
-        time_mask = ds["time.dayofyear"] % 30 == 0
+        time_mask = ds[f"{dim}.dayofyear"] % 30 == 0
 
-        sampled_ds = ds.sel(time=time_mask).load()
+        sampled_ds = ds.sel({dim: time_mask}).load()
 
         ds.close()
         del ds
