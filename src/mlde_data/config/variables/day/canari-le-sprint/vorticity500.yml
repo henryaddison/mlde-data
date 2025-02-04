@@ -1,0 +1,26 @@
+variable: vorticity500
+attrs:
+  units: s-1
+  standard_name: atmosphere_relative_vorticity
+  grid_mapping: rotated_latitude_longitude
+  long_name: Relative vorticity at 500 hPa
+sources:
+  type: canari-le-sprint
+  collection: canari-le-sprint
+  variables:
+    - name: xwind500
+      frequency: day
+    - name: ywind500
+      frequency: day
+spec:
+  - action: query
+    parameters:
+      um_atmos_PLEV19: 500
+  - action: vorticity
+    parameters:
+      theta: 500
+  - action: regrid_to_target
+  - action: select-subdomain
+    parameters:
+      domain: $domain
+  # implicit final actions: assign attrs, save

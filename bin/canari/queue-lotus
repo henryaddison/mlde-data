@@ -1,0 +1,58 @@
+#! /usr/bin/bash
+
+set -euo pipefail
+
+# LOTUS2 defaults
+saccount="canari"
+spartition="standard"
+sqos="standard"
+
+# Common defaults
+smem=4G
+stime=23:00:00
+
+while getopts ":a:d:j:m:p:q:t:" opt; do
+  case ${opt} in
+    a)
+      saccount=${OPTARG}
+      ;;
+    d)
+      directory=${OPTARG}
+      ;;
+    j)
+      job_id=${OPTARG}
+      ;;
+    m)
+      smem=${OPTARG}
+      ;;
+    p)
+      spartition=${OPTARG}
+      ;;
+    q)
+      sqos=${OPTARG}
+      ;;
+    t)
+      stime=${OPTARG}
+      ;;
+    \? )
+     echo "Invalid Option: -${OPTARG}" 1>&2
+     exit 1
+     ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      exit 1
+      ;;
+  esac
+
+done
+shift $((OPTIND -1))
+
+cmd=$@
+
+# LOTUS 2
+
+if [ $job_id -eq 0 ]; then
+  sbatch --parsable --chdir=${directory} --mail-type=ALL --mail-user=vf20964@bristol.ac.uk --account=${saccount} --partition=${spartition} --qos=${sqos} --time=${stime} --mem=${smem} -- ${cmd}
+else
+  sbatch --parsable --chdir=${directory} --mail-type=ALL --mail-user=vf20964@bristol.ac.uk --account=${saccount} --partition=${spartition} --qos=${sqos} --time=${stime} --mem=${smem} --dependency=afterok:${job_id} -- ${cmd}
+fi
