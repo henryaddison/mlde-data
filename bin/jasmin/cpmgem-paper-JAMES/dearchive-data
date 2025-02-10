@@ -38,8 +38,8 @@ set +x
 # CPMGEM pSTV 12em
 # CPMGEM pSTV 1em-1ts
 
-wd_src=/gws/nopw/j04/bris_climdyn/henrya/bp-backups/moose/workdirs/
-wd_dest=/gws/nopw/j04/furflex/henrya/cpmgem-paper-JAMES/moose/workdirs/
+wd_src=/gws/nopw/j04/bris_climdyn/henrya/bp-backups/workdirs/
+wd_dest=/gws/nopw/j04/furflex/henrya/cpmgem-paper-JAMES/workdirs/
 
 set -x
 
