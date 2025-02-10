@@ -14,9 +14,11 @@ set -x
 
 cd /gws/nopw/j04/bris_climdyn/henrya/phd-submission/
 
-# tar --compare --file=workdirs.tar.gz workdirs/score-sde/subvpsde/ukcp_local_pr_12em_cncsnpp_continuous/archive/2024-09-18-pSTV-rerun
-tar --append --file=workdirs.tar.gz workdirs/score-sde/subvpsde/ukcp_local_pr_12em_cncsnpp_continuous/archive/2024-09-18-pSTV-rerun
-tar --compare --file=workdirs.tar.gz workdirs/score-sde/subvpsde/ukcp_local_pr_12em_cncsnpp_continuous/archive/2024-09-18-pSTV-rerun
+gunzip workdirs.tar.gz
+tar --compare --file=workdirs.tar workdirs/score-sde/subvpsde/ukcp_local_pr_12em_cncsnpp_continuous/archive/2024-09-18-pSTV-rerun
+tar --append --file=workdirs.tar workdirs/score-sde/subvpsde/ukcp_local_pr_12em_cncsnpp_continuous/archive/2024-09-18-pSTV-rerun
+tar --compare --file=workdirs.tar workdirs/score-sde/subvpsde/ukcp_local_pr_12em_cncsnpp_continuous/archive/2024-09-18-pSTV-rerun
+gzip workdirs.tar
 
 set +x
 
