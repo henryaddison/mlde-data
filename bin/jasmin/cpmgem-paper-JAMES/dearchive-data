@@ -12,7 +12,7 @@ set -euo pipefail
 
 # Datasets
 
-ds_src=/gws/nopw/j04/furflex/henrya/phd-submission/moose/nc-datasets/
+ds_src=/gws/nopw/j04/bris_climdyn/henrya/bp-backups/moose/nc-datasets/
 ds_dest=/gws/nopw/j04/furflex/henrya/cpmgem-paper-JAMES/moose/nc-datasets/
 
 # cCPM pSTV 12em
@@ -38,12 +38,12 @@ set +x
 # CPMGEM pSTV 12em
 # CPMGEM pSTV 1em-1ts
 
-wd_src=/gws/nopw/j04/furflex/henrya/phd-submission/moose/workdirs/
+wd_src=/gws/nopw/j04/bris_climdyn/henrya/bp-backups/moose/workdirs/
 wd_dest=/gws/nopw/j04/furflex/henrya/cpmgem-paper-JAMES/moose/workdirs/
 
 set -x
 
-for wd in id-linpr score-sde/deterministic/ukcp_local_pr_12em_plain_unet/bham_pSTV-ema-gradcl-256-batch score-sde/subvpsde/xarray_12em_cncsnpp_continuous/bham-4x_12em_PslS4T4V4_random-season-IstanTsqrturrecen-no-loc-spec score-sde/subvpsde/xarray_cncsnpp_continuous/bham-4x_1em_PslS4T4V4_random-season-historic-IstanTsqrturrecen-no-loc-spec; do mkdir -p ${wd}; rsync -acvh ${wd_src}/${wd}/ ${wd_dest}/${wd}/; done
+for wd in id-linpr score-sde/deterministic/ukcp_local_pr_12em_plain_unet/bham_pSTV-ema-gradcl-256-batch score-sde/subvpsde/subvpsde/ukcp_local_pr_12em_cncsnpp_continuous score-sde/subvpsde/ukcp_local_pr_1em_cncsnpp_continuous/bham-4x_1em_pSTV_lowdata; do mkdir -p ${wd}; rsync -acvh ${wd_src}/${wd}/ ${wd_dest}/${wd}/; done
 
 set +x
 
