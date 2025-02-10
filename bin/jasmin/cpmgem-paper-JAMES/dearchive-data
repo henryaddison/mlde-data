@@ -43,7 +43,7 @@ wd_dest=/gws/nopw/j04/furflex/henrya/cpmgem-paper-JAMES/moose/workdirs/
 
 set -x
 
-for wd in id-linpr score-sde/deterministic/ukcp_local_pr_12em_plain_unet/bham_pSTV-ema-gradcl-256-batch score-sde/subvpsde/subvpsde/ukcp_local_pr_12em_cncsnpp_continuous score-sde/subvpsde/ukcp_local_pr_1em_cncsnpp_continuous/bham-4x_1em_pSTV_lowdata; do mkdir -p ${wd}; rsync -acvh ${wd_src}/${wd}/ ${wd_dest}/${wd}/; done
+for wd in id-linpr score-sde/deterministic/ukcp_local_pr_12em_plain_unet/bham_pSTV-ema-gradcl-256-batch score-sde/subvpsde/subvpsde/ukcp_local_pr_12em_cncsnpp_continuous score-sde/subvpsde/ukcp_local_pr_1em_cncsnpp_continuous/bham-4x_1em_pSTV_lowdata; do mkdir -p ${wd_dest}/${wd}; rsync -acvh ${wd_src}/${wd}/ ${wd_dest}/${wd}/; done
 
 set +x
 
