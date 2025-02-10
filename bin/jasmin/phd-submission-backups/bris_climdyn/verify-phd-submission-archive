@@ -16,14 +16,12 @@ set -x
 
 cd /gws/nopw/j04/bris_climdyn/henrya/phd-submission/
 
-cd workdirs
-tar --compare --file=workdirs.tar.gz $(find * -maxdepth 0 -type d)
+tar --compare --file=workdirs.tar.gz $(find workdirs/* -maxdepth 0 -type d)
 echo "Done workdirs"
 
-cd ../moose
-tar --compare --file=moose.tar.gz $(find * -maxdepth 0 -type d)
+tar --compare --file=moose.tar.gz $(find moose/* -maxdepth 0 -type d)
 echo "Done moose"
 
 set +x
 
-echo Done
+echo DONE
