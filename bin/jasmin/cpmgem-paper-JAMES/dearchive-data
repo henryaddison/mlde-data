@@ -8,6 +8,8 @@
 #SBATCH --mem=8G
 #SBATCH --time=23:00:00
 
+set -euo pipefail
+
 # Datasets
 
 ds_src=/gws/nopw/j04/furflex/henrya/phd-submission/moose/nc-datasets/
@@ -24,7 +26,7 @@ ds_dest=/gws/nopw/j04/furflex/henrya/cpmgem-paper-JAMES/moose/nc-datasets/
 
 set -x
 
-for ds in bham64_ccpm-4x_12em_psl-sphum4th-temp4th-vort4th_pr bham64_gcm-4x_12em_psl-sphum4th-temp4th-vort4th_pr bham64_ccpm-4x_12em_linpr_pr bham64_gcm-4x_12em_linpr_pr bham64_ccpm-60km_12em_pr_pr bham64_gcm-60km_12em_rawpr_pr bham64_gcm-4x_1em_psl-sphum4th-temp4th-vort4th_pr-historic bham64_ccpm-4x_1em_psl-sphum4th-temp4th-vort4th_pr-historic; do rsync -avh ${ds_src}/${ds}/ ${ds_dest}/${ds}/; done
+for ds in bham64_ccpm-4x_12em_psl-sphum4th-temp4th-vort4th_pr bham64_gcm-4x_12em_psl-sphum4th-temp4th-vort4th_pr bham64_ccpm-4x_12em_linpr_pr bham64_gcm-4x_12em_linpr_pr bham64_ccpm-60km_12em_pr_pr bham64_gcm-60km_12em_rawpr_pr bham64_gcm-4x_1em_psl-sphum4th-temp4th-vort4th_pr-historic bham64_ccpm-4x_1em_psl-sphum4th-temp4th-vort4th_pr-historic; do rsync -acvh ${ds_src}/${ds}/ ${ds_dest}/${ds}/; done
 
 set +x
 
@@ -41,7 +43,7 @@ wd_dest=/gws/nopw/j04/furflex/henrya/cpmgem-paper-JAMES/moose/workdirs/
 
 set -x
 
-for wd in id-linpr score-sde/deterministic/ukcp_local_pr_12em_plain_unet/bham_pSTV-ema-gradcl-256-batch score-sde/subvpsde/xarray_12em_cncsnpp_continuous/bham-4x_12em_PslS4T4V4_random-season-IstanTsqrturrecen-no-loc-spec score-sde/subvpsde/xarray_cncsnpp_continuous/bham-4x_1em_PslS4T4V4_random-season-historic-IstanTsqrturrecen-no-loc-spec; do mkdir -p ${wd}; rsync -avh ${wd_src}/${wd}/ ${wd_dest}/${wd}/; done
+for wd in id-linpr score-sde/deterministic/ukcp_local_pr_12em_plain_unet/bham_pSTV-ema-gradcl-256-batch score-sde/subvpsde/xarray_12em_cncsnpp_continuous/bham-4x_12em_PslS4T4V4_random-season-IstanTsqrturrecen-no-loc-spec score-sde/subvpsde/xarray_cncsnpp_continuous/bham-4x_1em_PslS4T4V4_random-season-historic-IstanTsqrturrecen-no-loc-spec; do mkdir -p ${wd}; rsync -acvh ${wd_src}/${wd}/ ${wd_dest}/${wd}/; done
 
 set +x
 
