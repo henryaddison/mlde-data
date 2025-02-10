@@ -1,0 +1,44 @@
+#!/bin/bash
+# Wrapper script around backing up phd submission files to be run on LOTUS2
+
+#SBATCH --job-name="concatenate PhD backup tars"
+#SBATCH --account=furflex
+#SBATCH --partition=standard
+#SBATCH --qos=standard
+#SBATCH --mem=8G
+#SBATCH --time=23:00:00
+
+set -euo pipefail
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+set -x
+
+cd /gws/nopw/j04/furflex/henrya/phd-submission
+
+cd moose
+
+for f in *.tar.gz; do gunzip ${f}; done
+
+ls -lh
+
+mv birmingham-64.tar moose.tar
+tar --concatenate --file=moose.tar birmingham-9.tar
+tar --concatenate --file=moose.tar nc-datasets.tar
+tar --concatenate --file=moose.tar uk.tar
+
+ls -lh
+
+cd ../workdirs
+
+for f in *.tar.gz; do gunzip ${f}; done
+
+ls -lh
+
+mv id-linpr.tar workdirs.tar
+tar --concatenate --file=workdirs.tar score-sde.tar
+tar --concatenate --file=workdirs.tar u-net.tar
+
+ls -lh
+
+set +x

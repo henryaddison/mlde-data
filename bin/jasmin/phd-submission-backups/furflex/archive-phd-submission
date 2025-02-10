@@ -1,0 +1,24 @@
+#!/bin/bash
+# Wrapper script around backing up phd submission files to be run on LOTUS2
+
+#SBATCH --job-name="PhD backup"
+#SBATCH --account=furflex
+#SBATCH --partition=standard
+#SBATCH --qos=standard
+#SBATCH --mem=8G
+#SBATCH --time=23:00:00
+
+set -euo pipefail
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+set -x
+
+cd /gws/nopw/j04/furflex/henrya/phd-submission/workdirs
+for d in $(find * -maxdepth 0 -type d); do echo "Tarring ${d}"; tar -czvf ${d}.tar.gz ${d}; echo "Done"; done
+
+cd /gws/nopw/j04/furflex/henrya/phd-submission/moose
+for d in $(find * -maxdepth 0 -type d); do echo "Tarring ${d}"; tar -czvf ${d}.tar.gz ${d}; echo "Done"; done
+
+set +x
+echo Done
