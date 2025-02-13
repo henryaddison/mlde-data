@@ -16,10 +16,13 @@ cd /gws/nopw/j04/bris_climdyn/henrya/phd-submission/
 
 gunzip workdirs.tar.gz
 tar --compare --file=workdirs.tar workdirs/score-sde/subvpsde/ukcp_local_pr_12em_cncsnpp_continuous/archive/2024-09-18-pSTV-rerun
+echo "appending files"
 tar --append --file=workdirs.tar workdirs/score-sde/subvpsde/ukcp_local_pr_12em_cncsnpp_continuous/archive/2024-09-18-pSTV-rerun
+echo "comparing"
 tar --compare --file=workdirs.tar workdirs/score-sde/subvpsde/ukcp_local_pr_12em_cncsnpp_continuous/archive/2024-09-18-pSTV-rerun
+echo "re-zipping"
 gzip workdirs.tar
 
 set +x
 
-echo DONE
+echo "DONE"
