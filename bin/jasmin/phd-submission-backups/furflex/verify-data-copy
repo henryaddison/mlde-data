@@ -5,14 +5,14 @@ set -euo pipefail
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-copy_root="/gws/nopw/j04/bris_climdyn/henrya/phd-submission"
-backups_root="/gws/nopw/j04/bris_climdyn/henrya/bp-backups"
+src_root="/gws/nopw/j04/bris_climdyn/henrya/bp-backups"
+dst_root="/gws/nopw/j04/furflex/henrya/phd-submission"
 
 folder=$1
 
 set -x
-cd ${copy_root}/${folder}
+cd ${dst_root}/${folder}
 find . -type f \( -not -name "checksum.txt" \) -exec md5sum '{}' ';' > checksum.txt
-cd ${backups_root}/${folder}
-md5sum --check --quiet ${copy_root}/${folder}/checksum.txt
+cd ${src_root}/${folder}
+md5sum --check --quiet ${dst_root}/${folder}/checksum.txt
 set +x

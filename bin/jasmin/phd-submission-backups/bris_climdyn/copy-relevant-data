@@ -1,0 +1,28 @@
+#!/bin/bash
+# Script around copying phd submission data
+
+set -euo pipefail
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+set -x
+
+# Variables
+${SCRIPT_DIR}/data-copy moose/birmingham-64 --exclude='archive'
+${SCRIPT_DIR}/data-copy moose/birmingham-9 --exclude='archive'
+${SCRIPT_DIR}/data-copy moose/uk/2.2km --exclude='archive'
+
+# Datasets
+${SCRIPT_DIR}/data-copy moose/nc-datasets --exclude='archive'
+${SCRIPT_DIR}/data-copy moose/nc-datasets/archive/2024-09-18-md-datasets
+
+# Emulators
+${SCRIPT_DIR}/data-copy workdirs/id-linpr --exclude='archive'
+${SCRIPT_DIR}/data-copy workdirs/u-net --exclude='archive'
+${SCRIPT_DIR}/data-copy workdirs/score-sde/deterministic
+${SCRIPT_DIR}/data-copy workdirs/score-sde/subvpsde --exclude='archive'
+${SCRIPT_DIR}/data-copy workdirs/score-sde/subvpsde/ukcp_local_pr_12em_cncsnpp_continuous/archive/2024-09-18-pSTV-rerun
+
+set +x
+
+echo "DONE"
