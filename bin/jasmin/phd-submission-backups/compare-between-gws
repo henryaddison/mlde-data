@@ -1,0 +1,33 @@
+#!/bin/bash
+# Wrapper script around comparing up phd submission files on furflex GWS and bris_climdyn GWS
+
+#SBATCH --job-name="compare phd backup dirs"
+#SBATCH --account=furflex
+#SBATCH --partition=standard
+#SBATCH --qos=standard
+#SBATCH --mem=8G
+#SBATCH --time=23:00:00
+
+set -euo pipefail
+
+bcd_root="/gws/nopw/j04/bris_climdyn/henrya/phd-submission"
+ff_root="/gws/nopw/j04/furflex/henrya/phd-submission"
+
+for folder in moose workdirs; do
+  echo "Working on ${folder}"
+  set -x
+
+  cd ${ff_root}/${folder}
+  find . -type f \( -not -name "checksum.txt" \) -exec md5sum '{}' ';' > checksum.txt
+  cd ${bcd_root}/${folder}
+  md5sum --check --quiet ${ff_root}/${folder}/checksum.txt
+
+  cd ${bcd_root}/${folder}
+  find . -type f \( -not -name "checksum.txt" \) -exec md5sum '{}' ';' > checksum.txt
+  cd ${ff_root}/${folder}
+  md5sum --check --quiet ${bcd_root}/${folder}/checksum.txt
+
+  set +x
+done
+
+echo "DONE"
