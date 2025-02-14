@@ -10,7 +10,7 @@ set -x
 # Variables
 ${SCRIPT_DIR}/data-copy moose/birmingham-64 --exclude='archive'
 ${SCRIPT_DIR}/data-copy moose/birmingham-9 --exclude='archive'
-${SCRIPT_DIR}/data-copy moose/uk/2.2km --exclude='archive'
+${SCRIPT_DIR}/data-copy moose/uk --exclude='archive'
 
 # Datasets
 ${SCRIPT_DIR}/data-copy moose/nc-datasets --exclude='archive'
