@@ -4,10 +4,12 @@ ensemble_members:
 frequency: day
 predictands:
   resolution: 60km-2.2km-coarsened-4x
+  collection: land-gcm
   variables:
   - pr
 predictors:
   resolution: 60km-2.2km-coarsened-4x
+  collection: land-gcm
   variables:
   - temp250
   - temp500
