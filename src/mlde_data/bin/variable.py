@@ -263,7 +263,7 @@ def _process(
     # assign any attributes from config file
     ds[config["variable"]] = ds[config["variable"]].assign_attrs(config["attrs"])
 
-    return ds
+    return ds, variable_resolution
 
 
 @app.command()
@@ -313,7 +313,7 @@ def create(
         ensemble_member=ensemble_member,
     )
 
-    ds = _process(
+    ds, variable_resolution = _process(
         ds,
         config,
         variable_resolution,
