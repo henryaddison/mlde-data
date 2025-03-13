@@ -1,16 +1,13 @@
-from argparse import ArgumentError
 import logging
 from pathlib import Path
-import random
 from typing import List
-import time
 import yaml
 
 import typer
 
 from mlde_data.bin.options import DomainOption, CollectionOption
 from mlde_data.bin.moose import extract, convert, clean
-from mlde_data.bin.variable import create as create_variable, xfer
+from mlde_data.bin.variable import create as create_variable
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
@@ -66,52 +63,6 @@ def main(
             scale_factor=scale_factor,
             ensemble_member=ensemble_member,
         )
-
-        # run transfer
-        if src_collection == CollectionOption.cpm:
-            src_resolution = "2.2km"
-        elif src_collection == CollectionOption.gcm:
-            src_resolution = "60km"
-        else:
-            raise (ArgumentError(f"Unknown source collection {src_collection}"))
-
-        if scale_factor == "gcm":
-            variable_resolution = f"{src_resolution}-coarsened-gcm"
-        elif scale_factor == "1":
-            variable_resolution = f"{src_resolution}"
-        else:
-            variable_resolution = f"{src_resolution}-coarsened-{scale_factor}x"
-
-        resolution = f"{variable_resolution}-{target_resolution}"
-        MAX_ATTEMPTS = 3
-        attempts = 0
-        while True:
-            attempts += 1
-            try:
-                xfer(
-                    variable=config["variable"],
-                    year=year,
-                    frequency=frequency,
-                    domain=domain,
-                    collection=src_collection,
-                    resolution=resolution,
-                    target_size=target_size,
-                    ensemble_member=ensemble_member,
-                )
-            except Exception:
-                if attempts >= MAX_ATTEMPTS:
-                    raise
-                else:
-                    # pause for a bit
-                    sleep_duration = 60 * (2 ** (attempts - 1)) + random.randint(1, 10)
-                    logger.error(
-                        f"Failed to do xfer on attempt {attempts} of {MAX_ATTEMPTS}. Sleeping for {sleep_duration}."
-                    )
-                    time.sleep(sleep_duration)
-
-                    continue
-            else:
-                break
 
         # run clean up
         for src_variable in config["sources"]["variables"]:
