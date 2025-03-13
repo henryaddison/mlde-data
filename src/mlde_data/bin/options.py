@@ -5,6 +5,7 @@ class DomainOption(str, Enum):
     uk = "uk"
     london = "london"
     birmingham = "birmingham"
+    scotland = "scotland"
 
 
 class CollectionOption(str, Enum):
