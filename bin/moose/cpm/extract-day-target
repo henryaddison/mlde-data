@@ -29,6 +29,7 @@ function queue_years {
 
 echo
 echo ${domain} ${variable} ${ensemble_member}
+echo ${years}
 echo
 
 job_id=$(queue_years $job_id ${years})
