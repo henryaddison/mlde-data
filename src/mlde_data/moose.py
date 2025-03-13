@@ -303,13 +303,13 @@ def moose_extract_dirpath(
     domain: str,
     ensemble_member: str,
     cache: bool = False,
+    base_dir: str = os.getenv("MOOSE_DATA"),
 ):
     if cache:
-        path_start = os.getenv("MOOSE_CACHE")
-    else:
-        path_start = os.getenv("MOOSE_DATA")
+        base_dir = os.getenv("MOOSE_CACHE")
+
     return (
-        Path(path_start)
+        Path(base_dir)
         / "pp"
         / collection
         / domain
@@ -371,9 +371,10 @@ def raw_nc_filepath(
     resolution: str,
     ensemble_member: str,
     collection: str,
+    base_dir: str = os.getenv("MOOSE_DATA"),
 ):
     return (
-        Path(os.getenv("MOOSE_DATA"))
+        Path(base_dir)
         / domain
         / resolution
         / "rcp85"
