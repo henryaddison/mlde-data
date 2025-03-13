@@ -15,10 +15,12 @@ ensemble_members:
 frequency: day
 predictands:
   resolution: 60km-60km
+  collection: land-gcm
   variables:
   - pr
 predictors:
   resolution: 60km-60km
+  collection: land-gcm
   variables:
   - pr
 scenario: rcp85
