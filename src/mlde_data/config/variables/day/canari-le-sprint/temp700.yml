@@ -1,0 +1,21 @@
+variable: temp700
+attrs:
+  units: K
+  standard_name: air_temperature
+  grid_mapping: rotated_latitude_longitude
+  long_name: Air temperature at 700 hPa
+sources:
+  type: canari-le-sprint
+  collection: canari-le-sprint
+  variables:
+    - name: temp700
+      frequency: day
+spec:
+  - action: query
+    parameters:
+      um_atmos_PLEV19: 700
+  - action: regrid_to_target
+  - action: select-subdomain
+    parameters:
+      domain: $domain
+  # implicit final actions: assign attrs, save

@@ -1,0 +1,16 @@
+variable: pr
+attrs:
+  units: kg m-2 s-1
+  standard_name: precipitation_flux
+  grid_mapping: rotated_latitude_longitude
+sources:
+  moose:
+    # implicit here is extract from moose, convert to nc and rename variable
+    - lssnow
+    - lsrain
+spec:
+  - action: coarsen
+    parameters:
+      scale_factor: $scale_factor
+  - action: sum
+    variables: [lssnow, lsrain]

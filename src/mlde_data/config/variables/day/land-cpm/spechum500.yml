@@ -1,0 +1,23 @@
+variable: spechum500
+attrs:
+  units: 1
+  standard_name: specific_humidity
+  grid_mapping: rotated_latitude_longitude
+sources:
+  type: moose
+  collection: land-cpm
+  variables:
+    # assumes already extracted and converted to nc
+    # implicit here is rename variable
+    - name: spechum500
+      frequency: day
+spec:
+  - action: coarsen
+    parameters:
+      scale_factor: $scale_factor
+      grid: vorticity850
+  - action: regrid_to_target
+  - action: select-subdomain
+    parameters:
+      domain: $domain
+  # implicit final actions: assign attrs, save, cleanup extraction?

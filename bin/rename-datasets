@@ -1,0 +1,32 @@
+#!/bin/bash
+# Rename dataset directories to match new naming convention and their usage in transform and sample paths
+
+function rename_dataset() {
+  o=${1?"orginal path is required"}
+  # V1 migration
+  # local t=${o/_eqvt/_pr}; t=${t/_random-season/}; t=${t/bham_gcmx/bham64_ccpm}; t=${t/bham_60km/bham64_gcm};
+  # V2 migration
+  local t=${o/bham_ccpm/bham64_ccpm};
+  if [ $o != $t ]
+  then
+    set -x; mv $o $t;set +x;
+  fi
+}
+
+for d in ${DERIVED_DATA}/workdirs/id-linpr/samples/*; do pushd ${d}; for o in ./*; do rename_dataset ${o}; done; popd; done;
+
+for d in ${DERIVED_DATA}/workdirs/u-net/*/transforms; do pushd ${d}; for o in ./*; do rename_dataset ${o}; done; popd; done;
+
+for d in ${DERIVED_DATA}/workdirs/u-net/*/samples/*; do pushd ${d}; for o in ./*; do rename_dataset ${o}; done; popd; done;
+
+for d in ${DERIVED_DATA}/workdirs/u-net/ukcp_local_pr_unet/*/transforms; do pushd ${d}; for o in ./*; do rename_dataset ${o}; done; popd; done;
+
+for d in ${DERIVED_DATA}/workdirs/u-net/ukcp_local_pr_unet/*/samples/*; do pushd ${d}; for o in ./*; do rename_dataset ${o}; done; popd; done;
+
+for d in ${DERIVED_DATA}/workdirs/score-sde/subvpsde/*/*/transforms; do pushd ${d}; for o in ./*; do rename_dataset ${o}; done; popd; done;
+
+for d in ${DERIVED_DATA}/workdirs/score-sde/subvpsde/*/*/samples/*; do pushd ${d}; for o in ./*; do rename_dataset ${o}; done; popd; done;
+
+for d in ${DERIVED_DATA}/workdirs/score-sde/subvpsde/*/*/samples/*/*; do pushd ${d}; for o in ./*; do rename_dataset ${o}; done; popd; done;
+
+d=${DERIVED_DATA}/moose/nc-datasets; pushd ${d}; for o in ./*; do rename_dataset ${o}; done; popd;

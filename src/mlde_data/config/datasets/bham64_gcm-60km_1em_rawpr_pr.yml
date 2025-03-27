@@ -1,0 +1,18 @@
+domain: birmingham-9
+ensemble_members:
+- '01'
+frequency: day
+predictands:
+  resolution: 60km-60km
+  variables:
+  - pr
+predictors:
+  resolution: 60km-60km
+  variables:
+  - pr
+scenario: rcp85
+split:
+  scheme: random-season
+  seed: 42
+  test_prop: 0.15
+  val_prop: 0.15

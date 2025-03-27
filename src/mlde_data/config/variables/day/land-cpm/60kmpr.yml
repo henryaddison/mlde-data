@@ -1,0 +1,30 @@
+variable: pr
+attrs:
+  units: kg m-2 s-1
+  standard_name: precipitation_flux
+  grid_mapping: latitude_longitude
+sources:
+  type: moose
+  collection: land-cpm
+  variables:
+    # assumes already extracted and converted to nc
+    # implicit here is rename variable
+    - name: lssnow
+      frequency: day
+    - name: lsrain
+      frequency: day
+spec:
+  - action: coarsen
+    parameters:
+      scale_factor: $scale_factor
+      grid: pr
+  - action: shift_lon_break
+  - action: sum
+    params:
+      variables: [lssnow, lsrain]
+      new_variable: pr
+  - action: select-gcm-subdomain
+    parameters:
+      subdomain: $domain
+      size: $target_size
+  # implicit final actions: assign attrs, save, cleanup extraction?

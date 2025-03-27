@@ -1,0 +1,32 @@
+name: CI
+
+on: [push]
+
+jobs:
+  ci-checks:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
+
+    steps:
+    - name: Clone repo
+      uses: actions/checkout@v2
+    # - name: Set up Python 3.9
+    #   uses: actions/setup-python@v2
+    #   with:
+    #     python-version: 3.9
+    - name: setup-micromamba
+      uses: mamba-org/setup-micromamba@v1
+      with:
+        environment-file: environment.lock.yml
+        init-shell: bash
+        cache-environment: true
+        post-cleanup: 'all'
+    - name: Install package
+      run: |
+        pip install -e .
+      shell: micromamba-shell {0}
+    - name: Test with pytest
+      run: |
+        pytest
+      shell: micromamba-shell {0}

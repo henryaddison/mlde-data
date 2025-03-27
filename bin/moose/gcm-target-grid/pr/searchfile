@@ -1,0 +1,6 @@
+begin
+  year=1980
+  month=12
+  day=(1,2)
+  stash=5216
+end

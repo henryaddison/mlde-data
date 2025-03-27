@@ -1,0 +1,32 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+domain="uk"
+frequency="day"
+year=2080
+let "start_year=year-1"
+resolution="2.2km"
+
+for variable in lssnow lsrain; do
+  mlde-data moose extract --variable ${variable} --year ${year} --collection land-cpm --ensemble-member 01 --no-cache
+  mlde-data moose convert --variable ${variable} --year ${year} --collection land-cpm --ensemble-member 01 --no-cache
+
+  bp_host="bp"
+  xfer_host="xfer1.jasmin.ac.uk"
+
+  filename="${variable}_rcp85_land-cpm_${domain}_${resolution}_01_${frequency}_${start_year}1201-${year}1130.nc"
+  file_subpath="${domain}/${resolution}/rcp85/01/${variable}/${frequency}/${filename}"
+
+  jasmin_filepath="/work/scratch-pw2/vf20964/data/moose/${file_subpath}"
+  bp_filepath="/user/work/vf20964/moose/${file_subpath}"
+
+  ssh -a -J seis ${bp_host} mkdir -p $(dirname ${bp_filepath})
+  set -x
+  scp -oProxyJump=seis ${jasmin_filepath} ${bp_host}:${bp_filepath}
+  set +x
+done
+
+for variable in lssnow lsrain; do
+  mlde-data moose clean --variable ${variable} --year ${year} --collection land-cpm --ensemble-member 01
+done

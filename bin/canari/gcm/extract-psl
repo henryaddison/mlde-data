@@ -1,0 +1,46 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+ensemble_member=$1
+
+domain="birmingham"
+scale_factor="1"
+target_resolution="2.2km-coarsened-4x"
+target_size=64
+frequency="day"
+scenario="ssp370"
+variable="${SCRIPT_DIR}/../../../src/mlde_data/config/variables/${frequency}/canari-le-sprint/psl.yml"
+
+QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
+LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
+ETL_VARIABLE_SCRIPT_PATH=${SCRIPT_DIR}/../etl-variable.py
+
+echo
+echo ${ensemble_member}
+echo
+
+function queue_years {
+  local job_id=$1
+  shift 1;
+  local years=$@
+  ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -m 4G -- ${LOTUS_WRAPPER_PATH} python ${ETL_VARIABLE_SCRIPT_PATH} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} --variable-config ${variable} --frequency ${frequency} --ensemble-member ${ensemble_member} ${years}
+}
+
+# 1981-1990 (TS1)
+# no job initially to wait on
+job_id=0
+
+years=$(seq 1981 1 1990)
+job_id=$(queue_years $job_id ${years})
+echo $job_id
+
+# 2071-2080 (TS3)
+# no job initially to wait on
+# job_id=0
+
+years=$(seq 2071 1 2080)
+job_id=$(queue_years $job_id ${years})
+echo $job_id

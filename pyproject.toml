@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=64.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlde_data"
+version = "0.2.1"
+authors = [
+  { name="Henry Addison", email="henry.addison@bristol.ac.uk" },
+]
+description = "A package for preparing data for  ML downscaling emulator"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dynamic = ["dependencies"]
+
+[project.urls]
+"Homepage" = "https://github.com/henryaddison/mlde-data"
+"Bug Tracker" = "https://github.com/henryaddison/mlde-data/issues"
+
+
+[project.scripts]
+    mlde-data = "mlde_data.bin:app"
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }

@@ -1,0 +1,28 @@
+domain: birmingham-64
+ensemble_members:
+- '01'
+frequency: day
+predictands:
+  resolution: 2.2km-coarsened-4x-2.2km-coarsened-4x
+  variables:
+  - pr
+predictors:
+  resolution: 2.2km-coarsened-gcm-2.2km-coarsened-4x
+  variables:
+  - psl
+  - temp250
+  - temp500
+  - temp700
+  - temp850
+  - temp925
+  - vorticity250
+  - vorticity500
+  - vorticity700
+  - vorticity850
+  - vorticity925
+scenario: rcp85
+split:
+  scheme: random-season
+  seed: 42
+  test_prop: 0.15
+  val_prop: 0.15

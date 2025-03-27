@@ -1,0 +1,26 @@
+variable: vorticity250
+attrs:
+  units: s-1
+  standard_name: atmosphere_relative_vorticity
+  grid_mapping: rotated_latitude_longitude
+  long_name: Relative vorticity at 250 hPa
+sources:
+  type: canari-le-sprint
+  collection: canari-le-sprint
+  variables:
+    - name: xwind250
+      frequency: day
+    - name: ywind250
+      frequency: day
+spec:
+  - action: query
+    parameters:
+      um_atmos_PLEV19: 250
+  - action: vorticity
+    parameters:
+      theta: 250
+  - action: regrid_to_target
+  - action: select-subdomain
+    parameters:
+      domain: $domain
+  # implicit final actions: assign attrs, save

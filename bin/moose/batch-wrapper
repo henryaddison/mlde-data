@@ -1,0 +1,13 @@
+#! /usr/bin/env bash
+
+eval "$(conda shell.bash hook)"
+
+conda activate downscaling-data
+
+set -euo pipefail
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+ETL_VARIABLE_SCRIPT_PATH=${HOME}/code/mlde-data/bin/moose/etl-variable.py
+
+python ${ETL_VARIABLE_SCRIPT_PATH} $@

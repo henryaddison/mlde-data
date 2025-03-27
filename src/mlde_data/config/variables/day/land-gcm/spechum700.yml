@@ -1,0 +1,19 @@
+variable: spechum700
+attrs:
+  units: 1
+  standard_name: specific_humidity
+  grid_mapping: rotated_latitude_longitude
+sources:
+  type: moose
+  collection: land-gcm
+  variables:
+    # assumes already extracted and converted to nc
+    # implicit here is rename variable
+    - name: spechum700
+      frequency: day
+spec:
+  - action: regrid_to_target
+  - action: select-subdomain
+    parameters:
+      domain: $domain
+  # implicit final actions: assign attrs, save, cleanup extraction?

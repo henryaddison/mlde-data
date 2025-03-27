@@ -1,0 +1,15 @@
+#!/bin/bash
+# Wrapper script around commands to be run on LOTUS queue
+
+source ~/.bashrc
+eval "$(conda shell.bash hook)"
+
+conda activate canari-mlde-data
+
+set -euo pipefail
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+set -x
+$@
+set +x
