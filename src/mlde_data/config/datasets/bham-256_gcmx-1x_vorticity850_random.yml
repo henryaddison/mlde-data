@@ -3,10 +3,12 @@ ensemble_member: '01'
 frequency: day
 predictands:
   resolution: 2.2km-2.2km
+  collection: land-cpm
   variables:
   - pr
 predictors:
   resolution: 2.2km-coarsened-gcm-2.2km
+  collection: land-cpm
   variables:
   - vorticity850
 scenario: rcp85

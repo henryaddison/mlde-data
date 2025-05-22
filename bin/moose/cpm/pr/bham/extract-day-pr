@@ -11,10 +11,10 @@ scale_factor="gcm"
 target_resolution="2.2km-coarsened-4x"
 target_size=64
 frequency="day"
-variable="${SCRIPT_DIR}/../../../src/mlde_data/config/variables/${frequency}/land-cpm/pr.yml"
+variable="${SCRIPT_DIR}/../../../../src/mlde_data/config/variables/${frequency}/land-cpm/pr.yml"
 
-QUEUE_DEP_PATH=${SCRIPT_DIR}/../../queue-dep-func
-BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../../batch-wrapper
+QUEUE_DEP_PATH=${SCRIPT_DIR}/../../../queue-dep-func
+BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../../../batch-wrapper
 
 echo
 echo ${ensemble_member}

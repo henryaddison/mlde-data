@@ -1,16 +1,17 @@
-domain: birmingham-64
+domain: scotland-64
 ensemble_members:
 - '01'
 frequency: day
 predictands:
-  resolution: 60km-2.2km-coarsened-4x
-  collection: land-gcm
+  resolution: 2.2km-coarsened-4x-2.2km-coarsened-4x
+  collection: land-cpm
   variables:
   - pr
 predictors:
-  resolution: 60km-2.2km-coarsened-4x
-  collection: land-gcm
+  resolution: 2.2km-coarsened-gcm-2.2km-coarsened-4x
+  collection: land-cpm
   variables:
+  - psl
   - spechum250
   - spechum500
   - spechum700
@@ -27,5 +28,5 @@ scenario: rcp85
 split:
   scheme: random-season
   seed: 42
-  test_prop: 0.15
-  val_prop: 0.15
+  test_prop: 0
+  val_prop: 0

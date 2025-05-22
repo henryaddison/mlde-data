@@ -20,23 +20,22 @@ class RandomSeasonSplit(BaseSplit):
 
                 test_year_count = int(len(years) * self.test_prop)
                 val_year_count = int(len(years) * self.val_prop)
-                seasonal_year_split = {
-                    "test": years[:test_year_count],
-                    "val": years[test_year_count : test_year_count + val_year_count],
-                    "train": years[test_year_count + val_year_count :],
-                }
+                seasonal_year_split = {}
+                if test_year_count > 0:
+                    seasonal_year_split["test"] = years[:test_year_count]
+                if val_year_count > 0:
+                    seasonal_year_split["val"] = years[
+                        test_year_count : test_year_count + val_year_count
+                    ]
+                if test_year_count + val_year_count < len(years):
+                    seasonal_year_split["train"] = years[
+                        test_year_count + val_year_count :
+                    ]
 
                 for split, split_years in seasonal_year_split.items():
-                    if season == "DJF":
-                        # for winter need to take December from previous year and Jan and Feb from other years
-                        split_chunk = combined_dataset.sel(
-                            time=self._inwinter(combined_dataset, split_years)
-                        )
-                    else:
-                        # other seasons don't cross year boundary
-                        split_chunk = combined_dataset.sel(
-                            time=self._inseason(combined_dataset, split_years, season)
-                        )
+                    split_chunk = combined_dataset.sel(
+                        time=self._inseason(combined_dataset, split_years, season)
+                    )
 
                     split_chunks[split].append(split_chunk)
 
@@ -58,4 +57,9 @@ class RandomSeasonSplit(BaseSplit):
         )
 
     def _inseason(self, ds, years, season):
-        return (ds["time.year"].isin(years)) & (ds["time.season"] == season)
+        if season == "DJF":
+            # for winter need to take December from previous year and Jan and Feb from other years
+            return self._inwinter(ds, years)
+        else:
+            # other seasons don't cross year boundary
+            return (ds["time.year"].isin(years)) & (ds["time.season"] == season)

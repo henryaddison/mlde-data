@@ -15,12 +15,14 @@ ensemble_members:
 frequency: day
 predictands:
   resolution: 2.2km-coarsened-4x-2.2km-coarsened-4x
+  collection: land-cpm
   variables:
   - pr
   - relhum150cm
   - tmean150cm
 predictors:
   resolution: 2.2km-coarsened-gcm-2.2km-coarsened-4x
+  collection: land-cpm
   variables:
   - psl
   - spechum250
