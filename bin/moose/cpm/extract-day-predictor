@@ -12,7 +12,7 @@ years=$@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 scale_factor="gcm"
-target_resolution="2.2km-coarsened-4x"
+target_resolution="2.2km-coarsened-gcm"
 target_size=12
 frequency="day"
 variable="${SCRIPT_DIR}/../../../src/mlde_data/config/variables/${frequency}/land-cpm/${variable}.yml"

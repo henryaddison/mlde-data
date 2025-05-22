@@ -79,8 +79,7 @@ def get_sources(
     data_basedir,
     domain,
     target_size,
-    variable_resolution,
-    target_resolution,
+    target_data_resolution,
     ensemble_member,
 ):
     sources = {}
@@ -97,6 +96,9 @@ def get_sources(
         #     if "moose_name" in VARIABLE_CODES[source]:
         #         logger.info(f"Renaming {VARIABLE_CODES[source]['moose_name']} to {source}...")
         #         ds = ds.rename({VARIABLE_CODES[source]["moose_name"]: source})
+
+        variable_resolution = get_variable_resolution(config, collection)
+        data_resolution = variable_resolution
 
         for src_variable in config["sources"]["variables"]:
             source_nc_filepath = raw_nc_filepath(
@@ -130,12 +132,14 @@ def get_sources(
 
             sources[src_variable["name"]] = ds
     elif config["sources"]["type"] == "bp":
+        variable_resolution = get_variable_resolution(config, collection)
+        data_resolution = target_data_resolution
         for src_variable in config["sources"]["variables"]:
             source_metadata = VariableMetadata(
                 data_basedir,
                 frequency=src_variable["frequency"],
                 domain=f"{domain.value}-{target_size}",
-                resolution=f"{variable_resolution}-{target_resolution}",
+                resolution=f"{variable_resolution}-{data_resolution}",
                 ensemble_member=ensemble_member,
                 variable=src_variable["name"],
             )
@@ -147,6 +151,8 @@ def get_sources(
 
             sources[src_variable["name"]] = ds
     elif config["sources"]["type"] == "canari-le-sprint":
+        variable_resolution = get_variable_resolution(config, collection)
+        data_resolution = variable_resolution
         for src_variable in config["sources"]["variables"]:
             source_metadata = CanariLESprintVariableAdapter(
                 frequency=src_variable["frequency"],
@@ -169,14 +175,15 @@ def get_sources(
         data_vars="all",
     )
 
-    return ds
+    return ds, variable_resolution, data_resolution
 
 
 def _process(
     ds,
     config,
     variable_resolution,
-    target_resolution,
+    data_resolution,
+    target_data_resolution,
     domain,
     scale_factor,
     target_size,
@@ -228,19 +235,22 @@ def _process(
                     variable_resolution = (
                         f"{variable_resolution}-coarsened-{scale_factor}x"
                     )
+                    data_resolution = variable_resolution
                     ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
         elif job_spec["action"] == "shift_lon_break":
             ds = ShiftLonBreak().run(ds)
         elif job_spec["action"] == "regrid_to_target":
-            if target_resolution != variable_resolution:
+            # this assumes mapping to a target grid of higher resolution than resolution of the data
+            if target_data_resolution != data_resolution:
                 typer.echo(f"Regridding to target resolution...")
                 target_grid_path = files("mlde_utils.data").joinpath(
-                    f"target_grids/{target_resolution}/uk/moose_grid.nc"
+                    f"target_grids/{target_data_resolution}/uk/moose_grid.nc"
                 )
                 kwargs = job_spec.get("parameters", {})
                 ds = Regrid(
                     target_grid_path, variables=[config["variable"]], **kwargs
                 ).run(ds)
+                data_resolution = target_data_resolution
         elif job_spec["action"] == "vorticity":
             typer.echo(f"Computing vorticity...")
             ds = Vorticity(**job_spec["parameters"]).run(ds)
@@ -262,7 +272,7 @@ def _process(
     # assign any attributes from config file
     ds[config["variable"]] = ds[config["variable"]].assign_attrs(config["attrs"])
 
-    return ds, variable_resolution
+    return ds, variable_resolution, data_resolution
 
 
 @app.command()
@@ -298,24 +308,22 @@ def create(
 
     data_basedir: Path = os.path.join(os.getenv("DERIVED_DATA"), src_type)
 
-    variable_resolution = get_variable_resolution(config, collection)
-
-    ds = get_sources(
+    ds, variable_resolution, data_resolution = get_sources(
         config,
         collection,
         year,
         data_basedir,
         domain,
         target_size,
-        variable_resolution,
         target_resolution,
         ensemble_member=ensemble_member,
     )
 
-    ds, variable_resolution = _process(
+    ds, variable_resolution, data_resolution = _process(
         ds,
         config,
         variable_resolution,
+        data_resolution,
         target_resolution,
         domain,
         scale_factor,
@@ -342,7 +350,7 @@ def create(
         data_basedir,
         frequency=frequency,
         domain=f"{domain.value}-{target_size}",
-        resolution=f"{variable_resolution}-{target_resolution}",
+        resolution=f"{variable_resolution}-{data_resolution}",
         scenario=scenario,
         ensemble_member=ensemble_member,
         variable=config["variable"],
