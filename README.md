@@ -26,30 +26,27 @@ Note that predictor and predictand variables may have different data resolutions
 
 ## Installation
 
-Assumes you have conda (or equivalent like mamba installed).
+Assumes you have [pixi](https://pixi.sh) installed for managing dependencies.
 
 1. Clone repo and cd into it
-2. Create conda environment: `conda env create -f environment.lock.yml` (or add dependencies to your own: `conda install --file=environment.txt`)
-3. Activate the conda environment (if not already done so)
-4. Install package: `pip install -e .`
-5. Configure application behaviour with environment variables. See `.env.example` for variables that can be set.
+2. Install dependencies: `pixi install`
+3. Configure application behaviour with environment variables. See `.env.example` for variables that can be set.
 
-### Updating conda environment
+### Updating dependencies
 
-To add new packages or update their version, it is recommended to use the `environment.txt` file (for conda packages) and `requirements.txt` file (for pip packages) then run:
+To add new packages or update their version, can update the dependencies in pixi.toml then run
 ```sh
-conda install --file=environment.txt
-pip install -e . # this will implicitly use requirement.txt
-conda env export -f environment.lock.yml
+pixi install
 ```
-then commit any changes (though make sure not to include mlde-notebooks package in the lock file since that is not distributed via PyPI).
-
-To sync environment with the lock file use:
+or add them using:
 ```sh
-conda env update -f environment.lock.yml --prune
+pixi add NEW_DEP
 ```
+then commit any changes to pixi.toml and pixi.lock
 
 ## Usage
+
+It is expected to prepend each command with `pixi run` to ensure getting the expected environment.
 
 ### Creating variables
 
@@ -62,7 +59,7 @@ Once you have extracted the variable files, use the `mlde-data dataset create` c
 Example usage:
 
 ```sh
-mlde-data dataset create src/mlde_data/config/datasets/bham64_ccpm-4x_12em_psl-sphum4th-temp4th-vort4th_pr.yml
+pixi run mlde-data dataset create src/mlde_data/config/datasets/bham64_ccpm-4x_12em_psl-sphum4th-temp4th-vort4th_pr.yml
 ```
 
 This will create the files for a dataset in `${DERIVED_DATA}/moose/nc-datasets/bham64_ccpm-4x_12em_psl-sphum4th-temp4th-vort4th_pr` based on the config file supplied.
