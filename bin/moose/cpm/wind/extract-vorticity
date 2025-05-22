@@ -2,8 +2,25 @@
 
 set -euo pipefail
 
+job_id=0 # default to no job to wait on
+
+while getopts ":j:" opt; do
+  case ${opt} in
+    j)
+      job_id=${OPTARG}
+      ;;
+   \? )
+     echo "Invalid Option: -${OPTARG}" 1>&2
+     exit 1
+     ;;
+  esac
+done
+shift $((OPTIND -1))
+
 ensemble_member=$1
 theta=$2
+shift 2
+years=$@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -23,23 +40,6 @@ echo
 echo ${ensemble_member}
 echo
 
-# TS1
-job_id=0 # no job initially to wait on
 
-years=$(seq 1981 1 2000)
-job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} --frequency ${frequency} --ensemble-member ${ensemble_member} ${years})
-echo $job_id
-
-# TS2
-# job_id=0 # uncomment line to make it not depend on previous job
-
-years=$(seq 2021 1 2040)
-job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} --frequency ${frequency} --ensemble-member ${ensemble_member} ${years})
-echo $job_id
-
-# TS3
-# job_id=0 # uncomment line to make it not depend on previous job
-
-years=$(seq 2061 1 2080)
 job_id=$(${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} --frequency ${frequency} --ensemble-member ${ensemble_member} ${years})
 echo $job_id
