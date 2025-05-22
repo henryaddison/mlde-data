@@ -264,6 +264,7 @@ def _combine_variables(em: str, config: dict, input_base_dir: Path):
                 ensemble_member=em,
                 variable=predictor_var_name,
                 resolution=var_type_config["resolution"],
+                collection=var_type_config["collection"],
                 **common_var_params,
             )
 

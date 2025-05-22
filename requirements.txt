@@ -1,2 +1,0 @@
-compliance-checker ~= 5.1.0
-mlde-utils ~= 0.2.2
