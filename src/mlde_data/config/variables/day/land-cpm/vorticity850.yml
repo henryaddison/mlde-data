@@ -22,7 +22,6 @@ spec:
   - action: vorticity
     parameters:
       theta: 850
-  - action: regrid_to_target
   - action: select-subdomain
     parameters:
       domain: $domain

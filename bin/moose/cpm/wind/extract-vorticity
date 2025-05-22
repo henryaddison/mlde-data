@@ -10,7 +10,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 domain="birmingham"
 scale_factor="gcm"
 target_resolution="2.2km-coarsened-4x"
-target_size=64
+target_size=12
 frequency="day"
 variable="${SCRIPT_DIR}/../../../src/mlde_data/config/variables/${frequency}/land-cpm/vorticity${theta}.yml"
 
