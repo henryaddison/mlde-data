@@ -17,10 +17,12 @@ def config():
         "scenario": "rcp85",
         "predictands": {
             "resolution": "2.2km",
+            "collection": "land-cpm",
             "variables": ["output1", "output2"],
         },
         "predictors": {
             "resolution": "60km",
+            "collection": "land-gcm",
             "variables": ["input1", "input2"],
         },
         "split": {
@@ -39,6 +41,10 @@ def variable_files(tmp_path, config):
         for var_type in ["predictands", "predictors"]:
             for var in config[var_type]["variables"]:
                 print(var)
+                if var_type == "predictands":
+                    collection = "land-cpm"
+                else:
+                    collection = "land-gcm"
                 meta = VariableMetadata(
                     tmp_path / "moose",
                     ensemble_member=em,
@@ -47,6 +53,7 @@ def variable_files(tmp_path, config):
                     resolution=config[var_type]["resolution"],
                     scenario=config["scenario"],
                     frequency=config["frequency"],
+                    collection=collection,
                 )
                 os.makedirs(meta.dirpath(), exist_ok=False)
                 for year in years:
