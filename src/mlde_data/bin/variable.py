@@ -270,12 +270,12 @@ def _process(
 def create(
     config_path: Path = typer.Option(...),
     year: int = typer.Option(...),
-    frequency: str = "day",
+    frequency: str = typer.Option(...),
     domain: DomainOption = DomainOption.london,
     scenario="rcp85",
     scale_factor: str = typer.Option(...),
-    target_resolution: str = "2.2km",
-    target_size: int = 64,
+    target_resolution: str = typer.Option(...),
+    target_size: int = typer.Option(...),
     ensemble_member: str = typer.Option(...),
 ):
     """
