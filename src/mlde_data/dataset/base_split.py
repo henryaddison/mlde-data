@@ -11,5 +11,4 @@ class BaseSplit(abc.ABC):
         self.seed = seed
 
     @abc.abstractmethod
-    def run(self, combined_dataset: xr.Dataset) -> dict[str, xr.Dataset]:
-        ...
+    def run(self, combined_dataset: xr.Dataset) -> dict[str, xr.Dataset]: ...

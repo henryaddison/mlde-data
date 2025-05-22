@@ -15,5 +15,7 @@ jobs:
       with:
         pixi-version: v0.46.0
         cache: true
+        environments: dev
+        activate-environment: true
     - name: Run tests
-      run: pixi run pytest
+      run: pytest
