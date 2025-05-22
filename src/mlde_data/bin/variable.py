@@ -22,7 +22,6 @@ from .options import DomainOption, CollectionOption
 from ..moose import (
     VARIABLE_CODES,
     raw_nc_filepath,
-    processed_nc_filepath,
     remove_forecast,
     remove_pressure,
 )
@@ -368,50 +367,6 @@ def run_cmd(cmd):
     print(stdout)
     print(output.stderr.decode("utf8"))
     output.check_returncode()
-
-
-@app.command()
-@Timer(name="xfer-variable", text="{name}: {minutes:.1f} minutes", logger=logger.info)
-def xfer(
-    variable: str = typer.Option(...),
-    year: int = typer.Option(...),
-    ensemble_member: str = typer.Option(...),
-    frequency: str = "day",
-    domain: DomainOption = DomainOption.london,
-    collection: CollectionOption = typer.Option(...),
-    resolution: str = typer.Option(...),
-    target_size: int = 64,
-):
-    # TODO re-write xfer in Python
-    jasmin_filepath = processed_nc_filepath(
-        variable=variable,
-        year=year,
-        frequency=frequency,
-        domain=f"{domain.value}-{target_size}",
-        resolution=resolution,
-        collection=collection.value,
-        ensemble_member=ensemble_member,
-    )
-    bp_filepath = processed_nc_filepath(
-        variable=variable,
-        year=year,
-        frequency=frequency,
-        domain=f"{domain.value}-{target_size}",
-        resolution=resolution,
-        collection=collection.value,
-        base_dir="/user/work/vf20964",
-        ensemble_member=ensemble_member,
-    )
-
-    file_xfer_cmd = [
-        # TODO: don't rely on hardcoded absolute path
-        f"{os.getenv('HOME')}/code/mlde-data/bin/moose/xfer-script-direct",
-        jasmin_filepath,
-        bp_filepath,
-    ]
-    # TODO: also transfer to config used for the variable
-    # config_xfer_cmd = []
-    run_cmd(file_xfer_cmd)
 
 
 @app.command()
