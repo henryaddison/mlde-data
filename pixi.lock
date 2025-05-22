@@ -2584,7 +2584,7 @@ packages:
 - pypi: .
   name: mlde-data
   version: 0.3.1
-  sha256: c37abd6838e74de290328674090380d3905ce774f47032262ffd23662af8d513
+  sha256: a92f6a44718bc72a8318121a1b12322a7abd1d699e27b42a7bd55f072de83a8e
   requires_dist:
   - compliance-checker~=5.1.0
   - mlde-utils~=0.2.4
