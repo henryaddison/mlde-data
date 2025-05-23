@@ -216,7 +216,6 @@ def _process(
         elif job_spec["action"] == "coarsen":
             if scale_factor == "gcm":
                 typer.echo(f"Remapping conservatively to gcm grid...")
-                variable_resolution = f"{variable_resolution}-coarsened-gcm"
                 # pick the target grid based on the job spec
                 # some variables use one grid, others a slightly offset one
                 grid_type = job_spec["parameters"]["grid"]
@@ -224,6 +223,8 @@ def _process(
                     f"target_grids/60km/global/{grid_type}/moose_grid.nc"
                 )
                 ds = Remapcon(target_grid_filepath).run(ds)
+                variable_resolution = f"{variable_resolution}-coarsened-gcm"
+                data_resolution = variable_resolution
             else:
                 scale_factor = int(scale_factor)
                 if scale_factor == 1:
@@ -232,11 +233,11 @@ def _process(
                     )
                 else:
                     typer.echo(f"Coarsening {scale_factor}x...")
+                    ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
                     variable_resolution = (
                         f"{variable_resolution}-coarsened-{scale_factor}x"
                     )
                     data_resolution = variable_resolution
-                    ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
         elif job_spec["action"] == "shift_lon_break":
             ds = ShiftLonBreak().run(ds)
         elif job_spec["action"] == "regrid_to_target":
