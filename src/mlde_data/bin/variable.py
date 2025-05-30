@@ -3,7 +3,6 @@ from importlib.resources import files
 import logging
 import os
 from pathlib import Path
-import subprocess
 import sys
 from typing import List
 import pandas as pd
@@ -15,13 +14,13 @@ import xarray as xr
 
 from mlde_utils import VariableMetadata
 
+from mlde_data import MOOSE_DATA
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
 from mlde_data.variable import validation
 
-from .options import DomainOption, CollectionOption
+from .options import CollectionOption
 from ..moose import (
     VARIABLE_CODES,
-    raw_nc_filepath,
     remove_forecast,
     remove_pressure,
 )
@@ -29,9 +28,7 @@ from mlde_utils.data.coarsen import Coarsen
 from mlde_utils.data.constrain import Constrain
 from mlde_utils.data.diff import Diff
 from mlde_utils.data.regrid import Regrid
-from mlde_utils.data.remapcon import Remapcon
 from mlde_utils.data.select_domain import SelectDomain
-from mlde_utils.data.select_gcm_domain import SelectGCMDomain
 from mlde_utils.data.shift_lon_break import ShiftLonBreak
 from mlde_utils.data.sum import Sum
 from mlde_utils.data.vorticity import Vorticity
@@ -47,69 +44,65 @@ def callback():
     pass
 
 
-def get_variable_resolution(config, collection):
-    if config["sources"]["type"] == "moose":
+def get_resolution(srcs_config, collection):
+    if srcs_config["type"] == "moose":
         if collection == CollectionOption.cpm:
-            variable_resolution = "2.2km"
+            data_resolution = "2.2km"
+            grid_resolution = "2.2km"
         elif collection == CollectionOption.gcm:
-            variable_resolution = "60km"
+            data_resolution = "60km"
+            grid_resolution = "60km"
         else:
             raise f"Unknown collection {collection}"
-    elif config["sources"]["type"] == "bp":
-        # assume bp sourced data is at the desired resolution already
-        if collection == CollectionOption.cpm:
-            variable_resolution = "2.2km-coarsened-gcm"
-        elif collection == CollectionOption.gcm:
-            variable_resolution = "60km"
-        else:
-            raise f"Unknown collection {collection}"
-    elif config["sources"]["type"] == "canari-le-sprint":
+    elif srcs_config["type"] == "local":
+        # assume local sourced data is pre-processed so resolution must be specified in config
+        data_resolution = srcs_config["data_resolution"]
+        grid_resolution = srcs_config["grid_resolution"]
+    elif srcs_config["type"] == "canari-le-sprint":
         # CANARI LE Sprint data is at 60km resolution
-        variable_resolution = "60km"
-    else:
-        raise RuntimeError(f"Unknown souce type {config['sources']['type']}")
+        data_resolution = "60km"
+        grid_resolution = "60km"
 
-    return variable_resolution
+    else:
+        raise RuntimeError(f"Unknown souce type {srcs_config['type']}")
+
+    return data_resolution, grid_resolution
 
 
 def get_sources(
-    config,
+    srcs_config,
     collection,
     year,
     data_basedir,
-    domain,
-    target_size,
-    target_data_resolution,
     ensemble_member,
 ):
     sources = {}
 
-    if config["sources"]["type"] == "moose":
+    data_resolution, grid_resolution = get_resolution(srcs_config, collection)
+    frequency = srcs_config["frequency"]
+    scenario = "rcp85"
+
+    if srcs_config["type"] == "moose":
         if collection == CollectionOption.cpm:
             source_domain = "uk"
         elif collection == CollectionOption.gcm:
             source_domain = "global"
         else:
             raise f"Unknown collection {collection}"
-        # ds = xr.open_mfdataset([raw_nc_filepath(variable=source, year=year, frequency=frequency) for source in config['sources']['moose']])
-        # for source in config['sources']['moose']:
-        #     if "moose_name" in VARIABLE_CODES[source]:
-        #         logger.info(f"Renaming {VARIABLE_CODES[source]['moose_name']} to {source}...")
-        #         ds = ds.rename({VARIABLE_CODES[source]["moose_name"]: source})
 
-        variable_resolution = get_variable_resolution(config, collection)
-        data_resolution = variable_resolution
+        data_resolution = data_resolution
 
-        for src_variable in config["sources"]["variables"]:
-            source_nc_filepath = raw_nc_filepath(
+        for src_variable in srcs_config["variables"]:
+            source_nc_filepath = VariableMetadata(
+                base_dir=MOOSE_DATA,
                 variable=src_variable["name"],
-                year=year,
-                frequency=src_variable["frequency"],
-                resolution=variable_resolution,
-                collection=collection.value,
+                frequency=frequency,
                 domain=source_domain,
+                resolution=data_resolution,
                 ensemble_member=ensemble_member,
-            )
+                scenario=scenario,
+                collection=collection.value,
+            ).filepath(year)
             logger.info(f"Opening {source_nc_filepath}")
             ds = xr.open_dataset(source_nc_filepath)
 
@@ -131,17 +124,18 @@ def get_sources(
             ds = remove_pressure(ds)
 
             sources[src_variable["name"]] = ds
-    elif config["sources"]["type"] == "bp":
-        variable_resolution = get_variable_resolution(config, collection)
-        data_resolution = target_data_resolution
-        for src_variable in config["sources"]["variables"]:
+    elif srcs_config["type"] == "local":
+        source_domain = srcs_config["domain"]
+        for src_variable in srcs_config["variables"]:
             source_metadata = VariableMetadata(
                 data_basedir,
-                frequency=src_variable["frequency"],
-                domain=f"{domain.value}-{target_size}",
-                resolution=f"{variable_resolution}-{data_resolution}",
+                frequency=frequency,
+                resolution=f"{data_resolution}-{grid_resolution}",
+                scenario=scenario,
+                domain=source_domain,
                 ensemble_member=ensemble_member,
                 variable=src_variable["name"],
+                collection=collection.value,
             )
             source_nc_filepath = source_metadata.filepath(year)
             logger.info(f"Opening {source_nc_filepath}")
@@ -150,12 +144,12 @@ def get_sources(
             ds = remove_pressure(ds)
 
             sources[src_variable["name"]] = ds
-    elif config["sources"]["type"] == "canari-le-sprint":
-        variable_resolution = get_variable_resolution(config, collection)
-        data_resolution = variable_resolution
-        for src_variable in config["sources"]["variables"]:
+    elif srcs_config["type"] == "canari-le-sprint":
+        data_resolution, grid_resolution = get_resolution(srcs_config, collection)
+        source_domain = "global"
+        for src_variable in srcs_config["variables"]:
             source_metadata = CanariLESprintVariableAdapter(
-                frequency=src_variable["frequency"],
+                frequency=frequency,
                 ensemble_member=ensemble_member,
                 variable=src_variable["name"],
                 year=year,
@@ -163,9 +157,9 @@ def get_sources(
 
             sources[src_variable["name"]] = source_metadata.open().load()
     else:
-        raise RuntimeError(f"Unknown souce type {config['sources']['type']}")
+        raise RuntimeError(f"Unknown souce type {srcs_config['type']}")
 
-    logger.info(f"Combining {config['sources']}...")
+    logger.info(f"Combining {srcs_config}...")
     ds = xr.combine_by_coords(
         sources.values(),
         compat="no_conflicts",
@@ -175,18 +169,16 @@ def get_sources(
         data_vars="all",
     )
 
-    return ds, variable_resolution, data_resolution
+    return ds, data_resolution, grid_resolution, frequency, source_domain
 
 
 def _process(
     ds,
     config,
-    variable_resolution,
-    data_resolution,
-    target_data_resolution,
-    domain,
-    scale_factor,
-    target_size,
+    current_domain,
+    current_data_resolution,
+    current_grid_resolution,
+    current_frequency,
 ):
     for job_spec in config["spec"]:
         if job_spec["action"] == "sum":
@@ -200,6 +192,9 @@ def _process(
         elif job_spec["action"] == "query":
             logger.info(f"Selecting {job_spec['parameters']}")
             ds = ds.sel(**job_spec["parameters"])
+        elif job_spec["action"] == "drop-variables":
+            logger.info(f"Dropping variables {job_spec['variables']}")
+            ds = ds.drop_vars(job_spec["variables"])
         elif job_spec["action"] == "resample":
             logger.info(f"Resampling {job_spec['parameters']}")
             new_bounds = (
@@ -213,54 +208,36 @@ def _process(
 
             ds = ds.resample(**job_spec["parameters"]).mean()
             ds["time_bnds"] = new_bounds
+            current_frequency = "day"
         elif job_spec["action"] == "coarsen":
-            if scale_factor == "gcm":
-                typer.echo(f"Remapping conservatively to gcm grid...")
-                # pick the target grid based on the job spec
-                # some variables use one grid, others a slightly offset one
-                grid_type = job_spec["parameters"]["grid"]
-                target_grid_filepath = files("mlde_utils.data").joinpath(
-                    f"target_grids/60km/global/{grid_type}/moose_grid.nc"
-                )
-                ds = Remapcon(target_grid_filepath).run(ds)
-                variable_resolution = f"{variable_resolution}-coarsened-gcm"
-                data_resolution = variable_resolution
-            else:
-                scale_factor = int(scale_factor)
-                if scale_factor == 1:
-                    typer.echo(
-                        f"{scale_factor}x coarsening scale factor, nothing to do..."
-                    )
-                else:
-                    typer.echo(f"Coarsening {scale_factor}x...")
-                    ds, orig_ds = Coarsen(scale_factor=scale_factor).run(ds)
-                    variable_resolution = (
-                        f"{variable_resolution}-coarsened-{scale_factor}x"
-                    )
-                    data_resolution = variable_resolution
+            ds, current_data_resolution, current_grid_resolution = Coarsen(
+                **job_spec["parameters"]
+            )(ds, current_data_resolution, current_grid_resolution)
         elif job_spec["action"] == "shift_lon_break":
             ds = ShiftLonBreak().run(ds)
         elif job_spec["action"] == "regrid_to_target":
             # this assumes mapping to a target grid of higher resolution than resolution of the data
-            if target_data_resolution != data_resolution:
+            desired_grid_resolution = job_spec["parameters"]["target_grid_resolution"]
+            if desired_grid_resolution != current_grid_resolution:
                 typer.echo(f"Regridding to target resolution...")
                 target_grid_path = files("mlde_utils.data").joinpath(
-                    f"target_grids/{target_data_resolution}/uk/moose_grid.nc"
+                    f"target_grids/{desired_grid_resolution}/uk/moose_grid.nc"
                 )
                 kwargs = job_spec.get("parameters", {})
                 ds = Regrid(
                     target_grid_path, variables=[config["variable"]], **kwargs
                 ).run(ds)
-                data_resolution = target_data_resolution
+                current_grid_resolution = desired_grid_resolution
+                current_domain = "uk"
         elif job_spec["action"] == "vorticity":
             typer.echo(f"Computing vorticity...")
             ds = Vorticity(**job_spec["parameters"]).run(ds)
         elif job_spec["action"] == "select-subdomain":
-            typer.echo(f"Select {domain.value} subdomain...")
-            ds = SelectDomain(subdomain=domain.value, size=target_size).run(ds)
-        elif job_spec["action"] == "select-gcm-subdomain":
-            typer.echo(f"Select {domain.value} GCM subdomain...")
-            ds = SelectGCMDomain(subdomain=domain.value, size=target_size).run(ds)
+            current_domain = (
+                f"{job_spec['parameters']['domain']}-{job_spec['parameters']['size']}"
+            )
+            typer.echo(f"Select {current_domain} subdomain...")
+            ds = SelectDomain(**job_spec["parameters"]).run(ds)
         elif job_spec["action"] == "constrain":
             typer.echo(f"Filtering...")
             ds = Constrain(query=job_spec["query"]).run(ds)
@@ -273,7 +250,24 @@ def _process(
     # assign any attributes from config file
     ds[config["variable"]] = ds[config["variable"]].assign_attrs(config["attrs"])
 
-    return ds, variable_resolution, data_resolution
+    return (
+        ds,
+        current_data_resolution,
+        current_grid_resolution,
+        current_domain,
+        current_frequency,
+    )
+
+
+def _save(ds, config, path, year):
+    logger.info(f"Saving data to {path}")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    ds[config["variable"]].encoding.update(dict(zlib=True, complevel=5))
+    ds.to_netcdf(path)
+    with open(
+        os.path.join(os.path.dirname(path), f"{config['variable']}-{year}.yml"), "w"
+    ) as f:
+        yaml.dump(config, f)
 
 
 @app.command()
@@ -281,12 +275,7 @@ def _process(
 def create(
     config_path: Path = typer.Option(...),
     year: int = typer.Option(...),
-    frequency: str = typer.Option(...),
-    domain: DomainOption = DomainOption.london,
     scenario="rcp85",
-    scale_factor: str = typer.Option(...),
-    target_resolution: str = typer.Option(...),
-    target_size: int = typer.Option(...),
     ensemble_member: str = typer.Option(...),
 ):
     """
@@ -295,53 +284,30 @@ def create(
     with open(config_path, "r") as config_file:
         config = yaml.safe_load(config_file)
 
-    # add cli parameters to config
-    config["parameters"] = {
-        "frequency": frequency,
-        "domain": domain.value,
-        "scenario": scenario,
-        "scale_factor": scale_factor,
-        "target_resolution": target_resolution,
-    }
-
     collection = CollectionOption(config["sources"]["collection"])
     src_type = config["sources"]["type"]
 
     data_basedir: Path = os.path.join(os.getenv("DERIVED_DATA"), src_type)
 
-    ds, variable_resolution, data_resolution = get_sources(
-        config,
+    ds, data_resolution, grid_resolution, frequency, domain = get_sources(
+        config["sources"],
         collection,
         year,
         data_basedir,
-        domain,
-        target_size,
-        target_resolution,
         ensemble_member=ensemble_member,
     )
 
-    ds, variable_resolution, data_resolution = _process(
+    ds, data_resolution, grid_resolution, domain, frequency = _process(
         ds,
         config,
-        variable_resolution,
-        data_resolution,
-        target_resolution,
         domain,
-        scale_factor,
-        target_size,
+        data_resolution,
+        grid_resolution,
+        frequency,
     )
 
-    grid_mapping = ds[config["variable"]].attrs["grid_mapping"]
-    if grid_mapping == "rotated_latitude_longitude":
-        assert len(ds.grid_latitude) == target_size
-        assert len(ds.grid_longitude) == target_size
-    elif grid_mapping == "latitude_longitude":
-        assert len(ds.latitude) == target_size
-        assert len(ds.longitude) == target_size
-    else:
-        raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
-
     if frequency == "day":
+        # there should be 360 days in the dataset
         assert len(ds.time) == 360
 
     # there should be no missing values in this dataset
@@ -350,32 +316,15 @@ def create(
     output_metadata = VariableMetadata(
         data_basedir,
         frequency=frequency,
-        domain=f"{domain.value}-{target_size}",
-        resolution=f"{variable_resolution}-{data_resolution}",
+        domain=domain,
+        resolution=f"{data_resolution}-{grid_resolution}",
         scenario=scenario,
         ensemble_member=ensemble_member,
         variable=config["variable"],
         collection=collection,
     )
 
-    logger.info(f"Saving data to {output_metadata.filepath(year)}")
-    os.makedirs(output_metadata.dirpath(), exist_ok=True)
-
-    ds[config["variable"]].encoding.update(dict(zlib=True, complevel=5))
-    ds.to_netcdf(output_metadata.filepath(year))
-    with open(
-        os.path.join(output_metadata.dirpath(), f"{config['variable']}-{year}.yml"), "w"
-    ) as f:
-        yaml.dump(config, f)
-
-
-def run_cmd(cmd):
-    logger.debug(f"Running {cmd}")
-    output = subprocess.run(cmd, capture_output=True, check=False)
-    stdout = output.stdout.decode("utf8")
-    print(stdout)
-    print(output.stderr.decode("utf8"))
-    output.check_returncode()
+    _save(ds, config, output_metadata.filepath(year), year)
 
 
 @app.command()
