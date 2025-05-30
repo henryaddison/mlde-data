@@ -9,14 +9,13 @@ import numpy as np
 import typer
 import xarray as xr
 
+from mlde_utils import VariableMetadata
+
+from .. import MOOSE_DATA
 from ..bin.options import CollectionOption
 from ..moose import (
     select_query,
     moose_path,
-    moose_extract_dirpath,
-    moose_cache_dirpath,
-    ppdata_dirpath,
-    raw_nc_filepath,
 )
 
 logger = logging.getLogger(__name__)
@@ -34,6 +33,49 @@ FREQ2TIMELEN = {
     "day": 360,
     "1hr": 360 * 24,
 }
+
+
+class MoosePPVariableMetadata(VariableMetadata):
+    """
+    Extends VariableMetadata to support extra file and directory paths used when extracting pp data from Moose.
+    """
+
+    def __init__(
+        self,
+        variable: str,
+        frequency: str,
+        domain: str,
+        resolution: str,
+        ensemble_member: str,
+        scenario: str,
+        collection: str,
+        base_dir: str = None,
+    ):
+        if base_dir is None:
+            base_dir = MOOSE_DATA / "pp"
+        super().__init__(
+            base_dir,
+            variable,
+            frequency,
+            domain,
+            resolution,
+            ensemble_member,
+            scenario,
+            collection,
+        )
+
+    def subdir(self):
+        # collection is not included in the dirpath of parent class
+        return os.path.join(self.collection, super().subdir())
+
+    def moose_extract_dirpath(self, year):
+        return self.dirpath() / str(year)
+
+    def ppdata_dirpath(self, year):
+        return self.moose_extract_dirpath(year) / "data"
+
+    def pp_files_glob(self, year):
+        return self.ppdata_dirpath(year) / "*.pp"
 
 
 def _load_cube(pp_files, variable, collection):
@@ -56,7 +98,7 @@ def extract(
     frequency: str = "day",
     collection: CollectionOption = typer.Option(...),
     ensemble_member: str = typer.Option(...),
-    cache: bool = True,
+    scenario: str = "rcp85",
 ):
     """
     Extract data from moose
@@ -70,47 +112,24 @@ def extract(
     else:
         raise f"Unknown collection {collection}"
 
-    cache_path = moose_cache_dirpath(
-        variable=variable,
-        year=year,
-        frequency=frequency,
-        collection=collection.value,
-        resolution=resolution,
-        domain=domain,
-        ensemble_member=ensemble_member,
-    )
-    cache_check_filepath = cache_path / ".cache-ready"
-
-    if cache:
-        if os.path.exists(cache_check_filepath):
-            logger.info(f"Moose cache available {cache_path}")
-            return
-
     query = select_query(
         year=year, variable=variable, frequency=frequency, collection=collection.value
     )
 
-    output_dirpath = moose_extract_dirpath(
+    moose_pp_varmeta = MoosePPVariableMetadata(
         variable=variable,
-        year=year,
         frequency=frequency,
         resolution=resolution,
         collection=collection.value,
         domain=domain,
         ensemble_member=ensemble_member,
-        cache=False,
+        scenario=scenario,
     )
+
+    output_dirpath = moose_pp_varmeta.moose_extract_dirpath(year)
+
     query_filepath = output_dirpath / "searchfile"
-    pp_dirpath = ppdata_dirpath(
-        variable=variable,
-        year=year,
-        frequency=frequency,
-        resolution=resolution,
-        collection=collection.value,
-        domain=domain,
-        ensemble_member=ensemble_member,
-        cache=False,
-    )
+    pp_dirpath = moose_pp_varmeta.ppdata_dirpath(year)
 
     os.makedirs(output_dirpath, exist_ok=True)
     # remove any previous attempt at extracting the data (or else moo select will complain)
@@ -149,21 +168,6 @@ def extract(
     cube = _load_cube(str(pp_dirpath / "*.pp"), variable, collection)
     assert cube.coord("time").shape[0] == FREQ2TIMELEN[frequency]
 
-    if cache:
-        cache_path = moose_cache_dirpath(
-            variable=variable,
-            year=year,
-            frequency=frequency,
-            collection=collection.value,
-            resolution=resolution,
-            domain=domain,
-            ensemble_member=ensemble_member,
-        )
-        logger.info(f"Copying {output_dirpath} to {cache_path}...")
-        os.makedirs(cache_path, exist_ok=True)
-        shutil.copytree(output_dirpath, cache_path, dirs_exist_ok=True)
-        cache_check_filepath.touch()
-
 
 @app.command()
 @Timer(name="convert", text="{name}: {minutes:.1f} minutes", logger=logger.info)
@@ -173,7 +177,7 @@ def convert(
     frequency: str = "day",
     collection: CollectionOption = typer.Option(...),
     ensemble_member: str = typer.Option(...),
-    cache: bool = True,
+    scenario: str = "rcp85",
 ):
     """
     Convert pp data to a netCDF file
@@ -187,38 +191,7 @@ def convert(
     else:
         raise f"Unknown collection {collection}"
 
-    cache_path = moose_cache_dirpath(
-        variable=variable,
-        year=year,
-        frequency=frequency,
-        collection=collection.value,
-        resolution=resolution,
-        domain=domain,
-        ensemble_member=ensemble_member,
-    )
-    cache_check_filepath = cache_path / ".cache-ready"
-
-    if cache:
-        if os.path.exists(cache_check_filepath):
-            logger.info(f"Moose cache available {cache_path}")
-        else:
-            logger.info(f"Moose cache unavailable {cache_path}")
-            cache = False
-
-    pp_files_glob = (
-        ppdata_dirpath(
-            variable=variable,
-            year=year,
-            frequency=frequency,
-            resolution=resolution,
-            collection=collection.value,
-            domain=domain,
-            cache=cache,
-            ensemble_member=ensemble_member,
-        )
-        / "*.pp"
-    )
-    output_filepath = raw_nc_filepath(
+    input_moose_pp_varmeta = MoosePPVariableMetadata(
         variable=variable,
         year=year,
         frequency=frequency,
@@ -228,7 +201,21 @@ def convert(
         ensemble_member=ensemble_member,
     )
 
-    src_cube = _load_cube(str(pp_files_glob), variable, collection)
+    output_var_meta = VariableMetadata(
+        base_dir=MOOSE_DATA,
+        variable=variable,
+        frequency=frequency,
+        domain=domain,
+        resolution=resolution,
+        ensemble_member=ensemble_member,
+        scenario=scenario,
+        collection=collection.value,
+    )
+    output_filepath = output_var_meta.filepath(year)
+
+    src_cube = _load_cube(
+        str(input_moose_pp_varmeta.pp_files_glob(year)), variable, collection
+    )
 
     # bug in some data means the final grid_latitude bound is very large (1.0737418e+09)
     if collection == CollectionOption.cpm and any(
@@ -254,6 +241,7 @@ def clean(
     frequency: str = "day",
     collection: CollectionOption = typer.Option(...),
     ensemble_member: str = typer.Option(...),
+    scenario: str = "rcp85",
 ):
     """
     Remove any unneccessary files once processing is done
@@ -267,27 +255,25 @@ def clean(
     else:
         raise f"Unknown collection {collection}"
 
-    pp_path = ppdata_dirpath(
+    pp_path = MoosePPVariableMetadata(
         variable=variable,
-        year=year,
         frequency=frequency,
-        collection=collection.value,
         resolution=resolution,
+        collection=collection.value,
         domain=domain,
         ensemble_member=ensemble_member,
-        cache=False,
-    )
+    ).ppdata_dirpath(year)
     typer.echo(f"Removing {pp_path}...")
     shutil.rmtree(pp_path, ignore_errors=True)
-    raw_nc_path = raw_nc_filepath(
-        variable=variable,
-        year=year,
+    raw_nc_path = VariableMetadata(
+        base_dir=MOOSE_DATA,
         frequency=frequency,
-        collection=collection.value,
-        resolution=resolution,
         domain=domain,
+        resolution=resolution,
         ensemble_member=ensemble_member,
-    )
+        scenario=scenario,
+        collection=collection.value,
+    ).filepath(year)
     typer.echo(f"Removing {raw_nc_path}...")
     if os.path.exists(raw_nc_path):
         os.remove(raw_nc_path)
