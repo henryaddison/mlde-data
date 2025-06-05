@@ -2,7 +2,7 @@ from codetiming import Timer
 from collections import defaultdict
 from importlib.resources import files
 import logging
-from mlde_data import MOOSE_DATA
+from mlde_data import DERIVED_DATA, MOOSE_DATA
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
 from mlde_data.variable import validation, load_config
 from mlde_utils import VariableMetadata
@@ -285,7 +285,7 @@ def create(
     collection = CollectionOption(config["sources"]["collection"])
     src_type = config["sources"]["type"]
 
-    data_basedir: Path = os.path.join(os.getenv("DERIVED_DATA"), src_type)
+    data_basedir: Path = DERIVED_DATA / src_type
 
     ds, data_resolution, grid_resolution, frequency, domain = get_sources(
         config["sources"],
@@ -357,7 +357,7 @@ def validate(
                         bad_years = defaultdict(set)
                         for year in years:
                             var_meta = VariableMetadata(
-                                f"{os.getenv('DERIVED_DATA')}/{source}",
+                                f"{DERIVED_DATA/source}",
                                 variable=var,
                                 frequency=frequency,
                                 domain=domain,
