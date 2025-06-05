@@ -1,12 +1,12 @@
 import logging
 from pathlib import Path
-import typer
-from typing import List
-import yaml
-
+from mlde_data.bin import load_config
 from mlde_data.bin.options import DomainOption, CollectionOption
 from mlde_data.bin.moose import extract, convert, clean
 from mlde_data.bin.variable import create as create_variable
+import typer
+from typing import List
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
@@ -25,17 +25,19 @@ def main(
     size: int = typer.Option(...),
 ):
 
-    with open(variable_config, "r") as config_file:
-        config = yaml.safe_load(config_file)
+    config = load_config(
+        variable_config, scale_factor=scale_factor, domain=domain.value, size=size
+    )
 
     for year in years:
         # run extract and convert
         src_collection = CollectionOption(config["sources"]["collection"])
+        src_frequency = config["sources"]["frequency"]
         for src_variable in config["sources"]["variables"]:
             extract(
                 variable=src_variable["name"],
                 year=year,
-                frequency=src_variable["frequency"],
+                frequency=src_frequency,
                 collection=src_collection,
                 ensemble_member=ensemble_member,
                 scenario=scenario,
@@ -44,7 +46,7 @@ def main(
             convert(
                 variable=src_variable["name"],
                 year=year,
-                frequency=src_variable["frequency"],
+                frequency=src_frequency,
                 collection=src_collection,
                 ensemble_member=ensemble_member,
                 scenario=scenario,

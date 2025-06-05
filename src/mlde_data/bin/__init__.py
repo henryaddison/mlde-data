@@ -1,11 +1,12 @@
+from string import Template
+from dotenv import load_dotenv
 import logging
 import os
 from pathlib import Path
-from typing import List
-
-from dotenv import load_dotenv
 import typer
+from typing import List
 import xarray as xr
+import yaml
 
 from . import ceda
 from . import dataset
@@ -26,6 +27,21 @@ app.add_typer(dataset.app, name="dataset")
 app.add_typer(moose.app, name="moose")
 app.add_typer(preprocess.app, name="preprocess")
 app.add_typer(variable.app, name="variable")
+
+
+def load_config(config_path: Path, scale_factor: str, domain: str, size: int):
+    """Load configuration for a creating a variable from a YAML file."""
+
+    with open(config_path, "r") as config_template:
+        d = {
+            "scale_factor": scale_factor,
+            "domain": domain,
+            "size": size,
+        }
+        src = Template(config_template.read())
+        result = src.substitute(d)
+        config = yaml.safe_load(result)
+    return config
 
 
 @app.command()

@@ -1,23 +1,21 @@
+from codetiming import Timer
 from collections import defaultdict
 from importlib.resources import files
 import logging
-import os
-from pathlib import Path
-from string import Template
-import sys
-from typing import List
-import pandas as pd
-import yaml
-
-from codetiming import Timer
-import typer
-import xarray as xr
-
-from mlde_utils import VariableMetadata
-
 from mlde_data import MOOSE_DATA
+from mlde_data.bin import load_config
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
 from mlde_data.variable import validation
+from mlde_utils import VariableMetadata
+import os
+import pandas as pd
+from pathlib import Path
+import sys
+import typer
+from typing import List
+import xarray as xr
+import yaml
+
 
 from mlde_data.bin.options import CollectionOption, DomainOption
 from mlde_data.moose import (
@@ -281,15 +279,9 @@ def create(
     """
     Create a variable file in project form from source data
     """
-    with open(config_path, "r") as config_template:
-        d = {
-            "domain": domain.value,
-            "size": size,
-            "scale_factor": scale_factor,
-        }
-        src = Template(config_template.read())
-        result = src.substitute(d)
-        config = yaml.safe_load(result)
+    config = load_config(
+        config_path, scale_factor=scale_factor, domain=domain.value, size=size
+    )
 
     collection = CollectionOption(config["sources"]["collection"])
     src_type = config["sources"]["type"]
