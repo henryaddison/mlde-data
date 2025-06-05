@@ -184,8 +184,8 @@ def _process(
             logger.info(f"Selecting {job_spec['parameters']}")
             ds = ds.sel(**job_spec["parameters"])
         elif job_spec["action"] == "drop-variables":
-            logger.info(f"Dropping variables {job_spec['variables']}")
-            ds = ds.drop_vars(job_spec["variables"])
+            logger.info(f"Dropping variables {job_spec['parameters']['variables']}")
+            ds = ds.drop_vars(job_spec["parameters"]["variables"])
         elif job_spec["action"] == "resample":
             logger.info(f"Resampling {job_spec['parameters']}")
             new_bounds = (
