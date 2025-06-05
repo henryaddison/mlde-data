@@ -3,9 +3,8 @@ from collections import defaultdict
 from importlib.resources import files
 import logging
 from mlde_data import MOOSE_DATA
-from mlde_data.bin import load_config
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
-from mlde_data.variable import validation
+from mlde_data.variable import validation, load_config
 from mlde_utils import VariableMetadata
 import os
 import pandas as pd

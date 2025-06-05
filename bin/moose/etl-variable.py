@@ -1,9 +1,9 @@
 import logging
 from pathlib import Path
-from mlde_data.bin import load_config
 from mlde_data.bin.options import DomainOption, CollectionOption
 from mlde_data.bin.moose import extract, convert, clean
 from mlde_data.bin.variable import create as create_variable
+from mlde_data.variable import load_config
 import typer
 from typing import List
 
