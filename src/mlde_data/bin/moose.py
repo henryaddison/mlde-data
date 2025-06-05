@@ -91,6 +91,66 @@ def _load_cube(pp_files, variable, collection):
     return iris.load_cube(pp_files, constraint=constraint)
 
 
+def _domain_and_resolution_from_collection(collection: CollectionOption):
+    if collection == CollectionOption.cpm:
+        resolution = "2.2km"
+        domain = "uk"
+    elif collection == CollectionOption.gcm:
+        resolution = "60km"
+        domain = "global"
+    else:
+        raise f"Unknown collection {collection}"
+    return domain, resolution
+
+
+def _clean_pp_data(
+    variable: str,
+    year: int,
+    frequency: str,
+    collection: CollectionOption,
+    ensemble_member: str,
+    scenario: str,
+    domain: str,
+    resolution: str,
+):
+    pp_path = MoosePPVariableMetadata(
+        collection=collection.value,
+        scenario=scenario,
+        ensemble_member=ensemble_member,
+        variable=variable,
+        frequency=frequency,
+        resolution=resolution,
+        domain=domain,
+    ).ppdata_dirpath(year)
+    typer.echo(f"Removing {pp_path}...")
+    shutil.rmtree(pp_path, ignore_errors=True)
+
+
+def _clean_nc_data(
+    variable: str,
+    year: int,
+    frequency: str,
+    collection: CollectionOption,
+    ensemble_member: str,
+    scenario: str,
+    domain: str,
+    resolution: str,
+):
+    nc_path = VariableMetadata(
+        base_dir=MOOSE_DATA,
+        collection=collection.value,
+        scenario=scenario,
+        ensemble_member=ensemble_member,
+        variable=variable,
+        frequency=frequency,
+        resolution=resolution,
+        domain=domain,
+    ).filepath(year)
+    typer.echo(f"Removing {nc_path}...")
+    if os.path.exists(nc_path):
+        os.remove(nc_path)
+
+
 @app.command()
 @Timer(name="extract", text="{name}: {minutes:.1f} minutes", logger=logger.info)
 def extract(
@@ -104,14 +164,7 @@ def extract(
     """
     Extract data from moose
     """
-    if collection == CollectionOption.cpm:
-        resolution = "2.2km"
-        domain = "uk"
-    elif collection == CollectionOption.gcm:
-        resolution = "60km"
-        domain = "global"
-    else:
-        raise f"Unknown collection {collection}"
+    domain, resolution = _domain_and_resolution_from_collection(collection)
 
     query = select_query(
         year=year, variable=variable, frequency=frequency, collection=collection.value
@@ -183,14 +236,7 @@ def convert(
     """
     Convert pp data to a netCDF file
     """
-    if collection == CollectionOption.cpm:
-        resolution = "2.2km"
-        domain = "uk"
-    elif collection == CollectionOption.gcm:
-        resolution = "60km"
-        domain = "global"
-    else:
-        raise f"Unknown collection {collection}"
+    domain, resolution = _domain_and_resolution_from_collection(collection)
 
     input_moose_pp_varmeta = MoosePPVariableMetadata(
         collection=collection.value,
@@ -247,36 +293,24 @@ def clean(
     """
     Remove any unneccessary files once processing is done
     """
-    if collection == CollectionOption.cpm:
-        resolution = "2.2km"
-        domain = "uk"
-    elif collection == CollectionOption.gcm:
-        resolution = "60km"
-        domain = "global"
-    else:
-        raise f"Unknown collection {collection}"
-
-    pp_path = MoosePPVariableMetadata(
-        collection=collection.value,
+    domain, resolution = _domain_and_resolution_from_collection(collection)
+    _clean_pp_data(
+        collection=collection,
         scenario=scenario,
         ensemble_member=ensemble_member,
         variable=variable,
         frequency=frequency,
-        resolution=resolution,
+        year=year,
         domain=domain,
-    ).ppdata_dirpath(year)
-    typer.echo(f"Removing {pp_path}...")
-    shutil.rmtree(pp_path, ignore_errors=True)
-    raw_nc_path = VariableMetadata(
-        base_dir=MOOSE_DATA,
-        collection=collection.value,
+        resolution=resolution,
+    )
+    _clean_nc_data(
+        collection=collection,
         scenario=scenario,
         ensemble_member=ensemble_member,
         variable=variable,
         frequency=frequency,
-        resolution=resolution,
+        year=year,
         domain=domain,
-    ).filepath(year)
-    typer.echo(f"Removing {raw_nc_path}...")
-    if os.path.exists(raw_nc_path):
-        os.remove(raw_nc_path)
+        resolution=resolution,
+    )
