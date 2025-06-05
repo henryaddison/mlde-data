@@ -24,14 +24,7 @@ from ..moose import (
     remove_forecast,
     remove_pressure,
 )
-from mlde_utils.data.coarsen import Coarsen
-from mlde_utils.data.constrain import Constrain
-from mlde_utils.data.diff import Diff
-from mlde_utils.data.regrid import Regrid
-from mlde_utils.data.select_domain import SelectDomain
-from mlde_utils.data.shift_lon_break import ShiftLonBreak
-from mlde_utils.data.sum import Sum
-from mlde_utils.data.vorticity import Vorticity
+from mlde_utils.data import get_action
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
@@ -183,12 +176,12 @@ def _process(
     for job_spec in config["spec"]:
         if job_spec["action"] == "sum":
             logger.info(f"Summing {job_spec['params']['variables']}")
-            ds = Sum(**job_spec["params"]).run(ds)
+            ds = get_action(job_spec["action"])(**job_spec["params"])(ds)
         elif job_spec["action"] == "diff":
             logger.info(
                 f"Difference between {job_spec['params']['left']} and {job_spec['params']['right']}"
             )
-            ds = Diff(**job_spec["params"]).run(ds)
+            ds = get_action(job_spec["action"])(**job_spec["params"])(ds)
         elif job_spec["action"] == "query":
             logger.info(f"Selecting {job_spec['parameters']}")
             ds = ds.sel(**job_spec["parameters"])
@@ -210,11 +203,13 @@ def _process(
             ds["time_bnds"] = new_bounds
             current_frequency = "day"
         elif job_spec["action"] == "coarsen":
-            ds, current_data_resolution, current_grid_resolution = Coarsen(
-                **job_spec["parameters"]
-            )(ds, current_data_resolution, current_grid_resolution)
+            ds, current_data_resolution, current_grid_resolution = get_action(
+                job_spec["action"]
+            )(**job_spec["parameters"])(
+                ds, current_data_resolution, current_grid_resolution
+            )
         elif job_spec["action"] == "shift_lon_break":
-            ds = ShiftLonBreak().run(ds)
+            ds = get_action(job_spec["action"])()(ds)
         elif job_spec["action"] == "regrid_to_target":
             # this assumes mapping to a target grid of higher resolution than resolution of the data
             desired_grid_resolution = job_spec["parameters"]["target_grid_resolution"]
@@ -224,23 +219,24 @@ def _process(
                     f"target_grids/{desired_grid_resolution}/uk/moose_grid.nc"
                 )
                 kwargs = job_spec.get("parameters", {})
-                ds = Regrid(
+                ds = get_action(job_spec["action"])(
                     target_grid_path, variables=[config["variable"]], **kwargs
-                ).run(ds)
+                )(ds)
                 current_grid_resolution = desired_grid_resolution
                 current_domain = "uk"
         elif job_spec["action"] == "vorticity":
             typer.echo(f"Computing vorticity...")
-            ds = Vorticity(**job_spec["parameters"]).run(ds)
+            action = get_action(job_spec["action"])
+            ds = action(**job_spec["parameters"])(ds)
         elif job_spec["action"] == "select-subdomain":
             current_domain = (
                 f"{job_spec['parameters']['domain']}-{job_spec['parameters']['size']}"
             )
             typer.echo(f"Select {current_domain} subdomain...")
-            ds = SelectDomain(**job_spec["parameters"]).run(ds)
+            ds = get_action(job_spec["action"])(**job_spec["parameters"])(ds)
         elif job_spec["action"] == "constrain":
             typer.echo(f"Filtering...")
-            ds = Constrain(query=job_spec["query"]).run(ds)
+            ds = get_action(job_spec["action"])(query=job_spec["query"])(ds)
         elif job_spec["action"] == "rename":
             typer.echo(f"Renaming...")
             ds = ds.rename(job_spec["mapping"])
