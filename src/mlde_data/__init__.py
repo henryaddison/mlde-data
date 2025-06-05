@@ -1,5 +1,12 @@
+from dotenv import load_dotenv
 import os
 from pathlib import Path
+
+load_dotenv()  # take environment variables from .env
+
+DATA_PATH = Path(os.getenv("DATA_PATH"))
+DERIVED_DATA = Path(os.getenv("DERIVED_DATA", DATA_PATH / "derived"))
+MOOSE_DATA = Path(os.getenv("MOOSE_DATA", DATA_PATH / "raw" / "moose"))
 
 
 class RangeDict(dict):
@@ -11,10 +18,3 @@ class RangeDict(dict):
             raise KeyError(item)
         else:
             return super().__getitem__(item)
-
-
-DATA_PATH = Path(os.getenv("DATA_PATH"))
-
-DERIVED_DATA = Path(os.getenv("DERIVED_DATA", DATA_PATH / "derived"))
-
-MOOSE_DATA = Path(os.getenv("MOOSE_DATA", DATA_PATH / "raw" / "moose"))

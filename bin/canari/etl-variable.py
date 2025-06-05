@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 import logging
 from pathlib import Path
 from typing import List
@@ -6,8 +5,6 @@ import typer
 
 from mlde_data.bin.options import DomainOption
 from mlde_data.bin.variable import create as create_variable
-
-load_dotenv()  # take environment variables from .env
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
