@@ -66,11 +66,12 @@ def main(
         # run clean up
         for src_variable in config["sources"]["variables"]:
             clean(
-                variable=src_variable["name"],
-                year=year,
-                frequency=src_variable["frequency"],
                 collection=src_collection,
+                scenario=scenario,
                 ensemble_member=ensemble_member,
+                variable=src_variable["name"],
+                frequency=src_frequency,
+                year=year,
             )
 
 
