@@ -194,7 +194,6 @@ def convert(
 
     input_moose_pp_varmeta = MoosePPVariableMetadata(
         variable=variable,
-        year=year,
         frequency=frequency,
         resolution=resolution,
         collection=collection.value,
