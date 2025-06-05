@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 import shutil
 import subprocess
 
@@ -128,7 +129,7 @@ def extract(
 
     output_dirpath = moose_pp_varmeta.moose_extract_dirpath(year)
 
-    query_filepath = os.path.join(output_dirpath, "searchfile")
+    query_filepath = Path(output_dirpath) / "searchfile"
     pp_dirpath = moose_pp_varmeta.ppdata_dirpath(year)
 
     os.makedirs(output_dirpath, exist_ok=True)
