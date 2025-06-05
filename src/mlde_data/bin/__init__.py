@@ -6,10 +6,8 @@ import typer
 from typing import List
 import xarray as xr
 
-from . import ceda
 from . import dataset
 from . import moose
-from . import preprocess
 from . import variable
 
 load_dotenv()  # take environment variables from .env.
@@ -20,10 +18,8 @@ log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
 logger.setLevel(log_level)
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
-app.add_typer(ceda.app, name="ceda")
 app.add_typer(dataset.app, name="dataset")
 app.add_typer(moose.app, name="moose")
-app.add_typer(preprocess.app, name="preprocess")
 app.add_typer(variable.app, name="variable")
 
 
