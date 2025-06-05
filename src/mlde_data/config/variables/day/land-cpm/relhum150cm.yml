@@ -14,10 +14,11 @@ sources:
 spec:
   - action: coarsen
     parameters:
-      scale_factor: $scale_factor
-      grid: pr
+      scale_factor: ${scale_factor}
+      grid_type: pr
   - action: regrid_to_target
     variable: pr
   - action: select-subdomain
     parameters:
-      domain: $domain
+      domain: ${domain}
+      size: ${size}

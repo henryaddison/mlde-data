@@ -16,8 +16,8 @@ sources:
 spec:
   - action: coarsen
     parameters:
-      scale_factor: $scale_factor
-      grid: pr
+      scale_factor: ${scale_factor}
+      grid_type: pr
   - action: sum
     params:
       variables: [lssnow, lsrain]
@@ -26,4 +26,5 @@ spec:
     variable: pr
   - action: select-subdomain
     parameters:
-      domain: $domain
+      domain: ${domain}
+      size: ${size}

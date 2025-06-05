@@ -3,6 +3,7 @@ from importlib.resources import files
 import logging
 import os
 from pathlib import Path
+from string import Template
 import sys
 from typing import List
 import pandas as pd
@@ -18,8 +19,8 @@ from mlde_data import MOOSE_DATA
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
 from mlde_data.variable import validation
 
-from .options import CollectionOption
-from ..moose import (
+from mlde_data.bin.options import CollectionOption, DomainOption
+from mlde_data.moose import (
     VARIABLE_CODES,
     remove_forecast,
     remove_pressure,
@@ -273,12 +274,22 @@ def create(
     year: int = typer.Option(...),
     scenario="rcp85",
     ensemble_member: str = typer.Option(...),
+    domain: DomainOption = typer.Option(...),
+    size: int = typer.Option(...),
+    scale_factor: str = typer.Option(...),
 ):
     """
     Create a variable file in project form from source data
     """
-    with open(config_path, "r") as config_file:
-        config = yaml.safe_load(config_file)
+    with open(config_path, "r") as config_template:
+        d = {
+            "domain": domain.value,
+            "size": size,
+            "scale_factor": scale_factor,
+        }
+        src = Template(config_template.read())
+        result = src.substitute(d)
+        config = yaml.safe_load(result)
 
     collection = CollectionOption(config["sources"]["collection"])
     src_type = config["sources"]["type"]

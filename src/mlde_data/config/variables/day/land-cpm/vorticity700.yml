@@ -16,14 +16,14 @@ sources:
 spec:
   - action: coarsen
     parameters:
-      scale_factor: $scale_factor
-      grid: vorticity850
+      scale_factor: ${scale_factor}
+      grid_type: vorticity850
       variables: [xwind, ywind]
   - action: vorticity
     parameters:
       theta: 700
-  - action: regrid_to_target
   - action: select-subdomain
     parameters:
-      domain: $domain
+      domain: ${domain}
+      size: ${size}
   # implicit final actions: assign attrs, save, cleanup extraction?

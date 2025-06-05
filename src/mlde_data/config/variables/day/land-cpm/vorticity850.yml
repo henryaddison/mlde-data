@@ -14,8 +14,8 @@ sources:
 spec:
   - action: coarsen
     parameters:
-      scale_factor: gcm
-      grid: vorticity850
+      scale_factor: ${scale_factor}
+      grid_type: vorticity850
       variables: [xwind, ywind]
   - action: vorticity
     parameters:
@@ -25,6 +25,6 @@ spec:
       variables: [xwind850, ywind850]
   - action: select-subdomain
     parameters:
-      domain: birmingham
-      size: 13
+      domain: ${domain}
+      size: ${size}
   # implicit final actions: assign attrs, save, cleanup extraction?
