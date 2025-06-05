@@ -10,30 +10,30 @@ authors = [
 ]
 description = "A package for preparing data for  ML downscaling emulator"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.12"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "cdo~=1.5.7",
+  "cdo",
   "cftime",
-  "codetiming~=1.4.0",
-  "compliance-checker~=5.1.0",
-  "scitools-iris~=3.4.0",
-  "knockknock~=0.1.8.1",
-  "metpy~=1.4.0",
-  "mlde-utils~=0.3.0a1",
-  "netcdf4~=1.6.0",
-  "pint~=0.20.1",
-  "python-dotenv~=1.0.1",
-  "xarray[accel]~=2023.1.0",
-  "typer~=0.7.0",
+  "codetiming",
+  "compliance-checker",
+  "scitools-iris",
+  "knockknock",
+  "metpy",
+  "mlde-utils~=0.3.0a2",
+  "netcdf4",
+  "pint",
+  "python-dotenv",
+  "xarray[accel]",
+  "typer",
 ]
 
 [dependency-groups]
-test = ["pytest==7.2.1"]
+test = ["pytest"]
 dev = [{include-group = "test"}]
 
 [project.urls]
@@ -56,16 +56,16 @@ lint = {features = ["lint"], no-default-feature = true}
 [tool.pixi.tasks]
 
 [tool.pixi.dependencies]
-cdo = { version = "==2.1.1"}
-mo_pack = { version = "==0.2.0" }
-python = { version = "~=3.9.15" }
+cdo = { version = "2.*"}
+mo_pack = { version = "~=0.3.1" }
+python = { version = "3.12.*" }
 
 [tool.pixi.pypi-dependencies]
 mlde_data = { path = ".", editable = true }
 # mlde-utils = { path = "../mlde_utils", editable = true }
 
 [tool.pixi.feature.lint.dependencies]
-python = { version = "~=3.9.15" }
+python = { version = "3.12.*" }
 pre-commit = "*"
 flake8 = { version = "==6.0.0" }
 black = { version = "==25.1.0" }

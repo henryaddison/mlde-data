@@ -264,12 +264,12 @@ def moose_path(variable, year, ensemble_member, frequency="day", collection="lan
     if collection == "land-cpm":
         suite_id = SUITE_IDS[collection][ensemble_member][year]
         stream_code = VARIABLE_CODES[variable]["stream"][collection][frequency]
-        return f"moose:crum/{suite_id}/{stream_code}.pp"
+        return f"moose:crum/{suite_id}/{stream_code}.pp"  # noqa: E231
     elif collection == "land-gcm":
         suite_id = SUITE_IDS[collection][year]
         stream_code = VARIABLE_CODES[variable]["stream"][collection][frequency]
         rip_code = RIP_CODES[collection][ensemble_member]
-        return f"moose:ens/{suite_id}/{rip_code}/{stream_code}.pp"
+        return f"moose:ens/{suite_id}/{rip_code}/{stream_code}.pp"  # noqa: E231
     else:
         raise f"Unknown collection {collection}"
 

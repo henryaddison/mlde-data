@@ -77,7 +77,7 @@ def validate(dataset_name: str = typer.Argument("all")):
     if dataset_name != "all":
         if dataset_name not in datasets:
             logger.warning(
-                f"Dataset {dataset_name} not found in standard list. Continuing but may not be valid."
+                f"Dataset {dataset_name} not found in standard list. Continuing but may not be valid."  # noqa: E713
             )
         datasets = [dataset_name]
 
