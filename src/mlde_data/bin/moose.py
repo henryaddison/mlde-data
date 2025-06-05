@@ -128,7 +128,7 @@ def extract(
 
     output_dirpath = moose_pp_varmeta.moose_extract_dirpath(year)
 
-    query_filepath = output_dirpath / "searchfile"
+    query_filepath = os.path.join(output_dirpath, "searchfile")
     pp_dirpath = moose_pp_varmeta.ppdata_dirpath(year)
 
     os.makedirs(output_dirpath, exist_ok=True)
@@ -165,7 +165,7 @@ def extract(
     output.check_returncode()
 
     # make sure have the correct amount of data from moose
-    cube = _load_cube(str(pp_dirpath / "*.pp"), variable, collection)
+    cube = _load_cube(str(os.path.join(pp_dirpath, "*.pp")), variable, collection)
     assert cube.coord("time").shape[0] == FREQ2TIMELEN[frequency]
 
 
