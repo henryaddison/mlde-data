@@ -93,12 +93,12 @@ def _load_cube(pp_files, variable, collection):
 @app.command()
 @Timer(name="extract", text="{name}: {minutes:.1f} minutes", logger=logger.info)
 def extract(
-    variable: str = typer.Option(...),
-    year: int = typer.Option(...),
-    frequency: str = "day",
     collection: CollectionOption = typer.Option(...),
-    ensemble_member: str = typer.Option(...),
     scenario: str = "rcp85",
+    ensemble_member: str = typer.Option(...),
+    year: int = typer.Option(...),
+    variable: str = typer.Option(...),
+    frequency: str = "day",
 ):
     """
     Extract data from moose
@@ -172,12 +172,12 @@ def extract(
 @app.command()
 @Timer(name="convert", text="{name}: {minutes:.1f} minutes", logger=logger.info)
 def convert(
-    variable: str = typer.Option(...),
-    year: int = typer.Option(...),
-    frequency: str = "day",
     collection: CollectionOption = typer.Option(...),
-    ensemble_member: str = typer.Option(...),
     scenario: str = "rcp85",
+    ensemble_member: str = typer.Option(...),
+    year: int = typer.Option(...),
+    variable: str = typer.Option(...),
+    frequency: str = "day",
 ):
     """
     Convert pp data to a netCDF file

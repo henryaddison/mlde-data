@@ -19,13 +19,11 @@ app = typer.Typer()
 def main(
     years: List[int],
     variable_config: Path = typer.Option(...),
-    ensemble_member: str = typer.Option(...),
-    domain: DomainOption = typer.Option(...),
-    frequency: str = typer.Option(...),
-    scale_factor: str = typer.Option(...),
-    target_resolution: str = typer.Option(...),
     scenario: str = "rcp85",
-    target_size: int = 64,
+    ensemble_member: str = typer.Option(...),
+    scale_factor: str = typer.Option(...),
+    domain: DomainOption = typer.Option(...),
+    size: int = typer.Option(...),
 ):
 
     with open(variable_config, "r") as config_file:
@@ -41,7 +39,7 @@ def main(
                 frequency=src_variable["frequency"],
                 collection=src_collection,
                 ensemble_member=ensemble_member,
-                cache=False,
+                scenario=scenario,
             )
 
             convert(
@@ -50,7 +48,7 @@ def main(
                 frequency=src_variable["frequency"],
                 collection=src_collection,
                 ensemble_member=ensemble_member,
-                cache=False,
+                scenario=scenario,
             )
 
         # run create variable
@@ -58,10 +56,10 @@ def main(
             config_path=variable_config,
             year=year,
             domain=domain,
-            target_resolution=target_resolution,
-            target_size=target_size,
+            size=size,
             scale_factor=scale_factor,
             ensemble_member=ensemble_member,
+            scenario=scenario,
         )
 
         # run clean up

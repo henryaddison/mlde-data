@@ -11,11 +11,12 @@ years=$@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-scale_factor="gcm"
-target_resolution="2.2km-coarsened-gcm"
-target_size=12
+scenario="rcp85"
 frequency="day"
-variable="${SCRIPT_DIR}/../../../src/mlde_data/config/variables/${frequency}/land-cpm/${variable}.yml"
+scale_factor="gcm"
+size=12
+
+variable_config_path="${SCRIPT_DIR}/../../../src/mlde_data/config/variables/${frequency}/land-cpm/${variable}.yml"
 
 QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
 LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
@@ -25,8 +26,8 @@ function queue_years {
   shift 1;
   local years=$@
   # Just run script in this process as mass via LOTUS is currently not working for me
-  # ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} --frequency ${frequency} --ensemble-member ${ensemble_member} ${years}
-  ${LOTUS_WRAPPER_PATH} --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} --frequency ${frequency} --ensemble-member ${ensemble_member} ${years}
+  # ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} --variable-config ${variable_config_path} --ensemble-member ${ensemble_member} --scenario ${scenario} --domain ${domain} --scale-factor ${scale_factor} --size ${size} ${years}
+  ${LOTUS_WRAPPER_PATH} --variable-config ${variable_config_path} --ensemble-member ${ensemble_member} --scenario ${scenario} --domain ${domain} --scale-factor ${scale_factor} --size ${size} ${years}
 }
 
 echo

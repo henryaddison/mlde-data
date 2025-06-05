@@ -271,12 +271,12 @@ def _save(ds, config, path, year):
 @Timer(name="create-variable", text="{name}: {minutes:.1f} minutes", logger=logger.info)
 def create(
     config_path: Path = typer.Option(...),
-    year: int = typer.Option(...),
     scenario="rcp85",
     ensemble_member: str = typer.Option(...),
+    year: int = typer.Option(...),
+    scale_factor: str = typer.Option(...),
     domain: DomainOption = typer.Option(...),
     size: int = typer.Option(...),
-    scale_factor: str = typer.Option(...),
 ):
     """
     Create a variable file in project form from source data
