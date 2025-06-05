@@ -229,7 +229,7 @@ def convert(
         src_cube.coord("grid_latitude").bounds = bounds
 
     typer.echo(f"Saving to {output_filepath}...")
-    os.makedirs(output_filepath.parent, exist_ok=True)
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
     iris.save(src_cube, output_filepath)
 
     assert len(xr.open_dataset(output_filepath).time) == FREQ2TIMELEN[frequency]
