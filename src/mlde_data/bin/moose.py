@@ -69,13 +69,13 @@ class MoosePPVariableMetadata(VariableMetadata):
         return os.path.join(self.collection, super().subdir())
 
     def moose_extract_dirpath(self, year):
-        return self.dirpath() / str(year)
+        return os.path.join(self.dirpath(), str(year))
 
     def ppdata_dirpath(self, year):
-        return self.moose_extract_dirpath(year) / "data"
+        return os.path.join(self.moose_extract_dirpath(year), "data")
 
     def pp_files_glob(self, year):
-        return self.ppdata_dirpath(year) / "*.pp"
+        return os.path.join(self.ppdata_dirpath(year), "*.pp")
 
 
 def _load_cube(pp_files, variable, collection):
