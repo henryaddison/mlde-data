@@ -118,13 +118,13 @@ def extract(
     )
 
     moose_pp_varmeta = MoosePPVariableMetadata(
+        collection=collection.value,
+        scenario=scenario,
+        ensemble_member=ensemble_member,
         variable=variable,
         frequency=frequency,
         resolution=resolution,
-        collection=collection.value,
         domain=domain,
-        ensemble_member=ensemble_member,
-        scenario=scenario,
     )
 
     output_dirpath = moose_pp_varmeta.moose_extract_dirpath(year)
@@ -193,23 +193,24 @@ def convert(
         raise f"Unknown collection {collection}"
 
     input_moose_pp_varmeta = MoosePPVariableMetadata(
+        collection=collection.value,
+        scenario=scenario,
+        ensemble_member=ensemble_member,
         variable=variable,
         frequency=frequency,
         resolution=resolution,
-        collection=collection.value,
         domain=domain,
-        ensemble_member=ensemble_member,
     )
 
     output_var_meta = VariableMetadata(
         base_dir=MOOSE_DATA,
+        collection=collection.value,
+        scenario=scenario,
+        ensemble_member=ensemble_member,
         variable=variable,
         frequency=frequency,
-        domain=domain,
         resolution=resolution,
-        ensemble_member=ensemble_member,
-        scenario=scenario,
-        collection=collection.value,
+        domain=domain,
     )
     output_filepath = output_var_meta.filepath(year)
 
@@ -256,23 +257,25 @@ def clean(
         raise f"Unknown collection {collection}"
 
     pp_path = MoosePPVariableMetadata(
+        collection=collection.value,
+        scenario=scenario,
+        ensemble_member=ensemble_member,
         variable=variable,
         frequency=frequency,
         resolution=resolution,
-        collection=collection.value,
         domain=domain,
-        ensemble_member=ensemble_member,
     ).ppdata_dirpath(year)
     typer.echo(f"Removing {pp_path}...")
     shutil.rmtree(pp_path, ignore_errors=True)
     raw_nc_path = VariableMetadata(
         base_dir=MOOSE_DATA,
-        frequency=frequency,
-        domain=domain,
-        resolution=resolution,
-        ensemble_member=ensemble_member,
-        scenario=scenario,
         collection=collection.value,
+        scenario=scenario,
+        ensemble_member=ensemble_member,
+        variable=variable,
+        frequency=frequency,
+        resolution=resolution,
+        domain=domain,
     ).filepath(year)
     typer.echo(f"Removing {raw_nc_path}...")
     if os.path.exists(raw_nc_path):
