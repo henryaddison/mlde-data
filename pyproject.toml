@@ -72,3 +72,6 @@ black = { version = "==25.1.0" }
 
 [tool.pixi.feature.dev.tasks]
 test = "pytest"
+
+[tool.pixi.feature.lint.tasks]
+lint = "black . && flake8 ."
