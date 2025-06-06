@@ -170,7 +170,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/61/00/f10d4b5d72c5afb9b703ea0cabbea1670cd20159afe1764f4322d00dec99/matrix_client-0.4.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ea/03/e54c27f83c72d7e234f7fabcefc71c1acd161b5340c51da709e5874c8225/metpy-1.7.0-py3-none-any.whl
-      - pypi: git+https://github.com/henryaddison/mlde_utils?branch=ff-refactor#43565a259bc52117a15326270b3943f3ad3c5840
+      - pypi: https://files.pythonhosted.org/packages/14/a7/c50eefdf8ca6da0623a77c6b46ecbe0c69d7ea278e56e194614ec68278cb/mlde_utils-0.3.0a5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2b/9f/7ba6f94fc1e9ac3d2b853fdff3035fb2fa5afbed898c4a72b8a020610594/more_itertools-10.7.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4c/02/751530c19e78fe73b24c3da66618eda0aa0d7f6e7aa512e46483de6be210/multidict-6.4.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fd/bf/5e671495c8bdf6b628e091aa8980793579474a10e51bc6ba302a3af6a778/netCDF4-1.7.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -396,7 +396,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/61/00/f10d4b5d72c5afb9b703ea0cabbea1670cd20159afe1764f4322d00dec99/matrix_client-0.4.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ea/03/e54c27f83c72d7e234f7fabcefc71c1acd161b5340c51da709e5874c8225/metpy-1.7.0-py3-none-any.whl
-      - pypi: git+https://github.com/henryaddison/mlde_utils?branch=ff-refactor#43565a259bc52117a15326270b3943f3ad3c5840
+      - pypi: https://files.pythonhosted.org/packages/14/a7/c50eefdf8ca6da0623a77c6b46ecbe0c69d7ea278e56e194614ec68278cb/mlde_utils-0.3.0a5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2b/9f/7ba6f94fc1e9ac3d2b853fdff3035fb2fa5afbed898c4a72b8a020610594/more_itertools-10.7.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4c/02/751530c19e78fe73b24c3da66618eda0aa0d7f6e7aa512e46483de6be210/multidict-6.4.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fd/bf/5e671495c8bdf6b628e091aa8980793579474a10e51bc6ba302a3af6a778/netCDF4-1.7.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -2525,7 +2525,7 @@ packages:
 - pypi: .
   name: mlde-data
   version: 0.3.1
-  sha256: f3ed7ef4335291ca0cbca6a207306cbc47885dda926fc603918695b29e0eb980
+  sha256: f56e62ac0a8303c7328a27b547d884b82576a3500a790d5c7b77e925cd73e968
   requires_dist:
   - cdo
   - cftime
@@ -2534,17 +2534,18 @@ packages:
   - scitools-iris
   - knockknock
   - metpy
+  - mlde-utils~=0.3.0a5
   - netcdf4
   - pint
   - python-dotenv
   - xarray[accel]
   - typer
-  - mlde-utils @ git+https://github.com/henryaddison/mlde_utils@ff-refactor?rev_type=branch
   requires_python: '>=3.12'
   editable: true
-- pypi: git+https://github.com/henryaddison/mlde_utils?branch=ff-refactor#43565a259bc52117a15326270b3943f3ad3c5840
+- pypi: https://files.pythonhosted.org/packages/14/a7/c50eefdf8ca6da0623a77c6b46ecbe0c69d7ea278e56e194614ec68278cb/mlde_utils-0.3.0a5-py3-none-any.whl
   name: mlde-utils
-  version: 0.3.0a4
+  version: 0.3.0a5
+  sha256: 7148c2d02f95ab4a6b23029e094eadbb6f263ef8536ad1a346ccb869fac7c30b
   requires_dist:
   - cartopy
   - cdo

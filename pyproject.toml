@@ -24,12 +24,12 @@ dependencies = [
   "scitools-iris",
   "knockknock",
   "metpy",
+  "mlde-utils~=0.3.0a5",
   "netcdf4",
   "pint",
   "python-dotenv",
   "xarray[accel]",
   "typer",
-  "mlde-utils @ git+https://github.com/henryaddison/mlde_utils@ff-refactor?rev_type=branch",
 ]
 
 [dependency-groups]
