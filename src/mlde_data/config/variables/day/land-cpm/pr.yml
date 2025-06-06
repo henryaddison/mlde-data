@@ -18,7 +18,7 @@ spec:
       scale_factor: ${scale_factor}
       grid_type: pr
   - action: sum
-    params:
+    parameters:
       variables: [lssnow, lsrain]
       new_variable: pr
   - action: regrid_to_target

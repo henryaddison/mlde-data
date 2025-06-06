@@ -19,7 +19,7 @@ spec:
       grid_type: pr
   - action: shift_lon_break
   - action: sum
-    params:
+    parameters:
       variables: [lssnow, lsrain]
       new_variable: linpr
   - action: regrid_to_target
