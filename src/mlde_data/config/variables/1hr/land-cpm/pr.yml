@@ -6,13 +6,12 @@ attrs:
 sources:
   type: moose
   collection: land-cpm
+  frequency: 1hr
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
     - name: lssnow
-      frequency: 1hr
     - name: lsrain
-      frequency: 1hr
 spec:
   - action: coarsen
     parameters:
