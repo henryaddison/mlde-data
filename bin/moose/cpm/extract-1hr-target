@@ -36,8 +36,8 @@ size=64
 
 variable_config_path="${SCRIPT_DIR}/../../../src/mlde_data/config/variables/${frequency}/land-cpm/${variable}.yml"
 
-QUEUE_DEP_PATH=${SCRIPT_DIR}/../queue-dep-func
-BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../batch-wrapper
+QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
+LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
 
 function queue_years {
   local job_id=$1
