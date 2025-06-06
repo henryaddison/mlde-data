@@ -35,7 +35,7 @@ scale_factor="4"
 frequency="1hr"
 size=64
 
-variable_config_path="${SCRIPT_DIR}/../../../src/mlde_data/config/variables/${frequency}/land-cpm/${variable}.yml"
+variable_config_path="${SCRIPT_DIR}/../../../config/variables/${frequency}/land-cpm/${variable}.yml"
 
 QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
 LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper

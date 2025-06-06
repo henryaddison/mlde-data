@@ -11,7 +11,7 @@ scale_factor="1"
 target_resolution="2.2km-coarsened-4x"
 target_size=64
 frequency="day"
-variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/day/land-gcm/vorticity${theta}.yml"
+variable="${HOME}/code/mlde-data/config/variables/day/land-gcm/vorticity${theta}.yml"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 

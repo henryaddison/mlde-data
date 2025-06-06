@@ -9,7 +9,7 @@ scale_factor=1
 target_resolution="60km"
 target_size=9
 frequency="day"
-variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/${frequency}/land-gcm/rawpr.yml"
+variable="${HOME}/code/mlde-data/config/variables/${frequency}/land-gcm/rawpr.yml"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 

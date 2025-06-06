@@ -12,7 +12,7 @@ domain="birmingham"
 target_resolution="2.2km-coarsened-4x"
 target_size=64
 frequency="day"
-variable="${HOME}/code/mlde-data/src/mlde_data/config/variables/${frequency}/land-gcm/tempgrad${left_theta}${right_theta}.yml"
+variable="${HOME}/code/mlde-data/config/variables/${frequency}/land-gcm/tempgrad${left_theta}${right_theta}.yml"
 
 echo
 echo ${ensemble_member}
