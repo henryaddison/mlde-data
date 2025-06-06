@@ -48,9 +48,19 @@ function queue_years {
   local job_id=$1
   shift 1;
   local years=$@
+
+  local args=()
+  args+=('--variable-config' ${variable_config_path})
+  args+=('--ensemble-member' ${ensemble_member})
+  args+=('--scenario' ${scenario})
+  args+=('--domain' ${domain})
+  args+=('--scale-factor' ${scale_factor})
+  args+=('--size' ${size})
+  [ -n "$theta" ] && args+=('--theta' "${theta}")
+
   # Just run script in this process as mass via LOTUS is currently not working for me
-  ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} --variable-config ${variable_config_path} --ensemble-member ${ensemble_member} --scenario ${scenario} --domain ${domain} --scale-factor ${scale_factor} --size ${size} ${years} --theta ${theta}
-  # ${LOTUS_WRAPPER_PATH} --variable-config ${variable_config_path} --ensemble-member ${ensemble_member} --scenario ${scenario} --domain ${domain} --scale-factor ${scale_factor} --size ${size} ${years}
+  ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} ${args[@]} ${years}
+  # ${LOTUS_WRAPPER_PATH} ${args[@]} ${years}
 }
 
 echo
