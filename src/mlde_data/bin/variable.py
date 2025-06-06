@@ -21,7 +21,7 @@ from mlde_data.moose import (
     remove_forecast,
     remove_pressure,
 )
-from mlde_utils.data import get_action
+from mlde_data.actions import get_action
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")

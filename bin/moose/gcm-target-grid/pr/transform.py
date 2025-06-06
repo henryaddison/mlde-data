@@ -7,7 +7,7 @@ import xarray as xr
 working_grid_pp_path = "pp-data/*.pp"
 working_grid_nc_path = "moose_grid.nc"
 
-target_grid_path = files("mlde_utils.data").joinpath(
+target_grid_path = files("mlde_data.actions").joinpath(
     f"target_grids/60km/global/pr/moose_grid.nc"
 )
 
