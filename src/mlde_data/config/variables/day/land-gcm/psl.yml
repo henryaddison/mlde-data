@@ -6,14 +6,14 @@ attrs:
 sources:
   type: moose
   collection: land-gcm
+  frequency: day
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
     - name: psl
-      frequency: day
 spec:
-  - action: regrid_to_target
   - action: select-subdomain
     parameters:
-      domain: $domain
+      domain: ${domain}
+      size: ${size}
   # implicit final actions: assign attrs, save, cleanup extraction?

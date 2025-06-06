@@ -6,14 +6,14 @@ attrs:
 sources:
   type: moose
   collection: land-gcm
+  frequency: day
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
     - name: pr
-      frequency: day
 spec:
   - action: shift_lon_break
-  - action: select-gcm-subdomain
+  - action: select-subdomain
     parameters:
       subdomain: "birmingham"
       size: 9

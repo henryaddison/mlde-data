@@ -1,19 +1,20 @@
-variable: temp500
+variable: spechum${theta}
 attrs:
-  units: K
-  standard_name: air_temperature_500hPa
+  units: 1
+  standard_name: specific_humidity
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
   collection: land-gcm
+  frequency: day
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - name: temp500
-      frequency: day
+    - name: spechum${theta}
 spec:
-  - action: regrid_to_target
+  - action: shift_lon_break
   - action: select-subdomain
     parameters:
-      domain: $domain
+      domain: ${domain}
+      size: ${size}
   # implicit final actions: assign attrs, save, cleanup extraction?
