@@ -1,7 +1,7 @@
-variable: temp700
+variable: temp${theta}
 attrs:
   units: K
-  standard_name: air_temperature_700hPa
+  standard_name: air_temperature
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
@@ -9,7 +9,7 @@ sources:
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - name: temp700
+    - name: temp${theta}
       frequency: day
 spec:
   - action: coarsen

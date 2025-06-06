@@ -23,10 +23,15 @@ def main(
     scale_factor: str = typer.Option(...),
     domain: DomainOption = typer.Option(...),
     size: int = typer.Option(...),
+    theta: int = None,
 ):
 
     config = load_config(
-        variable_config, scale_factor=scale_factor, domain=domain.value, size=size
+        variable_config,
+        scale_factor=scale_factor,
+        domain=domain.value,
+        size=size,
+        theta=theta,
     )
 
     for year in years:
@@ -61,6 +66,7 @@ def main(
             scale_factor=scale_factor,
             ensemble_member=ensemble_member,
             scenario=scenario,
+            theta=theta,
         )
 
         # run clean up

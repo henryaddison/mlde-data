@@ -3,7 +3,9 @@ from pathlib import Path
 import yaml
 
 
-def load_config(config_path: Path, scale_factor: str, domain: str, size: int):
+def load_config(
+    config_path: Path, scale_factor: str, domain: str, size: int, theta: int = None
+):
     """Load configuration for a creating a variable from a YAML file."""
 
     with open(config_path, "r") as config_template:
@@ -11,6 +13,7 @@ def load_config(config_path: Path, scale_factor: str, domain: str, size: int):
             "scale_factor": scale_factor,
             "domain": domain,
             "size": size,
+            "theta": theta,
         }
         src = Template(config_template.read())
         result = src.substitute(d)

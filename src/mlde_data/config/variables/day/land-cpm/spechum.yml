@@ -1,7 +1,7 @@
-variable: vorticity925
+variable: spechum${theta}
 attrs:
-  units: s-1
-  standard_name: relative_vorticity_925hPa
+  units: 1
+  standard_name: specific_humidity
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
@@ -9,19 +9,15 @@ sources:
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - name: xwind925
-      frequency: day
-    - name: ywind925
+    - name: spechum${theta}
       frequency: day
 spec:
   - action: coarsen
     parameters:
       scale_factor: ${scale_factor}
       grid_type: vorticity850
-  - action: vorticity
-    parameters:
-      theta: 925
   - action: select-subdomain
     parameters:
-      domain: $domain
+      domain: ${domain}
+      size: ${size}
   # implicit final actions: assign attrs, save, cleanup extraction?

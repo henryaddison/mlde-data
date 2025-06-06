@@ -6,7 +6,8 @@ domain=$1
 variable=$2
 ensemble_member=$3
 job_id=$4
-shift 4
+theta=$5
+shift 5
 years=$@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -26,7 +27,7 @@ function queue_years {
   shift 1;
   local years=$@
   # Just run script in this process as mass via LOTUS is currently not working for me
-  ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} --variable-config ${variable_config_path} --ensemble-member ${ensemble_member} --scenario ${scenario} --domain ${domain} --scale-factor ${scale_factor} --size ${size} ${years}
+  ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} --variable-config ${variable_config_path} --ensemble-member ${ensemble_member} --scenario ${scenario} --domain ${domain} --scale-factor ${scale_factor} --size ${size} ${years} --theta ${theta}
   # ${LOTUS_WRAPPER_PATH} --variable-config ${variable_config_path} --ensemble-member ${ensemble_member} --scenario ${scenario} --domain ${domain} --scale-factor ${scale_factor} --size ${size} ${years}
 }
 

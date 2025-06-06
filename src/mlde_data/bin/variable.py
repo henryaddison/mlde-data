@@ -268,6 +268,7 @@ def _save(ds, config, path, year):
 @Timer(name="create-variable", text="{name}: {minutes:.1f} minutes", logger=logger.info)
 def create(
     config_path: Path = typer.Option(...),
+    theta: int = None,
     scenario="rcp85",
     ensemble_member: str = typer.Option(...),
     year: int = typer.Option(...),
@@ -279,7 +280,11 @@ def create(
     Create a variable file in project form from source data
     """
     config = load_config(
-        config_path, scale_factor=scale_factor, domain=domain.value, size=size
+        config_path,
+        scale_factor=scale_factor,
+        domain=domain.value,
+        size=size,
+        theta=theta,
     )
 
     collection = CollectionOption(config["sources"]["collection"])
