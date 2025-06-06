@@ -183,7 +183,8 @@ def _process(
             "coarsen",
             "select-subdomain",
         ]:
-            ds = get_action(job_spec["action"])(**job_spec["parameters"])(ds)
+            typer.echo(f"Doing {job_spec['action']}...")
+            ds = get_action(job_spec["action"])(**job_spec.get("parameters", {}))(ds)
         elif job_spec["action"] == "drop-variables":
             logger.info(f"Dropping variables {job_spec['parameters']['variables']}")
             ds = ds.drop_vars(job_spec["parameters"]["variables"])
