@@ -24,7 +24,7 @@ dependencies = [
   "scitools-iris",
   "knockknock",
   "metpy",
-  "mlde-utils~=0.3.0a3",
+  "mlde-utils~=0.3.0a4",
   "netcdf4",
   "pint",
   "python-dotenv",
