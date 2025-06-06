@@ -2,12 +2,34 @@
 
 set -euo pipefail
 
-domain=$1
-variable=$2
-ensemble_member=$3
-job_id=$4
-theta=$5
-shift 5
+theta=
+job_id=0
+
+while getopts ":d:v:e:t:j" opt; do
+  case ${opt} in
+    d)
+      domain=${OPTARG}
+      ;;
+    v)
+      variable=${OPTARG}
+      ;;
+    e)
+      ensemble_member=${OPTARG}
+      ;;
+    t)
+      theta=${OPTARG}
+      ;;
+    j)
+      job_id=${OPTARG}
+      ;;
+   \? )
+     echo "Invalid Option: -${OPTARG}" 1>&2
+     exit 1
+     ;;
+  esac
+done
+shift $((OPTIND -1))
+
 years=$@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
