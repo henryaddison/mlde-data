@@ -196,7 +196,7 @@ def _process(
             new_bounds = xr.concat(
                 [new_bounds, new_bounds + pd.Timedelta(days=1)], dim="bnds"
             )
-            new_bounds.assign_attrs(ds["time_bnds"].attrs)
+            new_bounds = new_bounds.assign_attrs(ds["time_bnds"].attrs)
             new_bounds.encoding = ds["time_bnds"].encoding
 
             ds = ds.resample(**job_spec["parameters"]).mean()
