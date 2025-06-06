@@ -12,6 +12,7 @@ sources:
     # implicit here is rename variable
     - name: psl
 spec:
+  - action: shift_lon_break
   - action: select-subdomain
     parameters:
       domain: ${domain}
