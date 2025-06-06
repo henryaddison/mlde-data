@@ -186,8 +186,8 @@ def extract(
     pp_dirpath = moose_pp_varmeta.ppdata_dirpath(year)
 
     os.makedirs(output_dirpath, exist_ok=True)
-    # # remove any previous attempt at extracting the data (or else moo select will complain)
-    # shutil.rmtree(pp_dirpath, ignore_errors=True)
+    # remove any previous attempt at extracting the data (or else moo select will complain)
+    shutil.rmtree(pp_dirpath, ignore_errors=True)
     os.makedirs(pp_dirpath, exist_ok=True)
 
     logger.debug(query)
@@ -204,7 +204,6 @@ def extract(
     query_cmd = [
         "moo",
         "select",
-        "--fill-gaps-and-overwrite-smaller-files",
         query_filepath,
         moose_uri,
         os.path.join(pp_dirpath, ""),
