@@ -34,41 +34,38 @@ def callback():
     pass
 
 
-def get_resolution(srcs_config, collection):
+def get_resolution(srcs_config):
+    collection = CollectionOption(srcs_config["collection"])
     if srcs_config["type"] == "moose":
         if collection == CollectionOption.cpm:
-            data_resolution = "2.2km"
-            grid_resolution = "2.2km"
+            resolution = "2.2km"
         elif collection == CollectionOption.gcm:
-            data_resolution = "60km"
-            grid_resolution = "60km"
+            resolution = "60km"
         else:
             raise f"Unknown collection {collection}"
     elif srcs_config["type"] == "local":
         # assume local sourced data is pre-processed so resolution must be specified in config
-        data_resolution = srcs_config["data_resolution"]
-        grid_resolution = srcs_config["grid_resolution"]
+        resolution = srcs_config["resolution"]
     elif srcs_config["type"] == "canari-le-sprint":
         # CANARI LE Sprint data is at 60km resolution
-        data_resolution = "60km"
-        grid_resolution = "60km"
+        resolution = "60km"
 
     else:
         raise RuntimeError(f"Unknown souce type {srcs_config['type']}")
 
-    return data_resolution, grid_resolution
+    return resolution
 
 
 def get_sources(
     srcs_config,
-    collection,
     year,
     data_basedir,
     ensemble_member,
 ):
     sources = {}
 
-    data_resolution, grid_resolution = get_resolution(srcs_config, collection)
+    collection = CollectionOption(srcs_config["collection"])
+    resolution = get_resolution(srcs_config)
     frequency = srcs_config["frequency"]
     scenario = "rcp85"
 
@@ -80,15 +77,13 @@ def get_sources(
         else:
             raise f"Unknown collection {collection}"
 
-        data_resolution = data_resolution
-
         for src_variable in srcs_config["variables"]:
             source_nc_filepath = VariableMetadata(
                 base_dir=MOOSE_DATA,
                 variable=src_variable["name"],
                 frequency=frequency,
                 domain=source_domain,
-                resolution=data_resolution,
+                resolution=resolution,
                 ensemble_member=ensemble_member,
                 scenario=scenario,
                 collection=collection.value,
@@ -120,7 +115,7 @@ def get_sources(
             source_metadata = VariableMetadata(
                 data_basedir,
                 frequency=frequency,
-                resolution=f"{data_resolution}-{grid_resolution}",
+                resolution=resolution,
                 scenario=scenario,
                 domain=source_domain,
                 ensemble_member=ensemble_member,
@@ -135,7 +130,6 @@ def get_sources(
 
             sources[src_variable["name"]] = ds
     elif srcs_config["type"] == "canari-le-sprint":
-        data_resolution, grid_resolution = get_resolution(srcs_config, collection)
         source_domain = "global"
         for src_variable in srcs_config["variables"]:
             source_metadata = CanariLESprintVariableAdapter(
@@ -160,8 +154,7 @@ def get_sources(
     ).assign_attrs(
         {
             "domain": source_domain,
-            "data_resolution": data_resolution,
-            "grid_resolution": grid_resolution,
+            "resolution": resolution,
             "frequency": frequency,
         }
     )
@@ -254,14 +247,12 @@ def create(
         theta=theta,
     )
 
-    collection = CollectionOption(config["sources"]["collection"])
     src_type = config["sources"]["type"]
 
     data_basedir: Path = DERIVED_DATA / src_type
 
     ds = get_sources(
         config["sources"],
-        collection,
         year,
         data_basedir,
         ensemble_member=ensemble_member,
@@ -283,11 +274,11 @@ def create(
         data_basedir,
         frequency=ds.attrs["frequency"],
         domain=ds.attrs["domain"],
-        resolution=f"{ds.attrs['data_resolution']}-{ds.attrs['grid_resolution']}",
+        resolution=ds.attrs["resolution"],
         scenario=scenario,
         ensemble_member=ensemble_member,
         variable=config["variable"],
-        collection=collection,
+        collection=config["sources"]["collection"],
     )
 
     _save(ds, config, output_metadata.filepath(year), year)
