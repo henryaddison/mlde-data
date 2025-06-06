@@ -30,6 +30,7 @@ years=$@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
+scenario="rcp85"
 scale_factor="4"
 frequency="1hr"
 size=64
