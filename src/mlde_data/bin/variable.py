@@ -1,6 +1,5 @@
 from codetiming import Timer
 from collections import defaultdict
-from importlib.resources import files
 import logging
 from mlde_data import DERIVED_DATA, MOOSE_DATA
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
@@ -204,22 +203,10 @@ def _process(
             ds = ds.assign_attrs({"frequency": "day"})
         elif job_spec["action"] == "regrid_to_target":
             # this assumes mapping to a target grid of higher resolution than resolution of the data
-            desired_grid_resolution = job_spec["parameters"]["target_grid_resolution"]
-            if ds.attrs["grid_resolution"] != desired_grid_resolution:
-                typer.echo(f"Regridding to target resolution...")
-                target_grid_path = files("mlde_utils.data").joinpath(
-                    f"target_grids/{desired_grid_resolution}/uk/moose_grid.nc"
-                )
-                kwargs = job_spec.get("parameters", {})
-                ds = get_action(job_spec["action"])(
-                    target_grid_path, variables=[config["variable"]], **kwargs
-                )(ds)
-                ds.assign_attrs(
-                    {
-                        "domain": "uk",
-                        "grid_resolution": desired_grid_resolution,
-                    }
-                )
+            typer.echo(f"Regridding to target grid...")
+            ds = get_action(job_spec["action"])(
+                variables=[config["variable"]], **job_spec.get("parameters", {})
+            )(ds)
         elif job_spec["action"] == "rename":
             typer.echo(f"Renaming...")
             ds = ds.rename(job_spec["mapping"])
