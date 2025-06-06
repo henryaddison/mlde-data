@@ -1,7 +1,7 @@
 name: CI
-
 on: [push]
-
+env:
+  DATA_PATH: ${{ github.workspace }}/data
 jobs:
   ci-checks:
     runs-on: ubuntu-latest
