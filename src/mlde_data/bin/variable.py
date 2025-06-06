@@ -210,7 +210,7 @@ def _process(
             )(ds)
         elif job_spec["action"] == "rename":
             typer.echo(f"Renaming...")
-            ds = ds.rename(job_spec["mapping"])
+            ds = ds.rename(job_spec["parameters"]["mapping"])
         else:
             raise RuntimeError(f"Unknown action {job_spec['action']}")
 
