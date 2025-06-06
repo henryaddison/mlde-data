@@ -6,4 +6,4 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 ETL_VARIABLE_SCRIPT_PATH=${HOME}/code/mlde-data/bin/moose/etl-variable.py
 
-pixi run --locked python ${ETL_VARIABLE_SCRIPT_PATH} $@
+pixi run python ${ETL_VARIABLE_SCRIPT_PATH} $@
