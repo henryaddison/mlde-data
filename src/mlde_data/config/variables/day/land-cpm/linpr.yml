@@ -23,7 +23,6 @@ spec:
       variables: [lssnow, lsrain]
       new_variable: linpr
   - action: regrid_to_target
-    variable: linpr
     parameters:
       scheme: linear
   - action: select-subdomain

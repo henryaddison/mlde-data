@@ -22,7 +22,6 @@ spec:
       variables: [lssnow, lsrain]
       new_variable: pr
   - action: regrid_to_target
-    variable: pr
   - action: select-subdomain
     parameters:
       domain: ${domain}
