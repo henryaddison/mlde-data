@@ -158,31 +158,33 @@ def get_sources(
         coords="all",
         join="inner",
         data_vars="all",
+    ).assign_attrs(
+        {
+            "domain": source_domain,
+            "data_resolution": data_resolution,
+            "grid_resolution": grid_resolution,
+            "frequency": frequency,
+        }
     )
 
-    return ds, data_resolution, grid_resolution, frequency, source_domain
+    return ds
 
 
 def _process(
     ds,
     config,
-    current_domain,
-    current_data_resolution,
-    current_grid_resolution,
-    current_frequency,
 ):
     for job_spec in config["spec"]:
-        if job_spec["action"] == "sum":
-            logger.info(f"Summing {job_spec['params']['variables']}")
+        if job_spec["action"] in [
+            "sum",
+            "diff",
+            "query",
+            "shift_lon_break",
+            "vorticity",
+            "coarsen",
+            "select-subdomain",
+        ]:
             ds = get_action(job_spec["action"])(**job_spec["params"])(ds)
-        elif job_spec["action"] == "diff":
-            logger.info(
-                f"Difference between {job_spec['params']['left']} and {job_spec['params']['right']}"
-            )
-            ds = get_action(job_spec["action"])(**job_spec["params"])(ds)
-        elif job_spec["action"] == "query":
-            logger.info(f"Selecting {job_spec['parameters']}")
-            ds = ds.sel(**job_spec["parameters"])
         elif job_spec["action"] == "drop-variables":
             logger.info(f"Dropping variables {job_spec['parameters']['variables']}")
             ds = ds.drop_vars(job_spec["parameters"]["variables"])
@@ -199,19 +201,11 @@ def _process(
 
             ds = ds.resample(**job_spec["parameters"]).mean()
             ds["time_bnds"] = new_bounds
-            current_frequency = "day"
-        elif job_spec["action"] == "coarsen":
-            ds, current_data_resolution, current_grid_resolution = get_action(
-                job_spec["action"]
-            )(**job_spec["parameters"])(
-                ds, current_data_resolution, current_grid_resolution
-            )
-        elif job_spec["action"] == "shift_lon_break":
-            ds = get_action(job_spec["action"])()(ds)
+            ds = ds.assign_attrs({"frequency": "day"})
         elif job_spec["action"] == "regrid_to_target":
             # this assumes mapping to a target grid of higher resolution than resolution of the data
             desired_grid_resolution = job_spec["parameters"]["target_grid_resolution"]
-            if desired_grid_resolution != current_grid_resolution:
+            if ds.attrs["grid_resolution"] != desired_grid_resolution:
                 typer.echo(f"Regridding to target resolution...")
                 target_grid_path = files("mlde_utils.data").joinpath(
                     f"target_grids/{desired_grid_resolution}/uk/moose_grid.nc"
@@ -220,21 +214,12 @@ def _process(
                 ds = get_action(job_spec["action"])(
                     target_grid_path, variables=[config["variable"]], **kwargs
                 )(ds)
-                current_grid_resolution = desired_grid_resolution
-                current_domain = "uk"
-        elif job_spec["action"] == "vorticity":
-            typer.echo(f"Computing vorticity...")
-            action = get_action(job_spec["action"])
-            ds = action(**job_spec["parameters"])(ds)
-        elif job_spec["action"] == "select-subdomain":
-            current_domain = (
-                f"{job_spec['parameters']['domain']}-{job_spec['parameters']['size']}"
-            )
-            typer.echo(f"Select {current_domain} subdomain...")
-            ds = get_action(job_spec["action"])(**job_spec["parameters"])(ds)
-        elif job_spec["action"] == "constrain":
-            typer.echo(f"Filtering...")
-            ds = get_action(job_spec["action"])(query=job_spec["query"])(ds)
+                ds.assign_attrs(
+                    {
+                        "domain": "uk",
+                        "grid_resolution": desired_grid_resolution,
+                    }
+                )
         elif job_spec["action"] == "rename":
             typer.echo(f"Renaming...")
             ds = ds.rename(job_spec["mapping"])
@@ -244,13 +229,7 @@ def _process(
     # assign any attributes from config file
     ds[config["variable"]] = ds[config["variable"]].assign_attrs(config["attrs"])
 
-    return (
-        ds,
-        current_data_resolution,
-        current_grid_resolution,
-        current_domain,
-        current_frequency,
-    )
+    return ds
 
 
 def _save(ds, config, path, year):
@@ -292,7 +271,7 @@ def create(
 
     data_basedir: Path = DERIVED_DATA / src_type
 
-    ds, data_resolution, grid_resolution, frequency, domain = get_sources(
+    ds = get_sources(
         config["sources"],
         collection,
         year,
@@ -300,16 +279,12 @@ def create(
         ensemble_member=ensemble_member,
     )
 
-    ds, data_resolution, grid_resolution, domain, frequency = _process(
+    ds = _process(
         ds,
         config,
-        domain,
-        data_resolution,
-        grid_resolution,
-        frequency,
     )
 
-    if frequency == "day":
+    if ds.attrs["frequency"] == "day":
         # there should be 360 days in the dataset
         assert len(ds.time) == 360
 
@@ -318,9 +293,9 @@ def create(
 
     output_metadata = VariableMetadata(
         data_basedir,
-        frequency=frequency,
-        domain=domain,
-        resolution=f"{data_resolution}-{grid_resolution}",
+        frequency=ds.attrs["frequency"],
+        domain=ds.attrs["domain"],
+        resolution=f"{ds.attrs['data_resolution']}-{ds.attrs['grid_resolution']}",
         scenario=scenario,
         ensemble_member=ensemble_member,
         variable=config["variable"],
