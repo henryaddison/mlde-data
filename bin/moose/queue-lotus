@@ -41,4 +41,4 @@ if [ $job_id -ne 0 ]; then
   args+=("--dependency=afterok:${job_id}")
 fi
 
-sbatch "${args[@]}" -- "${cmd}"
+sbatch ${args[@]} -- ${cmd}
