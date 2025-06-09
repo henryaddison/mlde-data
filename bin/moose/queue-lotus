@@ -5,7 +5,7 @@ set -euo pipefail
 mem='4G'
 job_id=0
 
-while getopts ":j:d:" opt; do
+while getopts ":m:j:d:" opt; do
   case ${opt} in
     m)
       mem=${OPTARG}
