@@ -3,7 +3,7 @@ import os
 import pytest
 import xarray as xr
 
-from mlde_utils.data import get_action
+from mlde_data.actions import get_action
 
 
 @pytest.mark.skip(reason="not getting the expected coarsen calculation correct")
