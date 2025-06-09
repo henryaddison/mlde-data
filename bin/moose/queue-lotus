@@ -2,8 +2,14 @@
 
 set -euo pipefail
 
+mem='4G'
+job_id=0
+
 while getopts ":j:d:" opt; do
   case ${opt} in
+    m)
+      mem=${OPTARG}
+      ;;
     j)
       job_id=${OPTARG}
       ;;
@@ -20,8 +26,19 @@ shift $((OPTIND -1))
 
 cmd=$@
 
-if [ $job_id -eq 0 ]; then
-  sbatch --mail-type=ALL --mail-user=vf20964@bristol.ac.uk -A mass -p mass -q mass --mem=4G --time 23:00:00 --parsable --chdir=${directory} -- ${cmd}
-else
-  sbatch --mail-type=ALL --mail-user=vf20964@bristol.ac.uk -A mass -p mass -q mass --mem=4G --time 23:00:00 --parsable  --dependency=afterok:${job_id} --chdir=${directory} -- ${cmd}
+args=()
+args+=('--mail-type=ALL')
+args+=('--mail-user=vf20964@bristol.ac.uk')
+args+=('-A' 'mass')
+args+=('-p' 'mass')
+args+=('-q' 'mass')
+args+=("--mem=${mem}")
+args+=('--time=23:00:00')
+args+=('--parsable')
+args+=('--chdir' "${directory}")
+
+if [ $job_id -ne 0 ]; then
+  args+=("--dependency=afterok:${job_id}")
 fi
+
+sbatch "${args[@]}" -- "${cmd}"
