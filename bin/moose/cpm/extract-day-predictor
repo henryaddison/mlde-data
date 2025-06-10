@@ -3,12 +3,18 @@
 set -euo pipefail
 
 theta=
+scenario="rcp85"
+frequency="day"
+scale_factor="gcm"
 job_id=0
 
-while getopts ":d:v:e:t:j" opt; do
+while getopts ":d:s:v:e:t:j" opt; do
   case ${opt} in
     d)
       domain=${OPTARG}
+      ;;
+    s)
+      size=${OPTARG}
       ;;
     v)
       variable=${OPTARG}
@@ -33,11 +39,6 @@ shift $((OPTIND -1))
 years=$@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-scenario="rcp85"
-frequency="day"
-scale_factor="gcm"
-size=12
 
 variable_config_path="${SCRIPT_DIR}/../../../config/variables/${frequency}/land-cpm/${variable}.yml"
 
