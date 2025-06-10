@@ -45,7 +45,7 @@ function queue_years {
   shift 1;
   local years=$@
   # Just run script in this process as mass via LOTUS is currently not working for me
-  ${QUEUE_LOTUS_PATH} -m 16G -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} --variable-config ${variable_config_path} --ensemble-member ${ensemble_member} --scenario ${scenario} --domain ${domain} --scale-factor ${scale_factor} --size ${size} ${years}
+  ${QUEUE_LOTUS_PATH} -m 64G -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} --variable-config ${variable_config_path} --ensemble-member ${ensemble_member} --scenario ${scenario} --domain ${domain} --scale-factor ${scale_factor} --size ${size} ${years}
   # ${LOTUS_WRAPPER_PATH} --variable-config ${variable_config_path} --ensemble-member ${ensemble_member} --scenario ${scenario} --domain ${domain} --scale-factor ${scale_factor} --size ${size} ${years}
 }
 
