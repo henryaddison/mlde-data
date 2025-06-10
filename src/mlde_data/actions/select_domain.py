@@ -24,8 +24,9 @@ class SelectDomain:
 
     DOMAIN_CENTRES_RP_LONG_LAT = {
         domain_name: cp_model_rotated_pole.transform_point(
-            lon + 360, lat, src_crs=platecarree
+            lon, lat, src_crs=platecarree
         )
+        + np.array([360, 0])  # for rotated pole, longitude runs over 360
         for domain_name, (lon, lat) in DOMAIN_CENTRES_LON_LAT.items()
     }
 
