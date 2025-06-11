@@ -17,6 +17,11 @@ spec:
   - action: vorticity
     parameters:
       theta: ${theta}
+  - action: drop-variables
+    parameters:
+      variables:
+        - xwind${theta}
+        - ywind${theta}
   - action: select-subdomain
     parameters:
       domain: ${domain}
