@@ -55,7 +55,6 @@ def moose(
                 scenario=scenario,
             )
             convert(
-                src_collection=src_collection,
                 variable=src_variable["name"],
                 year=year,
                 frequency=src_frequency,
