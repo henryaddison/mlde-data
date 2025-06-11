@@ -17,7 +17,8 @@ spec:
       scale_factor: ${scale_factor}
       grid_type: pr
   - action: regrid_to_target
-    variable: pr
+    parameters:
+      target_grid_resolution: ${target_resolution}
   - action: select-subdomain
     parameters:
       domain: ${domain}

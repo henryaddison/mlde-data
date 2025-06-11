@@ -1,7 +1,7 @@
-variable: linpr
+variable: tmean150cm
 attrs:
-  units: kg m-2 s-1
-  standard_name: precipitation_flux
+  units: K
+  standard_name: air_temperature
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
@@ -10,21 +10,15 @@ sources:
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - name: lssnow
-    - name: lsrain
+    - name: tmean150cm
 spec:
   - action: coarsen
     parameters:
       scale_factor: ${scale_factor}
       grid_type: pr
-  - action: shift_lon_break
-  - action: sum
-    parameters:
-      variables: [lssnow, lsrain]
-      new_variable: linpr
   - action: regrid_to_target
     parameters:
-      scheme: linear
+      target_grid_resolution: ${target_resolution}
   - action: select-subdomain
     parameters:
       domain: ${domain}

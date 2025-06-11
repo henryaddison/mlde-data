@@ -5,15 +5,28 @@ attrs:
   grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
-  collection: land-gcm
+  collection: land-cpm
   frequency: day
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - name: pr
+    - name: lssnow
+    - name: lsrain
 spec:
-  - action: shift_lon_break
+  - action: coarsen
+    parameters:
+      scale_factor: ${scale_factor}
+      grid_type: pr
+  - action: sum
+    parameters:
+      variables: [lssnow, lsrain]
+      new_variable: pr
+  - action: drop-variables
+    parameters:
+      variables: [lssnow, lsrain]
   - action: regrid_to_target
+    parameters:
+      target_grid_resolution: ${target_resolution}
   - action: select-subdomain
     parameters:
       domain: ${domain}

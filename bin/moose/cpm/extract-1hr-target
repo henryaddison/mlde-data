@@ -2,7 +2,13 @@
 
 set -euo pipefail
 
-job_id=0
+scenario="rcp85"
+scale_factor="4"
+frequency="1hr"
+collection="land-cpm"
+size=64
+
+job_id=0 # ID of job to depend on (0 means no dependency)
 
 while getopts ":d:v:e:j" opt; do
   case ${opt} in
@@ -30,12 +36,7 @@ years=$@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-scenario="rcp85"
-scale_factor="4"
-frequency="1hr"
-size=64
-
-variable_config_path="${SCRIPT_DIR}/../../../config/variables/${frequency}/land-cpm/${variable}.yml"
+variable_config_path="${SCRIPT_DIR}/../../../config/variables/${frequency}/${collection}/targets/${variable}.yml"
 
 QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
 LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
@@ -44,9 +45,15 @@ function queue_years {
   local job_id=$1
   shift 1;
   local years=$@
-  # Just run script in this process as mass via LOTUS is currently not working for me
-  ${QUEUE_LOTUS_PATH} -m 28G -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} --variable-config ${variable_config_path} --ensemble-member ${ensemble_member} --scenario ${scenario} --domain ${domain} --scale-factor ${scale_factor} --size ${size} ${years}
-  # ${LOTUS_WRAPPER_PATH} --variable-config ${variable_config_path} --ensemble-member ${ensemble_member} --scenario ${scenario} --domain ${domain} --scale-factor ${scale_factor} --size ${size} ${years}
+
+  local args=()
+  args+=('--variable-config' ${variable_config_path})
+  args+=('--ensemble-member' ${ensemble_member})
+  args+=('--scenario' ${scenario})
+  args+=('--domain' ${domain})
+  args+=('--scale-factor' ${scale_factor})
+  args+=('--size' ${size})
+  ${QUEUE_LOTUS_PATH} -m 28G -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} ${args[@]} ${years}
 }
 
 echo

@@ -7,7 +7,8 @@ scenario="rcp85"
 frequency="day"
 scale_factor=1
 collection="land-gcm"
-job_id=0
+
+job_id=0 # ID of job to depend on (0 means no dependency)
 
 while getopts ":d:s:v:e:t:j" opt; do
   case ${opt} in
@@ -41,7 +42,7 @@ years=$@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-variable_config_path="${SCRIPT_DIR}/../../../config/variables/${frequency}/${collection}/${variable}.yml"
+variable_config_path="${SCRIPT_DIR}/../../../config/variables/${frequency}/${collection}/predictors/${variable}.yml"
 
 QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
 LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
