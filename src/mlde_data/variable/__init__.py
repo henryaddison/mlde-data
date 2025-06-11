@@ -19,6 +19,7 @@ def load_config(
             "domain": domain,
             "size": size,
             "theta": theta,
+            "target_resolution": target_resolution,
         }
         src = Template(config_template.read())
         result = src.substitute(d)
