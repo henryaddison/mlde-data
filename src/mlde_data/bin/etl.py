@@ -1,9 +1,12 @@
 import logging
+import os
 from pathlib import Path
+from mlde_data import MOOSE_DATA
 from mlde_data.bin.options import DomainOption, CollectionOption
 from mlde_data.bin.moose import extract, convert, clean
 from mlde_data.bin.variable import create as create_variable
 from mlde_data.variable import load_config
+from mlde_utils import VariableMetadata
 import typer
 from typing import List
 
@@ -30,6 +33,7 @@ def moose(
     size: int = typer.Option(...),
     theta: int = None,
     target_resolution: str = None,
+    force: bool = False,
 ):
 
     config = load_config(
@@ -46,6 +50,29 @@ def moose(
         src_collection = CollectionOption(config["sources"]["collection"])
         src_frequency = config["sources"]["frequency"]
         for src_variable in config["sources"]["variables"]:
+            if src_collection == CollectionOption.cpm:
+                source_domain = "uk"
+                source_resolution = "2.2km"
+            elif src_collection == CollectionOption.gcm:
+                source_domain = "global"
+                source_resolution = "60km"
+            else:
+                raise f"Unknown collection {src_collection}"
+            source_nc_filepath = VariableMetadata(
+                base_dir=MOOSE_DATA,
+                variable=src_variable["name"],
+                frequency=src_frequency,
+                domain=source_domain,
+                resolution=source_resolution,
+                ensemble_member=ensemble_member,
+                scenario=scenario,
+                collection=src_collection.value,
+            ).filepath(year)
+            # skip extract and convert if file already exists and not forcing an extraction
+            if os.path.exists(source_nc_filepath) and not force:
+                logger.info(f"{source_nc_filepath} already exists, skipping extraction")
+                continue
+
             extract(
                 variable=src_variable["name"],
                 year=year,
