@@ -21,7 +21,6 @@ def callback():
 
 @app.command()
 def moose(
-    ctx: typer.Context,
     years: List[int],
     variable_config: Path = typer.Option(...),
     scenario: str = "rcp85",
@@ -47,8 +46,7 @@ def moose(
         src_collection = CollectionOption(config["sources"]["collection"])
         src_frequency = config["sources"]["frequency"]
         for src_variable in config["sources"]["variables"]:
-            ctx.invoke(
-                extract,
+            extract(
                 variable=src_variable["name"],
                 year=year,
                 frequency=src_frequency,
@@ -56,8 +54,7 @@ def moose(
                 ensemble_member=ensemble_member,
                 scenario=scenario,
             )
-            ctx.invoke(
-                convert,
+            convert(
                 src_collection=src_collection,
                 variable=src_variable["name"],
                 year=year,
@@ -68,8 +65,7 @@ def moose(
             )
 
         # run create variable
-        ctx.invoke(
-            create_variable,
+        create_variable(
             config_path=variable_config,
             year=year,
             domain=domain,
