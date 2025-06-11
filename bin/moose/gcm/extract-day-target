@@ -1,0 +1,76 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+
+theta=
+scenario="rcp85"
+frequency="day"
+scale_factor=1
+collection="land-gcm"
+size=64
+target_resolution="2.2km-coarsened-4x"
+job_id=0
+
+while getopts ":d:s:v:e:t:j" opt; do
+  case ${opt} in
+    d)
+      domain=${OPTARG}
+      ;;
+    s)
+      size=${OPTARG}
+      ;;
+    v)
+      variable=${OPTARG}
+      ;;
+    e)
+      ensemble_member=${OPTARG}
+      ;;
+    t)
+      theta=${OPTARG}
+      ;;
+    j)
+      job_id=${OPTARG}
+      ;;
+   \? )
+     echo "Invalid Option: -${OPTARG}" 1>&2
+     exit 1
+     ;;
+  esac
+done
+shift $((OPTIND -1))
+
+years=$@
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+variable_config_path="${SCRIPT_DIR}/../../../config/variables/${frequency}/${collection}/${variable}.yml"
+
+QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
+LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
+
+function queue_years {
+  local job_id=$1
+  shift 1;
+  local years=$@
+
+  local args=()
+  args+=('--variable-config' ${variable_config_path})
+  args+=('--ensemble-member' ${ensemble_member})
+  args+=('--scenario' ${scenario})
+  args+=('--domain' ${domain})
+  args+=('--scale-factor' ${scale_factor})
+  args+=('--size' ${size})
+  args+=('--target-resolution' ${target_resolution})
+  [ -n "$theta" ] && args+=('--theta' "${theta}")
+
+  ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} ${args[@]} ${years}
+}
+
+echo
+echo ${domain} ${variable} ${ensemble_member}
+echo ${years}
+echo
+
+job_id=$(queue_years $job_id ${years})
+echo $job_id
