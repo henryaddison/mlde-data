@@ -4,7 +4,12 @@ import yaml
 
 
 def load_config(
-    config_path: Path, scale_factor: str, domain: str, size: int, theta: int = None
+    config_path: Path,
+    scale_factor: str,
+    domain: str,
+    size: int,
+    theta: int = None,
+    target_resolution: str = None,
 ):
     """Load configuration for a creating a variable from a YAML file."""
 

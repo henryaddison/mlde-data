@@ -235,6 +235,7 @@ def create(
     scale_factor: str = typer.Option(...),
     domain: DomainOption = typer.Option(...),
     size: int = typer.Option(...),
+    target_resolution: str = None,
 ):
     """
     Create a variable file in project form from source data
@@ -245,6 +246,7 @@ def create(
         domain=domain.value,
         size=size,
         theta=theta,
+        target_resolution=target_resolution,
     )
 
     src_type = config["sources"]["type"]

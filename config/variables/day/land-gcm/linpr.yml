@@ -18,6 +18,7 @@ spec:
   - action: shift_lon_break
   - action: regrid_to_target
     parameters:
+      target_grid_resolution: ${target_grid_resolution}
       scheme: linear
   - action: select-subdomain
     parameters:

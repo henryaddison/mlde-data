@@ -24,6 +24,7 @@ def main(
     domain: DomainOption = typer.Option(...),
     size: int = typer.Option(...),
     theta: int = None,
+    target_resolution: str = None,
 ):
 
     config = load_config(
@@ -32,6 +33,7 @@ def main(
         domain=domain.value,
         size=size,
         theta=theta,
+        target_resolution=target_resolution,
     )
 
     for year in years:

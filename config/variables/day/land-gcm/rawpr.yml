@@ -15,5 +15,5 @@ spec:
   - action: shift_lon_break
   - action: select-subdomain
     parameters:
-      subdomain: "birmingham"
-      size: 9
+      domain: ${domain}
+      size: ${size}
