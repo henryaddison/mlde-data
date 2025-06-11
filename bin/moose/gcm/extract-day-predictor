@@ -5,8 +5,8 @@ set -euo pipefail
 theta=
 scenario="rcp85"
 frequency="day"
-scale_factor="gcm"
-collection="land-cpm"
+scale_factor=1
+collection="land-gcm"
 job_id=0
 
 while getopts ":d:s:v:e:t:j" opt; do
