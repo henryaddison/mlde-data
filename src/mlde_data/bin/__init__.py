@@ -6,9 +6,7 @@ import typer
 from typing import List
 import xarray as xr
 
-from . import dataset
-from . import moose
-from . import variable
+from . import dataset, etl, moose, variable
 
 load_dotenv()  # take environment variables from .env.
 
@@ -19,6 +17,7 @@ logger.setLevel(log_level)
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
 app.add_typer(dataset.app, name="dataset")
+app.add_typer(etl.app, name="etl")
 app.add_typer(moose.app, name="moose")
 app.add_typer(variable.app, name="variable")
 

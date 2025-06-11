@@ -14,8 +14,14 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(mes
 app = typer.Typer()
 
 
+@app.callback()
+def callback():
+    pass
+
+
 @app.command()
-def main(
+def moose(
+    ctx: typer.Context,
     years: List[int],
     variable_config: Path = typer.Option(...),
     scenario: str = "rcp85",
@@ -41,7 +47,8 @@ def main(
         src_collection = CollectionOption(config["sources"]["collection"])
         src_frequency = config["sources"]["frequency"]
         for src_variable in config["sources"]["variables"]:
-            extract(
+            ctx.invoke(
+                extract,
                 variable=src_variable["name"],
                 year=year,
                 frequency=src_frequency,
@@ -49,8 +56,9 @@ def main(
                 ensemble_member=ensemble_member,
                 scenario=scenario,
             )
-
-            convert(
+            ctx.invoke(
+                convert,
+                src_collection=src_collection,
                 variable=src_variable["name"],
                 year=year,
                 frequency=src_frequency,
@@ -60,7 +68,8 @@ def main(
             )
 
         # run create variable
-        create_variable(
+        ctx.invoke(
+            create_variable,
             config_path=variable_config,
             year=year,
             domain=domain,
