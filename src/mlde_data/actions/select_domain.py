@@ -59,15 +59,13 @@ class SelectDomain:
             0
         ].item()
 
-        radius = self.size / 2.0
-        ledge_idx = math.ceil(centre_long_idx - radius)
-        redge_idx = math.ceil(centre_long_idx + radius)
-        bedge_idx = math.ceil(centre_lat_idx - radius)
-        tedge_idx = math.ceil(centre_lat_idx + radius)
+        radius = math.floor((self.size - 1) / 2.0)
+        ledge_idx = centre_long_idx - radius
+        bedge_idx = centre_lat_idx - radius
 
         ds = ds.cf.isel(
-            X=slice(ledge_idx, redge_idx),
-            Y=slice(bedge_idx, tedge_idx),
+            X=slice(ledge_idx, ledge_idx + self.size),
+            Y=slice(bedge_idx, bedge_idx + self.size),
         )
 
         assert len(ds.cf["X"]) == self.size
