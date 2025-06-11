@@ -197,7 +197,6 @@ def _process(
             ds = ds.assign_attrs({"frequency": "day"})
         elif job_spec["action"] == "regrid_to_target":
             # this assumes mapping to a target grid of higher resolution than resolution of the data
-            typer.echo(f"Regridding to target grid...")
             ds = get_action(job_spec["action"])(
                 variables=[config["variable"]], **job_spec.get("parameters", {})
             )(ds)

@@ -69,6 +69,7 @@ def main(
             ensemble_member=ensemble_member,
             scenario=scenario,
             theta=theta,
+            target_resolution=target_resolution,
         )
 
         # run clean up

@@ -39,6 +39,7 @@ class Regrid:
             return ds
 
         if "latitude_longitude" in ds.variables:
+            logging.info(f"Regridding to target grid...")
             src_coord_sys = iris.coord_systems.GeogCS(
                 ds["latitude_longitude"].attrs["earth_radius"]
             )
