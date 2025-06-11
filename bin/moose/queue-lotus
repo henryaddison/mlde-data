@@ -41,4 +41,11 @@ if [ $job_id -ne 0 ]; then
   args+=("--dependency=afterok:${job_id}")
 fi
 
-sbatch ${args[@]} -- ${cmd}
+
+if command -v sbatch >/dev/null 2>&1
+then
+  sbatch ${args[@]} -- ${cmd}
+else
+  echo "sbatch command not found. Running locally." >&2
+  ${cmd}
+fi
