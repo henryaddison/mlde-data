@@ -148,11 +148,11 @@ class Regrid:
 
         ds = xr.Dataset(vars, coords=coords, attrs=ds.attrs)
 
-        ds = ds.assign_attrs(
-            {
-                "domain": "uk",
-                "resolution": f"{ds.attrs['resolution']}-{self.target_grid_resolution}",
-            }
-        )
+        new_attrs = {"domain": "uk"}
+        if ds.attrs["resolution"] != self.target_grid_resolution:
+            new_attrs["resolution"] = (
+                f"{ds.attrs['resolution']}-{self.target_grid_resolution}"
+            )
+        ds = ds.assign_attrs(new_attrs)
 
         return ds
