@@ -1,9 +1,10 @@
+import cf_xarray  # noqa: F401
 from importlib.resources import files
 import iris
 import iris.analysis
 import logging
-import xarray as xr
 from mlde_data.actions.actions_registry import register_action
+import xarray as xr
 
 """
 Regrid a dataset based on a given target grid file
@@ -38,49 +39,21 @@ class Regrid:
         #     logging.debug("Already on the desired grid resolution, nothing to do")
         #     return ds
 
-        if "latitude_longitude" in ds.variables:
-            logging.info(f"Regridding to target grid...")
-            src_coord_sys = iris.coord_systems.GeogCS(
-                ds["latitude_longitude"].attrs["earth_radius"]
-            )
-            src_lat_name = "latitude"
-            src_lon_name = "longitude"
-        elif "rotated_latitude_longitude" in ds.variables:
-            src_coord_sys = iris.coord_systems.RotatedGeogCS(
-                ds["rotated_latitude_longitude"].attrs["grid_north_pole_latitude"],
-                ds["rotated_latitude_longitude"].attrs["grid_north_pole_longitude"],
-                ellipsoid=iris.coord_systems.GeogCS(
-                    ds["rotated_latitude_longitude"].attrs["earth_radius"]
-                ),
-            )
-            src_lat_name = "grid_latitude"
-            src_lon_name = "grid_longitude"
-        else:
-            logging.warning(
-                "Unrecognised grid system. Assuming lat-lon, GeogCS(6371229.0)"
-            )
-            src_coord_sys = iris.coord_systems.GeogCS(6371229.0)
-            src_lat_name = "latitude"
-            src_lon_name = "longitude"
+        logging.info(f"Regridding to target grid...")
 
-        if "latitude_longitude" in self.target_ds.variables:
+        src_coord_sys = self._source_coord_sys(ds)
+
+        if "latitude_longitude" in self.target_ds.cf.grid_mapping_names:
             target_grid_mapping = "latitude_longitude"
-            target_lat_name = "latitude"
-            target_lon_name = "longitude"
-        elif "rotated_latitude_longitude" in self.target_ds.variables:
+        elif "rotated_latitude_longitude" in self.target_ds.cf.grid_mapping_names:
             target_grid_mapping = "rotated_latitude_longitude"
-            target_lat_name = "grid_latitude"
-            target_lon_name = "grid_longitude"
         else:
             raise RuntimeError("Unrecognised grid system")
 
         vars = {}
 
         for variable in self.variables:
-            src_cube = ds[variable].to_iris()
-            # conversion to iris loses the coordinate system on the lat and long dimensions but iris it needs to do regrid
-            src_cube.coords(src_lon_name)[0].coord_system = src_coord_sys
-            src_cube.coords(src_lat_name)[0].coord_system = src_coord_sys
+            src_cube = self._da_to_iris(ds[variable], src_coord_sys)
 
             regridder = self.scheme.regridder(src_cube, self.target_cube)
             regridded_da = xr.DataArray.from_iris(regridder(src_cube))
@@ -93,7 +66,11 @@ class Regrid:
             vars.update(
                 {
                     variable: (
-                        ["time", target_lat_name, target_lon_name],
+                        [
+                            "time",
+                            self.target_ds.cf["Y"].name,
+                            self.target_ds.cf["X"].name,
+                        ],
                         regridded_da.values,
                         regridded_var_attrs,
                     )
@@ -104,15 +81,15 @@ class Regrid:
         vars.update(
             {
                 target_grid_mapping: (
-                    self.target_ds[target_grid_mapping].dims,
-                    self.target_ds[target_grid_mapping].values,
-                    self.target_ds[target_grid_mapping].attrs,
+                    self.target_ds.cf["grid_mapping"].dims,
+                    self.target_ds.cf["grid_mapping"].values,
+                    self.target_ds.cf["grid_mapping"].attrs,
                 )
             }
         )
 
         # if working with CPM data on rotated pole grid then copy the grid lat and lon bnds data too
-        if "rotated_latitude_longitude" in self.target_ds.variables:
+        if "rotated_latitude_longitude" in self.target_ds.cf.grid_mapping_names:
             vars.update(
                 {
                     f"{key}_bnds": (
@@ -120,7 +97,10 @@ class Regrid:
                         self.target_ds[f"{key}_bnds"].values,
                         self.target_ds[f"{key}_bnds"].attrs,
                     )
-                    for key in [target_lat_name, target_lon_name]
+                    for key in [
+                        self.target_ds.cf["X"].name,
+                        self.target_ds.cf["Y"].name,
+                    ]
                 }
             )
         vars.update(
@@ -143,8 +123,8 @@ class Regrid:
         # grid coord names are determined by the target but other coordinates should come from the source dataset
         for coord_name in ["latitude", "longitude", "grid_latitude", "grid_longitude"]:
             coords.pop(coord_name, None)
-        coords[target_lon_name] = self.target_ds.coords[target_lon_name]
-        coords[target_lat_name] = self.target_ds.coords[target_lat_name]
+        for axis in ["X", "Y"]:
+            coords[self.target_ds.cf[axis].name] = self.target_ds.cf[axis]
 
         ds = xr.Dataset(vars, coords=coords, attrs=ds.attrs)
 
@@ -156,3 +136,39 @@ class Regrid:
         ds = ds.assign_attrs(new_attrs)
 
         return ds
+
+    def _source_coord_sys(self, ds):
+        """
+        Determine the source coordinate system for a dataset.
+        """
+        if "latitude_longitude" in ds.cf.grid_mapping_names:
+            src_coord_sys = iris.coord_systems.GeogCS(
+                ds.cf["grid_mapping"].attrs["earth_radius"]
+            )
+        elif "rotated_latitude_longitude" in ds.cf.grid_mapping_names:
+            src_coord_sys = iris.coord_systems.RotatedGeogCS(
+                ds.cf["grid_mapping"].attrs["grid_north_pole_latitude"],
+                ds.cf["grid_mapping"].attrs["grid_north_pole_longitude"],
+                ellipsoid=iris.coord_systems.GeogCS(
+                    ds.cf["grid_mapping"].attrs["earth_radius"]
+                ),
+            )
+        else:
+            logging.warning(
+                "Unrecognised grid system. Assuming lat-lon, GeogCS(6371229.0)"
+            )
+            src_coord_sys = iris.coord_systems.GeogCS(6371229.0)
+
+        return src_coord_sys
+
+    def _da_to_iris(self, da, src_coord_sys):
+        """
+        Convert an xarray DataArray to an iris Cube for regridding.
+        """
+        src_cube = da.to_iris()
+
+        # conversion to iris loses the coordinate system on the lat and long dimensions but iris it needs to do regrid
+        src_cube.coords(axis="X")[0].coord_system = src_coord_sys
+        src_cube.coords(axis="Y")[0].coord_system = src_coord_sys
+
+        return src_cube
