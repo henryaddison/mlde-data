@@ -34,6 +34,7 @@ def moose(
     theta: int = None,
     target_resolution: str = None,
     force: bool = False,
+    cleanup: bool = True,
 ):
 
     config = load_config(
@@ -104,15 +105,16 @@ def moose(
         )
 
         # run clean up
-        for src_variable in config["sources"]["variables"]:
-            clean(
-                collection=src_collection,
-                scenario=scenario,
-                ensemble_member=ensemble_member,
-                variable=src_variable["name"],
-                frequency=src_frequency,
-                year=year,
-            )
+        if cleanup:
+            for src_variable in config["sources"]["variables"]:
+                clean(
+                    collection=src_collection,
+                    scenario=scenario,
+                    ensemble_member=ensemble_member,
+                    variable=src_variable["name"],
+                    frequency=src_frequency,
+                    year=year,
+                )
 
 
 if __name__ == "__main__":
