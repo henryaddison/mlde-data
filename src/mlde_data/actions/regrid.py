@@ -34,9 +34,9 @@ class Regrid:
         # NB iris and xarray can only communicate in dataarrays not datasets
         # and form a dataset based on the original hi-res with this new coarsened then NN-gridded data
 
-        if ds.attrs["resolution"] == self.target_grid_resolution:
-            logging.debug("Already on the desired grid resolution, nothing to do")
-            return ds
+        # if ds.attrs["resolution"] == self.target_grid_resolution:
+        #     logging.debug("Already on the desired grid resolution, nothing to do")
+        #     return ds
 
         if "latitude_longitude" in ds.variables:
             logging.info(f"Regridding to target grid...")
