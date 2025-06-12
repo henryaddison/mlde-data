@@ -47,5 +47,6 @@ then
   sbatch ${args[@]} -- ${cmd}
 else
   echo "sbatch command not found. Running locally." >&2
-  ${cmd}
+  set -x
+  ${cmd} --no-cleanup
 fi
