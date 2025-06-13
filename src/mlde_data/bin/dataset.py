@@ -13,9 +13,7 @@ import yaml
 
 from mlde_utils import (
     TIME_PERIODS,
-    dataset_path,
-    dataset_config_path,
-    dataset_config,
+    DatasetMetadata,
 )
 
 from mlde_data import DERIVED_DATA, dataset as dataset_lib
@@ -45,12 +43,14 @@ def create(
 
     split_sets = dataset_lib.create(config, input_base_dir)
 
-    output_dir = dataset_path(config_name, base_dir=output_base_dir)
+    output_dir = DatasetMetadata(config_name, base_dir=output_base_dir).path()
 
     os.makedirs(output_dir, exist_ok=False)
 
     logger.info(f"Saving data to {output_dir}...")
-    with open(dataset_config_path(config_name, base_dir=output_base_dir), "w") as f:
+    with open(
+        DatasetMetadata(config_name, base_dir=output_base_dir).config_path(), "w"
+    ) as f:
         yaml.dump(config, f)
     for split_name, split_ds in split_sets.items():
         for varname in split_ds.data_vars:
@@ -97,8 +97,8 @@ def random_subset(
     split: str = "train",
     seed: int = 42,
 ):
-    src_dataset_dir = dataset_path(src_dataset)
-    dest_dataset_dir = dataset_path(dest_dataset)
+    src_dataset_dir = DatasetMetadata(src_dataset).path()
+    dest_dataset_dir = DatasetMetadata(dest_dataset).path()
 
     logger.info(f"Copying {src_dataset_dir} to {dest_dataset_dir}...")
     # os.makedirs(dest_dataset_dir, exist_ok=True)
@@ -126,7 +126,7 @@ def random_subset_split(
     new_split: str = None,
     seed: int = 42,
 ):
-    dataset_dir = dataset_path(dataset)
+    dataset_dir = DatasetMetadata(dataset).path()
 
     orig_split_filepath = dataset_dir / f"{split}.nc"
     if new_split is None:
@@ -153,15 +153,15 @@ def filter(
     base_dir: Path = typer.Argument(DERIVED_DATA),
 ):
 
-    input_dir = dataset_path(dataset, base_dir=base_dir)
-    config = dataset_config(dataset, base_dir=base_dir)
+    input_dir = DatasetMetadata(dataset, base_dir=base_dir).path()
+    config = DatasetMetadata(dataset, base_dir=base_dir).config()
 
     config_filters = config.get("filters", list())
     config_filters.append({"time_period": time_period})
     config["filters"] = config_filters
 
     new_dataset = f"{dataset}-{time_period}"
-    output_dir = dataset_path(new_dataset, base_dir=base_dir)
+    output_dir = DatasetMetadata(new_dataset, base_dir=base_dir).path()
     os.makedirs(output_dir, exist_ok=False)
     for split_filepath in glob.glob(os.path.join(input_dir, "*.nc")):
         split_file = os.path.basename(split_filepath)
@@ -170,7 +170,7 @@ def filter(
         output_filepath = os.path.join(output_dir, split_file)
         split_ds.sel(time=slice(*TIME_PERIODS[time_period])).to_netcdf(output_filepath)
 
-    with open(dataset_config_path(new_dataset, base_dir=base_dir), "w") as f:
+    with open(DatasetMetadata(new_dataset, base_dir=base_dir).config_path(), "w") as f:
         yaml.dump(config, f)
 
 
@@ -182,7 +182,7 @@ def quantile(
     base_dir: Path = typer.Argument(DERIVED_DATA),
     split: str = "train",
 ):
-    input_dir = dataset_path(dataset, base_dir=base_dir)
+    input_dir = DatasetMetadata(dataset, base_dir=base_dir).path()
 
     split_ds = xr.open_dataset(os.path.join(input_dir, f"{split}.nc"))
     Q_p = split_ds[variable].quantile(p)

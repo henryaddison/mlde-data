@@ -170,7 +170,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/61/00/f10d4b5d72c5afb9b703ea0cabbea1670cd20159afe1764f4322d00dec99/matrix_client-0.4.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ea/03/e54c27f83c72d7e234f7fabcefc71c1acd161b5340c51da709e5874c8225/metpy-1.7.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/14/a7/c50eefdf8ca6da0623a77c6b46ecbe0c69d7ea278e56e194614ec68278cb/mlde_utils-0.3.0a5-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/6a/54/c870e7f60379d3c297bb5be6fc6a47682a8ccd1d167de49bcf327d3e3280/mlde_utils-0.3.0a8-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2b/9f/7ba6f94fc1e9ac3d2b853fdff3035fb2fa5afbed898c4a72b8a020610594/more_itertools-10.7.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4c/02/751530c19e78fe73b24c3da66618eda0aa0d7f6e7aa512e46483de6be210/multidict-6.4.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fd/bf/5e671495c8bdf6b628e091aa8980793579474a10e51bc6ba302a3af6a778/netCDF4-1.7.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -224,7 +224,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/11/a7/81dba5010f7e733de88af9555725146fc133be97ce36533867f4c7e75066/xxhash-3.5.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/0b/7b/f9758da947300b09dedfb08f228fea2f8e09b6d611918ba573ee13744516/yagmail-0.15.293-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/15/45/212604d3142d84b4065d5f8cab6582ed3d78e4cc250568ef2a36fe1cf0a5/yarl-1.20.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-      - pypi: .
+      - pypi: ./
   dev:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -396,7 +396,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/61/00/f10d4b5d72c5afb9b703ea0cabbea1670cd20159afe1764f4322d00dec99/matrix_client-0.4.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ea/03/e54c27f83c72d7e234f7fabcefc71c1acd161b5340c51da709e5874c8225/metpy-1.7.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/14/a7/c50eefdf8ca6da0623a77c6b46ecbe0c69d7ea278e56e194614ec68278cb/mlde_utils-0.3.0a5-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/6a/54/c870e7f60379d3c297bb5be6fc6a47682a8ccd1d167de49bcf327d3e3280/mlde_utils-0.3.0a8-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2b/9f/7ba6f94fc1e9ac3d2b853fdff3035fb2fa5afbed898c4a72b8a020610594/more_itertools-10.7.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4c/02/751530c19e78fe73b24c3da66618eda0aa0d7f6e7aa512e46483de6be210/multidict-6.4.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fd/bf/5e671495c8bdf6b628e091aa8980793579474a10e51bc6ba302a3af6a778/netCDF4-1.7.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -452,7 +452,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/11/a7/81dba5010f7e733de88af9555725146fc133be97ce36533867f4c7e75066/xxhash-3.5.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/0b/7b/f9758da947300b09dedfb08f228fea2f8e09b6d611918ba573ee13744516/yagmail-0.15.293-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/15/45/212604d3142d84b4065d5f8cab6582ed3d78e4cc250568ef2a36fe1cf0a5/yarl-1.20.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-      - pypi: .
+      - pypi: ./
   lint:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -2522,10 +2522,10 @@ packages:
   - shapely>=1.6.4 ; extra == 'extras'
   - boto3>=1.26.45 ; extra == 'extras'
   requires_python: '>=3.10'
-- pypi: .
+- pypi: ./
   name: mlde-data
   version: 0.3.1
-  sha256: f56e62ac0a8303c7328a27b547d884b82576a3500a790d5c7b77e925cd73e968
+  sha256: 78b9c504af1cb18773ef3ed65009d5258507d32cbcf2cb413743f4a405aa5b39
   requires_dist:
   - cdo
   - cftime
@@ -2534,7 +2534,7 @@ packages:
   - scitools-iris
   - knockknock
   - metpy
-  - mlde-utils~=0.3.0a5
+  - mlde-utils~=0.3.0a8
   - netcdf4
   - pint
   - python-dotenv
@@ -2542,10 +2542,10 @@ packages:
   - typer
   requires_python: '>=3.12'
   editable: true
-- pypi: https://files.pythonhosted.org/packages/14/a7/c50eefdf8ca6da0623a77c6b46ecbe0c69d7ea278e56e194614ec68278cb/mlde_utils-0.3.0a5-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/6a/54/c870e7f60379d3c297bb5be6fc6a47682a8ccd1d167de49bcf327d3e3280/mlde_utils-0.3.0a8-py3-none-any.whl
   name: mlde-utils
-  version: 0.3.0a5
-  sha256: 7148c2d02f95ab4a6b23029e094eadbb6f263ef8536ad1a346ccb869fac7c30b
+  version: 0.3.0a8
+  sha256: 83dd5a6b381a4eaf285ebdf4b93c70ce43e79aebff9ac52b93ffcdfd5c4dd006
   requires_dist:
   - cartopy
   - cdo
