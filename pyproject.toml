@@ -74,4 +74,7 @@ black = { version = "==25.1.0" }
 test = "pytest"
 
 [tool.pixi.feature.lint.tasks]
-lint = "black . && flake8 ."
+lint = "black .; flake8 ."
+
+[tool.black]
+target-version = ["py312"]
