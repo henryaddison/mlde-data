@@ -11,7 +11,7 @@ target_resolution="2.2km-coarsened-4x"
 
 job_id=0 # ID of job to depend on (0 means no dependency)
 
-while getopts ":d:v:e:j" opt; do
+while getopts ":d:v:e:j:f:" opt; do
   case ${opt} in
     d)
       domain=${OPTARG}
@@ -24,6 +24,9 @@ while getopts ":d:v:e:j" opt; do
       ;;
     j)
       job_id=${OPTARG}
+      ;;
+    f)
+      scale_factor=${OPTARG}
       ;;
    \? )
      echo "Invalid Option: -${OPTARG}" 1>&2

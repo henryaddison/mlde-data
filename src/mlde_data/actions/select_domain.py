@@ -43,6 +43,10 @@ class SelectDomain:
 
     def __call__(self, ds):
         logger.info(f"Selecting subdomain {self.domain}")
+        if ds.attrs.get("domain") == f"{self.domain}":
+            logger.info("Already on the desired domain, nothing to do")
+            return ds
+
         if "rotated_latitude_longitude" in ds.cf.grid_mapping_names:
             centre_xy = self.DOMAIN_CENTRES_RP_LONG_LAT[self.domain]
             query = dict(

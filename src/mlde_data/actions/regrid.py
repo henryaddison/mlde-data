@@ -40,6 +40,9 @@ class Regrid:
         #     return ds
 
         logging.info(f"Regridding to target grid...")
+        if ds.attrs["resolution"] == self.target_grid_resolution:
+            logging.info("Already on the desired grid resolution, nothing to do")
+            return ds
 
         src_coord_sys = self._source_coord_sys(ds)
 
