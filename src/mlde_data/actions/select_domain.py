@@ -1,7 +1,7 @@
+import cartopy
+import cf_xarray  # noqa: F401
 import logging
 import math
-import cf_xarray  # noqa: F401
-
 import numpy as np
 
 from mlde_utils import cp_model_rotated_pole, platecarree
@@ -30,6 +30,13 @@ class SelectDomain:
         for domain_name, (lon, lat) in DOMAIN_CENTRES_LON_LAT.items()
     }
 
+    osgb_crs = cartopy.crs.OSGB()
+
+    DOMAIN_CENTRES_OSGB = {
+        domain_name: cartopy.crs.OSGB().transform_point(lon, lat, src_crs=platecarree)
+        for domain_name, (lon, lat) in DOMAIN_CENTRES_LON_LAT.items()
+    }
+
     def __init__(self, domain, size=64) -> None:
         self.domain = domain
         self.size = size
@@ -44,6 +51,12 @@ class SelectDomain:
             )
         elif "latitude_longitude" in ds.cf.grid_mapping_names:
             centre_xy = self.DOMAIN_CENTRES_LON_LAT[self.domain]
+            query = dict(
+                X=centre_xy[0],
+                Y=centre_xy[1],
+            )
+        elif "transverse_mercator" in ds.cf.grid_mapping_names:
+            centre_xy = self.DOMAIN_CENTRES_OSGB[self.domain]
             query = dict(
                 X=centre_xy[0],
                 Y=centre_xy[1],

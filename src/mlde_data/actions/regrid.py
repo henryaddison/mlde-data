@@ -47,6 +47,8 @@ class Regrid:
             target_grid_mapping = "latitude_longitude"
         elif "rotated_latitude_longitude" in self.target_ds.cf.grid_mapping_names:
             target_grid_mapping = "rotated_latitude_longitude"
+        elif "transverse_mercator" in self.target_ds.cf.grid_mapping_names:
+            target_grid_mapping = "transverse_mercator"
         else:
             raise RuntimeError("Unrecognised grid system")
 
@@ -89,20 +91,20 @@ class Regrid:
         )
 
         # if working with CPM data on rotated pole grid then copy the grid lat and lon bnds data too
-        if "rotated_latitude_longitude" in self.target_ds.cf.grid_mapping_names:
-            vars.update(
-                {
-                    f"{key}_bnds": (
-                        [key, "bnds"],
-                        self.target_ds[f"{key}_bnds"].values,
-                        self.target_ds[f"{key}_bnds"].attrs,
-                    )
-                    for key in [
-                        self.target_ds.cf["X"].name,
-                        self.target_ds.cf["Y"].name,
-                    ]
-                }
-            )
+        # if "rotated_latitude_longitude" in self.target_ds.cf.grid_mapping_names:
+        vars.update(
+            {
+                f"{key}_bnds": (
+                    [key, "bnds"],
+                    self.target_ds[f"{key}_bnds"].values,
+                    self.target_ds[f"{key}_bnds"].attrs,
+                )
+                for key in [
+                    self.target_ds.cf["X"].name,
+                    self.target_ds.cf["Y"].name,
+                ]
+            }
+        )
         vars.update(
             {
                 key: (
