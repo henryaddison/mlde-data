@@ -7,6 +7,7 @@ import subprocess
 from codetiming import Timer
 import iris
 import numpy as np
+import tempfile
 import typer
 import xarray as xr
 
@@ -277,8 +278,29 @@ def convert(
         src_cube.coord("grid_latitude").bounds = bounds
 
     typer.echo(f"Saving to {output_filepath}...")
+    # ensure target directory exists
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
-    iris.save(src_cube, output_filepath)
+
+    # Write to a local temporary file first, then move into place. This
+    # avoids HDF5/netCDF file-locking issues on NFS mounts where locks
+    # are unreliable. We use a system temp dir and shutil.move so the
+    # move works across filesystems.
+    tmp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".nc") as tmpf:
+            tmp_path = tmpf.name
+
+        # Save to the temporary file
+        iris.save(src_cube, tmp_path)
+
+        # Move the completed file into the final location. Use shutil.move
+        # to handle cross-filesystem renames (e.g., local /tmp -> NFS).
+        shutil.move(tmp_path, output_filepath)
+        tmp_path = None
+    finally:
+        # Cleanup any leftover temp file on error
+        if tmp_path is not None and os.path.exists(tmp_path):
+            os.remove(tmp_path)
 
     assert len(xr.open_dataset(output_filepath).time) == FREQ2TIMELEN[frequency]
 
