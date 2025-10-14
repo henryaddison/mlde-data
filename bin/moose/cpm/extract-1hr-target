@@ -12,7 +12,7 @@ target_resolution="2.2km-coarsened-4x"
 job_memory=56G # memory for slurm job
 job_id=0 # ID of job to depend on (0 means no dependency)
 
-while getopts ":d:v:e:j:f:" opt; do
+while getopts ":d:v:e:j:f:t:" opt; do
   case ${opt} in
     d)
       domain=${OPTARG}
@@ -28,6 +28,9 @@ while getopts ":d:v:e:j:f:" opt; do
       ;;
     f)
       scale_factor=${OPTARG}
+      ;;
+    t)
+      target_resolution=${OPTARG}
       ;;
    \? )
      echo "Invalid Option: -${OPTARG}" 1>&2
