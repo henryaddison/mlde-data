@@ -47,7 +47,9 @@ class Regrid:
         #     logging.debug("Already on the desired grid resolution, nothing to do")
         #     return ds
 
-        logging.info(f"Regridding to target grid...")
+        logging.info(
+            f"Regridding from {ds.attrs["resolution"]} to {self.target_grid_resolution} target grid..."
+        )
         if ds.attrs["resolution"] == self.target_grid_resolution:
             logging.info("Already on the desired grid resolution, nothing to do")
             return ds
