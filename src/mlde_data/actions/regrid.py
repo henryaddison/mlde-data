@@ -1,4 +1,5 @@
 import cf_xarray  # noqa: F401
+from functools import cached_property
 from importlib.resources import files
 import iris
 import iris.analysis
@@ -22,13 +23,20 @@ class Regrid:
 
     def __init__(self, target_grid_resolution, variables, scheme="nn") -> None:
         self.target_grid_resolution = target_grid_resolution
-        target_grid_filepath = files("mlde_data.actions").joinpath(
+        # self.target_grid_filepath = target_grid_resolution
+        self.target_grid_filepath = files("mlde_data.actions").joinpath(
             f"target_grids/{self.target_grid_resolution}/uk/moose_grid.nc"
         )
-        self.target_cube = iris.load_cube(target_grid_filepath)
-        self.target_ds = xr.open_dataset(target_grid_filepath)
         self.variables = variables
         self.scheme = self.SCHEMES[scheme]()
+
+    @cached_property
+    def target_cube(self):
+        return iris.load_cube(self.target_grid_filepath)
+
+    @cached_property
+    def target_ds(self):
+        return xr.open_dataset(self.target_grid_filepath)
 
     def __call__(self, ds):
         # regrid the coarsened data to match the original horizontal grid (using NN interpolation)
