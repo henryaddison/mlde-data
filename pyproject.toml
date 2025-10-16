@@ -33,7 +33,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-test = ["pytest"]
+test = ["pytest", "pytest-env"]
 dev = [{include-group = "test"}]
 
 [project.urls]
@@ -78,3 +78,8 @@ lint = "black .; flake8 ."
 
 [tool.black]
 target-version = ["py312"]
+
+[tool.pytest_env]
+DATA_PATH="/path/to/data"
+DERIVED_DATA= {value = "{DATA_PATH}/derived", transform = true}
+WORKDIRS_PATH="/path/to/test/workdirs"
