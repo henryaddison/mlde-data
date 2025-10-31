@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import logging
+import numpy as np
 import os
 from pathlib import Path
 import typer
