@@ -53,10 +53,8 @@ class MoosePPVariableMetadata(VariableMetadata):
         ensemble_member: str,
         scenario: str,
         collection: str,
-        base_dir: str = None,
+        base_dir: str,
     ):
-        if base_dir is None:
-            base_dir = MOOSE_DATA / "pp"
         super().__init__(
             base_dir,
             variable,
@@ -67,10 +65,6 @@ class MoosePPVariableMetadata(VariableMetadata):
             scenario,
             collection,
         )
-
-    def subdir(self):
-        # collection is not included in the dirpath of parent class
-        return os.path.join(self.collection, super().subdir())
 
     def moose_extract_dirpath(self, year):
         return os.path.join(self.dirpath(), str(year))
@@ -117,6 +111,7 @@ def _clean_pp_data(
     resolution: str,
 ):
     pp_path = MoosePPVariableMetadata(
+        base_dir=MOOSE_DATA / "pp",
         collection=collection.value,
         scenario=scenario,
         ensemble_member=ensemble_member,
@@ -163,10 +158,14 @@ def extract(
     year: int = typer.Option(...),
     variable: str = typer.Option(...),
     frequency: str = "day",
+    base_dir: Path = None,
 ):
     """
     Extract data from moose
     """
+    if base_dir is None:
+        base_dir = MOOSE_DATA / "pp"
+
     domain, resolution = _domain_and_resolution_from_collection(collection)
 
     query = select_query(
@@ -174,6 +173,7 @@ def extract(
     )
 
     moose_pp_varmeta = MoosePPVariableMetadata(
+        base_dir=base_dir,
         collection=collection.value,
         scenario=scenario,
         ensemble_member=ensemble_member,
@@ -235,13 +235,22 @@ def convert(
     year: int = typer.Option(...),
     variable: str = typer.Option(...),
     frequency: str = "day",
+    input_base_dir: Path = None,
+    output_base_dir: Path = None,
+    validate: bool = True,
 ):
     """
     Convert pp data to a netCDF file
     """
+    if input_base_dir is None:
+        input_base_dir = MOOSE_DATA / "pp"
+    if output_base_dir is None:
+        output_base_dir = MOOSE_DATA
+
     domain, resolution = _domain_and_resolution_from_collection(collection)
 
     input_moose_pp_varmeta = MoosePPVariableMetadata(
+        base_dir=input_base_dir,
         collection=collection.value,
         scenario=scenario,
         ensemble_member=ensemble_member,
@@ -252,7 +261,7 @@ def convert(
     )
 
     output_var_meta = VariableMetadata(
-        base_dir=MOOSE_DATA,
+        base_dir=output_base_dir,
         collection=collection.value,
         scenario=scenario,
         ensemble_member=ensemble_member,
@@ -302,7 +311,8 @@ def convert(
         if tmp_path is not None and os.path.exists(tmp_path):
             os.remove(tmp_path)
 
-    assert len(xr.open_dataset(output_filepath).time) == FREQ2TIMELEN[frequency]
+    if validate:
+        assert len(xr.open_dataset(output_filepath).time) == FREQ2TIMELEN[frequency]
 
 
 @app.command()

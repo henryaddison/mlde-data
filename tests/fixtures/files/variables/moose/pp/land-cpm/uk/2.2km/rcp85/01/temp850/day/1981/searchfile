@@ -1,0 +1,15 @@
+begin
+    yr=1980
+    mon=12
+    day=1
+    stash=30204
+    lblev=850
+end
+
+begin
+    yr=1981
+    mon=[1..11]
+    day=1
+    stash=30204
+    lblev=850
+end
