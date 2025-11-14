@@ -30,10 +30,10 @@ def sample(file: Path, output_file: Path, dim: str = "time"):
     doy_mask = ds[f"{dim}.dayofyear"] % 30 == 0
     sampled_ds = ds.sel({dim: doy_mask}).load()
 
-    # if covers a long time period, take only specific years
-    year_mask = (sampled_ds["time.year"] + (sampled_ds["time.month"] == 12)).isin(
-        [1981, 2000, 2021, 2040, 2061, 2080]
-    )
+    # if covers a long time period, take two years in 10
+    year_mask = (
+        (sampled_ds["time.year"] + (sampled_ds["time.month"] == 12)) % 10
+    ).isin([0, 1])
     if np.any(year_mask):
         sampled_ds = sampled_ds.sel({dim: year_mask})
 
