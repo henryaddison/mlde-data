@@ -26,8 +26,8 @@ app.add_typer(variable.app, name="variable")
 def sample(file: Path, output_file: Path, dim: str = "time"):
     ds = xr.open_dataset(file)
 
-    # take something from first day of each mont
-    doy_mask = ds[f"{dim}.dayofyear"] % 30 == 0
+    # take something from first day of each month
+    doy_mask = ds[f"{dim}.is_month_start"]
     sampled_ds = ds.sel({dim: doy_mask}).load()
 
     # if covers a long time period, take two years in 10
