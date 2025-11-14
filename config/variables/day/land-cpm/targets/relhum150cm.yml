@@ -22,4 +22,3 @@ spec:
   - action: select-subdomain
     parameters:
       domain: ${domain}
-      size: ${size}

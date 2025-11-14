@@ -22,7 +22,6 @@ def main(
     scale_factor: str = typer.Option(...),
     target_resolution: str = typer.Option(...),
     scenario: str = "ssp370",
-    target_size: int = 64,
 ):
 
     for year in years:
@@ -32,7 +31,6 @@ def main(
             year=year,
             domain=domain,
             target_resolution=target_resolution,
-            target_size=target_size,
             scale_factor=scale_factor,
             ensemble_member=ensemble_member,
             scenario=scenario,
