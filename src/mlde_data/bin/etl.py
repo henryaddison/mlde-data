@@ -1,7 +1,7 @@
 import logging
 import os
 from pathlib import Path
-from mlde_data import MOOSE_DATA
+from mlde_data import MOOSE_VARIABLES_PATH
 from mlde_data.bin.options import DomainOption, CollectionOption
 from mlde_data.bin.moose import extract, convert, clean
 from mlde_data.bin.variable import create as create_variable
@@ -41,7 +41,6 @@ def moose(
         variable_config,
         scale_factor=scale_factor,
         domain=domain.value,
-        size=size,
         theta=theta,
         target_resolution=target_resolution,
     )
@@ -60,7 +59,7 @@ def moose(
             else:
                 raise f"Unknown collection {src_collection}"
             source_nc_filepath = VariableMetadata(
-                base_dir=MOOSE_DATA,
+                base_dir=MOOSE_VARIABLES_PATH,
                 variable=src_variable["name"],
                 frequency=src_frequency,
                 domain=source_domain,

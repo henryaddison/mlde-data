@@ -18,6 +18,7 @@ def test_convert(tmp_path):
         "fixtures",
         "files",
         "variables",
+        "raw",
         "moose",
         "pp",
     )

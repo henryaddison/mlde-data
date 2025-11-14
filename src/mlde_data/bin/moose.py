@@ -13,7 +13,7 @@ import xarray as xr
 
 from mlde_utils import VariableMetadata
 
-from .. import MOOSE_DATA
+from .. import MOOSE_VARIABLES_PATH
 from ..bin.options import CollectionOption
 from ..moose import (
     select_query,
@@ -111,7 +111,7 @@ def _clean_pp_data(
     resolution: str,
 ):
     pp_path = MoosePPVariableMetadata(
-        base_dir=MOOSE_DATA / "pp",
+        base_dir=MOOSE_VARIABLES_PATH / "pp",
         collection=collection.value,
         scenario=scenario,
         ensemble_member=ensemble_member,
@@ -135,7 +135,7 @@ def _clean_nc_data(
     resolution: str,
 ):
     nc_path = VariableMetadata(
-        base_dir=MOOSE_DATA,
+        base_dir=MOOSE_VARIABLES_PATH,
         collection=collection.value,
         scenario=scenario,
         ensemble_member=ensemble_member,
@@ -164,7 +164,7 @@ def extract(
     Extract data from moose
     """
     if base_dir is None:
-        base_dir = MOOSE_DATA / "pp"
+        base_dir = MOOSE_VARIABLES_PATH / "pp"
 
     domain, resolution = _domain_and_resolution_from_collection(collection)
 
@@ -243,9 +243,9 @@ def convert(
     Convert pp data to a netCDF file
     """
     if input_base_dir is None:
-        input_base_dir = MOOSE_DATA / "pp"
+        input_base_dir = MOOSE_VARIABLES_PATH / "pp"
     if output_base_dir is None:
-        output_base_dir = MOOSE_DATA
+        output_base_dir = MOOSE_VARIABLES_PATH
 
     domain, resolution = _domain_and_resolution_from_collection(collection)
 

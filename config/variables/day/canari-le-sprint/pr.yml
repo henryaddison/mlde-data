@@ -14,7 +14,7 @@ sources:
 spec:
   - action: resample
     parameters:
-      time: 1D
+      frequency: "day"
   - action: regrid_to_target
     variable: pr
   - action: select-subdomain

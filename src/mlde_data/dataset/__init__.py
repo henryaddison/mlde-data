@@ -257,7 +257,7 @@ def _combine_variables(em: str, config: dict, input_base_dir: Path):
         var_type_config = config[var_type]
         for predictor_var_name in var_type_config["variables"]:
             dsmeta = VariableMetadata(
-                input_base_dir / "moose",
+                input_base_dir,
                 ensemble_member=em,
                 variable=predictor_var_name,
                 resolution=var_type_config["resolution"],

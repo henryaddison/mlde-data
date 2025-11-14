@@ -5,8 +5,11 @@ from pathlib import Path
 load_dotenv()  # take environment variables from .env
 
 DATA_PATH = Path(os.getenv("DATA_PATH"))
-DERIVED_DATA = Path(os.getenv("DERIVED_DATA", DATA_PATH / "derived"))
-MOOSE_DATA = Path(os.getenv("MOOSE_DATA", DATA_PATH / "raw" / "moose"))
+
+DATASETS_PATH = DATA_PATH / "datasets"
+VARIABLES_PATH = DATA_PATH / "variables"
+MOOSE_VARIABLES_PATH = VARIABLES_PATH / "raw" / "moose"
+DERIVED_VARIABLES_PATH = VARIABLES_PATH / "derived"
 
 
 class RangeDict(dict):

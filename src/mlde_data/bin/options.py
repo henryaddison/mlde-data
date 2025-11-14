@@ -3,8 +3,7 @@ from enum import Enum
 
 class DomainOption(str, Enum):
     uk = "uk"
-    london = "london"
-    birmingham = "birmingham"
+    engwales = "engwales"
     scotland = "scotland"
 
 

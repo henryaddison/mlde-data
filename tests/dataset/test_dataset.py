@@ -36,17 +36,17 @@ def config():
 
 @pytest.fixture
 def variable_files(tmp_path, config):
+    derived_variables_path = tmp_path / "variables" / "derived"
     years = [1981]
     for em in config["ensemble_members"]:
         for var_type in ["predictands", "predictors"]:
             for var in config[var_type]["variables"]:
-                print(var)
                 if var_type == "predictands":
                     collection = "land-cpm"
                 else:
                     collection = "land-gcm"
                 meta = VariableMetadata(
-                    tmp_path / "moose",
+                    derived_variables_path,
                     ensemble_member=em,
                     domain=config["domain"],
                     variable=var,
@@ -60,7 +60,7 @@ def variable_files(tmp_path, config):
                     print(meta.filepath(year))
                     variable_ds_factory(var, year).to_netcdf(meta.filepath(year))
 
-    return tmp_path
+    return derived_variables_path
 
 
 def variable_ds_factory(var, year):

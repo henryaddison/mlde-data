@@ -7,7 +7,6 @@ def load_config(
     config_path: Path,
     scale_factor: str,
     domain: str,
-    size: int,
     theta: int = None,
     target_resolution: str = None,
 ):
@@ -17,7 +16,6 @@ def load_config(
         d = {
             "scale_factor": scale_factor,
             "domain": domain,
-            "size": size,
             "theta": theta,
             "target_resolution": target_resolution,
         }

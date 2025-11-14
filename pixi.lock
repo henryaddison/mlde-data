@@ -2526,7 +2526,7 @@ packages:
 - pypi: ./
   name: mlde-data
   version: 0.3.1
-  sha256: 7250b93bed1ab0c658733ddde70f866b60747bb5e63ace781909cdf663b8697f
+  sha256: 1c99696c11f403e3f8a6269596b25ba6c3e1b237e8ddfd1a5a2c021c1b8e5f80
   requires_dist:
   - cdo
   - cftime

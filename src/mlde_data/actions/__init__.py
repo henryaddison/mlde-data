@@ -1,8 +1,10 @@
 from . import coarsen  # noqa: F401
 from . import constrain  # noqa: F401
+from . import drop_vars  # noqa: F401
 from . import diff  # noqa: F401
 from . import regrid  # noqa: F401
 from . import remapcon  # noqa: F401
+from . import rename  # noqa: F401
 from . import resample  # noqa: F401
 from . import select_domain  # noqa: F401
 from . import shift_lon_break  # noqa: F401

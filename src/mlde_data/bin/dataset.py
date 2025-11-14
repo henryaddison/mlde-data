@@ -16,7 +16,7 @@ from mlde_utils import (
     DatasetMetadata,
 )
 
-from mlde_data import DERIVED_DATA, dataset as dataset_lib
+from mlde_data import DATASETS_PATH, DERIVED_VARIABLES_PATH, dataset as dataset_lib
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +31,8 @@ def callback():
 @app.command()
 def create(
     config: Path,
-    input_base_dir: Path = typer.Argument(DERIVED_DATA),
-    output_base_dir: Path = typer.Argument(DERIVED_DATA),
+    input_base_dir: Path = typer.Argument(DERIVED_VARIABLES_PATH),
+    output_base_dir: Path = typer.Argument(DATASETS_PATH),
 ):
     """
     Create and save a dataset
@@ -150,7 +150,7 @@ def random_subset_split(
 def filter(
     dataset: str,
     time_period: str,
-    base_dir: Path = typer.Argument(DERIVED_DATA),
+    base_dir: Path = typer.Argument(DATASETS_PATH),
 ):
 
     input_dir = DatasetMetadata(dataset, base_dir=base_dir).path()
@@ -179,7 +179,7 @@ def quantile(
     dataset: str,
     p: float,
     variable: str = "target_pr",
-    base_dir: Path = typer.Argument(DERIVED_DATA),
+    base_dir: Path = typer.Argument(DATASETS_PATH),
     split: str = "train",
 ):
     input_dir = DatasetMetadata(dataset, base_dir=base_dir).path()
