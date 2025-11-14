@@ -31,13 +31,15 @@ def sample(file: Path, output_file: Path, dim: str = "time"):
     sampled_ds = ds.sel({dim: doy_mask}).load()
 
     # if covers a long time period, take only specific years
-    year_mask = (ds["time.year"] + (ds["time.month"] == 12)).isin([1981,2000,2021,2040,2061,2080])
+    year_mask = (sampled_ds["time.year"] + (sampled_ds["time.month"] == 12)).isin(
+        [1981, 2000, 2021, 2040, 2061, 2080]
+    )
     if np.any(year_mask):
         sampled_ds = sampled_ds.sel({dim: year_mask})
 
     # if ensemble member dimension exists, take only first 3 members
     if "ensemble_member" in sampled_ds.dims and len(sampled_ds["ensemble_member"]) >= 3:
-        sampled_ds = sampled_ds.isel(ensemble_member=[0,1,2])
+        sampled_ds = sampled_ds.isel(ensemble_member=[0, 1, 2])
     ds.close()
 
     # ensure output directory exists
