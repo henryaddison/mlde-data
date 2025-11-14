@@ -14,12 +14,8 @@ logger = logging.getLogger(__name__)
 class SelectDomain:
 
     DOMAIN_CENTRES_LON_LAT = {
-        "london": (-0.118092, 51.509865),
-        "birmingham": (-1.898575, 52.489471),
-        "glasgow": (-4.25763000, 55.86515000),
-        "aberdeen": (-2.09814000, 57.14369000),
+        "engwales": (-1.898575, 52.489471),
         "scotland": (-4.20264580, 56.49067120),
-        "dublin": (-6.267494, 53.344105),
     }
 
     DOMAIN_CENTRES_RP_LONG_LAT = {
@@ -37,15 +33,16 @@ class SelectDomain:
         for domain_name, (lon, lat) in DOMAIN_CENTRES_LON_LAT.items()
     }
 
-    def __init__(self, domain, size=64) -> None:
+    def __init__(self, domain) -> None:
         self.domain = domain
-        self.size = size
 
     def __call__(self, ds):
         logger.info(f"Selecting subdomain {self.domain}")
         if ds.attrs.get("domain") == f"{self.domain}":
             logger.info("Already on the desired domain, nothing to do")
             return ds
+
+        size = self.size(ds.attrs.get("resolution"))
 
         if "rotated_latitude_longitude" in ds.cf.grid_mapping_names:
             centre_xy = self.DOMAIN_CENTRES_RP_LONG_LAT[self.domain]
@@ -76,18 +73,28 @@ class SelectDomain:
             0
         ].item()
 
-        radius = math.floor((self.size - 1) / 2.0)
+        radius = math.floor((size - 1) / 2.0)
         ledge_idx = centre_long_idx - radius
         bedge_idx = centre_lat_idx - radius
 
         ds = ds.cf.isel(
-            X=slice(ledge_idx, ledge_idx + self.size),
-            Y=slice(bedge_idx, bedge_idx + self.size),
+            X=slice(ledge_idx, ledge_idx + size),
+            Y=slice(bedge_idx, bedge_idx + size),
         )
 
-        assert len(ds.cf["X"]) == self.size
-        assert len(ds.cf["Y"]) == self.size
+        assert len(ds.cf["X"]) == size
+        assert len(ds.cf["Y"]) == size
 
-        ds = ds.assign_attrs({"domain": f"{self.domain}-{self.size}"})
+        ds = ds.assign_attrs({"domain": f"{self.domain}"})
 
         return ds
+
+    def size(self, resolution):
+        if resolution == "2.2km":
+            return 256
+        elif resolution == "2.2km-coarsened-4x":
+            return 64
+        elif resolution == "60km" or resolution == "2.2km-coarsened-gcm":
+            return 13
+        else:
+            raise ValueError(f"Unknown resolution: {resolution}")
