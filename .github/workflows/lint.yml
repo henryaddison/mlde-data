@@ -14,7 +14,7 @@ jobs:
       - name: Black
         uses: psf/black@stable
         with:
-          version: "~= 25.1"
+          version: "== 25.1.0"
       - name: flake8 Lint
         uses: py-actions/flake8@v2
         with:
