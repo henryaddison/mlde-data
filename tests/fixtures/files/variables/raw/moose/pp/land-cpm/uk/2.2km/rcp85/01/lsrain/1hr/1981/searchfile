@@ -1,0 +1,14 @@
+begin
+    yr=1980
+    mon=12
+    day=1
+    stash=4203
+end
+
+begin
+    yr=1981
+    mon=6
+    day=1
+    stash=4203
+end
+
