@@ -17,19 +17,15 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "cdo",
-  "cftime",
-  "codetiming",
-  "compliance-checker",
-  "scitools-iris",
-  "knockknock",
-  "metpy",
+  "cftime~=1.6.4",
+  "codetiming~=1.4.0",
+  "compliance-checker~=5.3.0",
+  "scitools-iris~=3.12.2",
+  "metpy~=1.7.0",
   "mlde-utils~=0.3.0",
-  "netcdf4",
-  "pint",
-  "python-dotenv",
-  "xarray[accel]",
-  "typer",
+  "pint~=0.25",
+  "python-dotenv~=1.1",
+  "typer~=0.16.0",
 ]
 
 [dependency-groups]
@@ -56,18 +52,26 @@ lint = {features = ["lint"], no-default-feature = true}
 [tool.pixi.tasks]
 
 [tool.pixi.dependencies]
-cdo = { version = "2.*"}
+bottleneck = { version = "~=1.6.0"}
+cdo = { version = "~=2.5"}
+cf-xarray = { version = "~=0.10.9" }
+dask = { version = "==2025.11.0" }
+h5netcdf = ">=1.7.3,<2"
+hdf5plugin = ">=6.0.0,<7"
 mo_pack = { version = "~=0.3.1" }
-python = { version = "3.12.*" }
+netcdf4 = { version = "~=1.7" }
+python = { version = "~=3.12.12" }
+python-cdo = { version = "~=1.6" }
+xarray = { version = "==2025.11.0" }
 
 [tool.pixi.pypi-dependencies]
 mlde_data = { path = ".", editable = true }
 # mlde-utils = { path = "../mlde_utils", editable = true }
 
 [tool.pixi.feature.lint.dependencies]
-python = { version = "3.12.*" }
-pre-commit = "*"
-flake8 = { version = "==6.0.0" }
+python = { version = "~=3.12.12" }
+pre-commit = "~=4.5"
+flake8 = { version = "~=7.3.0" }
 black = { version = "==25.1.0" }
 
 [tool.pixi.feature.dev.tasks]
