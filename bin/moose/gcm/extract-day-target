@@ -7,18 +7,14 @@ scenario="rcp85"
 frequency="day"
 scale_factor=1
 collection="land-gcm"
-size=64
 target_resolution="2.2km-coarsened-4x"
 
 job_id=0 # ID of job to depend on (0 means no dependency)
 
-while getopts ":d:s:v:e:t:j" opt; do
+while getopts ":d:v:e:t:j" opt; do
   case ${opt} in
     d)
       domain=${OPTARG}
-      ;;
-    s)
-      size=${OPTARG}
       ;;
     v)
       variable=${OPTARG}
@@ -60,7 +56,6 @@ function queue_years {
   args+=('--scenario' ${scenario})
   args+=('--domain' ${domain})
   args+=('--scale-factor' ${scale_factor})
-  args+=('--size' ${size})
   args+=('--target-resolution' ${target_resolution})
 
   ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} ${args[@]} ${years}
