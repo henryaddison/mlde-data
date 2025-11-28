@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mlde_data"
-version = "0.3.1"
+version = "0.4.0a1"
 authors = [
   { name="Henry Addison", email="henry.addison@bristol.ac.uk" },
 ]
@@ -24,7 +24,7 @@ dependencies = [
   "scitools-iris",
   "knockknock",
   "metpy",
-  "mlde-utils~=0.3.0a10",
+  "mlde-utils~=0.3.0",
   "netcdf4",
   "pint",
   "python-dotenv",

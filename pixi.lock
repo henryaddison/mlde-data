@@ -170,7 +170,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/61/00/f10d4b5d72c5afb9b703ea0cabbea1670cd20159afe1764f4322d00dec99/matrix_client-0.4.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ea/03/e54c27f83c72d7e234f7fabcefc71c1acd161b5340c51da709e5874c8225/metpy-1.7.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/03/e2/57c43c266057557845e135227cd9d8da563e8daeed396506c75787d17212/mlde_utils-0.3.0a10-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/fd/52/c6eb51ad41e8c7f641a43ba554a5399add4a90c049e086e2a25d80bf76e4/mlde_utils-0.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2b/9f/7ba6f94fc1e9ac3d2b853fdff3035fb2fa5afbed898c4a72b8a020610594/more_itertools-10.7.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4c/02/751530c19e78fe73b24c3da66618eda0aa0d7f6e7aa512e46483de6be210/multidict-6.4.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fd/bf/5e671495c8bdf6b628e091aa8980793579474a10e51bc6ba302a3af6a778/netCDF4-1.7.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -396,7 +396,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/61/00/f10d4b5d72c5afb9b703ea0cabbea1670cd20159afe1764f4322d00dec99/matrix_client-0.4.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ea/03/e54c27f83c72d7e234f7fabcefc71c1acd161b5340c51da709e5874c8225/metpy-1.7.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/03/e2/57c43c266057557845e135227cd9d8da563e8daeed396506c75787d17212/mlde_utils-0.3.0a10-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/fd/52/c6eb51ad41e8c7f641a43ba554a5399add4a90c049e086e2a25d80bf76e4/mlde_utils-0.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2b/9f/7ba6f94fc1e9ac3d2b853fdff3035fb2fa5afbed898c4a72b8a020610594/more_itertools-10.7.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4c/02/751530c19e78fe73b24c3da66618eda0aa0d7f6e7aa512e46483de6be210/multidict-6.4.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fd/bf/5e671495c8bdf6b628e091aa8980793579474a10e51bc6ba302a3af6a778/netCDF4-1.7.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -2525,8 +2525,8 @@ packages:
   requires_python: '>=3.10'
 - pypi: ./
   name: mlde-data
-  version: 0.3.1
-  sha256: 93adff59ba0ec4c50bee28796237dc3317d852865c320ce31389ff2d9812374e
+  version: 0.4.0a1
+  sha256: 87058e459ec85234dd89d8c506a04156cfe47343ba5283dc9ff4838c83a45574
   requires_dist:
   - cdo
   - cftime
@@ -2535,7 +2535,7 @@ packages:
   - scitools-iris
   - knockknock
   - metpy
-  - mlde-utils~=0.3.0a10
+  - mlde-utils~=0.3.0
   - netcdf4
   - pint
   - python-dotenv
@@ -2543,10 +2543,10 @@ packages:
   - typer
   requires_python: '>=3.12'
   editable: true
-- pypi: https://files.pythonhosted.org/packages/03/e2/57c43c266057557845e135227cd9d8da563e8daeed396506c75787d17212/mlde_utils-0.3.0a10-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/fd/52/c6eb51ad41e8c7f641a43ba554a5399add4a90c049e086e2a25d80bf76e4/mlde_utils-0.3.0-py3-none-any.whl
   name: mlde-utils
-  version: 0.3.0a10
-  sha256: b4878c76ecfdb2e7382f58402e894151f90b281a1e01f32ae5ba65944d52459b
+  version: 0.3.0
+  sha256: c78bb7365212545ef12ed962a0f20b13ab7e62a2e4c6cfdede89cc6a4a322ca4
   requires_dist:
   - cartopy
   - cdo
