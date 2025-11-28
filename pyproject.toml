@@ -24,7 +24,7 @@ dependencies = [
   "scitools-iris",
   "knockknock",
   "metpy",
-  "mlde-utils~=0.3.0a8",
+  "mlde-utils~=0.3.0a10",
   "netcdf4",
   "pint",
   "python-dotenv",
@@ -81,4 +81,3 @@ target-version = ["py312"]
 
 [tool.pytest_env]
 DATA_PATH="/path/to/data"
-WORKDIRS_PATH="/path/to/test/workdirs"

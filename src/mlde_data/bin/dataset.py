@@ -14,9 +14,11 @@ import yaml
 from mlde_utils import (
     TIME_PERIODS,
     DatasetMetadata,
+    DATASETS_PATH,
+    DERIVED_VARIABLES_PATH,
 )
 
-from mlde_data import DATASETS_PATH, DERIVED_VARIABLES_PATH, dataset as dataset_lib
+from mlde_data import dataset as dataset_lib
 
 logger = logging.getLogger(__name__)
 
