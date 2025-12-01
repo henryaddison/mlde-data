@@ -33,7 +33,7 @@ def sample(file: Path, output_file: Path, dim: str = "time"):
     # if covers a long time period, take two years in 10
     year_mask = (
         (sampled_ds["time.year"] + (sampled_ds["time.month"] == 12)) % 10
-    ).isin([0, 1])
+    ).isin([0, 5])
     if np.any(year_mask):
         sampled_ds = sampled_ds.sel({dim: year_mask})
 
