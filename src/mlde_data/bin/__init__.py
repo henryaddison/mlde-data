@@ -24,6 +24,7 @@ app.add_typer(variable.app, name="variable")
 
 @app.command()
 def sample(file: Path, output_file: Path, dim: str = "time"):
+    logger.info(f"Sampling {file}")
     ds = xr.open_dataset(file)
 
     if dim in ds.dims:
