@@ -7,10 +7,11 @@ from mlde_data.dataset.random_season_split import RandomSeasonSplit
 
 
 def test_split():
-    time_range = xr.cftime_range(
+    time_range = xr.date_range(
         cftime.Datetime360Day(1980, 12, 1, 12, 0, 0, 0, has_year_zero=True),
         periods=360 * 20,
         freq="D",
+        use_cftime=True,
     )
     time_da = xr.DataArray(dims=["time"], data=time_range, coords={"time": time_range})
 
