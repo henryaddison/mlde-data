@@ -118,37 +118,14 @@ def test_create(variable_files, config):
     assert set(result.keys()) == {"predictors", "predictands"}
 
     for var_type in ["predictors", "predictands"]:
+
+        ds = result[var_type]["train"]
+
+        assert ds.sizes == {
+            "ensemble_member": 1,
+            "time": 6 * 360 / 10,
+            "grid_longitude": 10,
+            "grid_latitude": 10,
+        }
         for var_name in config[var_type]["variables"]:
-            ds = result[var_type][var_name]["train"]
-
-            assert ds.sizes == {
-                "ensemble_member": 1,
-                "time": 6 * 360 / 10,
-                "grid_longitude": 10,
-                "grid_latitude": 10,
-            }
-
             assert ds[var_name].shape == (1, 216, 10, 10)
-
-    # Check that the time coordinates are aligned for each split
-    for split in ["val", "test", "train"]:
-        train_time_das = [
-            result[var_type][var_name][split]["time"].values
-            for var_type in ["predictors", "predictands"]
-            for var_name in config[var_type]["variables"]
-        ]
-
-        assert {
-            np.all(train_time_das[i] == train_time_das[i + 1])
-            for i in range(len(train_time_das) - 1)
-        } == {True}
-
-        # check that can combine by coords for each variable type and split
-        for var_type in ["predictors", "predictands"]:
-            xr.combine_by_coords(
-                [result[var_type][var_name][split] for var_name in result[var_type]],
-                compat="no_conflicts",
-                combine_attrs="drop_conflicts",
-                join="exact",
-                data_vars="minimal",
-            )

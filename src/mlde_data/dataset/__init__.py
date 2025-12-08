@@ -21,12 +21,13 @@ def create(config: dict, input_base_dir: Path) -> dict:
 
     common_var_params = {k: config[k] for k in ["domain", "scenario"]}
 
-    variable_datasets = {}
+    var_type_datasets = {}
     for var_type in ["predictors", "predictands"]:
-        variable_datasets[var_type] = {}
+        split_sets = None
+        var_type_datasets[var_type] = {}
         var_type_config = config[var_type]
+        single_var_datasets = []
         for var_name in var_type_config["variables"]:
-            variable_datasets[var_type][var_name] = {}
             single_em_var_datasets = []
             for em in config["ensemble_members"]:
                 single_em_var_datasets.append(
@@ -49,18 +50,26 @@ def create(config: dict, input_base_dir: Path) -> dict:
                 join="exact",
                 data_vars="minimal",
             )
+            single_var_datasets.append(multi_em_ds)
 
             del single_em_var_datasets
             gc.collect()
 
-            split_sets = _split(multi_em_ds["time"], **config["split"])
+            if split_sets is None:
+                split_sets = _split(multi_em_ds["time"], **config["split"])
 
-            for split, split_time_da in split_sets.items():
-                variable_datasets[var_type][var_name][split] = multi_em_ds.sel(
-                    time=split_time_da
-                )
+        var_type_ds = xr.combine_by_coords(
+            single_var_datasets,
+            compat="no_conflicts",
+            combine_attrs="drop_conflicts",
+            join="exact",
+            data_vars="minimal",
+        )
 
-    return variable_datasets
+        for split, split_time_da in split_sets.items():
+            var_type_datasets[var_type][split] = var_type_ds.sel(time=split_time_da)
+
+    return var_type_datasets
 
 
 def validate(dataset: str) -> defaultdict:
