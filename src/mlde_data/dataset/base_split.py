@@ -3,11 +3,10 @@ import xarray as xr
 
 
 class BaseSplit(abc.ABC):
-    def __init__(
-        self, val_prop: float = 0.2, test_prop: float = 0.1, seed: int = 42
-    ) -> None:
-        self.val_prop = val_prop
-        self.test_prop = test_prop
+    def __init__(self, props: dict[str, float], seed: int = 42) -> None:
+        if "train" not in props:
+            props["train"] = 1.0 - sum(props.values())
+        self.props = props
         self.seed = seed
 
     @abc.abstractmethod

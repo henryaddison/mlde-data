@@ -10,38 +10,30 @@ logger = logging.getLogger(__name__)
 
 
 class RandomSeasonSplit(BaseSplit):
-    def run(self, combined_dataset):
+    def run(self, time_da: xr.DataArray) -> dict[str, xr.DataArray]:
 
         split_chunks = defaultdict(list)
-        for years in map(lambda x: list(range(x, x + 20)), [1981, 2021, 2061]):
-            for season in ["DJF", "MAM", "JJA", "SON"]:
+        for season in ["DJF", "MAM", "JJA", "SON"]:
+            for years in map(lambda x: list(range(x, x + 20)), [1981, 2021, 2061]):
+                nyears = len(years)
                 rng = np.random.default_rng(seed=self.seed)
                 rng.shuffle(years)
+                for split, split_prop in self.props.items():
+                    split_year_count = int(nyears * split_prop)
+                    if split_year_count > 0:
+                        split_years = years[:split_year_count]
+                        years = years[split_year_count:]
 
-                test_year_count = int(len(years) * self.test_prop)
-                val_year_count = int(len(years) * self.val_prop)
-                seasonal_year_split = {}
-                if test_year_count > 0:
-                    seasonal_year_split["test"] = years[:test_year_count]
-                if val_year_count > 0:
-                    seasonal_year_split["val"] = years[
-                        test_year_count : test_year_count + val_year_count
-                    ]
-                if test_year_count + val_year_count < len(years):
-                    seasonal_year_split["train"] = years[
-                        test_year_count + val_year_count :
-                    ]
+                        split_chunk = time_da.sel(
+                            time=self._inseason(time_da, split_years, season)
+                        )
 
-                for split, split_years in seasonal_year_split.items():
-                    split_chunk = combined_dataset.sel(
-                        time=self._inseason(combined_dataset, split_years, season)
-                    )
-
-                    split_chunks[split].append(split_chunk)
+                        split_chunks[split].append(split_chunk)
 
         splits = {
-            split: xr.merge(
+            split: xr.concat(
                 split_chunks,
+                dim="time",
                 compat="no_conflicts",
                 combine_attrs="no_conflicts",
             ).sortby("time")

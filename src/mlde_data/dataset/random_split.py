@@ -1,6 +1,6 @@
 import logging
-
 import numpy as np
+import xarray as xr
 
 from .base_split import BaseSplit
 
@@ -8,26 +8,23 @@ logger = logging.getLogger(__name__)
 
 
 class RandomSplit(BaseSplit):
-    def run(self, combined_dataset):
-        tc = combined_dataset.time.values.copy()
+    def run(self, time_da: xr.DataArray) -> dict[str, xr.DataArray]:
+        tc = time_da.values.copy()
+        ntimes = len(tc)
+
         rng = np.random.default_rng(seed=self.seed)
         rng.shuffle(tc)
 
-        test_size = int(len(tc) * self.test_prop)
-        val_size = int(len(tc) * self.val_prop)
+        splits = {}
+        for split, split_prop in self.props.items():
+            split_size = int(ntimes * split_prop)
 
-        test_times = tc[0:test_size]
-        val_times = tc[test_size : test_size + val_size]
-        train_times = tc[test_size + val_size :]
+            test_times = tc[:split_size]
+            tc = tc[split_size:]
 
-        test_set = combined_dataset.where(
-            combined_dataset.time.isin(test_times) == True, drop=True  # noqa: E712
-        )
-        val_set = combined_dataset.where(
-            combined_dataset.time.isin(val_times) == True, drop=True  # noqa: E712
-        )
-        train_set = combined_dataset.where(
-            combined_dataset.time.isin(train_times) == True, drop=True  # noqa: E712
-        )
+            split_set = time_da.where(
+                time_da.time.isin(test_times) == True, drop=True  # noqa: E712
+            )
+            splits[split] = split_set
 
-        return {"train": train_set, "val": val_set, "test": test_set}
+        return splits
