@@ -24,45 +24,51 @@ def test_filter(tmp_path, dataset):
 def dataset(tmp_path):
     dataset_name = "test-dataset"
     test_time_range = (
-        xr.cftime_range(
+        xr.date_range(
             cftime.Datetime360Day(1980, 12, 1, 12, 0, 0, 0, has_year_zero=True),
             periods=360 * 20,
             freq="D",
+            use_cftime=True,
         )
         .append(
-            xr.cftime_range(
+            xr.date_range(
                 cftime.Datetime360Day(2020, 12, 1, 12, 0, 0, 0, has_year_zero=True),
                 periods=360 * 20,
                 freq="D",
+                use_cftime=True,
             )
         )
         .append(
-            xr.cftime_range(
+            xr.date_range(
                 cftime.Datetime360Day(2060, 12, 1, 12, 0, 0, 0, has_year_zero=True),
                 periods=360 * 20,
                 freq="D",
+                use_cftime=True,
             )
         )
     )
 
     train_time_range = (
-        xr.cftime_range(
+        xr.date_range(
             cftime.Datetime360Day(1999, 12, 1, 12, 0, 0, 0, has_year_zero=True),
             periods=360 * 20,
             freq="D",
+            use_cftime=True,
         )
         .append(
-            xr.cftime_range(
+            xr.date_range(
                 cftime.Datetime360Day(2039, 12, 1, 12, 0, 0, 0, has_year_zero=True),
                 periods=360 * 20,
                 freq="D",
+                use_cftime=True,
             )
         )
         .append(
-            xr.cftime_range(
+            xr.date_range(
                 cftime.Datetime360Day(2079, 12, 1, 12, 0, 0, 0, has_year_zero=True),
                 periods=360 * 20,
                 freq="D",
+                use_cftime=True,
             )
         )
     )
