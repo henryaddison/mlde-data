@@ -39,19 +39,19 @@ def create(
     """
     Create and save a dataset
     """
-    config_name = config.stem
+    dataset_name = config.stem
     with open(config, "r") as f:
         config = yaml.safe_load(f)
 
     split_sets = dataset_lib.create(config, input_base_dir)
 
-    output_dir = DatasetMetadata(config_name, base_dir=output_base_dir).path()
+    output_dir = DatasetMetadata(dataset_name, base_dir=output_base_dir).path()
 
     os.makedirs(output_dir, exist_ok=False)
 
     logger.info(f"Saving data to {output_dir}...")
     with open(
-        DatasetMetadata(config_name, base_dir=output_base_dir).config_path(), "w"
+        DatasetMetadata(dataset_name, base_dir=output_base_dir).config_path(), "w"
     ) as f:
         yaml.dump(config, f)
     for split_name, split_ds in split_sets.items():
