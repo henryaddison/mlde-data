@@ -1,0 +1,22 @@
+domain: engwales
+ensemble_members:
+  - '01'
+predictands:
+  frequency: 1hr
+  resolution: 2.2km-coarsened-4x
+  collection: land-cpm
+  variables:
+    - pr
+predictors:
+  frequency: day
+  resolution: 2.2km-coarsened-gcm
+  collection: land-cpm
+  variables:
+    - temp850
+scenario: rcp85
+split:
+  scheme: random
+  seed: 42
+  props:
+    test: 0.15
+    val: 0.15

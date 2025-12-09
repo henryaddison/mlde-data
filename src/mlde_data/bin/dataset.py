@@ -54,11 +54,10 @@ def create(
         DatasetMetadata(dataset_name, base_dir=output_base_dir).config_path(), "w"
     ) as f:
         yaml.dump(config, f)
-    for split_name, split_ds in split_sets.items():
-        for varname in split_ds.data_vars:
-            split_ds[varname].encoding.update(zlib=True, complevel=5)
-        split_ds.to_netcdf(os.path.join(output_dir, f"{split_name}.nc"))
-        logger.info(f"{split_name} done")
+    for var_type, var_type_splits in split_sets.items():
+        for split_name, split_ds in var_type_splits.items():
+            split_ds.to_zarr(os.path.join(output_dir, split_name, f"{var_type}.zarr"))
+            logger.info(f"{var_type} {split_name} done")
 
 
 def report_issues(dataset, bad_splits):
