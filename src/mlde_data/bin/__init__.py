@@ -29,7 +29,7 @@ def sample(file: Path, output_file: Path, dim: str = "time"):
 
     if dim in ds.dims:
         # take something from first day of each month
-        doy_mask = ds[f"{dim}.is_month_start"]
+        doy_mask = ds[dim].dt.day == 1
         sampled_ds = ds.sel({dim: doy_mask}).load()
 
         # if covers a long time period, take two years in 10
