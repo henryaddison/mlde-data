@@ -10,12 +10,20 @@ sources:
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - name: pr
+    - name: lssnow
+    - name: lsrain
 spec:
   - action: coarsen
     parameters:
       scale_factor: ${scale_factor}
       grid_type: vorticity850
+  - action: sum
+    parameters:
+      variables: [lssnow, lsrain]
+      new_variable: pr
+  - action: drop-variables
+    parameters:
+      variables: [lssnow, lsrain]
   - action: select-subdomain
     parameters:
       domain: ${domain}
