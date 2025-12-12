@@ -22,7 +22,7 @@ def create(config: dict, input_base_dir: Path) -> dict:
     common_var_params = {k: config[k] for k in ["domain", "scenario"]}
 
     var_type_datasets = {}
-    for var_type in ["predictors", "predictands"]:
+    for var_type in ["predictands", "predictors"]:
         split_sets = None
         var_type_datasets[var_type] = {}
         var_type_config = config[var_type]
@@ -49,6 +49,15 @@ def create(config: dict, input_base_dir: Path) -> dict:
                 combine_attrs="drop_conflicts",
                 join="exact",
                 data_vars="minimal",
+            )
+            # rechunk to avoid issues with saving to zarr
+            multi_em_ds[var_name] = multi_em_ds[var_name].chunk(
+                {
+                    "ensemble_member": 1,
+                    "time": "auto",
+                    multi_em_ds.cf["X"].name: multi_em_ds.cf["X"].size,
+                    multi_em_ds.cf["Y"].name: multi_em_ds.cf["Y"].size,
+                }
             )
             single_var_datasets.append(multi_em_ds)
 

@@ -41,5 +41,6 @@ split:
   scheme: random
   seed: 42
   props:
+    train: 0.7
     val: 0.15
     test: 0.15
