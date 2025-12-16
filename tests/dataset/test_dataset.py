@@ -88,6 +88,9 @@ def variable_ds_factory(var, year):
             grid_latitude=(["grid_latitude"], grid_lat_range),
         ),
     )
+    ds["time"].attrs["axis"] = "T"
+    ds["grid_latitude"].attrs["axis"] = "Y"
+    ds["grid_longitude"].attrs["axis"] = "X"
 
     return ds
 

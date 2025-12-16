@@ -17,21 +17,45 @@ def test_split():
 
     splits = RandomSplit(props={"val": 0.2, "test": 0.1}).run(time_da)
 
-    # Should not change the lon and lat but divide up by time
-    assert splits["test"].shape == (720,)
-    assert splits["val"].shape == (1440,)
-    assert splits["train"].shape == (5040,)
+    # Should divide up time
+    assert len(splits["test"]) == 720
+    assert len(splits["val"]) == 1440
+    assert len(splits["train"]) == 5040
 
     # check time is sorted
-    assert np.all(
-        splits["test"]["time"].values[:-1] <= splits["test"]["time"].values[1:]
-    )
-    assert np.all(splits["val"]["time"].values[:-1] <= splits["val"]["time"].values[1:])
-    assert np.all(
-        splits["train"]["time"].values[:-1] <= splits["train"]["time"].values[1:]
-    )
+    for split_times in splits.values():
+        assert np.all(split_times[:-1] <= split_times[1:])
 
     # there should be no overlap between the splits
-    assert not any(np.isin(splits["train"]["time"], splits["val"]["time"]))
-    assert not any(np.isin(splits["train"]["time"], splits["test"]["time"]))
-    assert not any(np.isin(splits["val"]["time"], splits["test"]["time"]))
+    assert not any(np.isin(splits["train"], splits["val"]))
+    assert not any(np.isin(splits["train"], splits["test"]))
+    assert not any(np.isin(splits["val"], splits["test"]))
+
+
+def test_split_hours():
+    time_range = xr.date_range(
+        cftime.Datetime360Day(1980, 12, 1, 0, 0, 0, 0, has_year_zero=True),
+        periods=360 * 2 * 24,
+        freq="h",
+        use_cftime=True,
+    )
+    time_da = xr.DataArray(dims=["time"], data=time_range, coords={"time": time_range})
+
+    splits = RandomSplit(props={"val": 0.2, "test": 0.1}).run(time_da)
+
+    # Should divide up by time
+    assert len(splits["test"]) == (1 * 36 * 2)
+    assert len(splits["val"]) == (2 * 36 * 2)
+    assert len(splits["train"]) == (7 * 36 * 2)
+
+    # Check that all days are present across the splits
+    assert np.all(np.isin(time_range.floor("D"), np.concatenate(list(splits.values()))))
+
+    # check time is sorted
+    for split_times in splits.values():
+        assert np.all(split_times[:-1] <= split_times[1:])
+
+    # there should be no overlap between the splits
+    assert not any(np.isin(splits["train"], splits["val"]))
+    assert not any(np.isin(splits["train"], splits["test"]))
+    assert not any(np.isin(splits["val"], splits["test"]))

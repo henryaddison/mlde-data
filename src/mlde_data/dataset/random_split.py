@@ -9,22 +9,22 @@ logger = logging.getLogger(__name__)
 
 class RandomSplit(BaseSplit):
     def run(self, time_da: xr.DataArray) -> dict[str, xr.DataArray]:
-        tc = time_da.values.copy()
+        tc = np.unique(time_da.dt.floor("D"))
         ntimes = len(tc)
 
         rng = np.random.default_rng(seed=self.seed)
         rng.shuffle(tc)
-
+        split_sizes = {
+            split: int(ntimes * prop)
+            for split, prop in self.props.items()
+            if split != "train"
+        }
+        split_sizes["train"] = ntimes - sum(split_sizes.values())
         splits = {}
-        for split, split_prop in self.props.items():
-            split_size = int(ntimes * split_prop)
-
-            test_times = tc[:split_size]
+        for split, split_size in split_sizes.items():
+            split_times = tc[:split_size]
             tc = tc[split_size:]
 
-            split_set = time_da.where(
-                time_da.time.isin(test_times) == True, drop=True  # noqa: E712
-            )
-            splits[split] = split_set
-
+            splits[split] = sorted(split_times)
+        assert len(tc) == 0, "Some times were not assigned to a split"
         return splits

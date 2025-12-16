@@ -1,3 +1,4 @@
+import cf_xarray  # noqa: F401
 from collections import defaultdict
 import gc
 import logging
@@ -22,8 +23,8 @@ def create(config: dict, input_base_dir: Path) -> dict:
     common_var_params = {k: config[k] for k in ["domain", "scenario"]}
 
     var_type_datasets = {}
+    split_sets = None
     for var_type in ["predictands", "predictors"]:
-        split_sets = None
         var_type_datasets[var_type] = {}
         var_type_config = config[var_type]
         single_var_datasets = []
@@ -75,8 +76,12 @@ def create(config: dict, input_base_dir: Path) -> dict:
             data_vars="minimal",
         )
 
-        for split, split_time_da in split_sets.items():
-            var_type_datasets[var_type][split] = var_type_ds.sel(time=split_time_da)
+        for split, split_times in split_sets.items():
+            split_ds = var_type_ds.where(
+                var_type_ds.time.dt.floor("1D").isin(split_times),
+                drop=True,
+            )
+            var_type_datasets[var_type][split] = split_ds
 
     return var_type_datasets
 
