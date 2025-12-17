@@ -63,7 +63,7 @@ def test_create(tmp_path, config_filepath, input_base_dir):
     assert_file(ds_config_filepath)
 
     for var_type in ["predictors", "predictands"]:
-        for split in ["train", "val", "test"]:
+        for split in ["train", "val"]:
             data_filepath = expected_dsmeta.path() / split / f"{var_type}.zarr"
             assert_file(data_filepath)
             xr.open_dataset(data_filepath)  # will raise error if file is invalid

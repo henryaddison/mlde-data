@@ -18,5 +18,4 @@ split:
   scheme: random
   seed: 42
   props:
-    test: 0.15
-    val: 0.15
+    val: 0.5
