@@ -135,6 +135,25 @@ VARIABLE_CODES = {
         "stream": {"land-gcm": {"day": "apa"}},
         "moose_name": "precipitation_flux",
     },
+    # a hack for some wind components for Sam
+    "x_wind": {
+        "query": {
+            "stash": 30201,
+            "lblev": [500, 850],
+        },
+        "stream": {
+            "land-gcm": {"day": "ape"},
+        },
+    },
+    "y_wind": {
+        "query": {
+            "stash": 30202,
+            "lblev": [500, 850],
+        },
+        "stream": {
+            "land-gcm": {"day": "ape"},
+        },
+    },
 }
 
 THETAS = [250, 500, 700, 850]
