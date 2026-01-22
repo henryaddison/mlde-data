@@ -14,4 +14,8 @@ member=${3}
 
 base_dir="/gws/nopw/j04/bris_climdyn/henrya/samb"
 
-pixi run --as-is --locked mlde-data moose extract --collection land-gcm --scenario rcp85 --ensemble-member ${member} --year ${year} --variable ${variable} --frequency day --base-dir ${base_dir}
+pixi run --as-is --locked mlde-data moose extract --collection land-gcm --scenario rcp85 --ensemble-member ${member} --year ${year} --variable ${variable} --frequency day --base-dir ${base_dir}/pp
+
+pixi run --as-is --locked mlde-data moose convert --collection land-gcm --scenario rcp85 --ensemble-member ${member} --year ${year} --variable ${variable} --frequency day --input-base-dir ${base_dir}/pp --output-base-dir ${base_dir}
+
+echo "DONE for ${variable} ${year} ${member}"
