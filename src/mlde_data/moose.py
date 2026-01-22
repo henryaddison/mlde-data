@@ -139,7 +139,7 @@ VARIABLE_CODES = {
     "x_wind": {
         "query": {
             "stash": 30201,
-            "lblev": [500, 850],
+            "lblev": "(500,850)",
         },
         "stream": {
             "land-gcm": {"day": "ape"},
