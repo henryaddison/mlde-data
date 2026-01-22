@@ -163,6 +163,14 @@ VARIABLE_CODES = {
             "land-gcm": {"day": "ape"},
         },
     },
+    "sst": {
+        "query": {
+            "stash": 507,
+        },
+        "stream": {
+            "land-gcm": {"day": "apa"},
+        },
+    },
 }
 
 THETAS = [250, 500, 700, 850]
