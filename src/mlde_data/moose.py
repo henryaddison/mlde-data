@@ -158,6 +158,7 @@ VARIABLE_CODES[f"dailymultilevel"] = {
 TS1 = range(1980, 2001)
 TS2 = range(2020, 2041)
 TS3 = range(2061, 2081)
+TSHistorical = range(1897, 1971)
 TSRecent = range(1971, 2006)
 TSNearF = range(2006, 2077)
 TSFarF = range(2077, 2100)
@@ -177,8 +178,13 @@ SUITE_IDS = {
         "r001i1p02335": RangeDict({TS1: "mi-bb220", TS2: "mi-bb221", TS3: "mi-bb222"}),
         "r001i1p02491": RangeDict({TS1: "mi-bb223", TS2: "mi-bb224", TS3: "mi-bb225"}),
     },
+    # Suite names for GCM time periods
+    # The four suite names covering the historical and RCP8.5 experiments are:
+    # Historical: u-an398 (Dec 1896 - Nov 1970), u-ap977 (Dec 1970 - Nov 2005)
+    # RCP8.5    : u-ar095 (Dec 2005 – Nov 2076), u-au084 (Dec 2076 – Nov 2099)
     "land-gcm": RangeDict(
         {
+            TSHistorical: "u-an398",
             TSRecent: "u-ap977",
             TSNearF: "u-ar095",
             TSFarF: "u-au084",
@@ -186,12 +192,31 @@ SUITE_IDS = {
     ),
 }
 
+GCM_RIP_CODES = [
+    "r001i1p00000",
+    "r001i1p01113",
+    "r001i1p01554",
+    "r001i1p01649",
+    "r001i1p01843",
+    "r001i1p01935",
+    "r001i1p02868",
+    "r001i1p02123",
+    "r001i1p02242",
+    "r001i1p02305",
+    "r001i1p02335",
+    "r001i1p02491",
+    "r001i1p02832",
+    "r001i1p00090",
+    "r001i1p02089",
+    "r001i1p00605",
+    "r001i1p02884",
+    "r001i1p00834",
+    "r001i1p02753",
+    "r001i1p02914",
+]
 
-# Suite names for GCM time periods
-# The four suite names covering the historical and RCP8.5 experiments are:
-# Historical: u-an398 (Dec 1896 - Nov 1970), u-ap977 (Dec 1970 - Nov 2005)
-# RCP8.5    : u-ar095 (Dec 2005 – Nov 2076), u-au084 (Dec 2076 – Nov 2099)
-
+# mapping between short-hand CPM ensemble member identifier and rip codes
+# for different GCM ensemble members (also allow use of the GCM rip codes directly)
 RIP_CODES = {
     "land-gcm": {
         "01": "r001i1p00000",
@@ -207,13 +232,8 @@ RIP_CODES = {
         "13": "r001i1p02335",
         "15": "r001i1p02491",
     }
+    | {rc: rc for rc in GCM_RIP_CODES}
 }
-
-# other GCM rip codes
-# r001i1p00000 (standard physics model) r001i1p01113  r001i1p01935  r001i1p02305 r001i1p02832
-# r001i1p00090 r001i1p01554  r001i1p02089  r001i1p02335  r001i1p02868
-# r001i1p00605  r001i1p01649  r001i1p02123  r001i1p02491  r001i1p02884
-# r001i1p00834  r001i1p01843  r001i1p02242  r001i1p02753  r001i1p02914
 
 
 def moose_path(variable, year, ensemble_member, frequency="day", collection="land-cpm"):
