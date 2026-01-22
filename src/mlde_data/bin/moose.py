@@ -75,7 +75,7 @@ class MoosePPVariableMetadata(VariableMetadata):
         return os.path.join(self.ppdata_dirpath(year), "*.pp")
 
 
-def _load_cubes(pp_files, variable, collection):
+def _load_cubes(pp_files, variable, collection, realize=False):
     if variable == "pr" and collection == CollectionOption.gcm:
         # for some reason precip extract for GCM has a mean and max hourly cell method version
         # only want the mean version
@@ -84,7 +84,14 @@ def _load_cubes(pp_files, variable, collection):
         )
     else:
         constraint = None
-    return iris.load(pp_files, constraints=constraint)
+
+    cubes = iris.load(pp_files, constraints=constraint)
+
+    if realize:
+        for cube in cubes:
+            cube.data
+
+    return cubes
 
 
 def _domain_and_resolution_from_collection(collection: CollectionOption):
@@ -272,8 +279,12 @@ def convert(
     )
     output_filepath = output_var_meta.filepath(year)
 
+    # realize the data (or something odd happens when saving to netcdf below)
     src_cubes = _load_cubes(
-        str(input_moose_pp_varmeta.pp_files_glob(year)), variable, collection
+        str(input_moose_pp_varmeta.pp_files_glob(year)),
+        variable,
+        collection,
+        realize=True,
     )
 
     # bug in some data means the final grid_latitude bound is very large (1.0737418e+09)
