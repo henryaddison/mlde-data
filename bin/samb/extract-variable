@@ -15,7 +15,7 @@ year_end=${4:-2099}
 
 base_dir="/gws/nopw/j04/bris_climdyn/henrya/samb"
 
-for year in $(seq ${year_start year_end}); do
+for year in $(seq ${year_start} ${year_end}); do
 
   pixi run --as-is --locked mlde-data moose extract --collection land-gcm --scenario rcp85 --ensemble-member ${member} --year ${year} --variable ${variable} --frequency day --base-dir ${base_dir}/pp
 
