@@ -1,0 +1,28 @@
+#! /bin/bash
+
+#SBATCH -A mass
+#SBATCH -p mass
+#SBATCH -q mass
+#SBATCH --mem=4G
+#SBATCH --time=1-00:00:00
+
+set -euo pipefail
+
+variable=${1}
+member=${2}
+year_start=${3}
+year_end=${4:-2099}
+
+base_dir="/gws/nopw/j04/bris_climdyn/henrya/samb"
+
+for year in $(seq ${year_start year_end}); do
+
+  pixi run --as-is --locked mlde-data moose extract --collection land-gcm --scenario rcp85 --ensemble-member ${member} --year ${year} --variable ${variable} --frequency day --base-dir ${base_dir}/pp
+
+  pixi run --as-is --locked mlde-data moose convert --collection land-gcm --scenario rcp85 --ensemble-member ${member} --year ${year} --variable ${variable} --frequency day --input-base-dir ${base_dir}/pp --output-base-dir ${base_dir}
+
+  echo "DONE for ${variable} ${year} ${member}"
+
+done
+
+echo "DONE for ${variable} ${member}"
