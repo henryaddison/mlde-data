@@ -163,9 +163,9 @@ VARIABLE_CODES = {
             "land-gcm": {"day": "ape"},
         },
     },
-    "sst": {
+    "surft": {
         "query": {
-            "stash": 507,
+            "stash": "(24,507)",
         },
         "stream": {
             "land-gcm": {"day": "apa"},
