@@ -1,0 +1,34 @@
+attrs:
+  grid_mapping: rotated_latitude_longitude
+  standard_name: precipitation_flux
+  units: kg m-2 s-1
+sources:
+  collection: land-cpm
+  frequency: 1hr
+  type: moose
+  variables:
+  - name: lssnow
+  - name: lsrain
+spec:
+- action: coarsen
+  parameters:
+    grid_type: pr
+    scale_factor: 4
+- action: sum
+  parameters:
+    new_variable: pr
+    variables:
+    - lssnow
+    - lsrain
+- action: drop-variables
+  parameters:
+    variables:
+    - lssnow
+    - lsrain
+- action: regrid_to_target
+  parameters:
+    target_grid_resolution: 2.2km-coarsened-4x
+- action: select-subdomain
+  parameters:
+    domain: engwales
+variable: pr

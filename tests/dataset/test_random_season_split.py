@@ -7,70 +7,112 @@ from mlde_data.dataset.random_season_split import RandomSeasonSplit
 
 
 def test_split():
-    time_range = xr.cftime_range(
+    time_range = xr.date_range(
         cftime.Datetime360Day(1980, 12, 1, 12, 0, 0, 0, has_year_zero=True),
         periods=360 * 20,
         freq="D",
+        use_cftime=True,
     )
-    lat_range = np.linspace(-2, 2, 10)
-    lon_range = np.linspace(-2, 2, 10)
+    time_da = xr.DataArray(dims=["time"], data=time_range, coords={"time": time_range})
 
-    ds = xr.Dataset(
-        data_vars={
-            "measurement": (
-                ["time", "grid_longitude", "grid_latitude"],
-                np.ones([len(time_range), len(lat_range), len(lon_range)]),
-            ),
-        },
-        coords=dict(
-            time=(["time"], time_range),
-            grid_longitude=(["grid_longitude"], lon_range),
-            grid_latitude=(["grid_latitude"], lat_range),
-        ),
-    )
+    splits = RandomSeasonSplit(
+        props={"val": 0.2, "test": 0.1}, time_periods=[[1981, 2000]]
+    ).run(time_da)
 
-    splits = RandomSeasonSplit().run(ds)
+    # Should divide up by time between splits
+    assert len(splits["test"]) == 720
+    assert len(splits["val"]) == 1440
+    assert len(splits["train"]) == 5040
 
-    # Should not change the lon and lat but divide up by time
-    assert splits["test"]["measurement"].shape == (720, 10, 10)
-    assert splits["val"]["measurement"].shape == (1440, 10, 10)
-    assert splits["train"]["measurement"].shape == (5040, 10, 10)
+    # Check that all days are present across the splits
+    assert np.all(np.isin(time_range.floor("D"), np.concatenate(list(splits.values()))))
 
     # check time is sorted
-    assert np.all(
-        splits["test"]["time"].values[:-1] <= splits["test"]["time"].values[1:]
-    )
-    assert np.all(splits["val"]["time"].values[:-1] <= splits["val"]["time"].values[1:])
-    assert np.all(
-        splits["train"]["time"].values[:-1] <= splits["train"]["time"].values[1:]
-    )
+    for split_times in splits.values():
+        assert np.all(split_times[:-1] <= split_times[1:])
 
     # there should be no overlap between the splits
-    assert not any(np.isin(splits["train"]["time"], splits["val"]["time"]))
-    assert not any(np.isin(splits["train"]["time"], splits["test"]["time"]))
-    assert not any(np.isin(splits["val"]["time"], splits["test"]["time"]))
+    assert not any(np.isin(splits["train"], splits["val"]))
+    assert not any(np.isin(splits["train"], splits["test"]))
+    assert not any(np.isin(splits["val"], splits["test"]))
 
     # Each split should have a certain number of years for each month
     test_year_seasons = np.unique(
         np.char.add(
-            splits["test"]["time.year"].values.astype("str"),
-            splits["test"]["time.month"].values.astype("str"),
+            splits["test"].year.astype("str"),
+            splits["test"].month.astype("str"),
         )
     )
     assert len(test_year_seasons) == 2 * 12
 
     val_year_seasons = np.unique(
         np.char.add(
-            splits["val"]["time.year"].values.astype("str"),
-            splits["val"]["time.month"].values.astype("str"),
+            splits["val"].year.astype("str"),
+            splits["val"].month.astype("str"),
         )
     )
     assert len(val_year_seasons) == 4 * 12
 
     train_year_seasons = np.unique(
         np.char.add(
-            splits["train"]["time.year"].values.astype("str"),
-            splits["train"]["time.month"].values.astype("str"),
+            splits["train"].year.astype("str"),
+            splits["train"].month.astype("str"),
         )
     )
     assert len(train_year_seasons) == 14 * 12
+
+
+def test_split_hours():
+    time_range = xr.date_range(
+        cftime.Datetime360Day(1980, 12, 1, 0, 0, 0, 0, has_year_zero=True),
+        periods=24 * 360 * 4,
+        freq="h",
+        use_cftime=True,
+    )
+    time_da = xr.DataArray(dims=["time"], data=time_range, coords={"time": time_range})
+
+    splits = RandomSeasonSplit(
+        props={"val": 0.25, "test": 0.25}, time_periods=[[1981, 1984]]
+    ).run(time_da)
+
+    # Should divide up by time between splits
+    assert len(splits["test"]) == 360 * 1
+    assert len(splits["val"]) == 360 * 1
+    assert len(splits["train"]) == 360 * 2
+
+    # Check that all days are present across the splits
+    assert np.all(np.isin(time_range.floor("D"), np.concatenate(list(splits.values()))))
+
+    # check time is sorted
+    for split_times in splits.values():
+        assert np.all(split_times[:-1] <= split_times[1:])
+
+    # there should be no overlap between the splits
+    assert not any(np.isin(splits["train"], splits["val"]))
+    assert not any(np.isin(splits["train"], splits["test"]))
+    assert not any(np.isin(splits["val"], splits["test"]))
+
+    # Each split should have a certain number of years for each month
+    test_year_seasons = np.unique(
+        np.char.add(
+            splits["test"].year.astype("str"),
+            splits["test"].month.astype("str"),
+        )
+    )
+    assert len(test_year_seasons) == 1 * 12
+
+    val_year_seasons = np.unique(
+        np.char.add(
+            splits["val"].year.astype("str"),
+            splits["val"].month.astype("str"),
+        )
+    )
+    assert len(val_year_seasons) == 1 * 12
+
+    train_year_seasons = np.unique(
+        np.char.add(
+            splits["train"].year.astype("str"),
+            splits["train"].month.astype("str"),
+        )
+    )
+    assert len(train_year_seasons) == 2 * 12

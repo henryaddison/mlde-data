@@ -1,3 +1,4 @@
+import cf_xarray  # noqa: F401
 from collections import defaultdict
 import gc
 import logging
@@ -10,7 +11,6 @@ from mlde_utils import DatasetMetadata
 
 from .random_split import RandomSplit
 from .random_season_split import RandomSeasonSplit
-from .season_stratified_intensity_split import SeasonStratifiedIntensitySplit
 
 logger = logging.getLogger(__name__)
 
@@ -19,36 +19,71 @@ def create(config: dict, input_base_dir: Path) -> dict:
     """
     Create a dataset
     """
-    single_em_datasets = []
 
-    for em in config["ensemble_members"]:
+    common_var_params = {k: config[k] for k in ["domain", "scenario"]}
 
-        single_em_ds = _combine_variables(em, config, input_base_dir)
+    var_type_datasets = {}
+    split_sets = None
+    for var_type in ["predictands", "predictors"]:
+        var_type_datasets[var_type] = {}
+        var_type_config = config[var_type]
+        single_var_datasets = []
+        for var_name in var_type_config["variables"]:
+            single_em_var_datasets = []
+            for em in config["ensemble_members"]:
+                single_em_var_datasets.append(
+                    _single_variable(
+                        em,
+                        var_name,
+                        input_base_dir=input_base_dir,
+                        resolution=var_type_config["resolution"],
+                        collection=var_type_config["collection"],
+                        frequency=var_type_config["frequency"],
+                        **common_var_params,
+                    )
+                )
 
-        single_em_ds = single_em_ds.assign_coords(
-            season=(("time"), (single_em_ds["time.month"].values % 12 // 3))
+            multi_em_ds = xr.concat(
+                single_em_var_datasets,
+                dim="ensemble_member",
+                compat="no_conflicts",
+                combine_attrs="drop_conflicts",
+                join="exact",
+                data_vars="minimal",
+            )
+            # rechunk to avoid issues with saving to zarr
+            multi_em_ds[var_name] = multi_em_ds[var_name].chunk(
+                {
+                    "ensemble_member": 1,
+                    "time": "auto",
+                    multi_em_ds.cf["X"].name: multi_em_ds.cf["X"].size,
+                    multi_em_ds.cf["Y"].name: multi_em_ds.cf["Y"].size,
+                }
+            )
+            single_var_datasets.append(multi_em_ds)
+
+            del single_em_var_datasets
+            gc.collect()
+
+            if split_sets is None:
+                split_sets = _split(multi_em_ds["time"], **config["split"])
+
+        var_type_ds = xr.combine_by_coords(
+            single_var_datasets,
+            compat="no_conflicts",
+            combine_attrs="drop_conflicts",
+            join="exact",
+            data_vars="minimal",
         )
 
-        single_em_datasets.append(single_em_ds)
+        for split, split_times in split_sets.items():
+            split_ds = var_type_ds.where(
+                var_type_ds.time.dt.floor("1D").isin(split_times),
+                drop=True,
+            )
+            var_type_datasets[var_type][split] = split_ds
 
-        del single_em_ds
-        gc.collect()
-        logger.debug(f"Gathered data for {em}")
-
-    multi_em_ds = xr.concat(
-        single_em_datasets,
-        dim="ensemble_member",
-        compat="no_conflicts",
-        combine_attrs="drop_conflicts",
-        join="exact",
-        data_vars="minimal",
-    )
-    del single_em_datasets
-    gc.collect()
-
-    split_sets = _split(multi_em_ds, **config["split"])
-
-    return split_sets
+    return var_type_datasets
 
 
 def validate(dataset: str) -> defaultdict:
@@ -245,77 +280,45 @@ def check_time_encoding(ds, dataset, split, ds_config):
     return True
 
 
-def _combine_variables(em: str, config: dict, input_base_dir: Path):
+def _single_variable(
+    em: str, var_name, input_base_dir: Path, **var_config: dict
+) -> xr.Dataset:
     """
     Combine predictor and predictand variables for a given ensemble into a single dataset
     """
 
-    common_var_params = {k: config[k] for k in ["domain", "scenario", "frequency"]}
-
-    variable_datasets = []
-    for var_type in ["predictors", "predictands"]:
-        var_type_config = config[var_type]
-        for predictor_var_name in var_type_config["variables"]:
-            dsmeta = VariableMetadata(
-                input_base_dir,
-                ensemble_member=em,
-                variable=predictor_var_name,
-                resolution=var_type_config["resolution"],
-                collection=var_type_config["collection"],
-                **common_var_params,
-            )
-
-            variable_ds = xr.open_mfdataset(
-                dsmeta.existing_filepaths(),
-                data_vars="minimal",
-                combine="by_coords",
-                compat="no_conflicts",
-                combine_attrs="drop_conflicts",
-            )
-            variable_ds[dsmeta.variable] = variable_ds[dsmeta.variable].expand_dims(
-                dict(ensemble_member=[em])
-            )
-            if var_type == "predictands":
-                variable_ds = variable_ds.rename(
-                    {dsmeta.variable: f"target_{dsmeta.variable}"}
-                )
-
-            variable_datasets.append(variable_ds)
-
-    single_em_ds = xr.combine_by_coords(
-        variable_datasets,
-        compat="no_conflicts",
-        combine_attrs="drop_conflicts",
-        join="exact",
-        data_vars="minimal",
+    dsmeta = VariableMetadata(
+        input_base_dir, ensemble_member=em, variable=var_name, **var_config
     )
 
-    return single_em_ds
+    variable_ds = xr.open_mfdataset(
+        dsmeta.existing_filepaths(),
+        data_vars="minimal",
+        combine="by_coords",
+        compat="no_conflicts",
+        combine_attrs="drop_conflicts",
+    )
+    variable_ds[dsmeta.variable] = variable_ds[dsmeta.variable].expand_dims(
+        dict(ensemble_member=[em])
+    )
+    return variable_ds
 
 
-def _split(ds: xr.Dataset, scheme: str, val_prop: float, test_prop: float, seed: int):
+def _split(time_da: xr.DataArray, scheme: str, props: dict[str, float], seed: int):
     """
     Split data into train, validation and test subsets
     """
-    if scheme == "ssi":
-        splitter = SeasonStratifiedIntensitySplit(
-            val_prop=val_prop,
-            test_prop=test_prop,
-            seed=seed,
-        )
-    elif scheme == "random":
+    if scheme == "random":
         splitter = RandomSplit(
-            val_prop=val_prop,
-            test_prop=test_prop,
+            props=props,
             seed=seed,
         )
     elif scheme == "random-season":
         splitter = RandomSeasonSplit(
-            val_prop=val_prop,
-            test_prop=test_prop,
+            props=props,
             seed=seed,
         )
     else:
         raise RuntimeError(f"Unknown split scheme {scheme}")
     logger.info(f"Splitting data...")
-    return splitter.run(ds)
+    return splitter.run(time_da)
