@@ -25,4 +25,14 @@ for year in $(seq ${year_start} ${year_end}); do
 
 done
 
+set -x;
+
+mkdir -p /gws/nopw/j04/bris_climdyn/henrya-samb-xfer/ukcp18/global/60km/rcp85/${member};
+
+mv /gws/nopw/j04/bris_climdyn/henrya/samb/land-gcm/global/60km/rcp85/${member}/${variable} /gws/nopw/j04/bris_climdyn/henrya-samb-xfer/ukcp18/global/60km/rcp85/${member}/;
+
+chmod -R g+rw /gws/nopw/j04/bris_climdyn/henrya-samb-xfer/ukcp18/global/60km/rcp85/${member};
+
+set +x;
+
 echo "DONE for ${variable} ${member}"
