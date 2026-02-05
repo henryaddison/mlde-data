@@ -1,0 +1,30 @@
+variable: vorticity${theta}
+attrs:
+  units: s-1
+  standard_name: atmosphere_upward_relative_vorticity
+sources:
+  type: moose
+  collection: land-cpm
+  frequency: day
+  variables:
+    # assumes already extracted and converted to nc
+    # implicit here is rename variable
+    - name: xwind${theta}
+    - name: ywind${theta}
+spec:
+  - action: coarsen
+    parameters:
+      scale_factor: ${scale_factor}
+      grid_type: vorticity850
+  - action: vorticity
+    parameters:
+      theta: ${theta}
+  - action: drop-variables
+    parameters:
+      variables:
+        - xwind${theta}
+        - ywind${theta}
+  - action: select-subdomain
+    parameters:
+      domain: ${domain}
+  # implicit final actions: assign attrs

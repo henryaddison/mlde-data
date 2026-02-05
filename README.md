@@ -59,7 +59,7 @@ Once you have extracted the variable files, use the `mlde-data dataset create` c
 Example usage:
 
 ```sh
-pixi run mlde-data dataset create src/mlde_data/config/datasets/bham64_ccpm-4x_12em_psl-sphum4th-temp4th-vort4th_pr.yml
+pixi run mlde-data dataset create config/datasets/bham64_ccpm-4x_12em_psl-sphum4th-temp4th-vort4th_pr.yml
 ```
 
 This will create the files for a dataset in `${DERIVED_DATA}/moose/nc-datasets/bham64_ccpm-4x_12em_psl-sphum4th-temp4th-vort4th_pr` based on the config file supplied.

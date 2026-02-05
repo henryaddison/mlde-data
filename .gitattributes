@@ -1,2 +1,8 @@
 # SCM syntax highlighting & preventing 3-way merges
 pixi.lock merge=binary linguist-language=YAML linguist-generated=true
+tests/fixtures/files/variables/raw/moose/land-cpm/uk/2.2km/rcp85/01/lsrain/1hr/lsrain_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19811130.nc filter=lfs diff=lfs merge=lfs -text
+tests/fixtures/files/variables/raw/moose/land-cpm/uk/2.2km/rcp85/01/lssnow/1hr/lssnow_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19811130.nc filter=lfs diff=lfs merge=lfs -text
+tests/fixtures/files/variables/raw/moose/pp/land-cpm/uk/2.2km/rcp85/01/lsrain/1hr/1981/data/bb171a.pq19801201.pp filter=lfs diff=lfs merge=lfs -text
+tests/fixtures/files/variables/raw/moose/pp/land-cpm/uk/2.2km/rcp85/01/lsrain/1hr/1981/data/bb171a.pq19810601.pp filter=lfs diff=lfs merge=lfs -text
+tests/fixtures/files/variables/raw/moose/pp/land-cpm/uk/2.2km/rcp85/01/lssnow/1hr/1981/data/bb171a.pq19801201.pp filter=lfs diff=lfs merge=lfs -text
+tests/fixtures/files/variables/raw/moose/pp/land-cpm/uk/2.2km/rcp85/01/lssnow/1hr/1981/data/bb171a.pq19810601.pp filter=lfs diff=lfs merge=lfs -text

@@ -98,7 +98,7 @@ def dataset(tmp_path):
         ),
     )
 
-    dataset_path = tmp_path / "moose" / "nc-datasets" / dataset_name
+    dataset_path = tmp_path / dataset_name
     os.makedirs(dataset_path, exist_ok=True)
     test_ds.to_netcdf(dataset_path / "test.nc")
     train_ds.to_netcdf(dataset_path / "train.nc")

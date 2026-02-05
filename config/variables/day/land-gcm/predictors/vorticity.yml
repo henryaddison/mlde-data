@@ -1,0 +1,28 @@
+variable: vorticity${theta}
+attrs:
+  units: s-1
+  standard_name: relative_vorticityhPa
+  grid_mapping: rotated_latitude_longitude
+sources:
+  type: moose
+  collection: land-gcm
+  frequency: day
+  variables:
+    # assumes already extracted and converted to nc
+    # implicit here is rename variable
+    - name: xwind${theta}
+    - name: ywind${theta}
+spec:
+  - action: shift_lon_break
+  - action: vorticity
+    parameters:
+      theta: ${theta}
+  - action: drop-variables
+    parameters:
+      variables:
+        - xwind${theta}
+        - ywind${theta}
+  - action: select-subdomain
+    parameters:
+      domain: ${domain}
+  # implicit final actions: assign attrs

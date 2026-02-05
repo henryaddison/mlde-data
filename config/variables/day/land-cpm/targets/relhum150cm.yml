@@ -1,0 +1,25 @@
+variable: relhum150cm
+attrs:
+  units: 1
+  standard_name: relative_humidity
+  grid_mapping: rotated_latitude_longitude
+sources:
+  type: moose
+  collection: land-cpm
+  frequency: day
+  variables:
+    # assumes already extracted and converted to nc
+    # implicit here is rename variable
+    - name: relhum150cm
+spec:
+  - action: coarsen
+    parameters:
+      scale_factor: ${scale_factor}
+      grid_type: pr
+  - action: regrid_to_target
+    parameters:
+      target_grid_resolution: ${target_resolution}
+  - action: select-subdomain
+    parameters:
+      domain: ${domain}
+  # implicit final actions: assign attrs

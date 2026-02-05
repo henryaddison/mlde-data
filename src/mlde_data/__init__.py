@@ -1,3 +1,8 @@
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env
+
+
 class RangeDict(dict):
     def __getitem__(self, item):
         if not isinstance(item, range):  # or xrange in Python 2

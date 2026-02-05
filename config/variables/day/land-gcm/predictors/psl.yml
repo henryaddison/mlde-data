@@ -1,0 +1,19 @@
+variable: psl
+attrs:
+  units: Pa
+  standard_name: air_pressure_at_sea_level
+  grid_mapping: rotated_latitude_longitude
+sources:
+  type: moose
+  collection: land-gcm
+  frequency: day
+  variables:
+    # assumes already extracted and converted to nc
+    # implicit here is rename variable
+    - name: psl
+spec:
+  - action: shift_lon_break
+  - action: select-subdomain
+    parameters:
+      domain: ${domain}
+  # implicit final actions: assign attrs

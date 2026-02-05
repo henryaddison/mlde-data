@@ -1,5 +1,3 @@
-import os
-from pathlib import Path
 import re
 
 from . import RangeDict
@@ -266,12 +264,12 @@ def moose_path(variable, year, ensemble_member, frequency="day", collection="lan
     if collection == "land-cpm":
         suite_id = SUITE_IDS[collection][ensemble_member][year]
         stream_code = VARIABLE_CODES[variable]["stream"][collection][frequency]
-        return f"moose:crum/{suite_id}/{stream_code}.pp"
+        return f"moose:crum/{suite_id}/{stream_code}.pp"  # noqa: E231
     elif collection == "land-gcm":
         suite_id = SUITE_IDS[collection][year]
         stream_code = VARIABLE_CODES[variable]["stream"][collection][frequency]
         rip_code = RIP_CODES[collection][ensemble_member]
-        return f"moose:ens/{suite_id}/{rip_code}/{stream_code}.pp"
+        return f"moose:ens/{suite_id}/{rip_code}/{stream_code}.pp"  # noqa: E231
     else:
         raise f"Unknown collection {collection}"
 
@@ -292,136 +290,6 @@ def select_query(year, variable, frequency="day", collection="land-cpm"):
     ]
 
     return "\n\n".join(query_parts).lstrip() + "\n"
-
-
-def moose_extract_dirpath(
-    variable: str,
-    year: int,
-    frequency: str,
-    resolution: str,
-    collection: str,
-    domain: str,
-    ensemble_member: str,
-    cache: bool = False,
-    base_dir: str = os.getenv("MOOSE_DATA"),
-):
-    if cache:
-        base_dir = os.getenv("MOOSE_CACHE")
-
-    return (
-        Path(base_dir)
-        / "pp"
-        / collection
-        / domain
-        / resolution
-        / "rcp85"
-        / ensemble_member
-        / variable
-        / frequency
-        / str(year)
-    )
-
-
-def moose_cache_dirpath(**kwargs):
-    return moose_extract_dirpath(**kwargs, cache=True)
-
-
-def ppdata_dirpath(
-    variable: str,
-    year: int,
-    frequency: str,
-    domain: str,
-    resolution: str,
-    collection: str,
-    ensemble_member: str,
-    cache: bool = False,
-):
-    return (
-        moose_extract_dirpath(
-            variable=variable,
-            year=year,
-            frequency=frequency,
-            domain=domain,
-            resolution=resolution,
-            collection=collection,
-            ensemble_member=ensemble_member,
-            cache=cache,
-        )
-        / "data"
-    )
-
-
-def nc_filename(
-    variable: str,
-    year: int,
-    frequency: str,
-    domain: str,
-    resolution: str,
-    collection: str,
-    ensemble_member: str,
-):
-    return f"{variable}_rcp85_{collection}_{domain}_{resolution}_{ensemble_member}_{frequency}_{year-1}1201-{year}1130.nc"
-
-
-def raw_nc_filepath(
-    variable: str,
-    year: int,
-    frequency: str,
-    domain: str,
-    resolution: str,
-    ensemble_member: str,
-    collection: str,
-    base_dir: str = os.getenv("MOOSE_DATA"),
-):
-    return (
-        Path(base_dir)
-        / domain
-        / resolution
-        / "rcp85"
-        / ensemble_member
-        / variable
-        / frequency
-        / nc_filename(
-            variable=variable,
-            year=year,
-            frequency=frequency,
-            domain=domain,
-            resolution=resolution,
-            collection=collection,
-            ensemble_member=ensemble_member,
-        )
-    )
-
-
-def processed_nc_filepath(
-    variable: str,
-    year: int,
-    frequency: str,
-    domain: str,
-    resolution: str,
-    collection: str,
-    ensemble_member: str,
-    base_dir=os.getenv("DERIVED_DATA"),
-):
-    return (
-        Path(base_dir)
-        / "moose"
-        / domain
-        / resolution
-        / "rcp85"
-        / ensemble_member
-        / variable
-        / frequency
-        / nc_filename(
-            variable=variable,
-            year=year,
-            frequency=frequency,
-            domain=domain,
-            resolution=resolution,
-            collection=collection,
-            ensemble_member=ensemble_member,
-        )
-    )
 
 
 def remove_forecast(ds):

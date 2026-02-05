@@ -84,7 +84,7 @@ def dataset(tmp_path, time_range, lat_range, lon_range):
         ),
     )
 
-    dataset_path = tmp_path / "moose" / "nc-datasets" / dataset_name
+    dataset_path = tmp_path / dataset_name
     os.makedirs(dataset_path, exist_ok=True)
     train_ds.to_netcdf(dataset_path / "train.nc")
 

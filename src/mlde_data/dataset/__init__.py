@@ -6,10 +6,7 @@ from pathlib import Path
 import re
 import xarray as xr
 
-from mlde_utils import (
-    dataset_config,
-    dataset_split_path,
-)
+from mlde_utils import DatasetMetadata
 
 from .random_split import RandomSplit
 from .random_season_split import RandomSeasonSplit
@@ -63,13 +60,13 @@ def validate(dataset: str) -> defaultdict:
     bad_splits = defaultdict(set)
 
     try:
-        ds_config = dataset_config(dataset)
+        ds_config = DatasetMetadata(dataset).config()
     except FileNotFoundError:
         bad_splits["no config"].update(splits)
         return bad_splits
 
     for split in splits:
-        split_path = dataset_split_path(dataset, split)
+        split_path = DatasetMetadata(dataset).split_path(split)
         try:
             ds = xr.open_dataset(split_path)
         except FileNotFoundError:
@@ -260,7 +257,7 @@ def _combine_variables(em: str, config: dict, input_base_dir: Path):
         var_type_config = config[var_type]
         for predictor_var_name in var_type_config["variables"]:
             dsmeta = VariableMetadata(
-                input_base_dir / "moose",
+                input_base_dir,
                 ensemble_member=em,
                 variable=predictor_var_name,
                 resolution=var_type_config["resolution"],

@@ -2,29 +2,62 @@
 
 set -euo pipefail
 
-domain=$1
-variable=$2
-ensemble_member=$3
-job_id=$4
-shift 4
+theta=
+scenario="rcp85"
+frequency="day"
+scale_factor="gcm"
+collection="land-cpm"
+
+job_id=0 # ID of job to depend on (0 means no dependency)
+
+while getopts ":d:v:e:t:j" opt; do
+  case ${opt} in
+    d)
+      domain=${OPTARG}
+      ;;
+    v)
+      variable=${OPTARG}
+      ;;
+    e)
+      ensemble_member=${OPTARG}
+      ;;
+    t)
+      theta=${OPTARG}
+      ;;
+    j)
+      job_id=${OPTARG}
+      ;;
+   \? )
+     echo "Invalid Option: -${OPTARG}" 1>&2
+     exit 1
+     ;;
+  esac
+done
+shift $((OPTIND -1))
+
 years=$@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-scale_factor="gcm"
-target_resolution="2.2km-coarsened-4x"
-target_size=64
-frequency="day"
-variable="${SCRIPT_DIR}/../../../src/mlde_data/config/variables/${frequency}/land-cpm/${variable}.yml"
+variable_config_path="${SCRIPT_DIR}/../../../config/variables/${frequency}/${collection}/predictors/${variable}.yml"
 
-QUEUE_DEP_PATH=${SCRIPT_DIR}/../queue-dep-func
-BATCH_WRAPPER_PATH=${SCRIPT_DIR}/../batch-wrapper
+QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
+LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
 
 function queue_years {
   local job_id=$1
   shift 1;
   local years=$@
-  ${QUEUE_DEP_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${BATCH_WRAPPER_PATH} --variable-config ${variable} --domain ${domain} --scale-factor ${scale_factor} --target-resolution ${target_resolution} --target-size ${target_size} --frequency ${frequency} --ensemble-member ${ensemble_member} ${years}
+
+  local args=()
+  args+=('--variable-config' ${variable_config_path})
+  args+=('--ensemble-member' ${ensemble_member})
+  args+=('--scenario' ${scenario})
+  args+=('--domain' ${domain})
+  args+=('--scale-factor' ${scale_factor})
+  [ -n "$theta" ] && args+=('--theta' "${theta}")
+
+  ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} ${args[@]} ${years}
 }
 
 echo

@@ -1,0 +1,52 @@
+#! /usr/bin/bash
+
+set -euo pipefail
+
+mem='4G'
+job_id=0
+
+while getopts ":m:j:d:" opt; do
+  case ${opt} in
+    m)
+      mem=${OPTARG}
+      ;;
+    j)
+      job_id=${OPTARG}
+      ;;
+    d)
+      directory=${OPTARG}
+      ;;
+   \? )
+     echo "Invalid Option: -${OPTARG}" 1>&2
+     exit 1
+     ;;
+  esac
+done
+shift $((OPTIND -1))
+
+cmd=$@
+
+args=()
+args+=('--mail-type=ALL')
+args+=('--mail-user=vf20964@bristol.ac.uk')
+args+=('-A' 'mass')
+args+=('-p' 'mass')
+args+=('-q' 'mass')
+args+=("--mem=${mem}")
+args+=('--time=23:00:00')
+args+=('--parsable')
+args+=('--chdir' "${directory}")
+
+if [ $job_id -ne 0 ]; then
+  args+=("--dependency=afterok:${job_id}")
+fi
+
+
+if command -v sbatch >/dev/null 2>&1
+then
+  sbatch ${args[@]} -- ${cmd}
+else
+  echo "sbatch command not found. Running locally." >&2
+  set -x
+  ${cmd} --no-cleanup
+fi
