@@ -25,30 +25,50 @@ def callback():
 @app.command()
 def moose(
     years: List[int],
-    variable_config: Path = typer.Option(...),
+    variable_configs: List[Path] = typer.Option(...),
     scenario: str = "rcp85",
     ensemble_member: str = typer.Option(...),
     scale_factor: str = typer.Option(...),
     domain: DomainOption = typer.Option(...),
-    theta: int = None,
+    thetas: List[int] = None,
     target_resolution: str = None,
     force: bool = False,
     cleanup: bool = True,
 ):
 
-    config = load_config(
-        variable_config,
-        scale_factor=scale_factor,
-        domain=domain.value,
-        theta=theta,
-        target_resolution=target_resolution,
-    )
+    configs = [
+        load_config(
+            variable_config,
+            scale_factor=scale_factor,
+            domain=domain.value,
+            theta=theta,
+            target_resolution=target_resolution,
+        )
+        for variable_config in variable_configs
+        for theta in (thetas or [None])
+    ]
+
+    src_collection = {config["sources"]["collection"] for config in configs}
+    assert (
+        len(src_collection) == 1
+    ), "All variable configs must have the same source collection"
+    src_collection = CollectionOption(src_collection.pop())
+
+    src_frequency = {config["sources"]["frequency"] for config in configs}
+    assert (
+        len(src_frequency) == 1
+    ), "All variable configs must have the same source frequency"
+    src_frequency = src_frequency.pop()
+
+    src_variables = {
+        src_variable
+        for config in configs
+        for src_variable in config["sources"]["variables"]
+    }
 
     for year in years:
         # run extract and convert
-        src_collection = CollectionOption(config["sources"]["collection"])
-        src_frequency = config["sources"]["frequency"]
-        for src_variable in config["sources"]["variables"]:
+        for src_variable in src_variables:
             if src_collection == CollectionOption.cpm:
                 source_domain = "uk"
                 source_resolution = "2.2km"
@@ -90,20 +110,23 @@ def moose(
             )
 
         # run create variable
-        create_variable(
-            config_path=variable_config,
-            year=year,
-            domain=domain,
-            scale_factor=scale_factor,
-            ensemble_member=ensemble_member,
-            scenario=scenario,
-            theta=theta,
-            target_resolution=target_resolution,
-        )
+
+        for variable_config in variable_configs:
+            for theta in thetas or [None]:
+                create_variable(
+                    config_path=variable_config,
+                    year=year,
+                    domain=domain,
+                    scale_factor=scale_factor,
+                    ensemble_member=ensemble_member,
+                    scenario=scenario,
+                    theta=theta,
+                    target_resolution=target_resolution,
+                )
 
         # run clean up
         if cleanup:
-            for src_variable in config["sources"]["variables"]:
+            for src_variable in src_variables:
                 clean(
                     collection=src_collection,
                     scenario=scenario,
