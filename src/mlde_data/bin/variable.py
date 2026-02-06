@@ -139,8 +139,8 @@ def open_moose_source_variable(
 
     # remove forecast related coords that we don't need
     ds = remove_forecast(ds)
-    # remove pressure related dims and encoding data that we don't need
-    ds = remove_pressure(ds)
+    # # remove pressure related dims and encoding data that we don't need
+    # ds = remove_pressure(ds)
 
     return ds
 
@@ -336,6 +336,8 @@ def create(
         ds,
         config,
     )
+    # # remove pressure related dims and encoding data that we don't need
+    # ds = remove_pressure(ds)
 
     if validate:
         _validate(ds, config)
