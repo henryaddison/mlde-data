@@ -289,14 +289,12 @@ def convert(
 
     # bug in some data means the final grid_latitude bound is very large (1.0737418e+09)
     for src_cube in src_cubes:
-        if collection == CollectionOption.cpm and any(
-            [variable.startswith(var) for var in ["xwind", "ywind", "spechum", "temp"]]
-        ):
+        if collection == CollectionOption.cpm:
             bounds = np.copy(src_cube.coord("grid_latitude").bounds)
             # make sure it really is much larger than expected (in case this gets fixed)
-            assert bounds[-1][1] > 8.97
-            bounds[-1][1] = 8.962849
-            src_cube.coord("grid_latitude").bounds = bounds
+            if bounds[-1][1] > 8.97:
+                bounds[-1][1] = 8.962849
+                src_cube.coord("grid_latitude").bounds = bounds
 
     typer.echo(f"Saving to {output_filepath}...")
     # ensure target directory exists
