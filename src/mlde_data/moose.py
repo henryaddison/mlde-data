@@ -137,54 +137,22 @@ VARIABLE_CODES = {
     },
 }
 
-for theta in [250, 500, 700, 850, 925]:
-    VARIABLE_CODES[f"temp{theta}"] = {
-        "query": {
-            "stash": 30204,
-            "lblev": theta,
-        },
-        "stream": {
-            "land-cpm": {
-                "day": "apb",
-                "3hrinst": "aph",
-            },
-            "land-gcm": {"day": "ape"},
-        },
-        "moose_name": "air_temperature",
-    }
-    VARIABLE_CODES[f"spechum{theta}"] = {
-        "query": {
-            "stash": 30205,
-            "lblev": theta,
-        },
-        "stream": {
-            "land-cpm": {"day": "apb", "3hrinst": "aph"},
-            "land-gcm": {"day": "ape"},
-        },
-        "moose_name": "specific_humidity",
-    }
-    VARIABLE_CODES[f"xwind{theta}"] = {
-        "query": {
-            "stash": 30201,
-            "lblev": theta,
-        },
-        "stream": {
-            "land-cpm": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"},
-            "land-gcm": {"day": "ape"},
-        },
-        "moose_name": "x_wind",
-    }
-    VARIABLE_CODES[f"ywind{theta}"] = {
-        "query": {
-            "stash": 30202,
-            "lblev": theta,
-        },
-        "stream": {
-            "land-cpm": {"day": "apb", "3hrinst": "apg", "1hrinst": "apr"},
-            "land-gcm": {"day": "ape"},
-        },
-        "moose_name": "y_wind",
-    }
+THETAS = [250, 500, 700, 850]
+VARIABLE_CODES[f"dailymultilevel"] = {
+    "query": {
+        # 30201 - x_wind, 30202 - y_wind, 30204 - temperature, 30205 - specific humidity
+        "stash": "(30201, 30202, 30204, 30205)",
+        "lblev": f"({', '.join([str(t) for t in THETAS])})",
+    },
+    "stream": {
+        "land-cpm": {"day": "apb"},
+        "land-gcm": {"day": "ape"},
+    },
+}
+# stream codes for other frequencies
+# temp: land-cpm: "3hrinst": "aph",
+# spechum: land-cpm: "3hrinst": "aph",
+# wind: land-cpm: "3hrinst": "apg", "1hrinst": "apr"
 
 
 TS1 = range(1980, 2001)

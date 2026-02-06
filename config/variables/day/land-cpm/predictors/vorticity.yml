@@ -9,8 +9,7 @@ sources:
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable
-    - name: xwind${theta}
-    - name: ywind${theta}
+    - name: dailymultilevel
 spec:
   - action: coarsen
     parameters:
@@ -22,8 +21,10 @@ spec:
   - action: drop-variables
     parameters:
       variables:
-        - xwind${theta}
-        - ywind${theta}
+        - x_wind
+        - y_wind
+        - air_temperature
+        - specific_humidity
   - action: select-subdomain
     parameters:
       domain: ${domain}
