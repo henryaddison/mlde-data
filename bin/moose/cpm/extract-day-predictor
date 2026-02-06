@@ -18,7 +18,6 @@ while getopts ":d:v:e:t:j" opt; do
   case ${opt} in
     d)
       domain=${OPTARG}
-      args+=('--domain' ${domain})
       ;;
     v)
       variable=${OPTARG}
@@ -43,6 +42,7 @@ while getopts ":d:v:e:t:j" opt; do
 done
 shift $((OPTIND -1))
 
+args+=('--domain' ${domain})
 args+=('--ensemble-member' ${ensemble_member})
 args+=('--scenario' ${scenario})
 args+=('--scale-factor' ${scale_factor})
