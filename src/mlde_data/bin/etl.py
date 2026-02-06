@@ -61,7 +61,7 @@ def moose(
     src_frequency = src_frequency.pop()
 
     src_variables = {
-        src_variable
+        src_variable["name"]
         for config in configs
         for src_variable in config["sources"]["variables"]
     }
@@ -79,7 +79,7 @@ def moose(
                 raise f"Unknown collection {src_collection}"
             source_nc_filepath = VariableMetadata(
                 base_dir=RAW_MOOSE_VARIABLES_PATH,
-                variable=src_variable["name"],
+                variable=src_variable,
                 frequency=src_frequency,
                 domain=source_domain,
                 resolution=source_resolution,
@@ -93,7 +93,7 @@ def moose(
                 continue
 
             extract(
-                variable=src_variable["name"],
+                variable=src_variable,
                 year=year,
                 frequency=src_frequency,
                 collection=src_collection,
@@ -101,7 +101,7 @@ def moose(
                 scenario=scenario,
             )
             convert(
-                variable=src_variable["name"],
+                variable=src_variable,
                 year=year,
                 frequency=src_frequency,
                 collection=src_collection,
@@ -131,7 +131,7 @@ def moose(
                     collection=src_collection,
                     scenario=scenario,
                     ensemble_member=ensemble_member,
-                    variable=src_variable["name"],
+                    variable=src_variable,
                     frequency=src_frequency,
                     year=year,
                 )
