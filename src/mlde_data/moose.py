@@ -174,7 +174,7 @@ VARIABLE_CODES = {
 }
 
 THETAS = [250, 500, 700, 850]
-VARIABLE_CODES[f"dailymultilevel"] = {
+VARIABLE_CODES["mlqtw"] = {
     "query": {
         # 30201 - x_wind, 30202 - y_wind, 30204 - temperature, 30205 - specific humidity
         "stash": "(30201, 30202, 30204, 30205)",

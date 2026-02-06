@@ -8,7 +8,7 @@ sources:
   frequency: day
   variables:
     # assumes already extracted and converted to nc
-    - name: dailymultilevel
+    - name: mlqtw
 spec:
   - action: query
     parameters:
