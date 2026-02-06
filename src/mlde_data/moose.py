@@ -196,30 +196,18 @@ TSFarF = range(2077, 2100)
 
 SUITE_IDS = {
     "land-cpm": {
-        # r001i1p00000
-        "01": RangeDict({TS1: "mi-bb171", TS2: "mi-bb188", TS3: "mi-bb189"}),
-        # r001i1p01113
-        "04": RangeDict({TS1: "mi-bb190", TS2: "mi-bb191", TS3: "mi-bb192"}),
-        # r001i1p01554
-        "05": RangeDict({TS1: "mi-bb193", TS2: "mi-bb194", TS3: "mi-bb195"}),
-        # r001i1p01649
-        "06": RangeDict({TS1: "mi-bb196", TS2: "mi-bb197", TS3: "mi-bb198"}),
-        # r001i1p01843
-        "07": RangeDict({TS1: "mi-bb199", TS2: "mi-bb200", TS3: "mi-bb201"}),
-        # r001i1p01935
-        "08": RangeDict({TS1: "mi-bb202", TS2: "mi-bb203", TS3: "mi-bb204"}),
-        # r001i1p02868
-        "09": RangeDict({TS1: "mi-bb205", TS2: "mi-bb206", TS3: "mi-bb208"}),
-        # r001i1p02123
-        "10": RangeDict({TS1: "mi-bb209", TS2: "mi-bb210", TS3: "mi-bb211"}),
-        # r001i1p02242
-        "11": RangeDict({TS1: "mi-bb214", TS2: "mi-bb215", TS3: "mi-bb216"}),
-        # r001i1p02305
-        "12": RangeDict({TS1: "mi-bb217", TS2: "mi-bb218", TS3: "mi-bb219"}),
-        # r001i1p02335
-        "13": RangeDict({TS1: "mi-bb220", TS2: "mi-bb221", TS3: "mi-bb222"}),
-        # r001i1p02491
-        "15": RangeDict({TS1: "mi-bb223", TS2: "mi-bb224", TS3: "mi-bb225"}),
+        "r001i1p00000": RangeDict({TS1: "mi-bb171", TS2: "mi-bb188", TS3: "mi-bb189"}),
+        "r001i1p01113": RangeDict({TS1: "mi-bb190", TS2: "mi-bb191", TS3: "mi-bb192"}),
+        "r001i1p01554": RangeDict({TS1: "mi-bb193", TS2: "mi-bb194", TS3: "mi-bb195"}),
+        "r001i1p01649": RangeDict({TS1: "mi-bb196", TS2: "mi-bb197", TS3: "mi-bb198"}),
+        "r001i1p01843": RangeDict({TS1: "mi-bb199", TS2: "mi-bb200", TS3: "mi-bb201"}),
+        "r001i1p01935": RangeDict({TS1: "mi-bb202", TS2: "mi-bb203", TS3: "mi-bb204"}),
+        "r001i1p02868": RangeDict({TS1: "mi-bb205", TS2: "mi-bb206", TS3: "mi-bb208"}),
+        "r001i1p02123": RangeDict({TS1: "mi-bb209", TS2: "mi-bb210", TS3: "mi-bb211"}),
+        "r001i1p02242": RangeDict({TS1: "mi-bb214", TS2: "mi-bb215", TS3: "mi-bb216"}),
+        "r001i1p02305": RangeDict({TS1: "mi-bb217", TS2: "mi-bb218", TS3: "mi-bb219"}),
+        "r001i1p02335": RangeDict({TS1: "mi-bb220", TS2: "mi-bb221", TS3: "mi-bb222"}),
+        "r001i1p02491": RangeDict({TS1: "mi-bb223", TS2: "mi-bb224", TS3: "mi-bb225"}),
     },
     "land-gcm": RangeDict(
         {
@@ -268,7 +256,7 @@ def moose_path(variable, year, ensemble_member, frequency="day", collection="lan
     elif collection == "land-gcm":
         suite_id = SUITE_IDS[collection][year]
         stream_code = VARIABLE_CODES[variable]["stream"][collection][frequency]
-        rip_code = RIP_CODES[collection][ensemble_member]
+        rip_code = ensemble_member
         return f"moose:ens/{suite_id}/{rip_code}/{stream_code}.pp"  # noqa: E231
     else:
         raise f"Unknown collection {collection}"
