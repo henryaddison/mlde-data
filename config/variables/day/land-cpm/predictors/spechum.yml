@@ -19,7 +19,8 @@ spec:
         - air_temperature
   - action: query
     parameters:
-      pressure: ${theta}
+      query:
+        pressure: ${theta}
   - action: rename
     parameters:
       specific_humidity: spechum${theta}
