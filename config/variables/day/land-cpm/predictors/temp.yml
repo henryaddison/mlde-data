@@ -23,7 +23,8 @@ spec:
         pressure: ${theta}
   - action: rename
     parameters:
-      air_temperature: temp${theta}
+      mapping:
+        air_temperature: temp${theta}
   - action: coarsen
     parameters:
       scale_factor: ${scale_factor}

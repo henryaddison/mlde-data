@@ -23,7 +23,8 @@ spec:
         pressure: ${theta}
   - action: rename
     parameters:
-      specific_humidity: spechum${theta}
+      mapping:
+        specific_humidity: spechum${theta}
   - action: coarsen
     parameters:
       scale_factor: ${scale_factor}
