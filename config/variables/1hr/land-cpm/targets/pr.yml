@@ -9,7 +9,6 @@ sources:
   frequency: 1hr
   variables:
     # assumes already extracted and converted to nc
-    # implicit here is rename variable
     - name: lsrainsnow
 spec:
   - action: coarsen
