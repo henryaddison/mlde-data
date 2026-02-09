@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-mem='4G'
+mem='8G'
 job_id=0
 
 while getopts ":m:j:d:" opt; do
