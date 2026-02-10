@@ -12,7 +12,7 @@ import xarray as xr
 
 from mlde_utils import VariableMetadata, RAW_MOOSE_VARIABLES_PATH
 
-from ..bin.options import CollectionOption
+from ..options import CollectionOption
 from ..moose import (
     open_pp_data,
     select_query,

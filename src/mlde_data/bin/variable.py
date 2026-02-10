@@ -14,7 +14,7 @@ import xarray as xr
 import yaml
 
 
-from mlde_data.bin.options import CollectionOption, DomainOption
+from mlde_data.options import CollectionOption, DomainOption
 from mlde_data.moose import (
     VARIABLE_CODES,
     remove_forecast,

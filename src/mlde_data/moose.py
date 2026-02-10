@@ -6,7 +6,7 @@ import os
 import re
 
 from . import RangeDict
-from .bin.options import CollectionOption
+from .options import CollectionOption
 
 
 class MoosePPVariableMetadata(VariableMetadata):
