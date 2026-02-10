@@ -1,6 +1,50 @@
+from click import Path
+import iris
+from mlde_utils import VariableMetadata
+import numpy as np
+import os
 import re
 
 from . import RangeDict
+from .bin.options import CollectionOption
+
+
+class MoosePPVariableMetadata(VariableMetadata):
+    """
+    Extends VariableMetadata to support extra file and directory paths used when extracting pp data from Moose.
+    """
+
+    def __init__(
+        self,
+        variable: str,
+        frequency: str,
+        domain: str,
+        resolution: str,
+        ensemble_member: str,
+        scenario: str,
+        collection: str,
+        base_dir: str,
+    ):
+        super().__init__(
+            base_dir,
+            variable,
+            frequency,
+            domain,
+            resolution,
+            ensemble_member,
+            scenario,
+            collection,
+        )
+
+    def moose_extract_dirpath(self, year):
+        return os.path.join(self.dirpath(), str(year))
+
+    def ppdata_dirpath(self, year):
+        return os.path.join(self.moose_extract_dirpath(year), "data")
+
+    def pp_files_glob(self, year):
+        return os.path.join(self.ppdata_dirpath(year), "*.pp")
+
 
 ###############
 # CPM details #
@@ -326,3 +370,62 @@ def remove_pressure(ds):
             ).strip()
             ds[v].encoding.update({"coordinates": new_coords_encoding})
     return ds
+
+
+def load_cubes(pp_files, variable, collection, realize=False):
+    if variable == "pr" and collection == CollectionOption.gcm:
+        # for some reason precip extract for GCM has a mean and max hourly cell method version
+        # only want the mean version
+        constraint = iris.Constraint(
+            cube_func=lambda cube: cube.cell_methods[0].method == "mean"
+        )
+    else:
+        constraint = None
+
+    cubes = iris.load(pp_files, constraints=constraint)
+
+    if realize:
+        for cube in cubes:
+            cube.data
+
+    return cubes
+
+
+def open_pp_data(
+    base_dir: Path,
+    collection: CollectionOption,
+    scenario: str,
+    ensemble_member: str,
+    variable: str,
+    frequency: str,
+    resolution: str,
+    domain: str,
+    year: int,
+):
+    input_moose_pp_varmeta = MoosePPVariableMetadata(
+        base_dir=base_dir,
+        collection=collection.value,
+        scenario=scenario,
+        ensemble_member=ensemble_member,
+        variable=variable,
+        frequency=frequency,
+        resolution=resolution,
+        domain=domain,
+    )
+
+    # realize the data (or something odd happens when saving to netcdf below)
+    src_cubes = load_cubes(
+        str(input_moose_pp_varmeta.pp_files_glob(year)),
+        variable,
+        collection,
+        realize=True,
+    )
+
+    # bug in some data means the final grid_latitude bound is very large (1.0737418e+09)
+    for src_cube in src_cubes:
+        if collection == CollectionOption.cpm:
+            bounds = np.copy(src_cube.coord("grid_latitude").bounds)
+            # make sure it really is much larger than expected (in case this gets fixed)
+            if bounds[-1][1] > 8.97:
+                bounds[-1][1] = 8.962849
+                src_cube.coord("grid_latitude").bounds = bounds
