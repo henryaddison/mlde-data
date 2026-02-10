@@ -1,6 +1,6 @@
 domain: engwales
 ensemble_members:
-  - '01'
+  - 'r001i1p00000'
 predictands:
   frequency: 1hr
   resolution: 2.2km-coarsened-4x

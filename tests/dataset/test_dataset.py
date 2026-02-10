@@ -12,7 +12,7 @@ from mlde_data import dataset
 def config():
     return {
         "domain": "test-10",
-        "ensemble_members": ["01"],
+        "ensemble_members": ["r001i1p00000"],
         "scenario": "rcp85",
         "predictands": {
             "frequency": "1hr",
@@ -102,7 +102,9 @@ def test_single_variable(variable_files, config):
         k: config["predictors"][k] for k in ["resolution", "collection", "frequency"]
     }
 
-    result = dataset._single_variable("01", var_name, input_base_dir, **var_config)
+    result = dataset._single_variable(
+        "r001i1p00000", var_name, input_base_dir, **var_config
+    )
 
     assert result.sizes == {
         "ensemble_member": 1,

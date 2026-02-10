@@ -29,7 +29,7 @@ def test_create_predictor(tmp_path):
     )
     theta = "850"
     year = 1981
-    ensemble_member = "01"
+    ensemble_member = "r001i1p00000"
     domain = "engwales"
     scenario = "rcp85"
     scale_factor = "gcm"
@@ -94,7 +94,7 @@ def test_create_target(tmp_path):
         f"../../config/variables/{frequency}/{collection}/targets/pr.yml"
     )
     year = 1981
-    ensemble_member = "01"
+    ensemble_member = "r001i1p00000"
     domain = "uk"
     scenario = "rcp85"
     scale_factor = 1
@@ -159,7 +159,7 @@ def test_create_4x_engwales_target(tmp_path):
         f"../../config/variables/{frequency}/{collection}/targets/pr.yml"
     )
     year = 1981
-    ensemble_member = "01"
+    ensemble_member = "r001i1p00000"
     domain = "engwales"
     scenario = "rcp85"
     scale_factor = 4

@@ -59,7 +59,7 @@ def moose_cpm_dataset():
                 base_dir=base_dir,
                 collection="land-cpm",
                 scenario="rcp85",
-                ensemble_member="01",
+                ensemble_member="r001i1p00000",
                 variable="temp850",
                 frequency="day",
                 resolution="2.2km",
