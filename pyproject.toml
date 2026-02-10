@@ -64,6 +64,7 @@ python = { version = "~=3.12.12" }
 python-cdo = { version = "~=1.6" }
 xarray = { version = "==2025.11.0" }
 zarr = ">=3.1.5,<4"
+ncdata = ">=0.3.2,<0.4"
 
 [tool.pixi.pypi-dependencies]
 mlde_data = { path = ".", editable = true }

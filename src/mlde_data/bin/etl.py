@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from mlde_utils import RAW_MOOSE_VARIABLES_PATH
 from mlde_data.options import DomainOption, CollectionOption
-from mlde_data.bin.moose import extract, convert, clean
+from mlde_data.bin.moose import extract, clean
 from mlde_data.bin.variable import create as create_variable
 from mlde_data.variable import load_config
 from mlde_utils import VariableMetadata
@@ -93,14 +93,6 @@ def moose(
                 continue
 
             extract(
-                variable=src_variable,
-                year=year,
-                frequency=src_frequency,
-                collection=src_collection,
-                ensemble_member=ensemble_member,
-                scenario=scenario,
-            )
-            convert(
                 variable=src_variable,
                 year=year,
                 frequency=src_frequency,

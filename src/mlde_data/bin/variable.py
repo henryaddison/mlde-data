@@ -5,6 +5,7 @@ from mlde_utils import RAW_MOOSE_VARIABLES_PATH, DERIVED_VARIABLES_PATH
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
 from mlde_data.variable import validation, load_config
 from mlde_utils import VariableMetadata
+from ncdata.iris_xarray import cubes_to_xarray
 import os
 from pathlib import Path
 import sys
@@ -17,6 +18,7 @@ import yaml
 from mlde_data.options import CollectionOption, DomainOption
 from mlde_data.moose import (
     VARIABLE_CODES,
+    open_pp_data,
     remove_forecast,
     remove_pressure,
 )
@@ -115,19 +117,21 @@ def open_moose_source_variable(
     collection: str,
     base_dir: Path,
 ) -> xr.Dataset:
-    source_nc_filepath = VariableMetadata(
-        base_dir=base_dir,
-        variable=src_variable["name"],
-        frequency=frequency,
-        domain=domain,
-        resolution=resolution,
-        ensemble_member=ensemble_member,
-        scenario=scenario,
-        collection=collection,
-    ).filepath(year)
+    logger.info(f"Opening {src_variable['name']} moose extract...")
 
-    logger.info(f"Opening {source_nc_filepath}")
-    ds = xr.open_dataset(source_nc_filepath)
+    ds = cubes_to_xarray(
+        open_pp_data(
+            base_dir=base_dir,
+            collection=CollectionOption(collection),
+            scenario=scenario,
+            ensemble_member=ensemble_member,
+            variable=src_variable["name"],
+            frequency=frequency,
+            resolution=resolution,
+            domain=domain,
+            year=year,
+        )
+    )
 
     if "moose_name" in VARIABLE_CODES[src_variable["name"]]:
         logger.info(
