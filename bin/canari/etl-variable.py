@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List
 import typer
 
-from mlde_data.bin.options import DomainOption
+from mlde_data.options import DomainOption
 from mlde_data.bin.variable import create as create_variable
 
 logger = logging.getLogger(__name__)

@@ -6,17 +6,19 @@ import subprocess
 
 from codetiming import Timer
 import iris
-import numpy as np
 import tempfile
 import typer
 import xarray as xr
 
 from mlde_utils import VariableMetadata, RAW_MOOSE_VARIABLES_PATH
 
-from ..bin.options import CollectionOption
+from ..options import CollectionOption
 from ..moose import (
+    open_pp_data,
     select_query,
     moose_path,
+    load_cubes,
+    MoosePPVariableMetadata,
 )
 
 iris.FUTURE.save_split_attrs = True
@@ -36,55 +38,6 @@ FREQ2TIMELEN = {
     "day": 360,
     "1hr": 360 * 24,
 }
-
-
-class MoosePPVariableMetadata(VariableMetadata):
-    """
-    Extends VariableMetadata to support extra file and directory paths used when extracting pp data from Moose.
-    """
-
-    def __init__(
-        self,
-        variable: str,
-        frequency: str,
-        domain: str,
-        resolution: str,
-        ensemble_member: str,
-        scenario: str,
-        collection: str,
-        base_dir: str,
-    ):
-        super().__init__(
-            base_dir,
-            variable,
-            frequency,
-            domain,
-            resolution,
-            ensemble_member,
-            scenario,
-            collection,
-        )
-
-    def moose_extract_dirpath(self, year):
-        return os.path.join(self.dirpath(), str(year))
-
-    def ppdata_dirpath(self, year):
-        return os.path.join(self.moose_extract_dirpath(year), "data")
-
-    def pp_files_glob(self, year):
-        return os.path.join(self.ppdata_dirpath(year), "*.pp")
-
-
-def _load_cube(pp_files, variable, collection):
-    if variable == "pr" and collection == CollectionOption.gcm:
-        # for some reason precip extract for GCM has a mean and max hourly cell method version
-        # only want the mean version
-        constraint = iris.Constraint(
-            cube_func=lambda cube: cube.cell_methods[0].method == "mean"
-        )
-    else:
-        constraint = None
-    return iris.load_cube(pp_files, constraint=constraint)
 
 
 def _domain_and_resolution_from_collection(collection: CollectionOption):
@@ -221,8 +174,9 @@ def extract(
     output.check_returncode()
 
     # make sure have the correct amount of data from moose
-    cube = _load_cube(str(os.path.join(pp_dirpath, "*.pp")), variable, collection)
-    assert cube.coord("time").shape[0] == FREQ2TIMELEN[frequency]
+    cubes = load_cubes(str(os.path.join(pp_dirpath, "*.pp")), variable, collection)
+    for cube in cubes:
+        assert cube.coord("time").shape[0] == FREQ2TIMELEN[frequency]
 
 
 @app.command()
@@ -248,15 +202,16 @@ def convert(
 
     domain, resolution = _domain_and_resolution_from_collection(collection)
 
-    input_moose_pp_varmeta = MoosePPVariableMetadata(
+    ds = open_pp_data(
         base_dir=input_base_dir,
-        collection=collection.value,
+        collection=collection,
         scenario=scenario,
         ensemble_member=ensemble_member,
         variable=variable,
         frequency=frequency,
         resolution=resolution,
         domain=domain,
+        year=year,
     )
 
     output_var_meta = VariableMetadata(
@@ -270,20 +225,6 @@ def convert(
         domain=domain,
     )
     output_filepath = output_var_meta.filepath(year)
-
-    src_cube = _load_cube(
-        str(input_moose_pp_varmeta.pp_files_glob(year)), variable, collection
-    )
-
-    # bug in some data means the final grid_latitude bound is very large (1.0737418e+09)
-    if collection == CollectionOption.cpm and any(
-        [variable.startswith(var) for var in ["xwind", "ywind", "spechum", "temp"]]
-    ):
-        bounds = np.copy(src_cube.coord("grid_latitude").bounds)
-        # make sure it really is much larger than expected (in case this gets fixed)
-        assert bounds[-1][1] > 8.97
-        bounds[-1][1] = 8.962849
-        src_cube.coord("grid_latitude").bounds = bounds
 
     typer.echo(f"Saving to {output_filepath}...")
     # ensure target directory exists
@@ -299,7 +240,7 @@ def convert(
             tmp_path = tmpf.name
 
         # Save to the temporary file
-        iris.save(src_cube, tmp_path)
+        ds.to_netcdf(tmp_path)
 
         # Move the completed file into the final location. Use shutil.move
         # to handle cross-filesystem renames (e.g., local /tmp -> NFS).

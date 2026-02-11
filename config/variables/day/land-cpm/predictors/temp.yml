@@ -9,9 +9,22 @@ sources:
   frequency: day
   variables:
     # assumes already extracted and converted to nc
-    # implicit here is rename variable
-    - name: temp${theta}
+    - name: mlqtw
 spec:
+  - action: drop-variables
+    parameters:
+      variables:
+        - x_wind
+        - y_wind
+        - specific_humidity
+  - action: query
+    parameters:
+      query:
+        pressure: ${theta}
+  - action: rename
+    parameters:
+      mapping:
+        air_temperature: temp${theta}
   - action: coarsen
     parameters:
       scale_factor: ${scale_factor}

@@ -14,9 +14,10 @@ import xarray as xr
 import yaml
 
 
-from mlde_data.bin.options import CollectionOption, DomainOption
+from mlde_data.options import CollectionOption, DomainOption
 from mlde_data.moose import (
     VARIABLE_CODES,
+    open_pp_data,
     remove_forecast,
     remove_pressure,
 )
@@ -115,19 +116,18 @@ def open_moose_source_variable(
     collection: str,
     base_dir: Path,
 ) -> xr.Dataset:
-    source_nc_filepath = VariableMetadata(
-        base_dir=base_dir,
+    logger.info(f"Opening {src_variable['name']} moose extract...")
+    ds = open_pp_data(
+        base_dir=base_dir / "pp",
+        collection=CollectionOption(collection),
+        scenario=scenario,
+        ensemble_member=ensemble_member,
         variable=src_variable["name"],
         frequency=frequency,
-        domain=domain,
         resolution=resolution,
-        ensemble_member=ensemble_member,
-        scenario=scenario,
-        collection=collection,
-    ).filepath(year)
-
-    logger.info(f"Opening {source_nc_filepath}")
-    ds = xr.open_dataset(source_nc_filepath)
+        domain=domain,
+        year=year,
+    )
 
     if "moose_name" in VARIABLE_CODES[src_variable["name"]]:
         logger.info(
@@ -136,11 +136,8 @@ def open_moose_source_variable(
         ds = ds.rename(
             {VARIABLE_CODES[src_variable["name"]]["moose_name"]: src_variable["name"]}
         )
-
     # remove forecast related coords that we don't need
     ds = remove_forecast(ds)
-    # remove pressure related dims and encoding data that we don't need
-    ds = remove_pressure(ds)
 
     return ds
 
@@ -168,7 +165,7 @@ def open_canari_le_sprint_source_variable(
     return ds
 
 
-def combine_source_variables(sources: List[xr.Dataset]) -> xr.Dataset:
+def combine_source_variables(sources: dict[str, xr.Dataset]) -> xr.Dataset:
     logger.info(f"Combining source variables...")
 
     return xr.combine_by_coords(
@@ -336,6 +333,8 @@ def create(
         ds,
         config,
     )
+    # # remove pressure related dims and encoding data that we don't need
+    # ds = remove_pressure(ds)
 
     if validate:
         _validate(ds, config)

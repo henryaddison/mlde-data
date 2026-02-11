@@ -5,7 +5,8 @@ import pytest
 import xarray as xr
 
 from mlde_data.actions import get_action
-from mlde_utils import VariableMetadata
+from mlde_data.moose import open_pp_data
+from mlde_data.options import CollectionOption
 
 
 def test_select_bham64_domain(global_dataset):
@@ -51,20 +52,20 @@ def moose_cpm_dataset():
             "variables",
             "raw",
             "moose",
+            "pp",
         )
     )
     return (
-        xr.open_dataset(
-            VariableMetadata(
-                base_dir=base_dir,
-                collection="land-cpm",
-                scenario="rcp85",
-                ensemble_member="01",
-                variable="temp850",
-                frequency="day",
-                resolution="2.2km",
-                domain="uk",
-            ).filepath(1981)
+        open_pp_data(
+            base_dir=base_dir,
+            collection=CollectionOption.cpm,
+            scenario="rcp85",
+            ensemble_member="r001i1p00000",
+            variable="mlqtw",
+            frequency="day",
+            resolution="2.2km",
+            domain="uk",
+            year=1981,
         )
         .assign_attrs(
             {
@@ -73,5 +74,6 @@ def moose_cpm_dataset():
                 "frequency": "day",
             }
         )
+        .sel(pressure=850)
         .rename({"air_temperature": "temp850"})
     )

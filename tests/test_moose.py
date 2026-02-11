@@ -3,7 +3,7 @@ from mlde_data.moose import moose_path, select_query
 
 def test_moose_path():
     assert (
-        moose_path(variable="lsrain", year=1981, ensemble_member="01")
+        moose_path(variable="lsrainsnow", year=1981, ensemble_member="r001i1p00000")
         == "moose:crum/mi-bb171/apa.pp"
     )
 

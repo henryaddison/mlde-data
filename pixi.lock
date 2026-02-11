@@ -167,6 +167,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/mo_pack-0.3.1-py312h4f23490_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/msgpack-python-1.1.2-py312hd9148b4_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/narwhals-2.12.0-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/ncdata-0.3.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.5-h2d0b736_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/netcdf4-1.7.3-nompi_py312hf6400b3_100.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/nlohmann_json-3.12.0-h54a6638_1.conda
@@ -443,6 +444,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/mo_pack-0.3.1-py312h4f23490_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/msgpack-python-1.1.2-py312hd9148b4_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/narwhals-2.12.0-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/ncdata-0.3.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.5-h2d0b736_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/netcdf4-1.7.3-nompi_py312hf6400b3_100.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/nlohmann_json-3.12.0-h54a6638_1.conda
@@ -3172,7 +3174,7 @@ packages:
 - pypi: ./
   name: mlde-data
   version: 0.4.0a1
-  sha256: 6602618d525f8df86869b7a3f81806d6876b187d3e776fe72377850e54abc0f1
+  sha256: bd77e060e6e3843239765375db4aa7ece36371527f40bb9b24afe51a9ebe19ce
   requires_dist:
   - cftime~=1.6.4
   - codetiming~=1.4.0
@@ -3254,6 +3256,20 @@ packages:
   - pkg:pypi/narwhals?source=compressed-mapping
   size: 267826
   timestamp: 1763381298763
+- conda: https://conda.anaconda.org/conda-forge/noarch/ncdata-0.3.2-pyhd8ed1ab_1.conda
+  sha256: 1e1b5e5a650dc4b0581248dac4092969a6cd3ef76c08addb478cbe734b0f1eab
+  md5: cb5f354ab0d07cb840c45e2d57937693
+  depends:
+  - dask
+  - netcdf4
+  - numpy
+  - python >=3.10
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/ncdata?source=hash-mapping
+  size: 42129
+  timestamp: 1766398759446
 - conda: https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.5-h2d0b736_3.conda
   sha256: 3fde293232fa3fca98635e1167de6b7c7fda83caf24b9d6c91ec9eefb4f4d586
   md5: 47e340acb35de30501a76c7c799c41d7

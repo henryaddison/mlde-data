@@ -1,0 +1,38 @@
+#! /bin/bash
+
+#SBATCH -A mass
+#SBATCH -p mass
+#SBATCH -q mass
+#SBATCH --mem=4G
+#SBATCH --time=1-00:00:00
+
+set -euo pipefail
+
+variable=${1}
+member=${2}
+year_start=${3}
+year_end=${4:-2099}
+
+base_dir="/gws/nopw/j04/bris_climdyn/henrya/samb"
+
+for year in $(seq ${year_start} ${year_end}); do
+
+  pixi run --as-is --locked mlde-data moose extract --collection land-gcm --scenario rcp85 --ensemble-member ${member} --year ${year} --variable ${variable} --frequency day --base-dir ${base_dir}/pp
+
+  pixi run --as-is --locked mlde-data moose convert --collection land-gcm --scenario rcp85 --ensemble-member ${member} --year ${year} --variable ${variable} --frequency day --input-base-dir ${base_dir}/pp --output-base-dir ${base_dir}
+
+  echo "DONE for ${variable} ${year} ${member}"
+
+done
+
+set -x;
+
+mkdir -p /gws/nopw/j04/bris_climdyn/henrya-samb-xfer/ukcp18/global/60km/rcp85/${member};
+
+mv /gws/nopw/j04/bris_climdyn/henrya/samb/land-gcm/global/60km/rcp85/${member}/${variable} /gws/nopw/j04/bris_climdyn/henrya-samb-xfer/ukcp18/global/60km/rcp85/${member}/;
+
+chmod -R g+rw /gws/nopw/j04/bris_climdyn/henrya-samb-xfer/ukcp18/global/60km/rcp85/${member};
+
+set +x;
+
+echo "DONE for ${variable} ${member}"

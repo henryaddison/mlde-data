@@ -10,6 +10,10 @@ collection="land-cpm"
 
 job_id=0 # ID of job to depend on (0 means no dependency)
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+args=()
+
 while getopts ":d:v:e:t:j" opt; do
   case ${opt} in
     d)
@@ -17,12 +21,15 @@ while getopts ":d:v:e:t:j" opt; do
       ;;
     v)
       variable=${OPTARG}
+      variable_config_path="${SCRIPT_DIR}/../../../config/variables/${frequency}/${collection}/predictors/${variable}.yml"
+      args+=('--variable-configs' ${variable_config_path})
       ;;
     e)
       ensemble_member=${OPTARG}
       ;;
     t)
       theta=${OPTARG}
+      args+=('--thetas' "${theta}")
       ;;
     j)
       job_id=${OPTARG}
@@ -35,11 +42,12 @@ while getopts ":d:v:e:t:j" opt; do
 done
 shift $((OPTIND -1))
 
+args+=('--domain' ${domain})
+args+=('--ensemble-member' ${ensemble_member})
+args+=('--scenario' ${scenario})
+args+=('--scale-factor' ${scale_factor})
+
 years=$@
-
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-variable_config_path="${SCRIPT_DIR}/../../../config/variables/${frequency}/${collection}/predictors/${variable}.yml"
 
 QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
 LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
@@ -48,14 +56,6 @@ function queue_years {
   local job_id=$1
   shift 1;
   local years=$@
-
-  local args=()
-  args+=('--variable-config' ${variable_config_path})
-  args+=('--ensemble-member' ${ensemble_member})
-  args+=('--scenario' ${scenario})
-  args+=('--domain' ${domain})
-  args+=('--scale-factor' ${scale_factor})
-  [ -n "$theta" ] && args+=('--theta' "${theta}")
 
   ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} ${args[@]} ${years}
 }

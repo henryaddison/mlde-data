@@ -54,7 +54,7 @@ function queue_years {
   local years=$@
 
   local args=()
-  args+=('--variable-config' ${variable_config_path})
+  args+=('--variable-configs' ${variable_config_path})
   args+=('--ensemble-member' ${ensemble_member})
   args+=('--scenario' ${scenario})
   args+=('--domain' ${domain})

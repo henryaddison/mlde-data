@@ -9,9 +9,7 @@ sources:
   frequency: day
   variables:
     # assumes already extracted and converted to nc
-    # implicit here is rename variable
-    - name: lssnow
-    - name: lsrain
+    - name: lsrainsnow
 spec:
   - action: coarsen
     parameters:
@@ -19,11 +17,11 @@ spec:
       grid_type: vorticity850
   - action: sum
     parameters:
-      variables: [lssnow, lsrain]
+      variables: [stratiform_snowfall_flux, stratiform_rainfall_flux]
       new_variable: pr
   - action: drop-variables
     parameters:
-      variables: [lssnow, lsrain]
+      variables: [stratiform_snowfall_flux, stratiform_rainfall_flux]
   - action: select-subdomain
     parameters:
       domain: ${domain}

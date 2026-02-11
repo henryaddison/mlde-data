@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 @register_action(name="drop-variables")
-class Rename:
+class DropVariables:
     def __init__(self, variables):
         self.variables = variables
 
