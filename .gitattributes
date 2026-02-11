@@ -1,11 +1,6 @@
 # SCM syntax highlighting & preventing 3-way merges
 pixi.lock merge=binary linguist-language=YAML linguist-generated=true
-tests/fixtures/files/variables/raw/moose/land-cpm/uk/2.2km/rcp85/r001i1p00000/lsrain/1hr/lsrain_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19811130.nc filter=lfs diff=lfs merge=lfs -text
-tests/fixtures/files/variables/raw/moose/land-cpm/uk/2.2km/rcp85/r001i1p00000/lssnow/1hr/lssnow_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19811130.nc filter=lfs diff=lfs merge=lfs -text
 tests/fixtures/files/variables/derived/land-cpm/engwales/2.2km-coarsened-4x/rcp85/r001i1p00000/pr/1hr/pr_rcp85_land-cpm_engwales_2.2km-coarsened-4x_r001i1p00000_1hr_19801201-19811130.nc filter=lfs diff=lfs merge=lfs -text
 tests/fixtures/files/variables/derived/land-cpm/engwales/2.2km-coarsened-gcm/rcp85/r001i1p00000/temp850/day/temp850_rcp85_land-cpm_engwales_2.2km-coarsened-gcm_r001i1p00000_day_19801201-19811130.nc filter=lfs diff=lfs merge=lfs -text
-tests/fixtures/files/variables/raw/moose/pp/land-cpm/uk/2.2km/rcp85/r001i1p00000/lssnow/1hr/1981/data/bb171a.pq19801201.pp filter=lfs diff=lfs merge=lfs -text
-tests/fixtures/files/variables/raw/moose/pp/land-cpm/uk/2.2km/rcp85/r001i1p00000/lssnow/1hr/1981/data/bb171a.pq19810601.pp filter=lfs diff=lfs merge=lfs -text
-tests/fixtures/files/variables/raw/moose/pp/land-cpm/uk/2.2km/rcp85/r001i1p00000/lsrain/1hr/1981/data/bb171a.pq19801201.pp filter=lfs diff=lfs merge=lfs -text
-tests/fixtures/files/variables/raw/moose/pp/land-cpm/uk/2.2km/rcp85/r001i1p00000/lsrain/1hr/1981/data/bb171a.pq19810601.pp filter=lfs diff=lfs merge=lfs -text
-tests/fixtures/files/variables/raw/moose/land-cpm/uk/2.2km/rcp85/r001i1p00000/temp850/day/temp850_rcp85_land-cpm_uk_2.2km_r001i1p00000_day_19801201-19811130.nc filter=lfs diff=lfs merge=lfs -text
+tests/fixtures/files/variables/raw/moose/pp/land-cpm/uk/2.2km/rcp85/r001i1p00000/lsrainsnow/1hr/1981/data/bb171a.pa19801201.pp filter=lfs diff=lfs merge=lfs -text
+tests/fixtures/files/variables/raw/moose/pp/land-cpm/uk/2.2km/rcp85/r001i1p00000/lsrainsnow/1hr/1981/data/bb171a.pa19801230.pp filter=lfs diff=lfs merge=lfs -text

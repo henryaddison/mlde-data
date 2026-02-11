@@ -202,9 +202,9 @@ def convert(
 
     domain, resolution = _domain_and_resolution_from_collection(collection)
 
-    src_cubes = open_pp_data(
+    ds = open_pp_data(
         base_dir=input_base_dir,
-        collection=collection.value,
+        collection=collection,
         scenario=scenario,
         ensemble_member=ensemble_member,
         variable=variable,
@@ -240,7 +240,7 @@ def convert(
             tmp_path = tmpf.name
 
         # Save to the temporary file
-        iris.save(src_cubes, tmp_path)
+        ds.to_netcdf(tmp_path)
 
         # Move the completed file into the final location. Use shutil.move
         # to handle cross-filesystem renames (e.g., local /tmp -> NFS).

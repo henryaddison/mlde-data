@@ -5,7 +5,6 @@ from mlde_utils import RAW_MOOSE_VARIABLES_PATH, DERIVED_VARIABLES_PATH
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
 from mlde_data.variable import validation, load_config
 from mlde_utils import VariableMetadata
-from ncdata.iris_xarray import cubes_to_xarray
 import os
 from pathlib import Path
 import sys
@@ -118,19 +117,16 @@ def open_moose_source_variable(
     base_dir: Path,
 ) -> xr.Dataset:
     logger.info(f"Opening {src_variable['name']} moose extract...")
-
-    ds = cubes_to_xarray(
-        open_pp_data(
-            base_dir=base_dir,
-            collection=CollectionOption(collection),
-            scenario=scenario,
-            ensemble_member=ensemble_member,
-            variable=src_variable["name"],
-            frequency=frequency,
-            resolution=resolution,
-            domain=domain,
-            year=year,
-        )
+    ds = open_pp_data(
+        base_dir=base_dir / "pp",
+        collection=CollectionOption(collection),
+        scenario=scenario,
+        ensemble_member=ensemble_member,
+        variable=src_variable["name"],
+        frequency=frequency,
+        resolution=resolution,
+        domain=domain,
+        year=year,
     )
 
     if "moose_name" in VARIABLE_CODES[src_variable["name"]]:
@@ -140,11 +136,8 @@ def open_moose_source_variable(
         ds = ds.rename(
             {VARIABLE_CODES[src_variable["name"]]["moose_name"]: src_variable["name"]}
         )
-
     # remove forecast related coords that we don't need
     ds = remove_forecast(ds)
-    # # remove pressure related dims and encoding data that we don't need
-    # ds = remove_pressure(ds)
 
     return ds
 
@@ -172,7 +165,7 @@ def open_canari_le_sprint_source_variable(
     return ds
 
 
-def combine_source_variables(sources: List[xr.Dataset]) -> xr.Dataset:
+def combine_source_variables(sources: dict[str, xr.Dataset]) -> xr.Dataset:
     logger.info(f"Combining source variables...")
 
     return xr.combine_by_coords(

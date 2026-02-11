@@ -1,9 +1,11 @@
 from click import Path
 import iris
 from mlde_utils import VariableMetadata
+from ncdata.iris_xarray import cubes_to_xarray
 import numpy as np
 import os
 import re
+import xarray as xr
 
 from . import RangeDict
 from .options import CollectionOption
@@ -401,7 +403,7 @@ def open_pp_data(
     resolution: str,
     domain: str,
     year: int,
-):
+) -> xr.Dataset:
     input_moose_pp_varmeta = MoosePPVariableMetadata(
         base_dir=base_dir,
         collection=collection.value,
@@ -429,3 +431,12 @@ def open_pp_data(
             if bounds[-1][1] > 8.97:
                 bounds[-1][1] = 8.962849
                 src_cube.coord("grid_latitude").bounds = bounds
+
+    ds = cubes_to_xarray(src_cubes)
+    # for some reason cubes_to_xarray output is missing indexes on the coords
+    # this used to be avoided as saving cubes to netcdf and then re-opening with xarray didn't have this problem
+    # TODO: work out why much more memory is required by cubes_to_xarray compared to iris.save and xarray.open_dataset approach
+    for d in ds.dims:
+        ds[d] = ds[d].reindex()
+
+    return ds

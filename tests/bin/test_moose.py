@@ -38,7 +38,7 @@ def test_convert(tmp_path):
             "--year",
             "1981",
             "--variable",
-            "temp850",
+            "mlqtw",
             "--frequency",
             "day",
             "--input-base-dir",
@@ -55,7 +55,7 @@ def test_convert(tmp_path):
         collection="land-cpm",
         scenario="rcp85",
         ensemble_member="r001i1p00000",
-        variable="temp850",
+        variable="mlqtw",
         frequency="day",
         resolution="2.2km",
         domain="uk",
@@ -66,12 +66,11 @@ def test_convert(tmp_path):
         collection="land-cpm",
         scenario="rcp85",
         ensemble_member="r001i1p00000",
-        variable="temp850",
+        variable="mlqtw",
         frequency="day",
         resolution="2.2km",
         domain="uk",
     ).filepath(1981)
 
-    assert np.all(
-        iris.load_cube(str(output_filepath)).data == iris.load_cube(input_glob).data
-    )
+    for c1, c2 in zip(iris.load(str(output_filepath)), iris.load(input_glob)):
+        assert np.all(c1.data == c2.data)
