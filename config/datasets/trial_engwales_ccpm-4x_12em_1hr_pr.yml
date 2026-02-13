@@ -24,7 +24,8 @@ predictors:
   resolution: 2.2km-coarsened-gcm
   collection: land-cpm
   variables:
-      - psl
+      # - pr
+      # - psl
       - spechum250
       - spechum500
       - spechum700
