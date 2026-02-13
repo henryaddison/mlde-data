@@ -15,7 +15,9 @@ def test_split():
     )
     time_da = xr.DataArray(dims=["time"], data=time_range, coords={"time": time_range})
 
-    splits = RandomSplit(props={"val": 0.2, "test": 0.1}).run(time_da)
+    splits = RandomSplit(
+        props={"val": 0.2, "test": 0.1}, time_periods=[["1980-12-01", "2001-12-01"]]
+    ).run(time_da)
 
     # Should divide up time
     assert len(splits["test"]) == 720
@@ -41,7 +43,9 @@ def test_split_hours():
     )
     time_da = xr.DataArray(dims=["time"], data=time_range, coords={"time": time_range})
 
-    splits = RandomSplit(props={"val": 0.2, "test": 0.1}).run(time_da)
+    splits = RandomSplit(
+        props={"val": 0.2, "test": 0.1}, time_periods=[["1980-12-01", "1982-12-01"]]
+    ).run(time_da)
 
     # Should divide up by time
     assert len(splits["test"]) == (1 * 36 * 2)

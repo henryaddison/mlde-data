@@ -304,21 +304,26 @@ def _single_variable(
     return variable_ds
 
 
-def _split(time_da: xr.DataArray, scheme: str, props: dict[str, float], seed: int):
+def _split(
+    time_da: xr.DataArray,
+    scheme: str,
+    props: dict[str, float],
+    seed: int,
+    time_periods: list[int],
+):
     """
     Split data into train, validation and test subsets
     """
     if scheme == "random":
-        splitter = RandomSplit(
-            props=props,
-            seed=seed,
-        )
+        splitter = RandomSplit
     elif scheme == "random-season":
-        splitter = RandomSeasonSplit(
-            props=props,
-            seed=seed,
-        )
+        splitter = RandomSeasonSplit
     else:
         raise RuntimeError(f"Unknown split scheme {scheme}")
+
     logger.info(f"Splitting data...")
-    return splitter.run(time_da)
+    return splitter(
+        props=props,
+        seed=seed,
+        time_periods=time_periods,
+    ).run(time_da)

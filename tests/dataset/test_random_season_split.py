@@ -16,7 +16,7 @@ def test_split():
     time_da = xr.DataArray(dims=["time"], data=time_range, coords={"time": time_range})
 
     splits = RandomSeasonSplit(
-        props={"val": 0.2, "test": 0.1}, time_periods=[[1981, 2000]]
+        props={"val": 0.2, "test": 0.1}, time_periods=[["1980-12-01", "2000-12-01"]]
     ).run(time_da)
 
     # Should divide up by time between splits
@@ -25,7 +25,7 @@ def test_split():
     assert len(splits["train"]) == 5040
 
     # Check that all days are present across the splits
-    assert np.all(np.isin(time_range.floor("D"), np.concatenate(list(splits.values()))))
+    assert len(np.unique(np.concatenate(list(splits.values())))) == len(time_range)
 
     # check time is sorted
     for split_times in splits.values():
@@ -39,24 +39,24 @@ def test_split():
     # Each split should have a certain number of years for each month
     test_year_seasons = np.unique(
         np.char.add(
-            splits["test"].year.astype("str"),
-            splits["test"].month.astype("str"),
+            np.vectorize(lambda x: x.year)(splits["test"]).astype("str"),
+            np.vectorize(lambda x: x.month)(splits["test"]).astype("str"),
         )
     )
     assert len(test_year_seasons) == 2 * 12
 
     val_year_seasons = np.unique(
         np.char.add(
-            splits["val"].year.astype("str"),
-            splits["val"].month.astype("str"),
+            np.vectorize(lambda x: x.year)(splits["val"]).astype("str"),
+            np.vectorize(lambda x: x.month)(splits["val"]).astype("str"),
         )
     )
     assert len(val_year_seasons) == 4 * 12
 
     train_year_seasons = np.unique(
         np.char.add(
-            splits["train"].year.astype("str"),
-            splits["train"].month.astype("str"),
+            np.vectorize(lambda x: x.year)(splits["train"]).astype("str"),
+            np.vectorize(lambda x: x.month)(splits["train"]).astype("str"),
         )
     )
     assert len(train_year_seasons) == 14 * 12
@@ -72,7 +72,7 @@ def test_split_hours():
     time_da = xr.DataArray(dims=["time"], data=time_range, coords={"time": time_range})
 
     splits = RandomSeasonSplit(
-        props={"val": 0.25, "test": 0.25}, time_periods=[[1981, 1984]]
+        props={"val": 0.25, "test": 0.25}, time_periods=[["1980-12-01", "1984-12-01"]]
     ).run(time_da)
 
     # Should divide up by time between splits
@@ -95,24 +95,24 @@ def test_split_hours():
     # Each split should have a certain number of years for each month
     test_year_seasons = np.unique(
         np.char.add(
-            splits["test"].year.astype("str"),
-            splits["test"].month.astype("str"),
+            np.vectorize(lambda x: x.year)(splits["test"]).astype("str"),
+            np.vectorize(lambda x: x.month)(splits["test"]).astype("str"),
         )
     )
     assert len(test_year_seasons) == 1 * 12
 
     val_year_seasons = np.unique(
         np.char.add(
-            splits["val"].year.astype("str"),
-            splits["val"].month.astype("str"),
+            np.vectorize(lambda x: x.year)(splits["val"]).astype("str"),
+            np.vectorize(lambda x: x.month)(splits["val"]).astype("str"),
         )
     )
     assert len(val_year_seasons) == 1 * 12
 
     train_year_seasons = np.unique(
         np.char.add(
-            splits["train"].year.astype("str"),
-            splits["train"].month.astype("str"),
+            np.vectorize(lambda x: x.year)(splits["train"]).astype("str"),
+            np.vectorize(lambda x: x.month)(splits["train"]).astype("str"),
         )
     )
     assert len(train_year_seasons) == 2 * 12

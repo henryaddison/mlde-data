@@ -30,6 +30,7 @@ def config():
             "scheme": "random",
             "props": {"test": 0.2, "val": 0.2},
             "seed": 42,
+            "time_periods": [["1980-12-01", "1981-12-01"]],
         },
     }
 
