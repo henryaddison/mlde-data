@@ -57,7 +57,7 @@ function queue_years {
   shift 1;
   local years=$@
 
-  ${QUEUE_LOTUS_PATH} -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} ${args[@]} ${years}
+  ${QUEUE_LOTUS_PATH} -m 32G -j ${job_id} -d ${SCRIPT_DIR} -- ${LOTUS_WRAPPER_PATH} ${args[@]} ${years}
 }
 
 echo
