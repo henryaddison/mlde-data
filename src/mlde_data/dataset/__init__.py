@@ -25,10 +25,13 @@ def create(config: dict, input_base_dir: Path) -> dict:
     var_type_datasets = {}
     split_sets = None
     for var_type in ["predictands", "predictors"]:
+        logger.info(f"Processing {var_type}...")
+
         var_type_datasets[var_type] = {}
         var_type_config = config[var_type]
         single_var_datasets = []
         for var_name in var_type_config["variables"]:
+            logger.info(f"Processing {var_name}...")
             single_em_var_datasets = []
             for em in config["ensemble_members"]:
                 single_em_var_datasets.append(
@@ -42,7 +45,7 @@ def create(config: dict, input_base_dir: Path) -> dict:
                         **common_var_params,
                     )
                 )
-
+            logger.info(f"Combining ensemble members for {var_name}...")
             multi_em_ds = xr.concat(
                 single_em_var_datasets,
                 dim="ensemble_member",
@@ -66,8 +69,9 @@ def create(config: dict, input_base_dir: Path) -> dict:
             gc.collect()
 
             if split_sets is None:
+                logger.info(f"Generating times for split sets...")
                 split_sets = _split(multi_em_ds["time"], **config["split"])
-
+        logger.info(f"Combining variables for {var_type}...")
         var_type_ds = xr.combine_by_coords(
             single_var_datasets,
             compat="no_conflicts",
