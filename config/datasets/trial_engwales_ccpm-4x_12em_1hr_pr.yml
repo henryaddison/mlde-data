@@ -25,7 +25,7 @@ predictors:
   collection: land-cpm
   variables:
       # - pr
-      # - psl
+      - psl
       - spechum250
       - spechum500
       - spechum700
