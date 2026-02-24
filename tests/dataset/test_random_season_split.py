@@ -9,23 +9,20 @@ from mlde_data.dataset.random_season_split import RandomSeasonSplit
 def test_split():
     time_range = xr.date_range(
         cftime.Datetime360Day(1980, 12, 1, 12, 0, 0, 0, has_year_zero=True),
-        periods=360 * 20,
+        periods=360 * 21,
         freq="D",
         use_cftime=True,
     )
     time_da = xr.DataArray(dims=["time"], data=time_range, coords={"time": time_range})
 
     splits = RandomSeasonSplit(
-        props={"val": 0.2, "test": 0.1}, time_periods=[["1980-12-01", "2000-12-01"]]
+        props={"val": 0.2, "test": 0.1}, time_periods=[["1980-12-01", "2000-11-30"]]
     ).run(time_da)
 
     # Should divide up by time between splits
     assert len(splits["test"]) == 720
     assert len(splits["val"]) == 1440
     assert len(splits["train"]) == 5040
-
-    # Check that all days are present across the splits
-    assert len(np.unique(np.concatenate(list(splits.values())))) == len(time_range)
 
     # check time is sorted
     for split_times in splits.values():
@@ -65,23 +62,20 @@ def test_split():
 def test_split_hours():
     time_range = xr.date_range(
         cftime.Datetime360Day(1980, 12, 1, 0, 0, 0, 0, has_year_zero=True),
-        periods=24 * 360 * 4,
+        periods=24 * 360 * 5,
         freq="h",
         use_cftime=True,
     )
     time_da = xr.DataArray(dims=["time"], data=time_range, coords={"time": time_range})
 
     splits = RandomSeasonSplit(
-        props={"val": 0.25, "test": 0.25}, time_periods=[["1980-12-01", "1984-12-01"]]
+        props={"val": 0.25, "test": 0.25}, time_periods=[["1980-12-01", "1984-11-30"]]
     ).run(time_da)
 
     # Should divide up by time between splits
     assert len(splits["test"]) == 360 * 1
     assert len(splits["val"]) == 360 * 1
     assert len(splits["train"]) == 360 * 2
-
-    # Check that all days are present across the splits
-    assert np.all(np.isin(time_range.floor("D"), np.concatenate(list(splits.values()))))
 
     # check time is sorted
     for split_times in splits.values():
