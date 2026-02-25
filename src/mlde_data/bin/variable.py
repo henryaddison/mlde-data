@@ -102,7 +102,7 @@ def open_local_source_variable(
         scenario=scenario,
         domain=domain,
         ensemble_member=ensemble_member,
-        variable=src_variable["name"],
+        variable=src_variable,
         collection=collection,
     )
     source_nc_filepath = source_metadata.filepath(year)
@@ -140,7 +140,7 @@ def open_moose_source_variable(
 
     if "moose_name" in VARIABLE_CODES[src_variable]:
         logger.info(
-            f"Renaming {VARIABLE_CODES[src_variable]['moose_name']} to {src_variable['name']}..."
+            f"Renaming {VARIABLE_CODES[src_variable]['moose_name']} to {src_variable}..."
         )
         ds = ds.rename({VARIABLE_CODES[src_variable]["moose_name"]: src_variable})
     # remove forecast related coords that we don't need
@@ -163,7 +163,7 @@ def open_canari_le_sprint_source_variable(
     source_metadata = CanariLESprintVariableAdapter(
         frequency=frequency,
         ensemble_member=ensemble_member,
-        variable=src_variable["name"],
+        variable=src_variable,
         year=year,
     )
 
