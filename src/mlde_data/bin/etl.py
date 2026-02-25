@@ -102,19 +102,16 @@ def moose(
             )
 
         # run create variable
-
-        for variable_config in variable_configs:
-            for theta in thetas or [None]:
-                create_variable(
-                    config_path=variable_config,
-                    year=year,
-                    domain=domain,
-                    scale_factor=scale_factor,
-                    ensemble_member=ensemble_member,
-                    scenario=scenario,
-                    theta=theta,
-                    target_resolution=target_resolution,
-                )
+        create_variable(
+            config_paths=variable_configs,
+            year=year,
+            domain=domain,
+            scale_factor=scale_factor,
+            ensemble_member=ensemble_member,
+            scenario=scenario,
+            thetas=thetas,
+            target_resolution=target_resolution,
+        )
 
         # run clean up
         if cleanup:
