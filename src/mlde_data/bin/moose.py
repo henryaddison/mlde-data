@@ -20,6 +20,7 @@ from ..moose import (
     load_cubes,
     MoosePPVariableMetadata,
 )
+from ..variables import SourceVariableConfig
 
 iris.FUTURE.save_split_attrs = True
 
@@ -56,7 +57,7 @@ def _clean_pp_data(
     variable: str,
     year: int,
     frequency: str,
-    collection: CollectionOption,
+    collection: str,
     ensemble_member: str,
     scenario: str,
     domain: str,
@@ -64,7 +65,7 @@ def _clean_pp_data(
 ):
     pp_path = MoosePPVariableMetadata(
         base_dir=RAW_MOOSE_VARIABLES_PATH / "pp",
-        collection=collection.value,
+        collection=collection,
         scenario=scenario,
         ensemble_member=ensemble_member,
         variable=variable,
@@ -80,7 +81,7 @@ def _clean_nc_data(
     variable: str,
     year: int,
     frequency: str,
-    collection: CollectionOption,
+    collection: str,
     ensemble_member: str,
     scenario: str,
     domain: str,
@@ -88,7 +89,7 @@ def _clean_nc_data(
 ):
     nc_path = VariableMetadata(
         base_dir=RAW_MOOSE_VARIABLES_PATH,
-        collection=collection.value,
+        collection=collection,
         scenario=scenario,
         ensemble_member=ensemble_member,
         variable=variable,
@@ -118,21 +119,29 @@ def extract(
     if base_dir is None:
         base_dir = RAW_MOOSE_VARIABLES_PATH / "pp"
 
-    domain, resolution = _domain_and_resolution_from_collection(collection)
+    src_config = SourceVariableConfig(
+        src_type="moose",
+        collection=collection.value,
+        frequency=frequency,
+        variable=variable,
+    )
 
     query = select_query(
-        year=year, variable=variable, frequency=frequency, collection=collection.value
+        year=year,
+        variable=src_config.variable,
+        frequency=src_config.frequency,
+        collection=src_config.collection,
     )
 
     moose_pp_varmeta = MoosePPVariableMetadata(
         base_dir=base_dir,
-        collection=collection.value,
+        collection=src_config.collection,
         scenario=scenario,
         ensemble_member=ensemble_member,
-        variable=variable,
-        frequency=frequency,
-        resolution=resolution,
-        domain=domain,
+        variable=src_config.variable,
+        frequency=src_config.frequency,
+        resolution=src_config.resolution,
+        domain=src_config.domain,
     )
 
     output_dirpath = moose_pp_varmeta.moose_extract_dirpath(year)
@@ -149,10 +158,10 @@ def extract(
     query_filepath.write_text(query)
 
     moose_uri = moose_path(
-        variable,
+        src_config.variable,
         year,
-        frequency=frequency,
-        collection=collection.value,
+        frequency=src_config.frequency,
+        collection=src_config.collection,
         ensemble_member=ensemble_member,
     )
 
@@ -174,9 +183,13 @@ def extract(
     output.check_returncode()
 
     # make sure have the correct amount of data from moose
-    cubes = load_cubes(str(os.path.join(pp_dirpath, "*.pp")), variable, collection)
+    cubes = load_cubes(
+        str(os.path.join(pp_dirpath, "*.pp")),
+        src_config.variable,
+        src_config.collection,
+    )
     for cube in cubes:
-        assert cube.coord("time").shape[0] == FREQ2TIMELEN[frequency]
+        assert cube.coord("time").shape[0] == FREQ2TIMELEN[src_config.frequency]
 
 
 @app.command()
@@ -200,29 +213,34 @@ def convert(
     if output_base_dir is None:
         output_base_dir = RAW_MOOSE_VARIABLES_PATH
 
-    domain, resolution = _domain_and_resolution_from_collection(collection)
+    src_config = SourceVariableConfig(
+        src_type="moose",
+        collection=collection.value,
+        frequency=frequency,
+        variable=variable,
+    )
 
     ds = open_pp_data(
         base_dir=input_base_dir,
-        collection=collection,
+        collection=src_config.collection,
         scenario=scenario,
         ensemble_member=ensemble_member,
-        variable=variable,
-        frequency=frequency,
-        resolution=resolution,
-        domain=domain,
+        variable=src_config.variable,
+        frequency=src_config.frequency,
+        resolution=src_config.resolution,
+        domain=src_config.domain,
         year=year,
     )
 
     output_var_meta = VariableMetadata(
         base_dir=output_base_dir,
-        collection=collection.value,
+        collection=src_config.collection,
         scenario=scenario,
         ensemble_member=ensemble_member,
-        variable=variable,
-        frequency=frequency,
-        resolution=resolution,
-        domain=domain,
+        variable=src_config.variable,
+        frequency=src_config.frequency,
+        resolution=src_config.resolution,
+        domain=src_config.domain,
     )
     output_filepath = output_var_meta.filepath(year)
 
@@ -252,7 +270,10 @@ def convert(
             os.remove(tmp_path)
 
     if validate:
-        assert len(xr.open_dataset(output_filepath).time) == FREQ2TIMELEN[frequency]
+        assert (
+            len(xr.open_dataset(output_filepath).time)
+            == FREQ2TIMELEN[src_config.frequency]
+        )
 
 
 @app.command()
@@ -267,24 +288,29 @@ def clean(
     """
     Remove any unneccessary files once processing is done
     """
-    domain, resolution = _domain_and_resolution_from_collection(collection)
+    src_config = SourceVariableConfig(
+        src_type="moose",
+        collection=collection.value,
+        frequency=frequency,
+        variable=variable,
+    )
     _clean_pp_data(
-        collection=collection,
+        collection=src_config.collection,
         scenario=scenario,
         ensemble_member=ensemble_member,
-        variable=variable,
-        frequency=frequency,
+        variable=src_config.variable,
+        frequency=src_config.frequency,
         year=year,
-        domain=domain,
-        resolution=resolution,
+        domain=src_config.domain,
+        resolution=src_config.resolution,
     )
     _clean_nc_data(
-        collection=collection,
+        collection=src_config.collection,
         scenario=scenario,
         ensemble_member=ensemble_member,
-        variable=variable,
-        frequency=frequency,
+        variable=src_config.variable,
+        frequency=src_config.frequency,
         year=year,
-        domain=domain,
-        resolution=resolution,
+        domain=src_config.domain,
+        resolution=src_config.resolution,
     )

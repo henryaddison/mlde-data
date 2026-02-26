@@ -1,6 +1,5 @@
 from codetiming import Timer
 from collections import defaultdict
-from dataclasses import dataclass
 import logging
 from mlde_utils import RAW_MOOSE_VARIABLES_PATH, DERIVED_VARIABLES_PATH
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
@@ -14,15 +13,15 @@ from typing import List
 import xarray as xr
 import yaml
 
-
-from mlde_data.options import CollectionOption, DomainOption
+from mlde_data.actions import get_action
 from mlde_data.moose import (
     VARIABLE_CODES,
     open_pp_data,
     remove_forecast,
     remove_pressure,
 )
-from mlde_data.actions import get_action
+from mlde_data.options import CollectionOption, DomainOption
+from mlde_data.variable import SourceVariableConfig
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
@@ -33,55 +32,6 @@ app = typer.Typer()
 @app.callback()
 def callback():
     pass
-
-
-@dataclass(frozen=True)
-class SourceConfig:
-    type: str
-    collection: str
-    frequency: str
-    variable: str
-
-
-def get_resolution(src_config: SourceConfig) -> str:
-    collection = CollectionOption(src_config.collection)
-    if src_config.type == "moose":
-        if collection == CollectionOption.cpm:
-            resolution = "2.2km"
-        elif collection == CollectionOption.gcm:
-            resolution = "60km"
-        else:
-            raise f"Unknown collection {collection}"
-    elif src_config.type == "local":
-        # assume local sourced data is pre-processed so resolution must be specified in config
-        resolution = src_config.resolution
-    elif src_config.type == "canari-le-sprint":
-        # CANARI LE Sprint data is at 60km resolution
-        resolution = "60km"
-
-    else:
-        raise RuntimeError(f"Unknown souce type {src_config.type}")
-
-    return resolution
-
-
-def get_source_domain(src_config: SourceConfig) -> str:
-    collection = CollectionOption(src_config.collection)
-    if src_config.type == "moose":
-        if collection == CollectionOption.cpm:
-            domain = "uk"
-        elif collection == CollectionOption.gcm:
-            domain = "global"
-        else:
-            raise RuntimeError(f"Unknown collection {collection}")
-    elif src_config.type == "local":
-        domain = src_config.domain
-    elif src_config.type == "canari-le-sprint":
-        domain = "global"
-    else:
-        raise RuntimeError(f"Unknown souce type {src_config.type}")
-
-    return domain
 
 
 def open_local_source_variable(
@@ -186,7 +136,7 @@ def combine_source_variables(sources: dict[str, xr.Dataset]) -> xr.Dataset:
 
 
 def open_source_variables(
-    src_configs: set[SourceConfig],
+    src_configs: set[SourceVariableConfig],
     year: int,
     ensemble_member: str,
     base_dir: Path,
@@ -194,7 +144,7 @@ def open_source_variables(
     sources = {}
     for src_config in src_configs:
 
-        src_type = src_config.type
+        src_type = src_config.src_type
 
         if src_type == "moose":
             source_open_strategy = open_moose_source_variable
@@ -206,10 +156,10 @@ def open_source_variables(
             raise RuntimeError(f"Unknown source type {src_type}")
 
         collection = src_config.collection
-        resolution = get_resolution(src_config)
+        resolution = src_config.resolution
         frequency = src_config.frequency
         scenario = "rcp85"
-        domain = get_source_domain(src_config)
+        domain = src_config.domain
 
         sources[src_config.variable] = source_open_strategy(
             src_config.variable,
@@ -319,17 +269,9 @@ def create(
         for theta in (thetas or [None])
     ]
 
-    src_configs = {
-        SourceConfig(
-            type=config["sources"]["type"],
-            collection=config["sources"]["collection"],
-            frequency=config["sources"]["frequency"],
-            variable=var_configs["name"],
-        )
-        for config in configs
-        for var_configs in config["sources"]["variables"]
-    }
-    src_type = {src_config.type for src_config in src_configs}
+    src_configs = {src_config for config in configs for src_config in config["sources"]}
+
+    src_type = {src_config.src_type for src_config in src_configs}
     # TODO: support creating variables from multiple source types
     assert len(src_type) == 1, "All variable configs must have the same source type"
     src_type = src_type.pop()
