@@ -25,7 +25,7 @@ dependencies = [
   "mlde-utils~=0.3.0",
   "pint~=0.25",
   "python-dotenv~=1.1",
-  "typer~=0.16.0",
+  "typer~=0.16.0", "esgf-qa>=0.5.0,<0.6", "esgvoc>=2.2.2,<3",
 ]
 
 [dependency-groups]
