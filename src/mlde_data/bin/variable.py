@@ -276,6 +276,13 @@ def create(
     assert len(src_type) == 1, "All variable configs must have the same source type"
     src_type = src_type.pop()
 
+    src_collection = {src_config.collection for src_config in src_configs}
+    # TODO: support creating variables from multiple source types
+    assert (
+        len(src_collection) == 1
+    ), "All variable configs must have the same source collection"
+    src_collection = src_collection.pop()
+
     if input_base_dir is None:
         if src_type == "moose":
             input_base_dir = RAW_MOOSE_VARIABLES_PATH
@@ -315,7 +322,7 @@ def create(
             scenario=scenario,
             ensemble_member=ensemble_member,
             variable=config["variable"],
-            collection=config["sources"]["collection"],
+            collection=src_collection,
         )
 
         _save(ds, config, output_metadata.filepath(year), year)
