@@ -59,6 +59,10 @@ def create(
             split_ds.to_zarr(
                 os.path.join(output_dir, split_name, f"{var_type}.zarr"), mode="w-"
             )
+            split_stats[var_type][split_name].to_zarr(
+                os.path.join(output_dir, split_name, f"{var_type}_stats.zarr"),
+                mode="w-",
+            )
             logger.info(f"{var_type} {split_name} done")
 
 

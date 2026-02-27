@@ -68,6 +68,10 @@ def test_create(tmp_path, config_filepath, input_base_dir):
             assert_file(data_filepath)
             xr.open_dataset(data_filepath)  # will raise error if file is invalid
 
+            data_filepath = expected_dsmeta.path() / split / f"{var_type}_stats.zarr"
+            assert_file(data_filepath)
+            xr.open_dataset(data_filepath)  # will raise error if file is invalid
+
 
 def test_create_runner(tmp_path, config_filepath, input_base_dir):
     result = runner.invoke(
