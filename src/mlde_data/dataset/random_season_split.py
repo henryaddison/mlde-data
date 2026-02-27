@@ -2,7 +2,6 @@ import cftime
 from collections import defaultdict
 import logging
 import numpy as np
-from typing import List
 import xarray as xr
 
 from .base_split import BaseSplit
@@ -11,48 +10,65 @@ logger = logging.getLogger(__name__)
 
 
 class RandomSeasonSplit(BaseSplit):
-    def __init__(
-        self,
-        props: dict[str, float],
-        time_periods: List[List[int]],
-        seed: int = 42,
-    ):
-        super().__init__(props=props, seed=seed)
-        self.time_periods = time_periods
+    def run(self, time_da: xr.DataArray) -> dict[str, list[cftime.Datetime360Day]]:
+        rng = np.random.default_rng(seed=self.seed)
 
-    def run(self, time_da: xr.DataArray) -> dict[str, List[cftime.Datetime360Day]]:
+        from xarray.groupers import SeasonResampler
 
-        splits = defaultdict(lambda: xr.CFTimeIndex([]))
-        for season in ["DJF", "MAM", "JJA", "SON"]:
-            for tp in self.time_periods:
-                years = list(range(tp[0], tp[1] + 1))
-                nyears = len(years)
-
-                rng = np.random.default_rng(seed=self.seed)
-                rng.shuffle(years)
-
-                for split, split_prop in self.props.items():
-                    split_year_count = int(nyears * split_prop)
-                    if split_year_count > 0:
-                        split_years = years[:split_year_count]
-                        years = years[split_year_count:]
-
-                        for year in split_years:
-                            season_range = xr.date_range(
-                                self._season_start_date(season, year),
-                                periods=90,
-                                freq="D",
-                                use_cftime=True,
-                            )
-                            splits[split] = splits[split].append(season_range)
-
-        # return {k: sorted(v) for k, v in splits.items()}
-        return {
-            k: xr.CFTimeIndex(v.sort_values()).intersection(
-                time_da["time"].dt.floor("D")
+        for tp in self.time_periods:
+            tp_time_da = time_da.sel(time=slice(tp[0], tp[1]))
+            seasons = xr.merge(
+                [
+                    tp_time_da.resample(
+                        time=SeasonResampler(
+                            ["DJF", "MAM", "JJA", "SON"], drop_incomplete=False
+                        )
+                    )
+                    .min()
+                    .dt.floor("D"),
+                    tp_time_da.resample(
+                        time=SeasonResampler(
+                            ["DJF", "MAM", "JJA", "SON"], drop_incomplete=False
+                        )
+                    )
+                    .max()
+                    .dt.ceil("D"),
+                ]
             )
-            for k, v in splits.items()
-        }
+
+            splits = defaultdict(list)
+            for season, season_time_ds in seasons.groupby("time.season"):
+                nyears = len(season_time_ds["time"])
+                p = rng.permutation(nyears)
+
+                split_sizes = {
+                    split: int(nyears * prop)
+                    for split, prop in self.props.items()
+                    if split != "train"
+                }
+                split_sizes["train"] = nyears - sum(split_sizes.values())
+
+                for split, split_size in split_sizes.items():
+                    split_times = np.unique(
+                        np.concatenate(
+                            [
+                                time_da.where(
+                                    (time_da.time >= season_time_ds["floor"][idx])
+                                    & (time_da.time < season_time_ds["ceil"][idx]),
+                                    drop=True,
+                                )
+                                .dt.floor("D")
+                                .values
+                                for idx in p[:split_size]
+                            ]
+                        )
+                    )
+
+                    splits[split].append(split_times)
+                    p = p[split_size:]
+                assert len(p) == 0, "Some times were not assigned to a split"
+
+        return {k: np.sort(np.concatenate(v)) for k, v in splits.items()}
 
     def _season_start_date(self, season: str, year: int) -> cftime.Datetime360Day:
         if season == "DJF":

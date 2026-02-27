@@ -16,6 +16,8 @@ predictors:
 scenario: rcp85
 split:
   scheme: random
+  time_periods:
+    - ["1980-12-01", "1981-12-01"]
   seed: 42
   props:
     val: 0.5
