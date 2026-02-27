@@ -85,3 +85,23 @@ def test_create_runner(tmp_path, config_filepath, input_base_dir):
         ],
     )
     assert result.exit_code == 0
+
+
+def test_patch_stats(tmp_path, config_filepath, input_base_dir):
+    # ensure there's a dataset already created
+    create(
+        config_filepath,
+        input_base_dir=input_base_dir,
+        output_base_dir=tmp_path,
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "dataset",
+            "patch-stats",
+            config_filepath.stem,
+            str(tmp_path),
+        ],
+    )
+    assert result.exit_code == 0

@@ -31,6 +31,25 @@ def callback():
 
 
 @app.command()
+def patch_stats(dataset_name: str, base_dir: Path = typer.Argument(DATASETS_PATH)):
+    dataset_dir = DatasetMetadata(dataset_name, base_dir=base_dir).path()
+    config = DatasetMetadata(dataset_name, base_dir=base_dir).config()
+
+    for var_type in ["predictands", "predictors"]:
+        variables = config[var_type]["variables"]
+        for split_filepath in glob.glob(
+            os.path.join(dataset_dir, f"*/{var_type}.zarr")
+        ):
+            logger.info(f"Adding stats for {split_filepath}...")
+            split_ds = xr.open_dataset(split_filepath)
+            patched_ds = dataset_lib._calculate_statistics(split_ds, variables)
+            split_stats_filepath = split_filepath.replace(
+                f"{var_type}.zarr", f"{var_type}_stats.zarr"
+            )
+            patched_ds.to_zarr(split_stats_filepath, mode="w")
+
+
+@app.command()
 def create(
     config: Path,
     input_base_dir: Path = typer.Argument(DERIVED_VARIABLES_PATH),
