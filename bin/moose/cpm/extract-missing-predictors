@@ -1,0 +1,21 @@
+#! /bin/bash
+# Accidentally deleted most predictor variables for default ensemble member, so re-extracting them here.
+# Will run variable creation separately to avoid overloading the mass machine
+
+set -euo pipefail
+
+em="r001i1p00000"
+
+set -x
+
+for year in $(seq 1981 1990); do
+  echo ${year};
+  for var in mlqtw psl; do
+    pixi run --as-is --locked mlde-data moose extract --collection land-cpm --scenario rcp85 --variable ${var} --year ${year} --frequency day --ensemble-member ${em}; echo "DONE for ${var} ${year}";
+  done
+  echo "DONE for ${year}";
+done
+
+set +x
+
+echo "DONE"
