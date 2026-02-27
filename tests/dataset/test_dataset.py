@@ -1,6 +1,7 @@
 import cftime
 from mlde_utils import VariableMetadata
 import numpy as np
+import numpy.testing as npt
 import os
 import pytest
 import xarray as xr
@@ -119,7 +120,7 @@ def test_single_variable(variable_files, config):
 def test_create(variable_files, config):
     input_base_dir = variable_files
 
-    result = dataset.create(config, input_base_dir)
+    result, _ = dataset.create(config, input_base_dir)
 
     assert set(result.keys()) == {"predictors", "predictands"}
 
@@ -135,3 +136,34 @@ def test_create(variable_files, config):
         }
         for var_name in config[var_type]["variables"]:
             assert ds[var_name].shape == (1, 216, 10, 10)
+
+
+def test_create_statistics(variable_files, config):
+    input_base_dir = variable_files
+
+    splits, stats = dataset.create(config, input_base_dir)
+
+    assert set(stats.keys()) == {"predictors", "predictands"}
+
+    for var_type in ["predictors", "predictands"]:
+        split = "train"
+        for var_name in config[var_type]["variables"]:
+            expected = np.mean(splits[var_type][split][var_name].values)
+            actual = stats[var_type]["train"].sel(variable=var_name)["mean"].values
+            npt.assert_equal(expected, actual)
+
+            expected = np.std(splits[var_type][split][var_name].values)
+            actual = stats[var_type]["train"].sel(variable=var_name)["std"].values
+            npt.assert_equal(expected, actual)
+
+            expected = np.size(splits[var_type][split][var_name].values)
+            actual = stats[var_type]["train"].sel(variable=var_name)["count"].values
+            npt.assert_equal(expected, actual)
+
+            expected = np.max(splits[var_type][split][var_name].values)
+            actual = stats[var_type]["train"].sel(variable=var_name)["max"].values
+            npt.assert_equal(expected, actual)
+
+            expected = np.min(splits[var_type][split][var_name].values)
+            actual = stats[var_type]["train"].sel(variable=var_name)["min"].values
+            npt.assert_equal(expected, actual)

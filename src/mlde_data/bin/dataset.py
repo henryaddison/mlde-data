@@ -43,7 +43,7 @@ def create(
     with open(config, "r") as f:
         config = yaml.safe_load(f)
 
-    split_sets = dataset_lib.create(config, input_base_dir)
+    split_sets, split_stats = dataset_lib.create(config, input_base_dir)
 
     output_dir = DatasetMetadata(dataset_name, base_dir=output_base_dir).path()
 

@@ -15,6 +15,30 @@ from .random_season_split import RandomSeasonSplit
 logger = logging.getLogger(__name__)
 
 
+def _calculate_statistics(split_ds: xr.Dataset, variables: list[str]) -> xr.Dataset:
+    """
+    Calculate statistics for each variable in the dataset
+
+    Used for transforming the data later (e.g. standardization in ML pipeline)
+    """
+
+    return xr.concat(
+        [
+            xr.merge(
+                [
+                    split_ds[var].count().rename("count"),
+                    split_ds[var].mean().rename("mean"),
+                    split_ds[var].std().rename("std"),
+                    split_ds[var].max().rename("max"),
+                    split_ds[var].min().rename("min"),
+                ]
+            ).expand_dims({"variable": [var]})
+            for var in variables
+        ],
+        dim="variable",
+    )
+
+
 def create(config: dict, input_base_dir: Path) -> dict:
     """
     Create a dataset
@@ -23,11 +47,13 @@ def create(config: dict, input_base_dir: Path) -> dict:
     common_var_params = {k: config[k] for k in ["domain", "scenario"]}
 
     var_type_datasets = {}
+    var_type_statistics = {}
     split_sets = None
     for var_type in ["predictands", "predictors"]:
         logger.info(f"Processing {var_type}...")
 
         var_type_datasets[var_type] = {}
+        var_type_statistics[var_type] = {}
         var_type_config = config[var_type]
         single_var_datasets = []
         for var_name in var_type_config["variables"]:
@@ -86,8 +112,11 @@ def create(config: dict, input_base_dir: Path) -> dict:
                 drop=True,
             )
             var_type_datasets[var_type][split] = split_ds
+            var_type_statistics[var_type][split] = _calculate_statistics(
+                split_ds, var_type_config["variables"]
+            )
 
-    return var_type_datasets
+    return var_type_datasets, var_type_statistics
 
 
 def validate(dataset: str) -> defaultdict:
