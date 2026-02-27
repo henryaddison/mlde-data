@@ -20,7 +20,7 @@ from ..moose import (
     load_cubes,
     MoosePPVariableMetadata,
 )
-from ..variables import SourceVariableConfig
+from ..variable import SourceVariableConfig
 
 iris.FUTURE.save_split_attrs = True
 
