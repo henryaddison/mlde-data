@@ -2,7 +2,7 @@ import logging
 import os
 from pathlib import Path
 from mlde_utils import RAW_MOOSE_VARIABLES_PATH
-from mlde_data.options import DomainOption
+from mlde_data.options import DomainOption, CollectionOption
 from mlde_data.bin.moose import extract, clean
 from mlde_data.bin.variable import create as create_variable
 from mlde_data.variable import load_config
@@ -77,7 +77,7 @@ def moose(
                 variable=src_config.variable,
                 year=year,
                 frequency=src_config.frequency,
-                collection=src_config.collection,
+                collection=CollectionOption(src_config.collection),
                 ensemble_member=ensemble_member,
                 scenario=scenario,
             )
@@ -98,7 +98,7 @@ def moose(
         if cleanup:
             for src_config in src_configs:
                 clean(
-                    collection=src_config.collection,
+                    collection=CollectionOption(src_config.collection),
                     scenario=scenario,
                     ensemble_member=ensemble_member,
                     variable=src_config.variable,
