@@ -19,14 +19,14 @@ class SourceVariableConfig:
         if self.src_type == "moose":
             if self.collection == CollectionOption.cpm:
                 if self.resolution is None:
-                    self.resolution = "2.2km"
+                    object.__setattr__(self, "resolution", "2.2km")
                 if self.domain is None:
-                    self.domain = "uk"
+                    object.__setattr__(self, "domain", "uk")
             elif self.collection == CollectionOption.gcm:
                 if self.resolution is None:
-                    self.resolution = "60km"
+                    object.__setattr__(self, "resolution", "60km")
                 if self.domain is None:
-                    self.domain = "global"
+                    object.__setattr__(self, "domain", "global")
             else:
                 raise f"Unknown collection {self.collection}"
         elif self.src_type == "local":
@@ -40,9 +40,9 @@ class SourceVariableConfig:
         elif self.src_type == "canari-le-sprint":
             # assume CANARI LE Sprint data is at global 60km resolution
             if self.resolution is None:
-                self.resolution = "60km"
+                object.__setattr__(self, "resolution", "60km")
             if self.domain is None:
-                self.domain = "global"
+                object.__setattr__(self, "domain", "global")
         else:
             raise RuntimeError(f"Unknown souce type {self.src_type}")
 
