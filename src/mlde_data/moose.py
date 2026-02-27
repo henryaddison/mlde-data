@@ -395,7 +395,7 @@ def load_cubes(pp_files, variable, collection, realize=False):
 
 def open_pp_data(
     base_dir: Path,
-    collection: CollectionOption,
+    collection: str,
     scenario: str,
     ensemble_member: str,
     variable: str,
@@ -406,7 +406,7 @@ def open_pp_data(
 ) -> xr.Dataset:
     input_moose_pp_varmeta = MoosePPVariableMetadata(
         base_dir=base_dir,
-        collection=collection.value,
+        collection=collection,
         scenario=scenario,
         ensemble_member=ensemble_member,
         variable=variable,

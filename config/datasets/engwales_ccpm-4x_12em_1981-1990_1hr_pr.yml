@@ -1,0 +1,52 @@
+scenario: rcp85
+domain: engwales
+ensemble_members:
+  - r001i1p00000
+  - r001i1p01113
+  - r001i1p01554
+  - r001i1p01649
+  - r001i1p01843
+  - r001i1p01935
+  - r001i1p02868
+  - r001i1p02123
+  - r001i1p02242
+  - r001i1p02305
+  - r001i1p02335
+  - r001i1p02491
+predictands:
+  frequency: 1hr
+  resolution: 2.2km-coarsened-4x
+  collection: land-cpm
+  variables:
+    - pr
+predictors:
+  frequency: day
+  resolution: 2.2km-coarsened-gcm
+  collection: land-cpm
+  variables:
+      # - pr
+      - psl
+      - spechum250
+      - spechum500
+      - spechum700
+      - spechum850
+      - temp250
+      - temp500
+      - temp700
+      - temp850
+      - vorticity250
+      - vorticity500
+      - vorticity700
+      - vorticity850
+split:
+  scheme: random-season
+  time_periods:
+    - ["1980-12-01", "1990-11-30"]
+    # - ["1980-12-01", "2000-12-01"]
+    # - ["2040-12-01", "2040-12-01"]
+    # - ["2060-12-01", "2080-12-01"]
+  seed: 42
+  props:
+    train: 0.6
+    val: 0.2
+    test: 0.2
