@@ -10,7 +10,7 @@ from mlde_data.bin import app
 runner = CliRunner()
 
 
-def test_create_predictor(tmp_path):
+def test_create_predictors(tmp_path):
     input_base_dir = Path(
         os.path.dirname(__file__),
         "..",
@@ -24,10 +24,14 @@ def test_create_predictor(tmp_path):
 
     collection = "land-cpm"
     frequency = "day"
-    config_path = files("mlde_data").joinpath(
-        f"../../config/variables/{frequency}/{collection}/predictors/temp.yml"
-    )
-    theta = "850"
+    var_types = ["temp", "vorticity"]
+    config_paths = [
+        files("mlde_data").joinpath(
+            f"../../config/variables/{frequency}/{collection}/predictors/{var_type}.yml"
+        )
+        for var_type in var_types
+    ]
+    thetas = ["250", "850"]
     year = 1981
     ensemble_member = "r001i1p00000"
     domain = "engwales"
@@ -39,10 +43,14 @@ def test_create_predictor(tmp_path):
         [
             "variable",
             "create",
-            "--config-path",
-            str(config_path),
-            "--theta",
-            theta,
+            "--config-paths",
+            str(config_paths[0]),
+            "--config-paths",
+            str(config_paths[1]),
+            "--thetas",
+            thetas[0],
+            "--thetas",
+            thetas[1],
             "--scenario",
             scenario,
             "--ensemble-member",
@@ -62,18 +70,20 @@ def test_create_predictor(tmp_path):
     )
     assert result.exit_code == 0
 
-    output_filepath = VariableMetadata(
-        base_dir=output_base_dir,
-        collection=collection,
-        scenario=scenario,
-        ensemble_member=ensemble_member,
-        variable="temp850",
-        frequency=frequency,
-        resolution="2.2km-coarsened-gcm",
-        domain=domain,
-    ).filepath(year)
+    for var_type in var_types:
+        for theta in thetas:
+            output_filepath = VariableMetadata(
+                base_dir=output_base_dir,
+                collection=collection,
+                scenario=scenario,
+                ensemble_member=ensemble_member,
+                variable=f"{var_type}{theta}",
+                frequency=frequency,
+                resolution="2.2km-coarsened-gcm",
+                domain=domain,
+            ).filepath(year)
 
-    xr.open_dataset(output_filepath)  # will raise error if file is invalid
+            xr.open_dataset(output_filepath)  # will raise error if file is invalid
 
 
 def test_create_target(tmp_path):
@@ -104,7 +114,7 @@ def test_create_target(tmp_path):
         [
             "variable",
             "create",
-            "--config-path",
+            "--config-paths",
             str(config_path),
             "--scenario",
             scenario,
@@ -170,7 +180,7 @@ def test_create_4x_engwales_target(tmp_path):
         [
             "variable",
             "create",
-            "--config-path",
+            "--config-paths",
             str(config_path),
             "--scenario",
             scenario,

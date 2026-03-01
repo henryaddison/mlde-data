@@ -48,83 +48,61 @@ def moose(
         for theta in (thetas or [None])
     ]
 
-    src_collection = {config["sources"]["collection"] for config in configs}
-    assert (
-        len(src_collection) == 1
-    ), "All variable configs must have the same source collection"
-    src_collection = CollectionOption(src_collection.pop())
+    src_configs = {src_config for config in configs for src_config in config["sources"]}
 
-    src_frequency = {config["sources"]["frequency"] for config in configs}
-    assert (
-        len(src_frequency) == 1
-    ), "All variable configs must have the same source frequency"
-    src_frequency = src_frequency.pop()
-
-    src_variables = {
-        src_variable["name"]
-        for config in configs
-        for src_variable in config["sources"]["variables"]
-    }
+    src_type = {src_config.src_type for src_config in src_configs}
+    # TODO: support creating variables from multiple source types
+    assert src_type == {"moose"}, "All source variable configs must have type moose"
+    src_type = src_type.pop()
 
     for year in years:
-        # run extract and convert
-        for src_variable in src_variables:
-            if src_collection == CollectionOption.cpm:
-                source_domain = "uk"
-                source_resolution = "2.2km"
-            elif src_collection == CollectionOption.gcm:
-                source_domain = "global"
-                source_resolution = "60km"
-            else:
-                raise f"Unknown collection {src_collection}"
+        # run extract
+        for src_config in src_configs:
             source_nc_filepath = VariableMetadata(
                 base_dir=RAW_MOOSE_VARIABLES_PATH,
-                variable=src_variable,
-                frequency=src_frequency,
-                domain=source_domain,
-                resolution=source_resolution,
+                variable=src_config.variable,
+                frequency=src_config.frequency,
+                domain=src_config.domain,
+                resolution=src_config.resolution,
                 ensemble_member=ensemble_member,
                 scenario=scenario,
-                collection=src_collection.value,
+                collection=src_config.collection,
             ).filepath(year)
-            # skip extract and convert if file already exists and not forcing an extraction
+            # skip extract if file already exists and not forcing an extraction
             if os.path.exists(source_nc_filepath) and not force:
                 logger.info(f"{source_nc_filepath} already exists, skipping extraction")
                 continue
 
             extract(
-                variable=src_variable,
+                variable=src_config.variable,
                 year=year,
-                frequency=src_frequency,
-                collection=src_collection,
+                frequency=src_config.frequency,
+                collection=CollectionOption(src_config.collection),
                 ensemble_member=ensemble_member,
                 scenario=scenario,
             )
 
         # run create variable
-
-        for variable_config in variable_configs:
-            for theta in thetas or [None]:
-                create_variable(
-                    config_path=variable_config,
-                    year=year,
-                    domain=domain,
-                    scale_factor=scale_factor,
-                    ensemble_member=ensemble_member,
-                    scenario=scenario,
-                    theta=theta,
-                    target_resolution=target_resolution,
-                )
+        create_variable(
+            config_paths=variable_configs,
+            year=year,
+            domain=domain,
+            scale_factor=scale_factor,
+            ensemble_member=ensemble_member,
+            scenario=scenario,
+            thetas=thetas,
+            target_resolution=target_resolution,
+        )
 
         # run clean up
         if cleanup:
-            for src_variable in src_variables:
+            for src_config in src_configs:
                 clean(
-                    collection=src_collection,
+                    collection=CollectionOption(src_config.collection),
                     scenario=scenario,
                     ensemble_member=ensemble_member,
-                    variable=src_variable,
-                    frequency=src_frequency,
+                    variable=src_config.variable,
+                    frequency=src_config.frequency,
                     year=year,
                 )
 
