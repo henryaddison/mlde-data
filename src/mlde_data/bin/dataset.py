@@ -31,6 +31,25 @@ def callback():
 
 
 @app.command()
+def patch_stats(dataset_name: str, base_dir: Path = typer.Argument(DATASETS_PATH)):
+    dataset_dir = DatasetMetadata(dataset_name, base_dir=base_dir).path()
+    config = DatasetMetadata(dataset_name, base_dir=base_dir).config()
+
+    for var_type in ["predictands", "predictors"]:
+        variables = config[var_type]["variables"]
+        for split_filepath in glob.glob(
+            os.path.join(dataset_dir, f"*/{var_type}.zarr")
+        ):
+            logger.info(f"Adding stats for {split_filepath}...")
+            split_ds = xr.open_dataset(split_filepath)
+            patched_ds = dataset_lib._calculate_statistics(split_ds, variables)
+            split_stats_filepath = split_filepath.replace(
+                f"{var_type}.zarr", f"{var_type}_stats.zarr"
+            )
+            patched_ds.to_zarr(split_stats_filepath, mode="w")
+
+
+@app.command()
 def create(
     config: Path,
     input_base_dir: Path = typer.Argument(DERIVED_VARIABLES_PATH),
@@ -43,7 +62,7 @@ def create(
     with open(config, "r") as f:
         config = yaml.safe_load(f)
 
-    split_sets = dataset_lib.create(config, input_base_dir)
+    split_sets, split_stats = dataset_lib.create(config, input_base_dir)
 
     output_dir = DatasetMetadata(dataset_name, base_dir=output_base_dir).path()
 
@@ -58,6 +77,10 @@ def create(
         for split_name, split_ds in var_type_splits.items():
             split_ds.to_zarr(
                 os.path.join(output_dir, split_name, f"{var_type}.zarr"), mode="w-"
+            )
+            split_stats[var_type][split_name].to_zarr(
+                os.path.join(output_dir, split_name, f"{var_type}_stats.zarr"),
+                mode="w-",
             )
             logger.info(f"{var_type} {split_name} done")
 

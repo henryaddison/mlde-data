@@ -68,6 +68,10 @@ def test_create(tmp_path, config_filepath, input_base_dir):
             assert_file(data_filepath)
             xr.open_dataset(data_filepath)  # will raise error if file is invalid
 
+            data_filepath = expected_dsmeta.path() / split / f"{var_type}_stats.zarr"
+            assert_file(data_filepath)
+            xr.open_dataset(data_filepath)  # will raise error if file is invalid
+
 
 def test_create_runner(tmp_path, config_filepath, input_base_dir):
     result = runner.invoke(
@@ -77,6 +81,26 @@ def test_create_runner(tmp_path, config_filepath, input_base_dir):
             "create",
             str(config_filepath),
             str(input_base_dir),
+            str(tmp_path),
+        ],
+    )
+    assert result.exit_code == 0
+
+
+def test_patch_stats(tmp_path, config_filepath, input_base_dir):
+    # ensure there's a dataset already created
+    create(
+        config_filepath,
+        input_base_dir=input_base_dir,
+        output_base_dir=tmp_path,
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "dataset",
+            "patch-stats",
+            config_filepath.stem,
             str(tmp_path),
         ],
     )
