@@ -1,0 +1,66 @@
+#! /bin/bash
+
+set -uo pipefail
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+suite_id=${1}
+stream=${2}
+
+case $suite_id in
+  mi-bb171|mi-bb188|mi-bb189)
+    em="r001i1p00000"
+    echo -n ${em};
+    ;;
+  *)
+    echo -n "unknown suite id ${suite_id}"
+    exit 1
+    ;;
+esac
+
+case $suite_id in
+  mi-bb171)
+    tp="1981-2000"
+    echo -n ${tp};
+    ;;
+  mi-bb188)
+    tp="2021-2040"
+    echo -n ${tp};
+    ;;
+  mi-bb189)
+    tp="2061-2080"
+    echo -n ${tp};
+    ;;
+  *)
+    echo -n "unknown suite id ${suite_id}"
+    exit 1
+    ;;
+esac
+
+output_dir="/gws/nopw/j04/furflex/henrya/projects/furflex/data/moose-experiments/1981-2000-pSTW-cpm/${em}/${suite_id}/data"
+
+mkdir -p ${output_dir}
+
+set -x
+
+retries=2
+while true; do
+  time moo select -I ${SCRIPT_DIR}/${tp}/searchfile moose:crum/${suite_id}/${stream}.pp ${output_dir}
+  s=$?
+  if [ $s -eq 0 ] || [ $s -eq 17 ]; then
+    break;
+  fi
+  ((retries--));
+  if [ $retries -le 0 ]; then
+    break;
+  fi
+  sleep 3;
+done
+
+set +x
+
+if [ $s -eq 0 ] || [ $s -eq 17 ]; then
+  echo "DONE";
+fi
+
+exit $s
