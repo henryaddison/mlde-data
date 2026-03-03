@@ -12,6 +12,50 @@ case $suite_id in
     em="r001i1p00000"
     echo -n ${em};
     ;;
+  mi-bb190|mi-bb191|mi-bb192)
+    em="r001i1p01113"
+    echo -n ${em};
+    ;;
+  mi-bb193|mi-bb194|mi-bb195)
+    em="r001i1p01554"
+    echo -n ${em};
+    ;;
+  mi-bb196|mi-bb197|mi-bb198)
+    em="r001i1p01649"
+    echo -n ${em};
+    ;;
+  mi-bb199|mi-bb200|mi-bb201)
+    em="r001i1p01843"
+    echo -n ${em};
+    ;;
+  mi-bb202|mi-bb203|mi-bb204)
+    em="r001i1p01935"
+    echo -n ${em};
+    ;;
+  mi-bb205|mi-bb206|mi-bb208)
+    em="r001i1p02868"
+    echo -n ${em};
+    ;;
+  mi-bb209|mi-bb210|mi-bb211)
+    em="r001i1p02123"
+    echo -n ${em};
+    ;;
+  mi-bb214|mi-bb215|mi-bb216)
+    em="r001i1p02242"
+    echo -n ${em};
+    ;;
+  mi-bb217|mi-bb218|mi-bb219)
+    em="r001i1p02305"
+    echo -n ${em};
+    ;;
+  mi-bb220|mi-bb221|mi-bb222)
+    em="r001i1p02335"
+    echo -n ${em};
+    ;;
+  mi-bb223|mi-bb224|mi-bb225)
+    em="r001i1p02491"
+    echo -n ${em};
+    ;;
   *)
     echo -n "unknown suite id ${suite_id}"
     exit 1
@@ -19,15 +63,15 @@ case $suite_id in
 esac
 
 case $suite_id in
-  mi-bb171)
+  mi-bb171|mi-bb190|mi-bb193|mi-bb196|mi-bb199|mi-bb202|mi-bb205|mi-bb209|mi-bb214|mi-bb217|mi-bb220|mi-bb223)
     tp="1981-2000"
     echo -n ${tp};
     ;;
-  mi-bb188)
+  mi-bb188|mi-bb191|mi-bb194|mi-bb197|mi-bb200|mi-bb203|mi-bb206|mi-bb210|mi-bb215|mi-bb218|mi-bb221|mi-bb224)
     tp="2021-2040"
     echo -n ${tp};
     ;;
-  mi-bb189)
+  mi-bb189|mi-bb192|mi-bb195|mi-bb198|mi-bb201|mi-bb204|mi-bb208|mi-bb211|mi-bb216|mi-bb219|mi-bb222|mi-bb225)
     tp="2061-2080"
     echo -n ${tp};
     ;;
