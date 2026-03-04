@@ -25,6 +25,10 @@ class CedaVariableAdapter:
         "r001i1p02491": "15",
     }
 
+    VERSIONS = {
+        "land-cpm": "v20210615",
+    }
+
     @classmethod
     def from_variable_defn(
         cls, defn: SourceVariableConfig, ensemble_member: str, scenario: str, year: int
@@ -95,6 +99,7 @@ class CedaVariableAdapter:
             / self.RIP_CODES2CEDA_EM[self.ensemble_member]
             / self.variable
             / self.frequency
+            / self.VERSIONS[self.collection]
         )
 
     @property

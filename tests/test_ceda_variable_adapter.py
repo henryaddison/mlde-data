@@ -28,7 +28,9 @@ def test_eq(hourly_adapter, hourly_defn):
 
 
 def test_hourly_filepaths(hourly_adapter):
-    expected_dirpath = Path("/badc/ukcp18/data/land-cpm/uk/2.2km/rcp85/01/pr/1hr")
+    expected_dirpath = Path(
+        "/badc/ukcp18/data/land-cpm/uk/2.2km/rcp85/01/pr/1hr/v20210615"
+    )
     expected_filepaths = [
         Path(
             f"{expected_dirpath}/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc"
@@ -44,7 +46,9 @@ def test_hourly_filepaths(hourly_adapter):
 
 
 def test_daily_filepaths(daily_adapter):
-    expected_dirpath = Path("/badc/ukcp18/data/land-cpm/uk/2.2km/rcp85/01/pr/day")
+    expected_dirpath = Path(
+        "/badc/ukcp18/data/land-cpm/uk/2.2km/rcp85/01/pr/day/v20210615"
+    )
     expected_filepaths = [
         Path(
             f"{expected_dirpath}/pr_rcp85_land-cpm_uk_2.2km_01_day_19811201-19811130.nc"
