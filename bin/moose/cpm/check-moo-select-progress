@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for d in /gws/nopw/j04/furflex/henrya/projects/furflex/data/moose-experiments/1981-2000-pSTW-cpm/r*/*/data; do 
+  echo ${d};
+  ls ${d}/*.pp | wc -l;
+  ls -Ssh ${d}/*.pp | tail -n 2;
+done
