@@ -10,6 +10,8 @@ class CedaVariableAdapter:
     Adapter for opening variables from CEDA on JASMIN
     """
 
+    JASMIN_CEDA_BASE_DIR = Path("/badc/ukcp18/data")
+
     RIP_CODES2CEDA_EM = {
         "r001i1p00000": "01",
         "r001i1p01113": "04",
@@ -76,7 +78,7 @@ class CedaVariableAdapter:
         self.scenario = scenario
         self.year = year
         if base_dir is None:
-            base_dir = Path("/badc/ukcp18/data")
+            base_dir = self.JASMIN_CEDA_BASE_DIR
         self.base_dir = base_dir
 
     def __eq__(self, other):
