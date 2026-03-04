@@ -1,3 +1,5 @@
+import cftime
+import os
 from pathlib import Path
 import pytest
 
@@ -27,9 +29,9 @@ def test_eq(hourly_adapter, hourly_defn):
     assert adapter == hourly_adapter
 
 
-def test_hourly_filepaths(hourly_adapter):
+def test_hourly_filepaths(hourly_adapter, fixtures_base_dir):
     expected_dirpath = Path(
-        "/badc/ukcp18/data/land-cpm/uk/2.2km/rcp85/01/pr/1hr/v20210615"
+        f"{fixtures_base_dir}/land-cpm/uk/2.2km/rcp85/01/pr/1hr/v20210615"
     )
     expected_filepaths = [
         Path(
@@ -58,8 +60,34 @@ def test_daily_filepaths(daily_adapter):
     assert daily_adapter.filepaths == expected_filepaths
 
 
+def test_open(hourly_adapter):
+    ds = hourly_adapter.open()
+    assert "pr" in ds.data_vars
+    assert ds["time"].min().item() == cftime.Datetime360Day(
+        1980, 12, 1, 0, 30, 0, 0, has_year_zero=True
+    )
+    assert ds["time"].max().item() == cftime.Datetime360Day(
+        1981, 11, 30, 4, 30, 0, 0, has_year_zero=True
+    )
+
+
 @pytest.fixture
-def hourly_adapter():
+def fixtures_base_dir():
+    return Path(
+        os.path.dirname(__file__),
+        "fixtures",
+        "files",
+        "variables",
+        "raw",
+        "ceda",
+        "badc",
+        "ukcp18",
+        "data",
+    )
+
+
+@pytest.fixture
+def hourly_adapter(fixtures_base_dir):
     return CedaVariableAdapter(
         collection="land-cpm",
         ensemble_member="r001i1p00000",
@@ -69,6 +97,7 @@ def hourly_adapter():
         domain="uk",
         scenario="rcp85",
         year=1981,
+        base_dir=fixtures_base_dir,
     )
 
 

@@ -151,8 +151,8 @@ class CedaVariableAdapter:
             data_vars="minimal",
             coords="minimal",
             join="exact",
-            combine_attrs="no_conflicts",
-            compat="identical",
+            combine_attrs="drop_conflicts",
+            compat="equals",
         )
 
         return ds
