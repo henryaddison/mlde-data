@@ -16,7 +16,7 @@ class SourceVariableConfig:
     domain: str = None
 
     def __post_init__(self):
-        if self.src_type == "moose":
+        if self.src_type == "moose" or self.src_type == "ceda":
             if self.collection == CollectionOption.cpm:
                 if self.resolution is None:
                     object.__setattr__(self, "resolution", "2.2km")

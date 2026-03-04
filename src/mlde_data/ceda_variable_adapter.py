@@ -2,6 +2,8 @@ import logging
 from pathlib import Path
 import xarray as xr
 
+from mlde_data.variable import SourceVariableConfig
+
 
 class CedaVariableAdapter:
     """
@@ -22,6 +24,26 @@ class CedaVariableAdapter:
         "r001i1p02335": "13",
         "r001i1p02491": "15",
     }
+
+    @classmethod
+    def from_variable_defn(
+        cls, defn: SourceVariableConfig, ensemble_member: str, scenario: str, year: int
+    ):
+        if defn.src_type != "ceda":
+            raise ValueError(
+                f"Cannot create CedaVariableAdapter from variable definition with source type {defn.src_type}"
+            )
+
+        return cls(
+            collection=defn.collection,
+            variable=defn.variable,
+            frequency=defn.frequency,
+            resolution=defn.resolution,
+            domain=defn.domain,
+            ensemble_member=ensemble_member,
+            scenario=scenario,
+            year=year,
+        )
 
     def __init__(
         self,
@@ -46,6 +68,21 @@ class CedaVariableAdapter:
         if base_dir is None:
             base_dir = Path("/badc/ukcp18/data")
         self.base_dir = base_dir
+
+    def __eq__(self, other):
+        if not isinstance(other, CedaVariableAdapter):
+            return False
+
+        return (
+            self.collection == other.collection
+            and self.ensemble_member == other.ensemble_member
+            and self.variable == other.variable
+            and self.frequency == other.frequency
+            and self.resolution == other.resolution
+            and self.domain == other.domain
+            and self.scenario == other.scenario
+            and self.year == other.year
+        )
 
     @property
     def _dirpath(self) -> Path:

@@ -2,6 +2,29 @@ from pathlib import Path
 import pytest
 
 from mlde_data.ceda_variable_adapter import CedaVariableAdapter
+from mlde_data.variable import SourceVariableConfig
+
+
+def test_from_variable_defn(hourly_defn):
+    adapter = CedaVariableAdapter.from_variable_defn(
+        hourly_defn, ensemble_member="r001i1p00000", scenario="rcp85", year=1981
+    )
+
+    assert adapter.collection == "land-cpm"
+    assert adapter.variable == "pr"
+    assert adapter.frequency == "1hr"
+    assert adapter.resolution == "2.2km"
+    assert adapter.domain == "uk"
+    assert adapter.ensemble_member == "r001i1p00000"
+    assert adapter.scenario == "rcp85"
+    assert adapter.year == 1981
+
+
+def test_eq(hourly_adapter, hourly_defn):
+    adapter = CedaVariableAdapter.from_variable_defn(
+        hourly_defn, ensemble_member="r001i1p00000", scenario="rcp85", year=1981
+    )
+    assert adapter == hourly_adapter
 
 
 def test_hourly_filepaths(hourly_adapter):
@@ -56,4 +79,14 @@ def daily_adapter():
         domain="uk",
         scenario="rcp85",
         year=1981,
+    )
+
+
+@pytest.fixture
+def hourly_defn():
+    return SourceVariableConfig(
+        src_type="ceda",
+        collection="land-cpm",
+        frequency="1hr",
+        variable="pr",
     )
