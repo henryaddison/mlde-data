@@ -138,13 +138,8 @@ class CedaVariableAdapter:
     def open(self) -> xr.Dataset:
         logging.debug(f"Opening {self.filepaths}")
         ds = xr.concat(
-            [
-                xr.open_dataset(f).sel(
-                    time_counter=slice(f"{self.year-1}-12-01", f"{self.year}-11-30")
-                )
-                for f in self.filepaths
-            ],
-            dim="time_counter",
+            [xr.open_dataset(f) for f in self.filepaths],
+            dim="time",
             data_vars="minimal",
             coords="minimal",
             join="exact",
