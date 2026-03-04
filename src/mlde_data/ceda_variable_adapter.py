@@ -31,7 +31,12 @@ class CedaVariableAdapter:
 
     @classmethod
     def from_variable_defn(
-        cls, defn: SourceVariableConfig, ensemble_member: str, scenario: str, year: int
+        cls,
+        defn: SourceVariableConfig,
+        ensemble_member: str,
+        scenario: str,
+        year: int,
+        base_dir: Path | None = None,
     ):
         if defn.src_type != "ceda":
             raise ValueError(
@@ -47,6 +52,7 @@ class CedaVariableAdapter:
             ensemble_member=ensemble_member,
             scenario=scenario,
             year=year,
+            base_dir=base_dir,
         )
 
     def __init__(
