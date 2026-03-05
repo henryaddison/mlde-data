@@ -52,35 +52,40 @@ def moose(
 
     src_type = {src_config.src_type for src_config in src_configs}
     # TODO: support creating variables from multiple source types
-    assert src_type == {"moose"}, "All source variable configs must have type moose"
+    assert (
+        len(src_type) == 1
+    ), "All source variable configs must have the same source type"
     src_type = src_type.pop()
 
     for year in years:
-        # run extract
-        for src_config in src_configs:
-            source_nc_filepath = VariableMetadata(
-                base_dir=RAW_MOOSE_VARIABLES_PATH,
-                variable=src_config.variable,
-                frequency=src_config.frequency,
-                domain=src_config.domain,
-                resolution=src_config.resolution,
-                ensemble_member=ensemble_member,
-                scenario=scenario,
-                collection=src_config.collection,
-            ).filepath(year)
-            # skip extract if file already exists and not forcing an extraction
-            if os.path.exists(source_nc_filepath) and not force:
-                logger.info(f"{source_nc_filepath} already exists, skipping extraction")
-                continue
+        if src_type == "moose":
+            # only moose sources need to extract data first (for others assumed on accessible filesystem)
+            for src_config in src_configs:
+                source_nc_filepath = VariableMetadata(
+                    base_dir=RAW_MOOSE_VARIABLES_PATH,
+                    variable=src_config.variable,
+                    frequency=src_config.frequency,
+                    domain=src_config.domain,
+                    resolution=src_config.resolution,
+                    ensemble_member=ensemble_member,
+                    scenario=scenario,
+                    collection=src_config.collection,
+                ).filepath(year)
+                # skip extract if file already exists and not forcing an extraction
+                if os.path.exists(source_nc_filepath) and not force:
+                    logger.info(
+                        f"{source_nc_filepath} already exists, skipping extraction"
+                    )
+                    continue
 
-            extract(
-                variable=src_config.variable,
-                year=year,
-                frequency=src_config.frequency,
-                collection=CollectionOption(src_config.collection),
-                ensemble_member=ensemble_member,
-                scenario=scenario,
-            )
+                extract(
+                    variable=src_config.variable,
+                    year=year,
+                    frequency=src_config.frequency,
+                    collection=CollectionOption(src_config.collection),
+                    ensemble_member=ensemble_member,
+                    scenario=scenario,
+                )
 
         # run create variable
         create_variable(
@@ -94,8 +99,8 @@ def moose(
             target_resolution=target_resolution,
         )
 
-        # run clean up
-        if cleanup:
+        # run clean up for moose extracts
+        if src_type == "moose" and cleanup:
             for src_config in src_configs:
                 clean(
                     collection=CollectionOption(src_config.collection),
