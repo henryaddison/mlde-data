@@ -5,7 +5,6 @@ set -uo pipefail
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 suite_id=${1}
-stream=${2}
 
 case $suite_id in
   mi-bb171|mi-bb188|mi-bb189)
