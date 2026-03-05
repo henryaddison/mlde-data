@@ -3,6 +3,7 @@ from collections import defaultdict
 import logging
 from mlde_utils import RAW_MOOSE_VARIABLES_PATH, DERIVED_VARIABLES_PATH
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
+from mlde_data.ceda_variable_adapter import CedaVariableAdapter
 from mlde_data.variable import validation, load_config
 from mlde_utils import VariableMetadata
 import os
@@ -122,6 +123,34 @@ def open_canari_le_sprint_source_variable(
     return ds
 
 
+def open_ceda_source_variable(
+    src_variable: str,
+    year: int,
+    frequency: str,
+    scenario: str,
+    resolution: str,
+    ensemble_member: str,
+    domain: str,
+    collection: str,
+    base_dir: Path,
+) -> xr.Dataset:
+    source_metadata = CedaVariableAdapter(
+        frequency=frequency,
+        ensemble_member=ensemble_member,
+        variable=src_variable,
+        year=year,
+        scenario=scenario,
+        resolution=resolution,
+        domain=domain,
+        collection=collection,
+        base_dir=base_dir,
+    )
+
+    ds = source_metadata.open()
+
+    return ds
+
+
 def combine_source_variables(sources: dict[str, xr.Dataset]) -> xr.Dataset:
     logger.info(f"Combining source variables...")
 
@@ -148,6 +177,8 @@ def open_source_variables(
 
         if src_type == "moose":
             source_open_strategy = open_moose_source_variable
+        elif src_type == "ceda":
+            source_open_strategy = open_ceda_source_variable
         elif src_type == "local":
             source_open_strategy = open_local_source_variable
         elif src_type == "canari-le-sprint":
@@ -230,7 +261,9 @@ def _validate(ds: xr.Dataset, config: dict) -> None:
 def _save(ds: xr.Dataset, config: dict, path: str, year: int) -> None:
     logger.info(f"Saving data to {path}")
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    ds[config["variable"]].encoding.update(dict(zlib=True, complevel=5))
+    ds[config["variable"]].encoding.update(
+        dict(zlib=True, complevel=5, contiguous=False, shuffle=True)
+    )
     ds.to_netcdf(path)
     with open(
         os.path.join(os.path.dirname(path), f"{config['variable']}-{year}.yml"), "w"
