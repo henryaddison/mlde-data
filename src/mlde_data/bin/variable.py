@@ -319,6 +319,8 @@ def create(
     if input_base_dir is None:
         if src_type == "moose":
             input_base_dir = RAW_MOOSE_VARIABLES_PATH
+        elif src_type == "ceda":
+            input_base_dir = None
         elif src_type == "local":
             input_base_dir = DERIVED_VARIABLES_PATH
         elif src_type == "canari-le-sprint":
