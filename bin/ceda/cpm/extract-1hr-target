@@ -45,7 +45,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 variable_config_path="${SCRIPT_DIR}/../../../config/variables/${frequency}/${collection}/targets/${variable}.yml"
 
-QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../../queue-lotus
+QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
 LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
 
 function queue_years {

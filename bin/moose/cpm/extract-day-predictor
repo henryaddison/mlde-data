@@ -49,7 +49,7 @@ args+=('--scale-factor' ${scale_factor})
 
 years=$@
 
-QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../../queue-lotus
+QUEUE_LOTUS_PATH=${SCRIPT_DIR}/../queue-lotus
 LOTUS_WRAPPER_PATH=${SCRIPT_DIR}/../lotus-wrapper
 
 function queue_years {
