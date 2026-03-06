@@ -7,49 +7,6 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 suite_id=${1}
 
 case $suite_id in
-  mi-bb171|mi-bb188|mi-bb189)
-    em="r001i1p00000"
-    ;;
-  mi-bb190|mi-bb191|mi-bb192)
-    em="r001i1p01113"
-    ;;
-  mi-bb193|mi-bb194|mi-bb195)
-    em="r001i1p01554"
-    ;;
-  mi-bb196|mi-bb197|mi-bb198)
-    em="r001i1p01649"
-    ;;
-  mi-bb199|mi-bb200|mi-bb201)
-    em="r001i1p01843"
-    ;;
-  mi-bb202|mi-bb203|mi-bb204)
-    em="r001i1p01935"
-    ;;
-  mi-bb205|mi-bb206|mi-bb208)
-    em="r001i1p02868"
-    ;;
-  mi-bb209|mi-bb210|mi-bb211)
-    em="r001i1p02123"
-    ;;
-  mi-bb214|mi-bb215|mi-bb216)
-    em="r001i1p02242"
-    ;;
-  mi-bb217|mi-bb218|mi-bb219)
-    em="r001i1p02305"
-    ;;
-  mi-bb220|mi-bb221|mi-bb222)
-    em="r001i1p02335"
-    ;;
-  mi-bb223|mi-bb224|mi-bb225)
-    em="r001i1p02491"
-    ;;
-  *)
-    echo -n "unknown suite id ${suite_id}"
-    exit 1
-    ;;
-esac
-
-case $suite_id in
   mi-bb171|mi-bb190|mi-bb193|mi-bb196|mi-bb199|mi-bb202|mi-bb205|mi-bb209|mi-bb214|mi-bb217|mi-bb220|mi-bb223)
     tp="1981-2000"
     ;;
@@ -65,18 +22,32 @@ case $suite_id in
     ;;
 esac
 
-output_dir="/gws/nopw/j04/furflex/henrya/projects/furflex/data/moose-experiments/1981-2000-pSTW-cpm/${em}/${suite_id}/data"
-
 echo ${em} ${tp};
 
-mkdir -p ${output_dir}
+for variable in psl mlqtw; do
 
-for stream in apa apb; do
+  case $variable in
+    psl)
+      stream="apa"
+      ;;
+    mlqtw)
+      stream="apb"
+      ;;
+    *)
+      echo "unknown variable ${variable}"
+      exit 1
+      ;;
+  esac
+
+  output_dir="/gws/nopw/j04/furflex/henrya/projects/furflex/data/moose-experiments/1981-2000-pSTW-cpm/${suite_id}/${variable}/data"
+  mkdir -p ${output_dir}
 
   retries=2
   while true; do
+    searchfile_path="${SCRIPT_DIR}/${tp}/${variable}/searchfile"
+    cp ${searchfile_path} ${output_dir}
     set -x
-    time moo select -I ${SCRIPT_DIR}/${tp}/searchfile moose:crum/${suite_id}/${stream}.pp ${output_dir}
+    time moo select -I ${searchfile_path} moose:crum/${suite_id}/${stream}.pp ${output_dir}
     set +x
     s=$?
     if [ $s -eq 0 ] || [ $s -eq 17 ]; then

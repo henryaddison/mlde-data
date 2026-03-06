@@ -1,9 +1,8 @@
 #!/bin/bash
 
-for d in /gws/nopw/j04/furflex/henrya/projects/furflex/data/moose-experiments/1981-2000-pSTW-cpm/r*/*/data; do
+for d in /gws/nopw/j04/furflex/henrya/projects/furflex/data/moose-experiments/1981-2000-pSTW-cpm/mi-bb*/*/data; do
   echo ${d};
-  ls ${d}/*a.pa*.pp | wc -l;
-  ls -Ssh ${d}/*a.pa*.pp | tail -n 2;
-  ls ${d}/*a.pb*.pp | wc -l;
-  ls -Ssh ${d}/*a.pb*.pp | tail -n 2;
+  ls ${d}/*.pp | wc -l;
+  ls -Ssh ${d}/*.pp | head -n 2;
+  ls -Ssh ${d}/*.pp | tail -n 2;
 done
