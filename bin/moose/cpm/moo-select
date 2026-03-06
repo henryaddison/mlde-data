@@ -22,7 +22,7 @@ case $suite_id in
     ;;
 esac
 
-echo ${em} ${tp};
+echo ${suite_id} ${tp};
 
 for variable in psl mlqtw; do
 
