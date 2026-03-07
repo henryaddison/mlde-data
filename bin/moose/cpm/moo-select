@@ -4,7 +4,7 @@ set -uo pipefail
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-suite_id=${1}
+for suite_id in "$@"; do
 
 case $suite_id in
   mi-bb171|mi-bb190|mi-bb193|mi-bb196|mi-bb199|mi-bb202|mi-bb205|mi-bb209|mi-bb214|mi-bb217|mi-bb220|mi-bb223)
@@ -66,6 +66,10 @@ for variable in psl mlqtw; do
   else
     echo "FAILED ${stream}: {$s}"
   fi
+done
+
+echo "DONE ${suite_id}"
+
 done
 
 echo "DONE"
