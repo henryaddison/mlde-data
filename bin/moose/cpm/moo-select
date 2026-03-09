@@ -87,6 +87,7 @@ EOF
         echo "DONE ${stream} ${year}: ${s}";
       else
         echo "FAILED ${stream} ${year}: ${s}"
+        exit $s
       fi
     done
 
