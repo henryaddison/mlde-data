@@ -374,17 +374,22 @@ def remove_pressure(ds):
     return ds
 
 
-def load_cubes(pp_files, variable, collection, realize=False):
+def load_cubes(pp_files, variable, collection, realize=False, constraints=None):
+    if constraints is None:
+        constraints = []
+
     if variable == "pr" and collection == CollectionOption.gcm:
         # for some reason precip extract for GCM has a mean and max hourly cell method version
         # only want the mean version
         constraint = iris.Constraint(
             cube_func=lambda cube: cube.cell_methods[0].method == "mean"
         )
-    else:
-        constraint = None
+        constraints.append(constraint)
 
-    cubes = iris.load(pp_files, constraints=constraint)
+    # seems iris.load doesn't work with empty list of constraints
+    if len(constraints) == 0:
+        constraints = None
+    cubes = iris.load(pp_files, constraints=constraints)
 
     if realize:
         for cube in cubes:
