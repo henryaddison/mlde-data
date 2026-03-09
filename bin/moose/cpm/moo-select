@@ -55,8 +55,8 @@ for suite_id in "$@"; do
           cat > ${output_dir}/searchfile << EOF
 begin
     stash=16222
-    T1>={${year}/12/01}
-    T2<={$((year-1))/12/01}
+    T1>={$((year-1))/12/01}
+    T1<{${year}/12/01}
 end
 EOF
           ;;
@@ -65,8 +65,8 @@ EOF
 begin
     stash=(30201, 30202, 30204, 30205)
     lblev=(250, 500, 700, 850)
-    T1>={${year}/12/01}
-    T2<={$((year-1))/12/01}
+    T1>={$((year-1))/12/01}
+    T1<{${year}/12/01}
 end
 EOF
           ;;
