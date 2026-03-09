@@ -80,6 +80,7 @@ EOF
 
       set -x
       time moo select -I ${output_dir}/searchfile moose:crum/${suite_id}/${stream}.pp ${output_dir}
+      s=$?
       set +x
 
       if [ $s -eq 0 ] || [ $s -eq 17 ]; then
