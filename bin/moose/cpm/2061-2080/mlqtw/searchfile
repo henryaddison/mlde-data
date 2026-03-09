@@ -1,7 +1,0 @@
-# winds, temp and humidity at 250, 500, 700 and 850 hPa
-begin
-    stash=(30201, 30202, 30204, 30205)
-    lblev=(250, 500, 700, 850)
-    T1>={2060/12/01}
-    T2<={2080/12/01}
-end
