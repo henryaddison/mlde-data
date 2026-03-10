@@ -15,7 +15,9 @@ class MooseVariableAdapter:
     Adapter for opening variables extracted from MASS on JASMIN
     """
 
-    JASMIN_MOOSE_BASE_DIR = Path("/badc/ukcp18/data")
+    JASMIN_MOOSE_BASE_DIR = Path(
+        "/gws/nopw/j04/furflex/henrya/projects/furflex/data/moose-experiments/1981-2000-pSTW-cpm"
+    )
 
     @classmethod
     def from_variable_defn(
