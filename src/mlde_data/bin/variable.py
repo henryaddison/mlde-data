@@ -8,7 +8,6 @@ from mlde_data.variable import validation, load_config
 from mlde_utils import VariableMetadata
 import os
 from pathlib import Path
-import sys
 import typer
 from tqdm import tqdm
 from typing import List
@@ -382,22 +381,19 @@ def validate(
         variables = variable_group["variables"]
         frequency = variable_group["frequency"]
         domain = variable_group["domain"]
-
-        for em in tqdm(validation.ENSEMBLE_MEMBERS[source][collection]):
+        em_pbar = tqdm(validation.ENSEMBLE_MEMBERS[source][collection])
+        for em in em_pbar:
             if (ensemble_member != "all") and (ensemble_member != em):
                 continue
+
             for var in tqdm(variables, leave=False):
                 if (variable != "all") and (variable != var):
                     continue
-                sys.stdout.write("\033[K")
-                print(
-                    f"Checking {var} of {em} over {domain} at {res}",
-                    end="\r",
-                )
 
                 for scenario in validation.SCENARIOS[source]:
                     bad_years = defaultdict(set)
                     for year in tqdm(years, leave=False):
+                        em_pbar.set_description(f"Checking {year} for {var} on {em}")
                         var_meta = VariableMetadata(
                             f"{DERIVED_VARIABLES_PATH}",
                             variable=var,
@@ -412,14 +408,13 @@ def validate(
                             bad_years[error].add(year)
 
                     # report findings
-                    sys.stdout.write("\033[K")
                     for reason, error_years in bad_years.items():
                         if len(error_years) > 0:
-                            print(
+                            tqdm.write(
                                 f"Failed '{reason}': {var} over {domain} of {em} in {scenario} at {res} for {len(error_years)}\n{sorted(error_years)}"
                             )
 
                     if not any(map(lambda s: len(s) > 0, bad_years.values())):
-                        print(
+                        tqdm.write(
                             f"Passed validation: {var} over {domain} of {em} in {scenario} at {res}"
                         )
