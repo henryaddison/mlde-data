@@ -10,10 +10,9 @@ from . import dataset, etl, moose, variable
 
 load_dotenv()  # take environment variables from .env.
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
-logger = logging.getLogger(__name__)
 log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
-logger.setLevel(log_level)
+logging.basicConfig(level=log_level, format="%(levelname)s %(asctime)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
 app.add_typer(dataset.app, name="dataset")
