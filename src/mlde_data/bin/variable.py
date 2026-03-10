@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import sys
 import typer
+from tqdm import tqdm
 from typing import List
 import xarray as xr
 import yaml
@@ -382,10 +383,10 @@ def validate(
         frequency = variable_group["frequency"]
         domain = variable_group["domain"]
 
-        for em in validation.ENSEMBLE_MEMBERS[source][collection]:
+        for em in tqdm(validation.ENSEMBLE_MEMBERS[source][collection]):
             if (ensemble_member != "all") and (ensemble_member != em):
                 continue
-            for var in variables:
+            for var in tqdm(variables, leave=False):
                 if (variable != "all") and (variable != var):
                     continue
                 sys.stdout.write("\033[K")
@@ -396,7 +397,7 @@ def validate(
 
                 for scenario in validation.SCENARIOS[source]:
                     bad_years = defaultdict(set)
-                    for year in years:
+                    for year in tqdm(years, leave=False):
                         var_meta = VariableMetadata(
                             f"{DERIVED_VARIABLES_PATH}",
                             variable=var,
