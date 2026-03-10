@@ -216,6 +216,9 @@ def validate(var_meta: VariableMetadata, year: int) -> List[str]:
     except FileNotFoundError:
         failures.append("no file")
         return failures
+    except Exception:
+        failures.append("bad file")
+        return failures
 
     # check for NaNs
     if not check_nans(ds, var_meta):
