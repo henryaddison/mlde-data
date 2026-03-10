@@ -1,5 +1,12 @@
 #! /bin/bash
 
+#SBATCH --partition=mass
+#SBATCH --qos=mass
+#SBATCH --account=mass
+#SBATCH --time=24:00:00
+#SBATCH --mem=16G
+#SBATCH --mail-type=FAIL
+
 set -uo pipefail
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
