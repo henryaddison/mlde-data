@@ -367,25 +367,31 @@ def validate(
     collection: str = "land-cpm",
     variable: str = "all",
     ensemble_member: str = "all",
+    resolution: str = "all",
+    domain: str = "all",
 ):
     if 0 in years:
         years.remove(0)
         years.extend(validation.YEARS[source])
 
     for variable_group in validation.DOMAIN_RES_VARS[source][collection]:
-        res = variable_group["resolution"]
-        variables = variable_group["variables"]
-        frequency = variable_group["frequency"]
-        domain = variable_group["domain"]
+        if resolution != "all" and variable_group["resolution"] != resolution:
+            continue
+        if domain != "all" and variable_group["domain"] != domain:
+            continue
+
+        variables = variable_group.pop("variables")
+        if variable != "all":
+            variables = list(filter(lambda v: v == variable, variables))
+        if len(variables) == 0:
+            continue
+
         em_pbar = tqdm(validation.ENSEMBLE_MEMBERS[source][collection])
         for em in em_pbar:
             if (ensemble_member != "all") and (ensemble_member != em):
                 continue
 
             for var in tqdm(variables, leave=False):
-                if (variable != "all") and (variable != var):
-                    continue
-
                 for scenario in validation.SCENARIOS[source]:
                     bad_years = defaultdict(set)
                     for year in tqdm(years, leave=False):
@@ -393,12 +399,10 @@ def validate(
                         var_meta = VariableMetadata(
                             f"{DERIVED_VARIABLES_PATH}",
                             variable=var,
-                            frequency=frequency,
-                            domain=domain,
-                            resolution=res,
                             ensemble_member=em,
                             collection=collection,
                             scenario=scenario,
+                            **variable_group,
                         )
                         for error in validation.validate(var_meta, year):
                             bad_years[error].add(year)
@@ -407,10 +411,10 @@ def validate(
                     for reason, error_years in bad_years.items():
                         if len(error_years) > 0:
                             tqdm.write(
-                                f"Failed '{reason}': {var} over {domain} of {em} in {scenario} at {res} for {len(error_years)}\n{sorted(error_years)}"
+                                f"Failed '{reason}': {var} over {variable_group['domain']} of {em} in {scenario} at {variable_group['resolution']} for {len(error_years)}\n{sorted(error_years)}"
                             )
 
                     if not any(map(lambda s: len(s) > 0, bad_years.values())):
                         tqdm.write(
-                            f"Passed validation: {var} over {domain} of {em} in {scenario} at {res}"
+                            f"Passed validation: {var} over {variable_group['domain']} of {em} in {scenario} at {variable_group['resolution']}"
                         )
