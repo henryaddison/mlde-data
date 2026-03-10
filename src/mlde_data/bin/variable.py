@@ -1,7 +1,7 @@
 from codetiming import Timer
 from collections import defaultdict
 import logging
-from mlde_utils import RAW_MOOSE_VARIABLES_PATH, DERIVED_VARIABLES_PATH
+from mlde_utils import DERIVED_VARIABLES_PATH
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
 from mlde_data.ceda_variable_adapter import CedaVariableAdapter
 from mlde_data.moose_variable_adapter import MooseVariableAdapter
@@ -315,7 +315,7 @@ def create(
 
     if input_base_dir is None:
         if src_type == "moose":
-            input_base_dir = RAW_MOOSE_VARIABLES_PATH
+            input_base_dir = None
         elif src_type == "ceda":
             input_base_dir = None
         elif src_type == "local":
