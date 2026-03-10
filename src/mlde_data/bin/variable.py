@@ -4,6 +4,7 @@ import logging
 from mlde_utils import RAW_MOOSE_VARIABLES_PATH, DERIVED_VARIABLES_PATH
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
 from mlde_data.ceda_variable_adapter import CedaVariableAdapter
+from mlde_data.moose_variable_adapter import MooseVariableAdapter
 from mlde_data.variable import validation, load_config
 from mlde_utils import VariableMetadata
 import os
@@ -16,12 +17,10 @@ import yaml
 
 from mlde_data.actions import get_action
 from mlde_data.moose import (
-    VARIABLE_CODES,
-    open_pp_data,
     remove_forecast,
     remove_pressure,
 )
-from mlde_data.options import CollectionOption, DomainOption
+from mlde_data.options import DomainOption
 from mlde_data.variable import SourceVariableConfig
 
 logger = logging.getLogger(__name__)
@@ -77,23 +76,20 @@ def open_moose_source_variable(
     base_dir: Path,
 ) -> xr.Dataset:
     logger.info(f"Opening {src_variable} moose extract...")
-    ds = open_pp_data(
-        base_dir=base_dir / "pp",
-        collection=CollectionOption(collection),
-        scenario=scenario,
+    source_metadata = MooseVariableAdapter(
+        frequency=frequency,
         ensemble_member=ensemble_member,
         variable=src_variable,
-        frequency=frequency,
+        year=year,
+        scenario=scenario,
         resolution=resolution,
         domain=domain,
-        year=year,
+        collection=collection,
+        base_dir=base_dir,
     )
 
-    if "moose_name" in VARIABLE_CODES[src_variable]:
-        logger.info(
-            f"Renaming {VARIABLE_CODES[src_variable]['moose_name']} to {src_variable}..."
-        )
-        ds = ds.rename({VARIABLE_CODES[src_variable]["moose_name"]: src_variable})
+    ds = source_metadata.open()
+
     # remove forecast related coords that we don't need
     ds = remove_forecast(ds)
 
