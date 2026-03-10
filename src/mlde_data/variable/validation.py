@@ -13,33 +13,32 @@ from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAd
 
 
 DOMAIN_RES_VARS = {
-    "canari-le-sprint": {
-        "canari-le-sprint": {
-            "birmingham-64": {
-                "60km-2.2km-coarsened-4x": [
-                    "psl",
-                    "pr",
-                    "temp250",
-                    "temp500",
-                    "temp700",
-                    "temp850",
-                    "vorticity250",
-                    "vorticity500",
-                    "vorticity700",
-                    "vorticity850",
-                ],
-            },
-        },
-    },
+    # "canari-le-sprint": {
+    #     "canari-le-sprint": {
+    #         "birmingham-64": {
+    #             "60km-2.2km-coarsened-4x": [
+    #                 "psl",
+    #                 "pr",
+    #                 "temp250",
+    #                 "temp500",
+    #                 "temp700",
+    #                 "temp850",
+    #                 "vorticity250",
+    #                 "vorticity500",
+    #                 "vorticity700",
+    #                 "vorticity850",
+    #             ],
+    #         },
+    #     },
+    # },
     "moose": {
-        "land-cpm": {
-            "birmingham-64": {
-                "2.2km-coarsened-gcm-2.2km-coarsened-4x": [
+        "land-cpm": [
+            {
+                "domain": "birmingham-64",
+                "resolution": "2.2km-coarsened-gcm-2.2km-coarsened-4x",
+                "frequency": "day",
+                "variables": [
                     "psl",
-                    # "tempgrad500250",
-                    # "tempgrad700500",
-                    # "tempgrad850700",
-                    # "tempgrad925850",
                     "vorticity250",
                     "vorticity500",
                     "vorticity700",
@@ -58,22 +57,13 @@ DOMAIN_RES_VARS = {
                     # "pr",
                     "linpr",
                 ],
-                "2.2km-coarsened-4x-2.2km-coarsened-4x": [
-                    "pr",
-                    "relhum150cm",
-                    "tmean150cm",
-                ],
             },
-            "birmingham-9": {"2.2km-coarsened-gcm-60km": ["pr"]},
-        },
-        "land-gcm": {
-            "birmingham-64": {
-                "60km-2.2km-coarsened-4x": [
+            {
+                "domain": "engwales",
+                "resolution": "2.2km-coarsened-gcm",
+                "frequency": "day",
+                "variables": [
                     "psl",
-                    # "tempgrad500250",
-                    # "tempgrad700500",
-                    # "tempgrad850700",
-                    # "tempgrad925850",
                     "vorticity250",
                     "vorticity500",
                     "vorticity700",
@@ -89,12 +79,17 @@ DOMAIN_RES_VARS = {
                     "temp700",
                     "temp850",
                     "temp925",
-                    "linpr",
+                ],
+            },
+            {
+                "domain": "engwales",
+                "resolution": "2.2km-coarsened-4x",
+                "frequency": "1hr",
+                "variables": [
                     "pr",
                 ],
             },
-            "birmingham-9": {"60km-60km": ["pr"]},
-        },
+        ]
     },
 }
 

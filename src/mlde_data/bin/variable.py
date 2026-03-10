@@ -372,51 +372,53 @@ def validate(
     variable: str = "all",
     ensemble_member: str = "all",
 ):
-    frequency = "day"
-
     if 0 in years:
         years.remove(0)
         years.extend(validation.YEARS[source])
 
-    for domain, res_variables in validation.DOMAIN_RES_VARS[source][collection].items():
-        for res, variables in res_variables.items():
-            for em in validation.ENSEMBLE_MEMBERS[source][collection]:
-                if (ensemble_member != "all") and (ensemble_member != em):
+    for variable_group in validation.DOMAIN_RES_VARS[source][collection]:
+        res = variable_group["resolution"]
+        variables = variable_group["variables"]
+        frequency = variable_group["frequency"]
+        domain = variable_group["domain"]
+
+        for em in validation.ENSEMBLE_MEMBERS[source][collection]:
+            if (ensemble_member != "all") and (ensemble_member != em):
+                continue
+            for var in variables:
+                if (variable != "all") and (variable != var):
                     continue
-                for var in variables:
-                    if (variable != "all") and (variable != var):
-                        continue
+                sys.stdout.write("\033[K")
+                print(
+                    f"Checking {var} of {em} over {domain} at {res}",
+                    end="\r",
+                )
+
+                for scenario in validation.SCENARIOS[source]:
+                    bad_years = defaultdict(set)
+                    for year in years:
+                        var_meta = VariableMetadata(
+                            f"{DERIVED_VARIABLES_PATH}",
+                            variable=var,
+                            frequency=frequency,
+                            domain=domain,
+                            resolution=res,
+                            ensemble_member=em,
+                            collection=collection,
+                            scenario=scenario,
+                        )
+                        for error in validation.validate(var_meta, year):
+                            bad_years[error].add(year)
+
+                    # report findings
                     sys.stdout.write("\033[K")
-                    print(
-                        f"Checking {var} of {em} over {domain} at {res}",
-                        end="\r",
-                    )
-
-                    for scenario in validation.SCENARIOS[source]:
-                        bad_years = defaultdict(set)
-                        for year in years:
-                            var_meta = VariableMetadata(
-                                f"{DERIVED_VARIABLES_PATH}",
-                                variable=var,
-                                frequency=frequency,
-                                domain=domain,
-                                resolution=res,
-                                ensemble_member=em,
-                                collection=collection,
-                                scenario=scenario,
-                            )
-                            for error in validation.validate(var_meta, year):
-                                bad_years[error].add(year)
-
-                        # report findings
-                        sys.stdout.write("\033[K")
-                        for reason, error_years in bad_years.items():
-                            if len(error_years) > 0:
-                                print(
-                                    f"Failed '{reason}': {var} over {domain} of {em} in {scenario} at {res} for {len(error_years)}\n{sorted(error_years)}"
-                                )
-
-                        if not any(map(lambda s: len(s) > 0, bad_years.values())):
+                    for reason, error_years in bad_years.items():
+                        if len(error_years) > 0:
                             print(
-                                f"Passed validation: {var} over {domain} of {em} in {scenario} at {res}"
+                                f"Failed '{reason}': {var} over {domain} of {em} in {scenario} at {res} for {len(error_years)}\n{sorted(error_years)}"
                             )
+
+                    if not any(map(lambda s: len(s) > 0, bad_years.values())):
+                        print(
+                            f"Passed validation: {var} over {domain} of {em} in {scenario} at {res}"
+                        )
