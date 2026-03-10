@@ -134,6 +134,7 @@ def open_ceda_source_variable(
     collection: str,
     base_dir: Path,
 ) -> xr.Dataset:
+    logger.info(f"Opening {src_variable} from CEDA...")
     source_metadata = CedaVariableAdapter(
         frequency=frequency,
         ensemble_member=ensemble_member,
