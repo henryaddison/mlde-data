@@ -28,7 +28,7 @@ for suite_id in "$@"; do
   echo ${suite_id} ${tp};
 
   for variable in psl mlqtw; do
-
+    echo "Processing ${suite_id} ${variable}"
     case $variable in
       psl)
         stream="apa"
@@ -45,51 +45,44 @@ for suite_id in "$@"; do
     output_dir="/gws/nopw/j04/furflex/henrya/projects/furflex/data/moose-experiments/1981-2000-pSTW-cpm/${suite_id}/${variable}/data"
     mkdir -p ${output_dir}
 
+    searchfile_path="${SCRIPT_DIR}/${tp}/${variable}/searchfile"
 
-    for year in ${years[@]}; do
-      echo "Processing ${suite_id} ${variable} ${year}"
-      searchfile_path="${SCRIPT_DIR}/${tp}/${variable}/searchfile"
-
-      case $variable in
-        psl)
-          cat > ${output_dir}/searchfile << EOF
+    case $variable in
+      psl)
+        cat > ${output_dir}/searchfile << EOF
 begin
-    stash=16222
-    T1>={$((year-1))/12/01}
-    T1<{${year}/12/01}
+  stash=16222
 end
 EOF
-          ;;
-        mlqtw)
-          cat > ${output_dir}/searchfile << EOF
+        ;;
+      mlqtw)
+        cat > ${output_dir}/searchfile << EOF
 begin
-    stash=(30201, 30202, 30204, 30205)
-    lblev=(250, 500, 700, 850)
-    T1>={$((year-1))/12/01}
-    T1<{${year}/12/01}
+  stash=(30201, 30202, 30204, 30205)
+  lblev=(250, 500, 700, 850)
 end
 EOF
-          ;;
-        *)
-          echo "unknown variable ${variable}"
-          exit 1
-          ;;
-      esac
+        ;;
+      *)
+        echo "unknown variable ${variable}"
+        exit 1
+        ;;
+    esac
 
-      cat ${output_dir}/searchfile
+    cat ${output_dir}/searchfile
 
-      set -x
-      time moo select -I ${output_dir}/searchfile moose:crum/${suite_id}/${stream}.pp ${output_dir}
-      s=$?
-      set +x
+    set -x
+    time moo select -i ${output_dir}/searchfile moose:crum/${suite_id}/${stream}.pp ${output_dir}
+    s=$?
+    set +x
 
-      if [ $s -eq 0 ] || [ $s -eq 17 ]; then
-        echo "DONE ${stream} ${year}: ${s}";
-      else
-        echo "FAILED ${stream} ${year}: ${s}"
-        exit $s
-      fi
-    done
+    if [ $s -eq 0 ] || [ $s -eq 17 ]; then
+      echo "DONE ${stream}: ${s}";
+    else
+      echo "FAILED ${stream}: ${s}"
+      exit $s
+    fi
+
 
   echo "DONE ${suite_id} ${variable}"
   done
