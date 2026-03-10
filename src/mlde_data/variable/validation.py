@@ -118,20 +118,20 @@ SCENARIOS = {
 }
 
 
-def check_nans(ds: xr.Dataset, var: str) -> bool:
-    return ds[var].isnull().sum().values.item() == 0
+def check_nans(ds: xr.Dataset, var: VariableMetadata) -> bool:
+    return ds[var.variable].isnull().sum().values.item() == 0
 
 
-def check_dims(ds: xr.Dataset, var: str) -> bool:
-    grid_mapping = ds[var].attrs["grid_mapping"]
+def check_dims(ds: xr.Dataset, var: VariableMetadata) -> bool:
+    grid_mapping = ds[var.variable].attrs["grid_mapping"]
     if grid_mapping == "rotated_latitude_longitude":
-        return list(ds[var].dims) == [
+        return list(ds[var.variable].dims) == [
             "time",
             "grid_latitude",
             "grid_longitude",
         ]
     elif grid_mapping == "latitude_longitude":
-        return list(ds[var].dims) == [
+        return list(ds[var.variable].dims) == [
             "time",
             "latitude",
             "longitude",
@@ -140,15 +140,20 @@ def check_dims(ds: xr.Dataset, var: str) -> bool:
         raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
 
 
-def check_shape(ds: xr.Dataset, var: str) -> bool:
-    return len(ds[var]["time"]) == 360
+def check_shape(ds: xr.Dataset, var: VariableMetadata) -> bool:
+    if var.frequency == "day":
+        return len(ds[var.variable]["time"]) == 360
+    elif var.frequency == "1hr":
+        return len(ds[var.variable]["time"]) == 360 * 24
+    else:
+        raise RuntimeError(f"Unknown frequency {var.frequency}")
 
 
-def check_forecast_encoding(ds: xr.Dataset, var: str) -> bool:
-    if "coordinates" in ds[var].encoding and (
+def check_forecast_encoding(ds: xr.Dataset, var: VariableMetadata) -> bool:
+    if "coordinates" in ds[var.variable].encoding and (
         re.match(
             "(realization|forecast_period|forecast_reference_time) ?",
-            ds[var].encoding["coordinates"],
+            ds[var.variable].encoding["coordinates"],
         )
         is not None
     ):
@@ -156,7 +161,7 @@ def check_forecast_encoding(ds: xr.Dataset, var: str) -> bool:
     return True
 
 
-def check_forecast_vars(ds: xr.Dataset, var: str) -> bool:
+def check_forecast_vars(ds: xr.Dataset, var: VariableMetadata) -> bool:
     for v in ds.variables:
         if v in [
             "forecast_period",
@@ -168,7 +173,7 @@ def check_forecast_vars(ds: xr.Dataset, var: str) -> bool:
     return True
 
 
-def check_pressure_encoding(ds: xr.Dataset, var: str) -> bool:
+def check_pressure_encoding(ds: xr.Dataset, var: VariableMetadata) -> bool:
     for v in ds.variables:
         if "coordinates" in ds[v].encoding and (
             re.match("(pressure) ?", ds[v].encoding["coordinates"]) is not None
@@ -177,15 +182,15 @@ def check_pressure_encoding(ds: xr.Dataset, var: str) -> bool:
     return True
 
 
-def check_pressure_vars(ds: xr.Dataset, var: str) -> bool:
+def check_pressure_vars(ds: xr.Dataset, var: VariableMetadata) -> bool:
     for v in ds.variables:
         if v in ["pressure"]:
             return False
     return True
 
 
-def check_grid_vars(ds: xr.Dataset, var: str) -> bool:
-    grid_mapping = ds[var].attrs["grid_mapping"]
+def check_grid_vars(ds: xr.Dataset, var: VariableMetadata) -> bool:
+    grid_mapping = ds[var.variable].attrs["grid_mapping"]
     meta_vars = [
         grid_mapping,
     ]
@@ -198,7 +203,7 @@ def check_grid_vars(ds: xr.Dataset, var: str) -> bool:
     return True
 
 
-def check_time_bnds(ds: xr.Dataset, var: str) -> bool:
+def check_time_bnds(ds: xr.Dataset, var: VariableMetadata) -> bool:
     if "time_bnds" not in ds.variables:
         return False
     return "ensemble_member" not in ds["time_bnds"].dims
@@ -213,29 +218,29 @@ def validate(var_meta: VariableMetadata, year: int) -> List[str]:
         return failures
 
     # check for NaNs
-    if not check_nans(ds, var_meta.variable):
+    if not check_nans(ds, var_meta):
         failures.append("NaNs")
 
     # check dims
-    if not check_dims(ds, var_meta.variable):
+    if not check_dims(ds, var_meta):
         failures.append("bad dimensions")
-    if not check_shape(ds, var_meta.variable):
+    if not check_shape(ds, var_meta):
         failures.append("bad shape")
 
     # check for forecast related metadata (should have been stripped)
-    if not check_forecast_encoding(ds, var_meta.variable):
+    if not check_forecast_encoding(ds, var_meta):
         failures.append("forecast_encoding")
-    if not check_forecast_vars(ds, var_meta.variable):
+    if not check_forecast_vars(ds, var_meta):
         failures.append("forecast_vars")
     # check for pressure related metadata (should have been stripped)
-    if not check_pressure_encoding(ds, var_meta.variable):
+    if not check_pressure_encoding(ds, var_meta):
         failures.append("pressure_encoding")
-    if not check_pressure_vars(ds, var_meta.variable):
+    if not check_pressure_vars(ds, var_meta):
         failures.append("pressure_vars")
     # check grid and time vars
-    if not check_grid_vars(ds, var_meta.variable):
+    if not check_grid_vars(ds, var_meta):
         failures.append("grid_meta_vars")
-    if not check_time_bnds(ds, var_meta.variable):
+    if not check_time_bnds(ds, var_meta):
         failures.append("time_bnds")
 
     return failures
