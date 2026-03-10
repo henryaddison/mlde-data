@@ -12,6 +12,10 @@ sources:
     # implicit here is rename variable
     - name: tmean150cm
 spec:
+  - action: rename
+    parameters:
+      mapping:
+        air_temperature: tmean150cm
   - action: coarsen
     parameters:
       scale_factor: ${scale_factor}

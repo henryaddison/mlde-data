@@ -12,6 +12,10 @@ sources:
     # implicit here is rename variable
     - name: pr
 spec:
+  - action: rename
+    parameters:
+      mapping:
+        precipitation_flux: pr
   - action: shift_lon_break
   - action: regrid_to_target
     parameters:

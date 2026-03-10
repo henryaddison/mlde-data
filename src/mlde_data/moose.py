@@ -70,14 +70,12 @@ VARIABLE_CODES = {
             "land-cpm": {"day": "apa", "3hrinst": "apc", "6hr": "apc"},
             "land-gcm": {"day": "apd"},
         },
-        "moose_name": "air_pressure_at_sea_level",
     },
     "relhum150cm": {
         "query": {
             "stash": 3245,
         },
         "stream": {"land-cpm": {"day": "apa"}},
-        "moose_name": "relative_humidity",
     },
     "windmax10m": {
         "query": {
@@ -120,7 +118,6 @@ VARIABLE_CODES = {
             "land-cpm": {"day": "apa", "1hr": "ape"},
             "land-gcm": {"day": "ape"},
         },
-        "moose_name": "air_temperature",
     },
     "tmax150cm": {
         "query": {
@@ -128,7 +125,6 @@ VARIABLE_CODES = {
             "lbproc": 8192,
         },
         "stream": {"land-cpm": {"day": "apa"}, "land-gcm": {"day": "ape"}},
-        "moose_name": "air_temperature",
     },
     "tmin150cm": {
         "query": {
@@ -136,7 +132,6 @@ VARIABLE_CODES = {
             "lbproc": 4096,
         },
         "stream": {"land-cpm": {"day": "apa"}, "land-gcm": {"day": "ape"}},
-        "moose_name": "air_temperature",
     },
     "wetbulbpott": {  # the saturated wet-bulb and wet-bulb potential temperatures
         "query": {
@@ -146,7 +141,6 @@ VARIABLE_CODES = {
             "land-cpm": {"3hrinst": "aph", "1hrinst": "apr", "6hrinst": "apc"},
             "land-gcm": {"day": "ape"},
         },
-        "moose_name": "wet_bulb_potential_temperature",
     },
     "geopotential_height": {
         "query": {
@@ -168,7 +162,6 @@ VARIABLE_CODES = {
             "stash": 5216,
         },
         "stream": {"land-gcm": {"day": "apa"}},
-        "moose_name": "precipitation_flux",
     },
     # a hack for some wind components for Sam
     "x_wind": {

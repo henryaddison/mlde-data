@@ -12,6 +12,10 @@ sources:
     # implicit here is rename variable
     - name: psl
 spec:
+  - action: rename
+    parameters:
+      mapping:
+        air_pressure_at_sea_level: psl
   - action: coarsen
     parameters:
       scale_factor: ${scale_factor}

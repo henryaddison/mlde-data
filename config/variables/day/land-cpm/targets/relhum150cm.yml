@@ -12,6 +12,10 @@ sources:
     # implicit here is rename variable
     - name: relhum150cm
 spec:
+  - action: rename
+    parameters:
+      mapping:
+        relative_humidity: relhum150cm
   - action: coarsen
     parameters:
       scale_factor: ${scale_factor}
