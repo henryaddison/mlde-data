@@ -2,7 +2,6 @@ variable: temp${theta}
 attrs:
   units: K
   standard_name: air_temperature
-  grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
   collection: land-cpm

@@ -2,7 +2,6 @@ variable: psl
 attrs:
   units: Pa
   standard_name: air_pressure_at_sea_level
-  grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
   collection: land-cpm
