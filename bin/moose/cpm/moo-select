@@ -79,7 +79,7 @@ EOF
     cat ${output_dir}/searchfile
 
     set -x
-    time moo select -i ${output_dir}/searchfile moose:crum/${suite_id}/${stream}.pp ${output_dir}
+    time moo select -I ${output_dir}/searchfile moose:crum/${suite_id}/${stream}.pp ${output_dir}
     s=$?
     set +x
 
