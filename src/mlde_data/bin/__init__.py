@@ -54,7 +54,15 @@ def sample(file: Path, output_file: Path, dim: str = "time"):
     output_file = str(output_file)
 
     logger.info(f"Saving {output_file}")
-    sampled_ds.to_netcdf(output_file)
+    if output_file.suffix == ".nc":
+        if output_file.exists():
+            raise FileExistsError(f"Output file {output_file} already exists.")
+        sampled_ds.to_netcdf(output_file)
+    elif output_file.suffix == ".zarr":
+        sampled_ds.to_zarr(output_file, mode="w-")
+    else:
+        raise ValueError(f"Unsupported output file format: {output_file.suffix}")
+    logger.info(f"Saved {output_file}")
 
 
 if __name__ == "__main__":
