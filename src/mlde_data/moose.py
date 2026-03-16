@@ -222,6 +222,8 @@ VARIABLE_CODES["mlqtw"] = {
 TS1 = range(1980, 2001)
 TS2 = range(2020, 2041)
 TS3 = range(2061, 2081)
+TS4 = range(2001, 2021)
+TS5 = range(2041, 2061)
 TSHistorical = range(1897, 1971)
 TSRecent = range(1971, 2006)
 TSNearF = range(2006, 2077)
@@ -229,18 +231,114 @@ TSFarF = range(2077, 2100)
 
 SUITE_IDS = {
     "land-cpm": {
-        "r001i1p00000": RangeDict({TS1: "mi-bb171", TS2: "mi-bb188", TS3: "mi-bb189"}),
-        "r001i1p01113": RangeDict({TS1: "mi-bb190", TS2: "mi-bb191", TS3: "mi-bb192"}),
-        "r001i1p01554": RangeDict({TS1: "mi-bb193", TS2: "mi-bb194", TS3: "mi-bb195"}),
-        "r001i1p01649": RangeDict({TS1: "mi-bb196", TS2: "mi-bb197", TS3: "mi-bb198"}),
-        "r001i1p01843": RangeDict({TS1: "mi-bb199", TS2: "mi-bb200", TS3: "mi-bb201"}),
-        "r001i1p01935": RangeDict({TS1: "mi-bb202", TS2: "mi-bb203", TS3: "mi-bb204"}),
-        "r001i1p02868": RangeDict({TS1: "mi-bb205", TS2: "mi-bb206", TS3: "mi-bb208"}),
-        "r001i1p02123": RangeDict({TS1: "mi-bb209", TS2: "mi-bb210", TS3: "mi-bb211"}),
-        "r001i1p02242": RangeDict({TS1: "mi-bb214", TS2: "mi-bb215", TS3: "mi-bb216"}),
-        "r001i1p02305": RangeDict({TS1: "mi-bb217", TS2: "mi-bb218", TS3: "mi-bb219"}),
-        "r001i1p02335": RangeDict({TS1: "mi-bb220", TS2: "mi-bb221", TS3: "mi-bb222"}),
-        "r001i1p02491": RangeDict({TS1: "mi-bb223", TS2: "mi-bb224", TS3: "mi-bb225"}),
+        "r001i1p00000": RangeDict(
+            {
+                TS1: "mi-bb171",
+                TS2: "mi-bb188",
+                TS3: "mi-bb189",
+                TS4: "mi-bc005",
+                TS5: "mi-bb991",
+            }
+        ),
+        "r001i1p01113": RangeDict(
+            {
+                TS1: "mi-bb190",
+                TS2: "mi-bb191",
+                TS3: "mi-bb192",
+                TS4: "mi-bc006",
+                TS5: "mi-bb993",
+            }
+        ),
+        "r001i1p01554": RangeDict(
+            {
+                TS1: "mi-bb193",
+                TS2: "mi-bb194",
+                TS3: "mi-bb195",
+                TS4: "mi-bc007",
+                TS5: "mi-bb994",
+            }
+        ),
+        "r001i1p01649": RangeDict(
+            {
+                TS1: "mi-bb196",
+                TS2: "mi-bb197",
+                TS3: "mi-bb198",
+                TS4: "mi-bc009",
+                TS5: "mi-bb995",
+            }
+        ),
+        "r001i1p01843": RangeDict(
+            {
+                TS1: "mi-bb199",
+                TS2: "mi-bb200",
+                TS3: "mi-bb201",
+                TS4: "mi-bc010",
+                TS5: "mi-bb996",
+            }
+        ),
+        "r001i1p01935": RangeDict(
+            {
+                TS1: "mi-bb202",
+                TS2: "mi-bb203",
+                TS3: "mi-bb204",
+                TS4: "mi-bc011",
+                TS5: "mi-bb997",
+            }
+        ),
+        "r001i1p02868": RangeDict(
+            {
+                TS1: "mi-bb205",
+                TS2: "mi-bb206",
+                TS3: "mi-bb208",
+                TS4: "mi-bc012",
+                TS5: "mi-bb998",
+            }
+        ),
+        "r001i1p02123": RangeDict(
+            {
+                TS1: "mi-bb209",
+                TS2: "mi-bb210",
+                TS3: "mi-bb211",
+                TS4: "mi-bc013",
+                TS5: "mi-bb999",
+            }
+        ),
+        "r001i1p02242": RangeDict(
+            {
+                TS1: "mi-bb214",
+                TS2: "mi-bb215",
+                TS3: "mi-bb216",
+                TS4: "mi-bc015",
+                TS5: "mi-bc000",
+            }
+        ),
+        "r001i1p02305": RangeDict(
+            {
+                TS1: "mi-bb217",
+                TS2: "mi-bb218",
+                TS3: "mi-bb219",
+                TS4: "mi-bc016",
+                TS5: "mi-bc001",
+            }
+        ),
+        "r001i1p02335": RangeDict(
+            {
+                TS1: "mi-bb220",
+                TS2: "mi-bb221",
+                TS3: "mi-bb222",
+                TS4: "mi-bc017",
+                TS5: "mi-bc002",
+            }
+        ),
+        "r001i1p02491": RangeDict(
+            {
+                TS1: "mi-bb223",
+                TS2: "mi-bb224",
+                TS3: "mi-bb225",
+                TS4: "mi-bc018",
+                TS5: "mi-bc004",
+            }
+        ),
     },
     # Suite names for GCM time periods
     # The four suite names covering the historical and RCP8.5 experiments are:
