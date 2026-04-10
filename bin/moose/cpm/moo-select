@@ -1,4 +1,5 @@
 #! /bin/bash
+# Queuable script for extracting CPM predictor variables from moose archive
 
 #SBATCH --partition=mass
 #SBATCH --qos=mass

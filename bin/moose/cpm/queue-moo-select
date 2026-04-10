@@ -1,4 +1,5 @@
 #! /bin/bash
+# Script to assist queuing multiple CPM extraction jobs in sequence
 
 set -euo pipefail
 
