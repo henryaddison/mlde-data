@@ -1,0 +1,12 @@
+#! /bin/bash
+
+set -euo pipefail
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+previous_job_id=0
+
+for suite_id in "$@"; do
+  previous_job_id=$(sbatch --parsable --dependency=afterany:${previous_job_id} ${SCRIPT_DIR}/moo-select ${suite_id})
+  echo "${suite_id} - ${previous_job_id}"
+done
