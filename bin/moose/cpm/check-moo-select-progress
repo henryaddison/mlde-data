@@ -1,0 +1,10 @@
+#!/bin/bash
+
+suite_id=$1
+
+for d in /gws/nopw/j04/furflex/henrya/projects/furflex/data/moose-experiments/1981-2000-pSTW-cpm/${suite_id}/*/data; do
+  echo ${d};
+  ls ${d}/*.pp | wc -l;
+  ls -Ssh ${d}/*.pp | head -n 1;
+  ls -Ssh ${d}/*.pp | tail -n 1;
+done
