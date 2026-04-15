@@ -43,8 +43,7 @@ def create(config: dict, input_base_dir: Path) -> dict:
     """
     Create a dataset
     """
-
-    common_var_params = {k: config[k] for k in ["domain", "scenario"]}
+    scenario = config["scenario"]
 
     var_type_datasets = {}
     var_type_statistics = {}
@@ -68,7 +67,8 @@ def create(config: dict, input_base_dir: Path) -> dict:
                         resolution=var_type_config["resolution"],
                         collection=var_type_config["collection"],
                         frequency=var_type_config["frequency"],
-                        **common_var_params,
+                        domain=var_type_config["domain"],
+                        scenario=scenario,
                     )
                 )
             logger.info(f"Combining ensemble members for {var_name}...")

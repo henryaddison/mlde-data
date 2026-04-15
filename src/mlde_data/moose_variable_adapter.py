@@ -15,7 +15,9 @@ class MooseVariableAdapter:
     Adapter for opening variables extracted from MASS on JASMIN
     """
 
-    JASMIN_MOOSE_BASE_DIR = Path("/badc/ukcp18/data")
+    JASMIN_MOOSE_BASE_DIR = Path(
+        "/gws/nopw/j04/furflex/henrya/projects/furflex/data/moose-experiments/1981-2000-pSTW-cpm"
+    )
 
     @classmethod
     def from_variable_defn(
@@ -88,18 +90,12 @@ class MooseVariableAdapter:
         return self.base_dir / suite_id / self.variable / "data"
 
     @property
-    def _filename_prefix(self) -> str:
-        return "*.pp".join(
-            [
-                self.variable,
-                self.scenario,
-                self.collection,
-                self.domain,
-                self.resolution,
-                self.RIP_CODES2CEDA_EM[self.ensemble_member],
-                self.frequency,
-            ]
-        )
+    def _filenames(self) -> list[str]:
+        return [f"*{self.year-1}12*.pp", f"*{self.year}*.pp"]
+
+    @property
+    def _filepaths(self) -> list[Path]:
+        return [self._dirpath / fn for fn in self._filenames]
 
     def open(self) -> xr.Dataset:
         pdt1 = PartialDateTime(year=self.year - 1, month=12, day=1)
@@ -107,7 +103,7 @@ class MooseVariableAdapter:
         year_constraint = iris.Constraint(time=lambda cell: pdt1 <= cell.point < pdt2)
         # realize the data (or something odd happens when saving to netcdf below)
         src_cubes = load_cubes(
-            str(self._dirpath / "*.pp"),
+            [str(fp) for fp in self._filepaths],
             self.variable,
             self.collection,
             realize=True,

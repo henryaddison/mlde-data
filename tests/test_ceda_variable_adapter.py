@@ -69,6 +69,7 @@ def test_open(hourly_adapter):
     assert ds["time"].max().item() == cftime.Datetime360Day(
         1981, 11, 30, 4, 30, 0, 0, has_year_zero=True
     )
+    assert "ensemble_member" not in ds.dims
 
 
 @pytest.fixture

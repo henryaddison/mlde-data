@@ -1,16 +1,17 @@
-domain: engwales
 ensemble_members:
   - 'r001i1p00000'
 predictands:
-  frequency: 1hr
-  resolution: 2.2km-coarsened-4x
   collection: land-cpm
+  domain: engwales
+  resolution: 2.2km-coarsened-4x
+  frequency: 1hr
   variables:
     - pr
 predictors:
-  frequency: day
-  resolution: 2.2km-coarsened-gcm
   collection: land-cpm
+  domain: engwales
+  resolution: 2.2km-coarsened-gcm
+  frequency: day
   variables:
     - temp850
 scenario: rcp85

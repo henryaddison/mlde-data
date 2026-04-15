@@ -153,6 +153,6 @@ class CedaVariableAdapter:
             join="exact",
             combine_attrs="drop_conflicts",
             compat="equals",
-        )
+        ).squeeze("ensemble_member", drop=True)
 
         return ds

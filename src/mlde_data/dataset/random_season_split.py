@@ -15,6 +15,7 @@ class RandomSeasonSplit(BaseSplit):
 
         from xarray.groupers import SeasonResampler
 
+        splits = defaultdict(list)
         for tp in self.time_periods:
             tp_time_da = time_da.sel(time=slice(tp[0], tp[1]))
             seasons = xr.merge(
@@ -36,7 +37,6 @@ class RandomSeasonSplit(BaseSplit):
                 ]
             )
 
-            splits = defaultdict(list)
             for season, season_time_ds in seasons.groupby("time.season"):
                 nyears = len(season_time_ds["time"])
                 p = rng.permutation(nyears)

@@ -21,8 +21,8 @@ predictands:
     - pr
 predictors:
   collection: land-cpm
-  domain: engwales
-  resolution: 2.2km-coarsened-gcm
+  domain: birmingham-64
+  resolution: 2.2km-coarsened-gcm-2.2km-coarsened-4x
   frequency: day
   variables:
       # - pr
@@ -42,10 +42,9 @@ predictors:
 split:
   scheme: random-season
   time_periods:
-    - ["1980-12-01", "1990-11-30"]
-    # - ["1980-12-01", "2000-12-01"]
-    # - ["2040-12-01", "2040-12-01"]
-    # - ["2060-12-01", "2080-12-01"]
+    - ["1980-12-01", "2000-12-01"]
+    - ["2020-12-01", "2040-12-01"]
+    - ["2060-12-01", "2080-12-01"]
   seed: 42
   props:
     train: 0.6

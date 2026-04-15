@@ -10,10 +10,9 @@ from . import dataset, etl, moose, variable
 
 load_dotenv()  # take environment variables from .env.
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s: %(message)s")
-logger = logging.getLogger(__name__)
 log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
-logger.setLevel(log_level)
+logging.basicConfig(level=log_level, format="%(levelname)s %(asctime)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
 app.add_typer(dataset.app, name="dataset")
@@ -52,10 +51,17 @@ def sample(file: Path, output_file: Path, dim: str = "time"):
 
     # ensure output directory exists
     os.makedirs(output_file.parent, exist_ok=True)
-    output_file = str(output_file)
 
     logger.info(f"Saving {output_file}")
-    sampled_ds.to_netcdf(output_file)
+    if output_file.suffix == ".nc":
+        if output_file.exists():
+            raise FileExistsError(f"Output file {output_file} already exists.")
+        sampled_ds.to_netcdf(str(output_file))
+    elif output_file.suffix == ".zarr":
+        sampled_ds.to_zarr(str(output_file), mode="w-")
+    else:
+        raise ValueError(f"Unsupported output file format: {output_file.suffix}")
+    logger.info(f"Saved {output_file}")
 
 
 if __name__ == "__main__":

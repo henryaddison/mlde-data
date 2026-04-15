@@ -2,7 +2,6 @@ variable: spechum${theta}
 attrs:
   units: 1
   standard_name: specific_humidity
-  grid_mapping: rotated_latitude_longitude
 sources:
   type: moose
   collection: land-cpm

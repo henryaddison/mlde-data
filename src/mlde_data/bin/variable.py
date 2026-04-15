@@ -1,27 +1,26 @@
 from codetiming import Timer
 from collections import defaultdict
 import logging
-from mlde_utils import RAW_MOOSE_VARIABLES_PATH, DERIVED_VARIABLES_PATH
+from mlde_utils import DERIVED_VARIABLES_PATH
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
 from mlde_data.ceda_variable_adapter import CedaVariableAdapter
+from mlde_data.moose_variable_adapter import MooseVariableAdapter
 from mlde_data.variable import validation, load_config
 from mlde_utils import VariableMetadata
 import os
 from pathlib import Path
-import sys
 import typer
+from tqdm import tqdm
 from typing import List
 import xarray as xr
 import yaml
 
 from mlde_data.actions import get_action
 from mlde_data.moose import (
-    VARIABLE_CODES,
-    open_pp_data,
     remove_forecast,
     remove_pressure,
 )
-from mlde_data.options import CollectionOption, DomainOption
+from mlde_data.options import DomainOption
 from mlde_data.variable import SourceVariableConfig
 
 logger = logging.getLogger(__name__)
@@ -77,23 +76,20 @@ def open_moose_source_variable(
     base_dir: Path,
 ) -> xr.Dataset:
     logger.info(f"Opening {src_variable} moose extract...")
-    ds = open_pp_data(
-        base_dir=base_dir / "pp",
-        collection=CollectionOption(collection),
-        scenario=scenario,
+    source_metadata = MooseVariableAdapter(
+        frequency=frequency,
         ensemble_member=ensemble_member,
         variable=src_variable,
-        frequency=frequency,
+        year=year,
+        scenario=scenario,
         resolution=resolution,
         domain=domain,
-        year=year,
+        collection=collection,
+        base_dir=base_dir,
     )
 
-    if "moose_name" in VARIABLE_CODES[src_variable]:
-        logger.info(
-            f"Renaming {VARIABLE_CODES[src_variable]['moose_name']} to {src_variable}..."
-        )
-        ds = ds.rename({VARIABLE_CODES[src_variable]["moose_name"]: src_variable})
+    ds = source_metadata.open()
+
     # remove forecast related coords that we don't need
     ds = remove_forecast(ds)
 
@@ -134,6 +130,7 @@ def open_ceda_source_variable(
     collection: str,
     base_dir: Path,
 ) -> xr.Dataset:
+    logger.info(f"Opening {src_variable} from CEDA...")
     source_metadata = CedaVariableAdapter(
         frequency=frequency,
         ensemble_member=ensemble_member,
@@ -318,7 +315,7 @@ def create(
 
     if input_base_dir is None:
         if src_type == "moose":
-            input_base_dir = RAW_MOOSE_VARIABLES_PATH
+            input_base_dir = None
         elif src_type == "ceda":
             input_base_dir = None
         elif src_type == "local":
@@ -370,52 +367,54 @@ def validate(
     collection: str = "land-cpm",
     variable: str = "all",
     ensemble_member: str = "all",
+    resolution: str = "all",
+    domain: str = "all",
 ):
-    frequency = "day"
-
     if 0 in years:
         years.remove(0)
         years.extend(validation.YEARS[source])
 
-    for domain, res_variables in validation.DOMAIN_RES_VARS[source][collection].items():
-        for res, variables in res_variables.items():
-            for em in validation.ENSEMBLE_MEMBERS[source][collection]:
-                if (ensemble_member != "all") and (ensemble_member != em):
-                    continue
-                for var in variables:
-                    if (variable != "all") and (variable != var):
-                        continue
-                    sys.stdout.write("\033[K")
-                    print(
-                        f"Checking {var} of {em} over {domain} at {res}",
-                        end="\r",
-                    )
+    for variable_group in validation.DOMAIN_RES_VARS[source][collection]:
+        if resolution != "all" and variable_group["resolution"] != resolution:
+            continue
+        if domain != "all" and variable_group["domain"] != domain:
+            continue
 
-                    for scenario in validation.SCENARIOS[source]:
-                        bad_years = defaultdict(set)
-                        for year in years:
-                            var_meta = VariableMetadata(
-                                f"{DERIVED_VARIABLES_PATH}",
-                                variable=var,
-                                frequency=frequency,
-                                domain=domain,
-                                resolution=res,
-                                ensemble_member=em,
-                                collection=collection,
-                                scenario=scenario,
+        variables = variable_group.pop("variables")
+        if variable != "all":
+            variables = list(filter(lambda v: v == variable, variables))
+        if len(variables) == 0:
+            continue
+
+        em_pbar = tqdm(validation.ENSEMBLE_MEMBERS[source][collection])
+        for em in em_pbar:
+            if (ensemble_member != "all") and (ensemble_member != em):
+                continue
+
+            for var in tqdm(variables, leave=False):
+                for scenario in validation.SCENARIOS[source]:
+                    bad_years = defaultdict(set)
+                    for year in tqdm(years, leave=False):
+                        em_pbar.set_description(f"Checking {year} for {var} on {em}")
+                        var_meta = VariableMetadata(
+                            f"{DERIVED_VARIABLES_PATH}",
+                            variable=var,
+                            ensemble_member=em,
+                            collection=collection,
+                            scenario=scenario,
+                            **variable_group,
+                        )
+                        for error in validation.validate(var_meta, year):
+                            bad_years[error].add(year)
+
+                    # report findings
+                    for reason, error_years in bad_years.items():
+                        if len(error_years) > 0:
+                            tqdm.write(
+                                f"Failed '{reason}': {var} over {variable_group['domain']} of {em} in {scenario} at {variable_group['resolution']} for {len(error_years)}\n{sorted(error_years)}"
                             )
-                            for error in validation.validate(var_meta, year):
-                                bad_years[error].add(year)
 
-                        # report findings
-                        sys.stdout.write("\033[K")
-                        for reason, error_years in bad_years.items():
-                            if len(error_years) > 0:
-                                print(
-                                    f"Failed '{reason}': {var} over {domain} of {em} in {scenario} at {res} for {len(error_years)}\n{sorted(error_years)}"
-                                )
-
-                        if not any(map(lambda s: len(s) > 0, bad_years.values())):
-                            print(
-                                f"Passed validation: {var} over {domain} of {em} in {scenario} at {res}"
-                            )
+                    if not any(map(lambda s: len(s) > 0, bad_years.values())):
+                        tqdm.write(
+                            f"Passed validation: {var} over {variable_group['domain']} of {em} in {scenario} at {variable_group['resolution']}"
+                        )

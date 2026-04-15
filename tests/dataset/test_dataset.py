@@ -12,19 +12,20 @@ from mlde_data import dataset
 @pytest.fixture
 def config():
     return {
-        "domain": "test-10",
         "ensemble_members": ["r001i1p00000"],
         "scenario": "rcp85",
         "predictands": {
-            "frequency": "1hr",
-            "resolution": "2.2km",
             "collection": "land-cpm",
+            "domain": "test-10",
+            "resolution": "2.2km",
+            "frequency": "1hr",
             "variables": ["output1", "output2"],
         },
         "predictors": {
-            "frequency": "day",
-            "resolution": "60km",
             "collection": "land-gcm",
+            "domain": "test-10",
+            "resolution": "60km",
+            "frequency": "day",
             "variables": ["input1", "input2"],
         },
         "split": {
@@ -53,7 +54,7 @@ def variable_files(tmp_path, config):
                     variable=var,
                     collection=collection,
                     scenario=config["scenario"],
-                    domain=config["domain"],
+                    domain=config[var_type]["domain"],
                     frequency=config[var_type]["frequency"],
                     resolution=config[var_type]["resolution"],
                 )
@@ -100,8 +101,9 @@ def variable_ds_factory(var, year):
 def test_single_variable(variable_files, config):
     input_base_dir = variable_files
     var_name = "input1"
-    var_config = {k: config[k] for k in ["domain", "scenario"]} | {
-        k: config["predictors"][k] for k in ["resolution", "collection", "frequency"]
+    var_config = {k: config[k] for k in ["scenario"]} | {
+        k: config["predictors"][k]
+        for k in ["resolution", "collection", "frequency", "domain"]
     }
 
     result = dataset._single_variable(
