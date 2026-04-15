@@ -1,4 +1,5 @@
 #! /bin/bash
+# Queuable script for extracting CPM predictor variables from moose archive
 
 #SBATCH --partition=mass
 #SBATCH --qos=mass
@@ -26,6 +27,14 @@ for suite_id in "$@"; do
       tp="2061-2080"
       years=$(seq 2061 2080)
       ;;
+    mi-bc005|mi-bc006|mi-bc007|mi-bc009|mi-bc010|mi-bc011|mi-bc012|mi-bc013|mi-bc015|mi-bc016|mi-bc017|mi-bc018)
+      tp="2001-2020"
+      years=$(seq 2001 2020)
+      ;;
+    mi-bb991|mi-bb993|mi-bb994|mi-bb995|mi-bb996|mi-bb997|mi-bb998|mi-bb999|mi-bc000|mi-bc001|mi-bc002|mi-bc004)
+      tp="2041-2060"
+      years=$(seq 2041 2060)
+      ;;
     *)
       echo "unknown suite id ${suite_id}"
       exit 1
@@ -49,7 +58,8 @@ for suite_id in "$@"; do
         ;;
     esac
 
-    output_dir="/gws/nopw/j04/furflex/henrya/projects/furflex/data/moose-experiments/1981-2000-pSTW-cpm/${suite_id}/${variable}/data"
+    output_base_dir="/gws/ssde/j25a/furflex/henrya/projects/furflex/data/mass-extracts"
+    output_dir="${output_base_dir}/${suite_id}/${variable}/data"
     mkdir -p ${output_dir}
 
     searchfile_path="${SCRIPT_DIR}/${tp}/${variable}/searchfile"
