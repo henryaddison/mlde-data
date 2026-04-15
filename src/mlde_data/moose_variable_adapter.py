@@ -15,7 +15,7 @@ class MooseVariableAdapter:
     Adapter for opening variables extracted from MASS on JASMIN
     """
 
-    JASMIN_MOOSE_BASE_DIR = Path(
+    MASS_EXTRACTS_BASE_DIR = Path(
         "/gws/ssde/j25a/furflex/henrya/projects/furflex/data/mass-extracts"
     )
 
@@ -66,7 +66,7 @@ class MooseVariableAdapter:
         self.scenario = scenario
         self.year = year
         if base_dir is None:
-            base_dir = self.JASMIN_MOOSE_BASE_DIR
+            base_dir = self.MASS_EXTRACTS_BASE_DIR
         self.base_dir = base_dir
 
     def __eq__(self, other):
