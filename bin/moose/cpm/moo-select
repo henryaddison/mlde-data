@@ -58,9 +58,7 @@ for suite_id in "$@"; do
         ;;
     esac
 
-    # Use bris_climdyn GWS while furflex GWS is migrated.
-    # output_base_dir="/gws/nopw/j04/furflex/henrya/projects/furflex/data/moose-experiments/1981-2000-pSTW-cpm"
-    output_base_dir="/gws/ssde/j25b/bris_climdyn/henrya/projects/data/moo-extract/ts4-5-cpm"
+    output_base_dir="/gws/ssde/j25a/furflex/henrya/projects/furflex/data/mass-extracts"
     output_dir="${output_base_dir}/${suite_id}/${variable}/data"
     mkdir -p ${output_dir}
 

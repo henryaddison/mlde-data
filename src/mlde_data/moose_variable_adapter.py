@@ -16,7 +16,7 @@ class MooseVariableAdapter:
     """
 
     JASMIN_MOOSE_BASE_DIR = Path(
-        "/gws/nopw/j04/furflex/henrya/projects/furflex/data/moose-experiments/1981-2000-pSTW-cpm"
+        "/gws/ssde/j25a/furflex/henrya/projects/furflex/data/mass-extracts"
     )
 
     @classmethod
