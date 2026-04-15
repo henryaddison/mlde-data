@@ -1,6 +1,6 @@
 variable: pr
 attrs:
-  units: kg m-2 s-1
+  units: mm/hr
   standard_name: precipitation_flux
   grid_mapping: rotated_latitude_longitude
 sources:
