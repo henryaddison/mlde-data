@@ -52,12 +52,12 @@ def main(
                 ]  # remove existing chunking info to avoid conflicts
                 ds[var_name] = ds[var_name].chunk(new_chunks)
                 if shard:
-                    ds[var_name].encoding["shards"] = {
-                        "ensemble_member": 1,
-                        "time": 100 * time_chunk_size,
-                        ds.cf["X"].name: ds.cf["X"].size,
-                        ds.cf["Y"].name: ds.cf["Y"].size,
-                    }
+                    ds[var_name].encoding["shards"] = (
+                        1,
+                        100 * time_chunk_size,
+                        ds.cf["X"].size,
+                        ds.cf["Y"].size,
+                    )
 
         ds.to_zarr(
             os.path.join(
