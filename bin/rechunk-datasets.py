@@ -51,7 +51,7 @@ def main(
                     "chunks"
                 ]  # remove existing chunking info to avoid conflicts
                 ds[var_name] = ds[var_name].chunk(new_chunks)
-                if shard and var_group == "predictands" and var_name == "pr":
+                if shard:
                     ds[var_name].encoding["shards"] = {
                         "ensemble_member": 1,
                         "time": 100 * time_chunk_size,
