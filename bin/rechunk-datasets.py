@@ -18,7 +18,8 @@ logger = logging.getLogger(__name__)
 def main(
     dataset_name: str = "engwales_ccpm-4x-cpmgem_12em_future_1hr_pr",
     split: str = "test",
-    shard: bool = False,
+    chunk_factor: int = 1,
+    shard_factor: int = 1,
 ):
     logger.info(f"Rechunking {dataset_name}...")
 
@@ -35,9 +36,9 @@ def main(
         )
 
         if var_group == "predictands":
-            time_chunk_size = 24
+            time_chunk_size = 24 * chunk_factor
         else:
-            time_chunk_size = 1
+            time_chunk_size = 1 * chunk_factor
 
         for var_name in ds.data_vars:
             new_chunks = {
@@ -51,10 +52,10 @@ def main(
                     "chunks"
                 ]  # remove existing chunking info to avoid conflicts
                 ds[var_name] = ds[var_name].chunk(new_chunks)
-                if shard:
+                if shard_factor > 1:
                     ds[var_name].encoding["shards"] = (
                         1,
-                        100 * time_chunk_size,
+                        shard_factor * time_chunk_size,
                         ds.cf["X"].size,
                         ds.cf["Y"].size,
                     )
@@ -63,7 +64,7 @@ def main(
             os.path.join(
                 os.getenv("DATA_PATH"),
                 "datasets",
-                f"{dataset_name}-tchunk1",
+                f"{dataset_name}-tchunk{chunk_factor}-shard{shard_factor}",
                 split,
                 f"{var_group}.zarr",
             ),
