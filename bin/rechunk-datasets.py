@@ -60,17 +60,18 @@ def main(
                         ds.cf["Y"].size,
                     )
 
+        output_path = os.path.join(
+            os.getenv("DATA_PATH"),
+            "datasets",
+            f"{dataset_name}-tchunk{chunk_factor}-shard{shard_factor}",
+            split,
+            f"{var_group}.zarr",
+        )
         ds.to_zarr(
-            os.path.join(
-                os.getenv("DATA_PATH"),
-                "datasets",
-                f"{dataset_name}-tchunk{chunk_factor}-shard{shard_factor}",
-                split,
-                f"{var_group}.zarr",
-            ),
+            output_path,
             mode="w-",
         )
-        logger.info(f"DONE for {split} {var_group}...")
+        logger.info(f"Saved {split} {var_group} to {output_path}")
 
 
 if __name__ == "__main__":
