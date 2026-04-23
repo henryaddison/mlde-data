@@ -75,6 +75,21 @@ def create(
         yaml.dump(config, f)
     for var_type, var_type_splits in split_sets.items():
         for split_name, split_ds in var_type_splits.items():
+            # rechunk to avoid issues with saving to zarr
+            time_chunk_size = 240 if var_type == "predictands" else 10
+            for var_name in split_ds.data_vars:
+                # ML suitable chunking: 1 day per chunk
+                new_chunks = {
+                    "ensemble_member": 1,
+                    "time": time_chunk_size,
+                    split_ds.cf["X"].name: split_ds.cf["X"].size,
+                    split_ds.cf["Y"].name: split_ds.cf["Y"].size,
+                }
+                if set(new_chunks.keys()) == set(split_ds[var_name].dims):
+                    if "chunks" in split_ds[var_name].encoding:
+                        # remove existing chunking info to avoid conflict
+                        del split_ds[var_name].encoding["chunks"]
+                    split_ds[var_name] = split_ds[var_name].chunk(new_chunks)
             split_ds.to_zarr(
                 os.path.join(output_dir, split_name, f"{var_type}.zarr"), mode="w-"
             )

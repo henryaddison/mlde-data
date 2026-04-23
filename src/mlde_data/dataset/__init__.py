@@ -81,15 +81,6 @@ def create(config: dict, input_base_dir: Path) -> dict:
                 join="exact",
                 data_vars="minimal",
             )
-            # rechunk to avoid issues with saving to zarr
-            multi_em_ds[var_name] = multi_em_ds[var_name].chunk(
-                {
-                    "ensemble_member": 1,
-                    "time": "auto",
-                    multi_em_ds.cf["X"].name: multi_em_ds.cf["X"].size,
-                    multi_em_ds.cf["Y"].name: multi_em_ds.cf["Y"].size,
-                }
-            )
             single_var_datasets.append(multi_em_ds)
 
             del single_em_var_datasets
