@@ -87,4 +87,4 @@ lint = "black .; flake8 ."
 target-version = ["py312"]
 
 [tool.pytest_env]
-DATA_PATH="/path/to/data"
+DATA_PATH="tests/fixtures/files"

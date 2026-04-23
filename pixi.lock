@@ -3176,7 +3176,7 @@ packages:
 - pypi: ./
   name: mlde-data
   version: 0.4.0a1
-  sha256: 23f750f5abd9a51c921ca4a3270e1c7bbcd728987eef251206448a899e2cc2d7
+  sha256: 4bab7dcef6552ec20dcdb9ac90ab880cfcf23283a7fdcfcd794049f8fe35f31c
   requires_dist:
   - cftime~=1.6.4
   - codetiming~=1.4.0
