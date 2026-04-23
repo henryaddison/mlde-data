@@ -10,6 +10,12 @@ sources:
   variables:
     - name: pr
 spec:
+  - action: drop-variables
+    parameters:
+      variables:
+        - month_number
+        - year
+        - yyyymmddhh
   - action: coarsen
     parameters:
       scale_factor: ${scale_factor}
