@@ -38,12 +38,13 @@ def main():
     for filepath in pr_filepaths:
         logger.info(f"Fixing attributes for {filepath}...")
         ds = xr.load_dataset(filepath)
-        ds["pr"].attrs["units"] = "mm/hour"
-        for k in ["contact, institution", "institution_id", "references"]:
-            if k in ds.attrs:
-                del ds.attrs[k]
-        ds = ds.drop_vars(["month_number", "year", "yyyymmddhh"])
-        ds.to_netcdf(filepath, mode="w")
+        if ds["pr"].attrs["units"] != "mm/hour":
+            ds["pr"].attrs["units"] = "mm/hour"
+            for k in ["contact, institution", "institution_id", "references"]:
+                if k in ds.attrs:
+                    del ds.attrs[k]
+            ds = ds.drop_vars(["month_number", "year", "yyyymmddhh"])
+            ds.to_netcdf(filepath, mode="w")
     logger.info("Done fixing attributes for all files.")
 
 
