@@ -104,7 +104,7 @@ def test_create_target(tmp_path):
     collection = "land-cpm"
     frequency = "1hr"
     config_path = files("mlde_data").joinpath(
-        f"../../config/variables/{frequency}/{collection}/targets/ceda_pr.yml"
+        f"../../config/variables/{frequency}/{collection}/targets/pr.yml"
     )
     year = 1981
     ensemble_member = "r001i1p00000"
@@ -172,7 +172,7 @@ def test_create_4x_engwales_target(tmp_path):
     collection = "land-cpm"
     frequency = "1hr"
     config_path = files("mlde_data").joinpath(
-        f"../../config/variables/{frequency}/{collection}/targets/ceda_pr.yml"
+        f"../../config/variables/{frequency}/{collection}/targets/pr.yml"
     )
     year = 1981
     ensemble_member = "r001i1p00000"
