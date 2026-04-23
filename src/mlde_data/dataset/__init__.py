@@ -108,9 +108,8 @@ def create(config: dict, input_base_dir: Path) -> dict:
         )
 
         for split, split_times in split_sets.items():
-            split_ds = var_type_ds.where(
-                var_type_ds.time.dt.floor("1D").isin(split_times),
-                drop=True,
+            split_ds = var_type_ds.sel(
+                time=var_type_ds["time"].dt.floor("D").isin(split_times)
             )
             var_type_datasets[var_type][split] = split_ds
             var_type_statistics[var_type][split] = _calculate_statistics(
