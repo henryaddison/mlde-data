@@ -9,6 +9,7 @@ import xarray as xr
 
 from mlde_utils import DatasetMetadata
 
+from .preset_split import PresetSplit
 from .random_split import RandomSplit
 from .random_season_split import RandomSeasonSplit
 
@@ -340,9 +341,7 @@ def _single_variable(
 def _split(
     time_da: xr.DataArray,
     scheme: str,
-    props: dict[str, float],
-    seed: int,
-    time_periods: list[int],
+    **splitter_kwargs: dict,
 ):
     """
     Split data into train, validation and test subsets
@@ -351,12 +350,10 @@ def _split(
         splitter = RandomSplit
     elif scheme == "random-season":
         splitter = RandomSeasonSplit
+    elif scheme == "preset":
+        splitter = PresetSplit
     else:
         raise RuntimeError(f"Unknown split scheme {scheme}")
 
     logger.info(f"Splitting data...")
-    return splitter(
-        props=props,
-        seed=seed,
-        time_periods=time_periods,
-    ).run(time_da)
+    return splitter(**splitter_kwargs).run(time_da)
