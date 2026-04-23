@@ -18,7 +18,9 @@ class PresetSplit:
         self.preset_name = preset_name
 
     def run(self, time_da: xr.DataArray) -> dict[str, xr.DataArray]:
-        preset_path = (DATA_PATH / "splits" / self.preset_name).absolute()
+        preset_path = (
+            DATA_PATH / "preset-dataset-splits" / self.preset_name
+        ).absolute()
         split_paths = preset_path.glob("*.nc")
         splits = defaultdict()
         for split_path in split_paths:
