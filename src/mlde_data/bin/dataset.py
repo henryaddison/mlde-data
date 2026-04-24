@@ -76,7 +76,9 @@ def create(
     for var_type, var_type_splits in split_sets.items():
         for split_name, split_ds in var_type_splits.items():
             # rechunk to avoid issues with saving to zarr
-            time_chunk_size = 240 if var_type == "predictands" else 10
+            times_per_day = 24 if var_type == "predictands" else 1
+            # 90 days (a season) per chunk, 10 results in too many files
+            time_chunk_size = times_per_day * 90
             for var_name in split_ds.data_vars:
                 # ML suitable chunking: 1 day per chunk
                 new_chunks = {
