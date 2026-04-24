@@ -66,7 +66,9 @@ def test_create(tmp_path, config_filepath, input_base_dir):
         for split in ["train", "val"]:
             data_filepath = expected_dsmeta.path() / split / f"{var_type}.zarr"
             assert_file(data_filepath)
-            xr.open_dataset(data_filepath)  # will raise error if file is invalid
+            ds = xr.open_dataset(data_filepath)  # will raise error if file is invalid
+            for k in ds.cf.grid_mapping_names.keys():
+                assert ds[k].dims == ()
 
             data_filepath = expected_dsmeta.path() / split / f"{var_type}_stats.zarr"
             assert_file(data_filepath)
