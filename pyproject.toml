@@ -66,6 +66,8 @@ xarray = { version = "==2025.11.0" }
 zarr = ">=3.1.5,<4"
 ncdata = ">=0.3.2,<0.4"
 tqdm = ">=4.67.3,<5"
+squashfs-tools = ">=4.7.5,<5"
+squashfuse = ">=0.6.1,<0.7"
 
 [tool.pixi.pypi-dependencies]
 mlde_data = { path = ".", editable = true }
