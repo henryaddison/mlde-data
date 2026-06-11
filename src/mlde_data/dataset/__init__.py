@@ -16,27 +16,33 @@ from .random_season_split import RandomSeasonSplit
 logger = logging.getLogger(__name__)
 
 
-def _calculate_statistics(split_ds: xr.Dataset, variables: list[str]) -> xr.Dataset:
+def _calculate_statistics(
+    split_ds: xr.Dataset, variables: list[str], time_aggregation_factors: list[int]
+) -> xr.Dataset:
     """
     Calculate statistics for each variable in the dataset
 
     Used for transforming the data later (e.g. standardization in ML pipeline)
     """
 
-    return xr.concat(
+    return xr.merge(
         [
             xr.merge(
                 [
-                    split_ds[var].count().rename("count"),
-                    split_ds[var].mean().rename("mean"),
-                    split_ds[var].std().rename("std"),
-                    split_ds[var].max().rename("max"),
-                    split_ds[var].min().rename("min"),
+                    split_ds[var]
+                    .coarsen(time=time_factor)
+                    .sum()
+                    .count()
+                    .rename("count"),
+                    split_ds[var].coarsen(time=time_factor).sum().mean().rename("mean"),
+                    split_ds[var].coarsen(time=time_factor).sum().std().rename("std"),
+                    split_ds[var].coarsen(time=time_factor).sum().max().rename("max"),
+                    split_ds[var].coarsen(time=time_factor).sum().min().rename("min"),
                 ]
-            ).expand_dims({"variable": [var]})
+            ).expand_dims({"variable": [var], "time_aggregation_factor": [time_factor]})
             for var in variables
+            for time_factor in time_aggregation_factors
         ],
-        dim="variable",
     )
 
 
@@ -103,8 +109,11 @@ def create(config: dict, input_base_dir: Path) -> dict:
                 time=var_type_ds["time"].dt.floor("D").isin(split_times)
             )
             var_type_datasets[var_type][split] = split_ds
+
             var_type_statistics[var_type][split] = _calculate_statistics(
-                split_ds, var_type_config["variables"]
+                split_ds,
+                var_type_config["variables"],
+                **config[var_type].get("stats", {"time_aggregation_factors": [1]}),
             )
 
     return var_type_datasets, var_type_statistics

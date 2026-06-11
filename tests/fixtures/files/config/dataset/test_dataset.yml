@@ -7,6 +7,8 @@ predictands:
   frequency: 1hr
   variables:
     - pr
+  stats:
+    time_aggregation_factors: [1,3,6,24] # pre-compute stats to include ones for 3hrly, 6hrly, and daily aggregations of the hourly data as well hourly
 predictors:
   collection: land-cpm
   domain: engwales

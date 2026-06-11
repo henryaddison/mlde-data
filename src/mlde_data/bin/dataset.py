@@ -42,7 +42,11 @@ def patch_stats(dataset_name: str, base_dir: Path = typer.Argument(DATASETS_PATH
         ):
             logger.info(f"Adding stats for {split_filepath}...")
             split_ds = xr.open_dataset(split_filepath)
-            patched_ds = dataset_lib._calculate_statistics(split_ds, variables)
+            patched_ds = dataset_lib._calculate_statistics(
+                split_ds,
+                variables,
+                **config[var_type].get("stats", {"time_aggregation_factors": [1]}),
+            )
             split_stats_filepath = split_filepath.replace(
                 f"{var_type}.zarr", f"{var_type}_stats.zarr"
             )
