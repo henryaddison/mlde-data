@@ -6,6 +6,7 @@ sources:
   type: moose
   collection: land-cpm
   frequency: day
+  resolution: 2.2km
   variables:
     # assumes already extracted and converted to nc
     # implicit here is rename variable

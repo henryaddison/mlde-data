@@ -12,19 +12,15 @@ class SourceVariableConfig:
     collection: str
     frequency: str
     variable: str
-    resolution: str = None
+    resolution: str
     domain: str = None
 
     def __post_init__(self):
         if self.src_type == "moose" or self.src_type == "ceda":
             if self.collection == CollectionOption.cpm:
-                if self.resolution is None:
-                    object.__setattr__(self, "resolution", "2.2km")
                 if self.domain is None:
                     object.__setattr__(self, "domain", "uk")
             elif self.collection == CollectionOption.gcm:
-                if self.resolution is None:
-                    object.__setattr__(self, "resolution", "60km")
                 if self.domain is None:
                     object.__setattr__(self, "domain", "global")
             else:
@@ -32,15 +28,9 @@ class SourceVariableConfig:
         elif self.src_type == "local":
             # assume local sourced data is pre-processed so resolution and domain must be specified
             assert (
-                self.resolution is not None
-            ), "resolution must be specified for local source variable"
-            assert (
                 self.domain is not None
             ), "domain must be specified for local source variable"
         elif self.src_type == "canari-le-sprint":
-            # assume CANARI LE Sprint data is at global 60km resolution
-            if self.resolution is None:
-                object.__setattr__(self, "resolution", "60km")
             if self.domain is None:
                 object.__setattr__(self, "domain", "global")
         else:
@@ -72,6 +62,7 @@ def load_config(
             src_type=config["sources"]["type"],
             collection=config["sources"]["collection"],
             frequency=config["sources"]["frequency"],
+            resolution=config["sources"]["resolution"],
             variable=var_configs["name"],
         )
         for var_configs in config["sources"]["variables"]

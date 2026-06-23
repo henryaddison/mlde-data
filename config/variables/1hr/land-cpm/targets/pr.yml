@@ -3,6 +3,7 @@ sources:
   type: ceda
   collection: land-cpm
   frequency: 1hr
+  resolution: 2.2km
   variables:
     - name: pr
 spec:
