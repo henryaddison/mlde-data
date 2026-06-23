@@ -1,0 +1,18 @@
+variable: pr
+sources:
+  type: ceda
+  collection: land-cpm
+  frequency: 1hr
+  resolution: 5km
+  variables:
+    - name: pr
+spec:
+  - action: drop-variables
+    parameters:
+      variables:
+        - month_number
+        - year
+        - yyyymmddhh
+  - action: select-subdomain
+    parameters:
+      domain: $domain
