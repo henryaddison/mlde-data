@@ -22,6 +22,8 @@ def callback():
     pass
 
 
+# The plain moose command is the older moose pipeline which involved extracting the data from moose
+# Newer pipeline uses a seperate process to already extract the data from moose
 @app.command()
 def moose(
     years: List[int],
@@ -110,6 +112,59 @@ def moose(
                     frequency=src_config.frequency,
                     year=year,
                 )
+
+
+@app.command()
+def moose_extract(
+    years: List[int],
+    variable_configs: List[Path] = typer.Option(...),
+    scenario: str = "rcp85",
+    ensemble_member: str = typer.Option(...),
+    scale_factor: str = typer.Option(...),
+    domain: DomainOption = typer.Option(...),
+    thetas: List[int] = None,
+    target_resolution: str = None,
+    force: bool = False,
+    cleanup: bool = True,
+):
+
+    configs = [
+        load_config(
+            variable_config,
+            scale_factor=scale_factor,
+            domain=domain.value,
+            theta=theta,
+            target_resolution=target_resolution,
+        )
+        for variable_config in variable_configs
+        for theta in (thetas or [None])
+    ]
+
+    src_configs = {src_config for config in configs for src_config in config["sources"]}
+
+    src_type = {src_config.src_type for src_config in src_configs}
+    # TODO: support creating variables from multiple source types
+    assert (
+        len(src_type) == 1
+    ), "All source variable configs must have the same source type"
+    src_type = src_type.pop()
+    assert (
+        src_type == "moose"
+    ), "Only moose source variables supported for moose-extract command"
+
+    for year in years:
+
+        # run create variable
+        create_variable(
+            config_paths=variable_configs,
+            year=year,
+            domain=domain,
+            scale_factor=scale_factor,
+            ensemble_member=ensemble_member,
+            scenario=scenario,
+            thetas=thetas,
+            target_resolution=target_resolution,
+        )
 
 
 @app.command()
