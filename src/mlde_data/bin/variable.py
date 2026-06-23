@@ -172,7 +172,7 @@ def open_source_variables(
 
         src_type = src_config.src_type
 
-        if src_type == "moose-extract":
+        if src_type == "moose":
             source_open_strategy = open_moose_extract_source_variable
         elif src_type == "ceda":
             source_open_strategy = open_ceda_source_variable
