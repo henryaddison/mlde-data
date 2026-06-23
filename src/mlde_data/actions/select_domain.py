@@ -92,6 +92,8 @@ class SelectDomain:
     def size(self, resolution):
         if resolution == "2.2km":
             return 256
+        elif resolution == "5km":
+            return 128
         elif resolution == "2.2km-coarsened-4x":
             return 64
         elif resolution == "60km" or resolution == "2.2km-coarsened-gcm":
