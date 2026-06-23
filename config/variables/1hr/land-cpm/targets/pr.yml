@@ -1,8 +1,4 @@
 variable: pr
-attrs:
-  units: mm/hour
-  standard_name: precipitation_flux
-  grid_mapping: rotated_latitude_longitude
 sources:
   type: ceda
   collection: land-cpm
