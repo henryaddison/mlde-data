@@ -10,7 +10,7 @@ from mlde_data.variable import SourceVariableConfig
 from mlde_data.options import CollectionOption
 
 
-class MooseVariableAdapter:
+class MooseExtractVariableAdapter:
     """
     Adapter for opening variables extracted from MASS on JASMIN
     """
@@ -70,7 +70,7 @@ class MooseVariableAdapter:
         self.base_dir = base_dir
 
     def __eq__(self, other):
-        if not isinstance(other, MooseVariableAdapter):
+        if not isinstance(other, MooseExtractVariableAdapter):
             return False
 
         return (

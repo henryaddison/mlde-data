@@ -2,11 +2,11 @@ import os
 from pathlib import Path
 import pytest
 
-from mlde_data.moose_variable_adapter import MooseVariableAdapter
+from mlde_data.moose_extract_variable_adapter import MooseExtractVariableAdapter
 
 
 def test_open(fixtures_base_dir):
-    adapter = MooseVariableAdapter(
+    adapter = MooseExtractVariableAdapter(
         collection="land-cpm",
         ensemble_member="r001i1p00000",
         variable="psl",

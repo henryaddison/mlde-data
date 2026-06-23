@@ -4,7 +4,7 @@ import logging
 from mlde_utils import DERIVED_VARIABLES_PATH
 from mlde_data.canari_le_sprint_variable_adapter import CanariLESprintVariableAdapter
 from mlde_data.ceda_variable_adapter import CedaVariableAdapter
-from mlde_data.moose_variable_adapter import MooseVariableAdapter
+from mlde_data.moose_extract_variable_adapter import MooseExtractVariableAdapter
 from mlde_data.variable import validation, load_config
 from mlde_utils import VariableMetadata
 import os
@@ -64,7 +64,7 @@ def open_local_source_variable(
     return ds
 
 
-def open_moose_source_variable(
+def open_moose_extract_source_variable(
     src_variable: str,
     year: int,
     frequency: str,
@@ -76,7 +76,7 @@ def open_moose_source_variable(
     base_dir: Path,
 ) -> xr.Dataset:
     logger.info(f"Opening {src_variable} moose extract...")
-    source_metadata = MooseVariableAdapter(
+    source_metadata = MooseExtractVariableAdapter(
         frequency=frequency,
         ensemble_member=ensemble_member,
         variable=src_variable,
@@ -172,8 +172,8 @@ def open_source_variables(
 
         src_type = src_config.src_type
 
-        if src_type == "moose":
-            source_open_strategy = open_moose_source_variable
+        if src_type == "moose-extract":
+            source_open_strategy = open_moose_extract_source_variable
         elif src_type == "ceda":
             source_open_strategy = open_ceda_source_variable
         elif src_type == "local":
