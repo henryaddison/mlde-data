@@ -219,8 +219,8 @@ VARIABLE_CODES["mlqtw"] = {
 # wind: land-cpm: "3hrinst": "apg", "1hrinst": "apr"
 
 
-TS1 = range(1980, 2001)
-TS2 = range(2020, 2041)
+TS1 = range(1981, 2001)
+TS2 = range(2021, 2041)
 TS3 = range(2061, 2081)
 TS4 = range(2001, 2021)
 TS5 = range(2041, 2061)
