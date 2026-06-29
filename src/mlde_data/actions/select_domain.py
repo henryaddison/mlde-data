@@ -97,6 +97,6 @@ class SelectDomain:
         elif resolution == "2.2km-coarsened-4x":
             return 64
         elif resolution == "60km" or resolution == "2.2km-coarsened-gcm":
-            return 13
+            return 14
         else:
             raise ValueError(f"Unknown resolution: {resolution}")
