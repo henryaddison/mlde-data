@@ -28,9 +28,10 @@ class SelectDomain:
 
     osgb_crs = cartopy.crs.OSGB()
 
+    # the way the 5km CEDA data is cut up can't use the same centres (engwales at least)
     DOMAIN_CENTRES_OSGB = {
-        domain_name: cartopy.crs.OSGB().transform_point(lon, lat, src_crs=platecarree)
-        for domain_name, (lon, lat) in DOMAIN_CENTRES_LON_LAT.items()
+        "engwales-5km": (372500, 287500),
+        "scotland-5km": (262500, 737500),
     }
 
     def __init__(self, domain) -> None:
@@ -97,6 +98,14 @@ class SelectDomain:
         elif resolution == "2.2km-coarsened-4x":
             return 64
         elif resolution == "60km" or resolution == "2.2km-coarsened-gcm":
-            return 14
-        else:
+            if self.domain == "engwales":
+                return 13
+            elif self.domain == "engwales-5km":
+                return 14
+            elif self.domain == "scotland-5km":
+                return 14
+            else:
+                raise ValueError(
+                    f"Unknown size for domain at gcm resolution: {self.domain}"
+                )
             raise ValueError(f"Unknown resolution: {resolution}")
