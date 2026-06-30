@@ -16,8 +16,6 @@ class SelectDomain:
     DOMAIN_CENTRES_LON_LAT = {
         "engwales": (-1.898575, 52.489471),
         "scotland": (-4.20264580, 56.49067120),
-        "engwales-5km": (-1.898575, 52.489471),
-        "scotland-5km": (-4.20264580, 56.49067120),
     }
 
     DOMAIN_CENTRES_RP_LONG_LAT = {
