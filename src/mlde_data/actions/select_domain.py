@@ -36,6 +36,11 @@ class SelectDomain:
         "scotland-5km": (262500, 737500),
     }
 
+    for domain_name, (x, y) in DOMAIN_CENTRES_OSGB.items():
+        DOMAIN_CENTRES_LON_LAT[domain_name] = platecarree.transform_point(
+            x, y, src_crs=osgb_crs
+        )
+
     def __init__(self, domain) -> None:
         self.domain = domain
 
