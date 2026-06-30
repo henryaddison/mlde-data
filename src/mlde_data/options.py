@@ -5,6 +5,8 @@ class DomainOption(str, Enum):
     uk = "uk"
     engwales = "engwales"
     scotland = "scotland"
+    englandwales_5km = "engwales-5km"
+    scotland_5km = "scotland-5km"
 
 
 class CollectionOption(str, Enum):
