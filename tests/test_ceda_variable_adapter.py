@@ -121,6 +121,7 @@ def hourly_defn():
     return SourceVariableConfig(
         src_type="ceda",
         collection="land-cpm",
+        resolution="2.2km",
         frequency="1hr",
         variable="pr",
     )

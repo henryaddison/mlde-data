@@ -41,6 +41,7 @@ FREQ2TIMELEN = {
 }
 
 
+# CARE: CPM data may come from 5km source on CEDA (but not moose as I understand it)
 def _domain_and_resolution_from_collection(collection: CollectionOption):
     if collection == CollectionOption.cpm:
         resolution = "2.2km"
@@ -213,9 +214,11 @@ def convert(
     if output_base_dir is None:
         output_base_dir = RAW_MOOSE_VARIABLES_PATH
 
+    _, resolution = _domain_and_resolution_from_collection(collection)
     src_config = SourceVariableConfig(
         src_type="moose",
         collection=collection.value,
+        resolution=resolution,
         frequency=frequency,
         variable=variable,
     )
