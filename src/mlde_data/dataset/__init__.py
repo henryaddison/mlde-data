@@ -25,24 +25,49 @@ def _calculate_statistics(
     Used for transforming the data later (e.g. standardization in ML pipeline)
     """
 
-    return xr.merge(
+    return xr.combine_nested(
         [
-            xr.merge(
-                [
-                    split_ds[var]
-                    .coarsen(time=time_factor)
-                    .sum()
-                    .count()
-                    .rename("count"),
-                    split_ds[var].coarsen(time=time_factor).sum().mean().rename("mean"),
-                    split_ds[var].coarsen(time=time_factor).sum().std().rename("std"),
-                    split_ds[var].coarsen(time=time_factor).sum().max().rename("max"),
-                    split_ds[var].coarsen(time=time_factor).sum().min().rename("min"),
-                ]
-            ).expand_dims({"variable": [var], "time_aggregation_factor": [time_factor]})
-            for var in variables
+            [
+                xr.merge(
+                    [
+                        split_ds[var]
+                        .coarsen(time=time_factor)
+                        .sum()
+                        .count()
+                        .rename("count"),
+                        split_ds[var]
+                        .coarsen(time=time_factor)
+                        .sum()
+                        .mean()
+                        .rename("mean"),
+                        split_ds[var]
+                        .coarsen(time=time_factor)
+                        .sum()
+                        .std()
+                        .rename("std"),
+                        split_ds[var]
+                        .coarsen(time=time_factor)
+                        .sum()
+                        .max()
+                        .rename("max"),
+                        split_ds[var]
+                        .coarsen(time=time_factor)
+                        .sum()
+                        .min()
+                        .rename("min"),
+                    ]
+                ).expand_dims(
+                    {"variable": [var], "time_aggregation_factor": [time_factor]}
+                )
+                for var in variables
+            ]
             for time_factor in time_aggregation_factors
         ],
+        concat_dim=["time_aggregation_factor", "variable"],
+        data_vars="minimal",
+        compat="no_conflicts",
+        combine_attrs="no_conflicts",
+        join="exact",
     )
 
 
