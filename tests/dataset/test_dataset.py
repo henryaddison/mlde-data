@@ -113,7 +113,7 @@ def variable_ds_factory(var, year, freq="day"):
         time_range = xr.date_range(
             cftime.Datetime360Day(year - 1, 12, 1, 0, 0, 0, 0, has_year_zero=True),
             periods=360 * 24,
-            freq="H",
+            freq="h",
             use_cftime=True,
         )
     else:
