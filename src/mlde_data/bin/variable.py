@@ -241,7 +241,8 @@ def _process(
             raise RuntimeError(f"Unknown action {job_spec['action']}")
 
     # assign any attributes from config file
-    ds[config["variable"]] = ds[config["variable"]].assign_attrs(config["attrs"])
+    if "attrs" in config:
+        ds[config["variable"]] = ds[config["variable"]].assign_attrs(config["attrs"])
 
     return ds
 
