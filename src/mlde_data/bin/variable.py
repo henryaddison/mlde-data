@@ -341,8 +341,8 @@ def create(
             src_ds,
             config,
         )
-        # # remove pressure related dims and encoding data that we don't need
-        # ds = remove_pressure(ds)
+        # remove pressure related dims and encoding data that we don't need
+        ds = remove_pressure(ds)
 
         if validate:
             _validate(ds, config)
