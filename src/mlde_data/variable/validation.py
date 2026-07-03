@@ -164,6 +164,12 @@ def check_dims(ds: xr.Dataset, var: VariableMetadata) -> bool:
             "latitude",
             "longitude",
         ]
+    elif grid_mapping == "transverse_mercator":
+        return list(ds[var.variable].dims) == [
+            "time",
+            "projection_y_coordinate",
+            "projection_x_coordinate",
+        ]
     else:
         raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
 
