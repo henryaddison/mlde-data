@@ -80,6 +80,9 @@ black = { version = "==25.1.0" }
 [tool.pixi.feature.dev.tasks]
 test = "pytest"
 
+[tool.pixi.feature.dev.dependencies]
+ipykernel = ">=7.3.0,<8"
+
 [tool.pixi.feature.lint.tasks]
 lint = "black .; flake8 ."
 
