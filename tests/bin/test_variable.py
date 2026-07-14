@@ -1,6 +1,7 @@
 from importlib.resources import files
 import os
 from pathlib import Path
+import pytest
 from typer.testing import CliRunner
 import xarray as xr
 
@@ -10,7 +11,8 @@ from mlde_data.bin import app
 runner = CliRunner()
 
 
-def test_create_predictors(tmp_path):
+@pytest.mark.parametrize("var_types", [["temp", "vort"], ["temp", "vorticity"]])
+def test_create_predictors(tmp_path, var_types):
     input_base_dir = Path(
         os.path.dirname(__file__),
         "..",
@@ -24,7 +26,6 @@ def test_create_predictors(tmp_path):
 
     collection = "land-cpm"
     frequency = "day"
-    var_types = ["temp", "vorticity", "vort"]
     config_paths = [
         files("mlde_data").joinpath(
             f"../../config/variables/{frequency}/{collection}/predictors/{var_type}.yml"
