@@ -6,6 +6,7 @@ from . import regrid  # noqa: F401
 from . import remapcon  # noqa: F401
 from . import rename  # noqa: F401
 from . import resample  # noqa: F401
+from . import rotate_winds  # noqa: F401
 from . import select_domain  # noqa: F401
 from . import shift_lon_break  # noqa: F401
 from . import split_by_year  # noqa: F401

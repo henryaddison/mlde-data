@@ -229,6 +229,7 @@ def _process(
             "resample",
             "rename",
             "drop-variables",
+            "rotate-winds",
         ]:
             typer.echo(f"Doing {job_spec['action']}...")
             ds = get_action(job_spec["action"])(**job_spec.get("parameters", {}))(ds)
