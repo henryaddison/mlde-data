@@ -24,7 +24,7 @@ def test_create_predictors(tmp_path):
 
     collection = "land-cpm"
     frequency = "day"
-    var_types = ["temp", "vorticity"]
+    var_types = ["temp", "vorticity", "vort"]
     config_paths = [
         files("mlde_data").joinpath(
             f"../../config/variables/{frequency}/{collection}/predictors/{var_type}.yml"
