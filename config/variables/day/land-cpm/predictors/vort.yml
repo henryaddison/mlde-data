@@ -28,6 +28,10 @@ spec:
   - action: vorticity
     parameters:
       theta: ${theta}
+  - action: rename
+    parameters:
+      mapping:
+        vorticity${theta}: vort${theta}
   - action: drop-variables
     parameters:
       variables:
