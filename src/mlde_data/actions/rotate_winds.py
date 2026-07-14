@@ -1,7 +1,7 @@
 import logging
 
 from mlde_data.actions.actions_registry import register_action
-from ncdata.iris_xarray import cubes_from_xarray, cubes_to_xarray
+from ncdata.iris_xarray import cubes_from_xarray
 import iris
 
 logger = logging.getLogger(__name__)
@@ -23,11 +23,12 @@ class RotateWinds:
 
             x_cube, y_cube = cubes_from_xarray(ds)
 
-            ds = cubes_to_xarray(
-                iris.analysis.cartography.rotate_winds(
-                    x_cube, y_cube, x_cube.coord_system().ellipsoid
-                )
+            e_wind, n_wind = iris.analysis.cartography.rotate_winds(
+                x_cube, y_cube, x_cube.coord_system().ellipsoid
             )
+
+            ds["x_wind"].data = e_wind.data
+            ds["y_wind"].data = n_wind.data
 
             return ds
         else:
