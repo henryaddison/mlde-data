@@ -25,13 +25,9 @@ spec:
     parameters:
       scale_factor: ${scale_factor}
       grid_type: vorticity850
-  - action: vorticity
+  - action: vort-v2
     parameters:
       theta: ${theta}
-  - action: rename
-    parameters:
-      mapping:
-        vorticity${theta}: vort${theta}
   - action: drop-variables
     parameters:
       variables:

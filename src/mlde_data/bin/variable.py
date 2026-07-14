@@ -218,28 +218,14 @@ def _process(
     config: dict,
 ) -> xr.Dataset:
     for job_spec in config["spec"]:
-        if job_spec["action"] in [
-            "sum",
-            "diff",
-            "query",
-            "shift_lon_break",
-            "vorticity",
-            "coarsen",
-            "select-subdomain",
-            "resample",
-            "rename",
-            "drop-variables",
-            "rotate-winds",
-        ]:
-            typer.echo(f"Doing {job_spec['action']}...")
-            ds = get_action(job_spec["action"])(**job_spec.get("parameters", {}))(ds)
-        elif job_spec["action"] == "regrid_to_target":
+        if job_spec["action"] == "regrid_to_target":
             # this assumes mapping to a target grid of higher resolution than resolution of the data
             ds = get_action(job_spec["action"])(
                 variables=[config["variable"]], **job_spec.get("parameters", {})
             )(ds)
         else:
-            raise RuntimeError(f"Unknown action {job_spec['action']}")
+            typer.echo(f"Doing {job_spec['action']}...")
+            ds = get_action(job_spec["action"])(**job_spec.get("parameters", {}))(ds)
 
     # assign any attributes from config file
     if "attrs" in config:
