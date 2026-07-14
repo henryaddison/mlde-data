@@ -1,0 +1,39 @@
+variable: vort${theta}
+attrs:
+  units: s-1
+  standard_name: atmosphere_upward_relative_vorticity
+sources:
+  type: moose
+  collection: land-cpm
+  resolution: 2.2km
+  frequency: day
+  variables:
+    # assumes already extracted and converted to nc
+    - name: mlqtw
+spec:
+  - action: drop-variables
+    parameters:
+      variables:
+        - air_temperature
+        - specific_humidity
+  - action: query
+    parameters:
+      query:
+        pressure: ${theta}
+  - action: rotate-winds
+  - action: coarsen
+    parameters:
+      scale_factor: ${scale_factor}
+      grid_type: vorticity850
+  - action: vorticity
+    parameters:
+      theta: ${theta}
+  - action: drop-variables
+    parameters:
+      variables:
+        - x_wind
+        - y_wind
+  - action: select-subdomain
+    parameters:
+      domain: ${domain}
+  # implicit final actions: assign attrs
