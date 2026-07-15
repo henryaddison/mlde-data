@@ -68,17 +68,18 @@ DOMAIN_RES_VARS = {
                     "vorticity500",
                     "vorticity700",
                     "vorticity850",
-                    "vorticity925",
+                    "vort250",
+                    "vort500",
+                    "vort700",
+                    "vort850",
                     "spechum250",
                     "spechum500",
                     "spechum700",
                     "spechum850",
-                    "spechum925",
                     "temp250",
                     "temp500",
                     "temp700",
                     "temp850",
-                    "temp925",
                 ],
             },
             {
@@ -87,10 +88,10 @@ DOMAIN_RES_VARS = {
                 "frequency": "day",
                 "variables": [
                     "psl",
-                    # "vorticity250",
-                    # "vorticity500",
-                    # "vorticity700",
-                    # "vorticity850",
+                    "vort250",
+                    "vort500",
+                    "vort700",
+                    "vort850",
                     "spechum250",
                     "spechum500",
                     "spechum700",
@@ -123,7 +124,9 @@ DOMAIN_RES_VARS = {
 
 YEARS = {
     "moose": list(range(1981, 2001))
+    + list(range(2001, 2021))
     + list(range(2021, 2041))
+    + list(range(2041, 2061))
     + list(range(2061, 2081)),
     "canari-le-sprint": list(range(1981, 1990)) + list(range(2071, 2080)),
 }
