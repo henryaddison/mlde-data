@@ -42,15 +42,5 @@ predictors:
       - vort700
       - vort850
 split:
-  scheme: random-season
-  time_periods:
-    - ["1980-12-01", "2000-12-01"]
-    - ["2000-12-01", "2020-12-01"]
-    - ["2020-12-01", "2040-12-01"]
-    - ["2040-12-01", "2060-12-01"]
-    - ["2060-12-01", "2080-12-01"]
-  seed: 42
-  props:
-    train: 0.6
-    val: 0.2
-    test: 0.2
+  scheme: preset
+  preset_name: v3_engwales_ccpm-4x_100x12em_1hr_pr
