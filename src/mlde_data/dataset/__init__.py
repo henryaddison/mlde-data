@@ -66,7 +66,7 @@ def _calculate_statistics(
         concat_dim=["time_aggregation_factor", "variable"],
         data_vars="minimal",
         compat="no_conflicts",
-        combine_attrs="no_conflicts",
+        combine_attrs="drop_conflicts",
         join="exact",
     )
 
