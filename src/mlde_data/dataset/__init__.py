@@ -161,73 +161,71 @@ def validate(dataset: str) -> defaultdict:
         return bad_splits
 
     for split in dataset_metadata.splits():
-        try:
-            predictors_ds = xr.open_dataset(
-                dataset_metadata.predictors_split_path(split)
-            )
-            predictands_ds = xr.open_dataset(
-                dataset_metadata.predictands_split_path(split)
-            )
-        except FileNotFoundError:
-            bad_splits["no file"].add(split)
-            continue
+        for var_type in ["predictors", "predictands"]:
+            try:
+                ds = xr.open_dataset(
+                    dataset_metadata.split_path(split) / f"{var_type}.zarr"
+                )
+            except FileNotFoundError:
+                bad_splits["no file"].add(split)
+                continue
 
-        for ds in [predictors_ds, predictands_ds]:
+            if not check_grid_mapping(ds, dataset, split, var_type, ds_config):
+                bad_splits["bad grid mapping"].add(split)
+
             # check dims
-            if not check_dims(ds, dataset, split, ds_config):
+            if not check_dims(ds, dataset, split, var_type, ds_config):
                 bad_splits["bad dimensions"].add(split)
 
             # check grid and time
-            if not check_grid_vars(ds, dataset, split, ds_config):
+            if not check_grid_vars(ds, dataset, split, var_type, ds_config):
                 bad_splits["bad grid vars"].add(split)
-            if not check_time_bnds(ds, dataset, split, ds_config):
+            if not check_time_bnds(ds, dataset, split, var_type, ds_config):
                 bad_splits["bad time_bnds"].add(split)
-            if not check_time_encoding(ds, dataset, split, ds_config):
+            if not check_time_encoding(ds, dataset, split, var_type, ds_config):
                 bad_splits["bad time encodings"].add(split)
 
             # check shape
-            if not check_shape(ds, dataset, split, ds_config):
+            if not check_shape(ds, dataset, split, var_type, ds_config):
                 bad_splits["bad shape"].add(split)
 
             # check for forecast related metadata (should have been stripped)
-            if not check_forecast_encoding(ds, dataset, split, ds_config):
+            if not check_forecast_encoding(ds, dataset, split, var_type, ds_config):
                 bad_splits["forecast_encoding"].add(split)
-            if not check_forecast_variables(ds, dataset, split, ds_config):
+            if not check_forecast_variables(ds, dataset, split, var_type, ds_config):
                 bad_splits["forecast_vars"].add(split)
 
             # check for pressure related metadata (should have been stripped)
-            if not check_pressure_encoding(ds, dataset, split, ds_config):
+            if not check_pressure_encoding(ds, dataset, split, var_type, ds_config):
                 bad_splits["pressure_encoding"].add(split)
-            if not check_pressure_variables(ds, dataset, split, ds_config):
+            if not check_pressure_variables(ds, dataset, split, var_type, ds_config):
                 bad_splits["pressure_vars"].add(split)
 
             # check for NaNs
-            if not check_nans(ds, dataset, split, ds_config):
+            if not check_nans(ds, dataset, split, var_type, ds_config):
                 bad_splits["NaNs"].add(split)
 
     return bad_splits
 
 
-def check_grid_mapping(ds, dataset, split, ds_config):
-    target_vars = list(
-        map(lambda v: f"target_{v}", ds_config["predictands"]["variables"])
-    )
-    input_vars = ds_config["predictors"]["variables"]
-
-    grid_mappings = set(
-        map(lambda v: ds[v].attrs["grid_mapping"], target_vars + input_vars)
-    )
+def check_grid_mapping(ds, dataset, split, var_type, ds_config):
+    grid_mappings = {
+        ds[v].attrs["grid_mapping"] for v in ds_config[var_type]["variables"]
+    }
 
     if len(grid_mappings) != 1:
         return False
-    if grid_mappings[0] not in ["rotated_latitude_longitude", "latitude_longitude"]:
+    if not (
+        grid_mappings
+        <= {"rotated_latitude_longitude", "latitude_longitude", "transverse_mercator"}
+    ):
         return False
 
     return True
 
 
-def check_dims(ds, dataset, split, ds_config):
-    example_var = f"target_{ds_config['predictands']['variables'][0]}"
+def check_dims(ds, dataset, split, var_type, ds_config):
+    example_var = f"{ds_config[var_type]['variables'][0]}"
     grid_mapping = ds[example_var].attrs["grid_mapping"]
     if grid_mapping == "rotated_latitude_longitude":
         return list(ds[example_var].dims) == [
@@ -247,9 +245,9 @@ def check_dims(ds, dataset, split, ds_config):
         raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
 
 
-def check_shape(ds, dataset, split, ds_config):
+def check_shape(ds, dataset, split, var_type, ds_config):
     ems = ds_config["ensemble_members"]
-    example_var = f"target_{ds_config['predictands']['variables'][0]}"
+    example_var = ds_config[var_type]["variables"][0]
     grid_mapping = ds[example_var].attrs["grid_mapping"]
     if grid_mapping == "rotated_latitude_longitude":
         size = 64
@@ -258,15 +256,17 @@ def check_shape(ds, dataset, split, ds_config):
     else:
         raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
 
-    if split == "train":
-        expected_shape = (len(ems), 360 * 14 * 3, size, size)
-    else:
-        expected_shape = (len(ems), 360 * 3 * 3, size, size)
-    return ds[example_var].shape == expected_shape
+    expected_shape = [len(ems), size, size]
+    actual_shape = list(ds[example_var].shape)
+    actual_shape.pop(
+        1
+    )  # remove time dimension from actual shape as this is dataset dependent
+
+    return actual_shape == expected_shape
 
 
-def check_grid_vars(ds, dataset, split, ds_config):
-    example_var = f"target_{ds_config['predictands']['variables'][0]}"
+def check_grid_vars(ds, dataset, split, var_type, ds_config):
+    example_var = ds_config[var_type]["variables"][0]
     grid_mapping = ds[example_var].attrs["grid_mapping"]
     meta_vars = [
         grid_mapping,
@@ -282,11 +282,11 @@ def check_grid_vars(ds, dataset, split, ds_config):
     )
 
 
-def check_time_bnds(ds, dataset, split, ds_config):
+def check_time_bnds(ds, dataset, split, var_type, ds_config):
     return "ensemble_member" not in ds["time_bnds"].dims
 
 
-def check_forecast_encoding(ds, dataset, split, ds_config):
+def check_forecast_encoding(ds, dataset, split, var_type, ds_config):
     for v in ds.variables:
         if "coordinates" in ds[v].encoding and (
             re.match(
@@ -299,7 +299,7 @@ def check_forecast_encoding(ds, dataset, split, ds_config):
     return True
 
 
-def check_forecast_variables(ds, dataset, split, ds_config):
+def check_forecast_variables(ds, dataset, split, var_type, ds_config):
     for v in ds.variables:
         if v in [
             "forecast_period",
@@ -311,7 +311,7 @@ def check_forecast_variables(ds, dataset, split, ds_config):
     return True
 
 
-def check_pressure_encoding(ds, dataset, split, ds_config):
+def check_pressure_encoding(ds, dataset, split, var_type, ds_config):
     for v in ds.variables:
         if "coordinates" in ds[v].encoding and (
             re.match("(pressure) ?", ds[v].encoding["coordinates"]) is not None
@@ -320,14 +320,14 @@ def check_pressure_encoding(ds, dataset, split, ds_config):
     return True
 
 
-def check_pressure_variables(ds, dataset, split, ds_config):
+def check_pressure_variables(ds, dataset, split, var_type, ds_config):
     for v in ds.variables:
         if v in ["pressure"]:
             return False
     return True
 
 
-def check_nans(ds, dataset, split, ds_config):
+def check_nans(ds, dataset, split, var_type, ds_config):
     for v in ds.variables:
         nan_count = ds[v].isnull().sum().values.item()
         if nan_count > 0:
@@ -335,9 +335,12 @@ def check_nans(ds, dataset, split, ds_config):
     return True
 
 
-def check_time_encoding(ds, dataset, split, ds_config):
+def check_time_encoding(ds, dataset, split, var_type, ds_config):
     for enc in [ds.time.encoding, ds.time_bnds.encoding]:
-        if enc["units"] != "hours since 1970-01-01":
+        if enc["units"] not in [
+            "hours since 1970-01-01",
+            "microseconds since 1970-01-01",
+        ]:
             return False
         if enc["calendar"] != "360_day":
             return False

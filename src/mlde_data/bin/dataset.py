@@ -1,5 +1,4 @@
 import glob
-from importlib.resources import files
 import logging
 import numpy as np
 import os
@@ -113,27 +112,12 @@ def report_issues(dataset, bad_splits):
 
 
 @app.command()
-def validate(dataset_name: str = typer.Argument("all")):
-    datasets = list(
-        map(
-            lambda f: f.stem,
-            files("mlde_data.config").joinpath("datasets").glob("*.yml"),
-        )
-    )
-
-    if dataset_name != "all":
-        if dataset_name not in datasets:
-            logger.warning(
-                f"Dataset {dataset_name} not found in standard list. Continuing but may not be valid."  # noqa: E713
-            )
-        datasets = [dataset_name]
-
-    for dataset in datasets:
-        sys.stdout.write("\033[K")
-        print(f"Checking {dataset}", end="\r")
-        bad_splits = dataset_lib.validate(dataset)
-        # report findings
-        report_issues(dataset, bad_splits)
+def validate(dataset_name: str):
+    sys.stdout.write("\033[K")
+    print(f"Checking {dataset_name}", end="\r")
+    bad_splits = dataset_lib.validate(dataset_name)
+    # report findings
+    report_issues(dataset_name, bad_splits)
 
 
 @app.command()

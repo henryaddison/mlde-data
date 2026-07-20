@@ -274,10 +274,10 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/c6/d1/232b3309a02d60f11e71857778bfcd4acbdb86c07db8260caf7d008b08f8/lxml-6.0.2-cp312-cp312-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/cd/12/74c145b9e273b2b479f1ea578c7778d96d0c34f2d112fd0ec96c905bb792/owslib-0.35.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e0/f9/0595336914c5619e5f28a1fb793285925a8cd4b432c9da0a987836c7f822/shellingham-1.5.4-py2.py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/e6/23/6a32c7afacedc2999e76ea5b57fdde6044e57522ce169c4d2b2e0189d6b1/mlde_utils-0.3.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e7/05/c19819d5e3d95294a6f5947fb9b9629efb316b96de511b418c53d245aae6/cycler-0.12.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f0/1b/396f255539ed57bb9dad5e4abe46323ef3863b5d60655b961fb76729f788/cf_units-3.3.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/f3/6d/f3cac2cd4acb7e0756ad26c68ec7471e9030ba74aac455dc8ae15f4e3aca/compliance_checker-5.3.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/f8/04/db4fa09f8cfe69177ef0d9c80629c0318fb290f7fc35cb9a4cebae0cc0ab/mlde_utils-0.3.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fa/6e/3e955517e22cbdd565f2f8b2e73d52528b14b8bcfdb04f62466b071de847/validators-0.35.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fe/5e/3be305568fe5f34448807976dc82fc151d76c3e0e03958f34770286278c1/flexparser-0.4-py3-none-any.whl
   dev:
@@ -582,10 +582,10 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cd/12/74c145b9e273b2b479f1ea578c7778d96d0c34f2d112fd0ec96c905bb792/owslib-0.35.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e0/f9/0595336914c5619e5f28a1fb793285925a8cd4b432c9da0a987836c7f822/shellingham-1.5.4-py2.py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/e6/23/6a32c7afacedc2999e76ea5b57fdde6044e57522ce169c4d2b2e0189d6b1/mlde_utils-0.3.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e7/05/c19819d5e3d95294a6f5947fb9b9629efb316b96de511b418c53d245aae6/cycler-0.12.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f0/1b/396f255539ed57bb9dad5e4abe46323ef3863b5d60655b961fb76729f788/cf_units-3.3.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/f3/6d/f3cac2cd4acb7e0756ad26c68ec7471e9030ba74aac455dc8ae15f4e3aca/compliance_checker-5.3.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/f8/04/db4fa09f8cfe69177ef0d9c80629c0318fb290f7fc35cb9a4cebae0cc0ab/mlde_utils-0.3.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fa/6e/3e955517e22cbdd565f2f8b2e73d52528b14b8bcfdb04f62466b071de847/validators-0.35.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fe/5e/3be305568fe5f34448807976dc82fc151d76c3e0e03958f34770286278c1/flexparser-0.4-py3-none-any.whl
   lint:
@@ -4502,7 +4502,7 @@ packages:
   - compliance-checker~=5.3.0
   - scitools-iris~=3.12.2
   - metpy~=1.7.0
-  - mlde-utils==0.3.2
+  - mlde-utils==0.3.4
   - pint~=0.25
   - python-dotenv~=1.1
   - typer~=0.16.0
@@ -5098,6 +5098,22 @@ packages:
   version: 1.5.4
   sha256: 7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686
   requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/e6/23/6a32c7afacedc2999e76ea5b57fdde6044e57522ce169c4d2b2e0189d6b1/mlde_utils-0.3.4-py3-none-any.whl
+  name: mlde-utils
+  version: 0.3.4
+  sha256: 7c32e7681652c3450eb787e63c69a51c740d34deec1b4421ca9db5cdafcee801
+  requires_dist:
+  - cartopy
+  - cdo
+  - cf-xarray
+  - cftime
+  - scitools-iris
+  - metpy
+  - netcdf4
+  - pint
+  - xarray
+  - pyyaml
+  requires_python: '>=3.12'
 - pypi: https://files.pythonhosted.org/packages/e7/05/c19819d5e3d95294a6f5947fb9b9629efb316b96de511b418c53d245aae6/cycler-0.12.1-py3-none-any.whl
   name: cycler
   version: 0.12.1
@@ -5150,22 +5166,6 @@ packages:
   - shapely>=1.7.1
   - validators>=0.14.2
   requires_python: '>=3.10'
-- pypi: https://files.pythonhosted.org/packages/f8/04/db4fa09f8cfe69177ef0d9c80629c0318fb290f7fc35cb9a4cebae0cc0ab/mlde_utils-0.3.2-py3-none-any.whl
-  name: mlde-utils
-  version: 0.3.2
-  sha256: f09eb65ce3c338b53e4c49a2a20c4bd0c6897990988c668a53c4a8ea0e9b4fd4
-  requires_dist:
-  - cartopy
-  - cdo
-  - cf-xarray
-  - cftime
-  - scitools-iris
-  - metpy
-  - netcdf4
-  - pint
-  - xarray
-  - pyyaml
-  requires_python: '>=3.12'
 - pypi: https://files.pythonhosted.org/packages/fa/6e/3e955517e22cbdd565f2f8b2e73d52528b14b8bcfdb04f62466b071de847/validators-0.35.0-py3-none-any.whl
   name: validators
   version: 0.35.0
