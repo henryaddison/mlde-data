@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 import xarray as xr
 
-from mlde_utils import DatasetMetadata
+from mlde_utils import FurflexDatasetMetadata
 
 from .preset_split import PresetSplit
 from .random_split import RandomSplit
@@ -152,51 +152,58 @@ def validate(dataset: str) -> defaultdict:
 
     bad_splits = defaultdict(set)
 
+    dataset_metadata = FurflexDatasetMetadata(dataset)
+
     try:
-        ds_config = DatasetMetadata(dataset).config()
+        ds_config = dataset_metadata.config()
     except FileNotFoundError:
         bad_splits["no config"].update(splits)
         return bad_splits
 
-    for split in splits:
-        split_path = DatasetMetadata(dataset).split_path(split)
+    for split in dataset_metadata.splits():
         try:
-            ds = xr.open_dataset(split_path)
+            predictors_ds = xr.open_dataset(
+                dataset_metadata.predictors_split_path(split)
+            )
+            predictands_ds = xr.open_dataset(
+                dataset_metadata.predictands_split_path(split)
+            )
         except FileNotFoundError:
             bad_splits["no file"].add(split)
             continue
 
-        # check dims
-        if not check_dims(ds, dataset, split, ds_config):
-            bad_splits["bad dimensions"].add(split)
+        for ds in [predictors_ds, predictands_ds]:
+            # check dims
+            if not check_dims(ds, dataset, split, ds_config):
+                bad_splits["bad dimensions"].add(split)
 
-        # check grid and time
-        if not check_grid_vars(ds, dataset, split, ds_config):
-            bad_splits["bad grid vars"].add(split)
-        if not check_time_bnds(ds, dataset, split, ds_config):
-            bad_splits["bad time_bnds"].add(split)
-        if not check_time_encoding(ds, dataset, split, ds_config):
-            bad_splits["bad time encodings"].add(split)
+            # check grid and time
+            if not check_grid_vars(ds, dataset, split, ds_config):
+                bad_splits["bad grid vars"].add(split)
+            if not check_time_bnds(ds, dataset, split, ds_config):
+                bad_splits["bad time_bnds"].add(split)
+            if not check_time_encoding(ds, dataset, split, ds_config):
+                bad_splits["bad time encodings"].add(split)
 
-        # check shape
-        if not check_shape(ds, dataset, split, ds_config):
-            bad_splits["bad shape"].add(split)
+            # check shape
+            if not check_shape(ds, dataset, split, ds_config):
+                bad_splits["bad shape"].add(split)
 
-        # check for forecast related metadata (should have been stripped)
-        if not check_forecast_encoding(ds, dataset, split, ds_config):
-            bad_splits["forecast_encoding"].add(split)
-        if not check_forecast_variables(ds, dataset, split, ds_config):
-            bad_splits["forecast_vars"].add(split)
+            # check for forecast related metadata (should have been stripped)
+            if not check_forecast_encoding(ds, dataset, split, ds_config):
+                bad_splits["forecast_encoding"].add(split)
+            if not check_forecast_variables(ds, dataset, split, ds_config):
+                bad_splits["forecast_vars"].add(split)
 
-        # check for pressure related metadata (should have been stripped)
-        if not check_pressure_encoding(ds, dataset, split, ds_config):
-            bad_splits["pressure_encoding"].add(split)
-        if not check_forecast_variables(ds, dataset, split, ds_config):
-            bad_splits["pressure_vars"].add(split)
+            # check for pressure related metadata (should have been stripped)
+            if not check_pressure_encoding(ds, dataset, split, ds_config):
+                bad_splits["pressure_encoding"].add(split)
+            if not check_pressure_variables(ds, dataset, split, ds_config):
+                bad_splits["pressure_vars"].add(split)
 
-        # check for NaNs
-        if not check_nans(ds, dataset, split, ds_config):
-            bad_splits["NaNs"].add(split)
+            # check for NaNs
+            if not check_nans(ds, dataset, split, ds_config):
+                bad_splits["NaNs"].add(split)
 
     return bad_splits
 
