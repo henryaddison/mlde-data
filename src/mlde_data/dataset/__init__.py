@@ -258,11 +258,15 @@ def check_shape(ds, dataset, split, var_type, ds_config):
 
     expected_shape = [len(ems), size, size]
     actual_shape = list(ds[example_var].shape)
-    actual_shape.pop(
-        1
-    )  # remove time dimension from actual shape as this is dataset dependent
+    # remove time dimension from actual shape as this is dataset dependent
+    ntimes = actual_shape.pop(1)
 
-    return actual_shape == expected_shape
+    if split == "train":
+        expected_ntimes = {15120, 25200}
+    else:
+        expected_ntimes = {3240, 5400}
+
+    return (actual_shape == expected_shape) and (ntimes in expected_ntimes)
 
 
 def check_grid_vars(ds, dataset, split, var_type, ds_config):
