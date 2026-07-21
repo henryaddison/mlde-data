@@ -263,8 +263,12 @@ def check_shape(ds, dataset, split, var_type, ds_config):
 
     if split == "train":
         expected_ntimes = {15120, 25200}
+        if var_type == "predictands":
+            expected_ntimes = {24 * n for n in expected_ntimes}
     else:
         expected_ntimes = {3240, 5400}
+        if var_type == "predictands":
+            expected_ntimes = {24 * n for n in expected_ntimes}
 
     return (actual_shape == expected_shape) and (ntimes in expected_ntimes)
 
