@@ -80,7 +80,7 @@ def create(config: dict, input_base_dir: Path) -> dict:
     var_type_datasets = {}
     var_type_statistics = {}
     split_sets = None
-    for var_type in ["predictands", "predictors"]:
+    for var_type in ["predictors"]:
         logger.info(f"Processing {var_type}...")
 
         var_type_datasets[var_type] = {}
@@ -130,6 +130,8 @@ def create(config: dict, input_base_dir: Path) -> dict:
         )
 
         for split, split_times in split_sets.items():
+            if split in ["val", "test"]:
+                continue
             split_ds = var_type_ds.sel(
                 time=var_type_ds["time"].dt.floor("D").isin(split_times)
             )

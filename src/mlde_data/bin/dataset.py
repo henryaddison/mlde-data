@@ -70,7 +70,7 @@ def create(
 
     output_dir = DatasetMetadata(dataset_name, base_dir=output_base_dir).path()
 
-    os.makedirs(output_dir, exist_ok=False)
+    os.makedirs(output_dir, exist_ok=True)
 
     logger.info(f"Saving data to {output_dir}...")
     with open(
@@ -97,11 +97,11 @@ def create(
                         del split_ds[var_name].encoding["chunks"]
                     split_ds[var_name] = split_ds[var_name].chunk(new_chunks)
             split_ds.to_zarr(
-                os.path.join(output_dir, split_name, f"{var_type}.zarr"), mode="w-"
+                os.path.join(output_dir, split_name, f"{var_type}.zarr"), mode="w"
             )
             split_stats[var_type][split_name].to_zarr(
                 os.path.join(output_dir, split_name, f"{var_type}_stats.zarr"),
-                mode="w-",
+                mode="w",
             )
             logger.info(f"{var_type} {split_name} done")
 
