@@ -227,16 +227,18 @@ def save_preset(
     base_dir: Path = typer.Argument(DATASETS_PATH),
 ):
     input_dataset = FurflexDatasetMetadata(dataset, base_dir=base_dir)
-    var_type = "predictors"
+    var_type = "predictands"
 
     for split in input_dataset.splits():
         ds = xr.open_dataset(input_dataset.split_path(split) / f"{var_type}.zarr")[
             "time"
         ]
-        ds["time"] = ds["time"].dt.floor("D")
+        times = np.unique(ds["time"].dt.floor("D"))
+        time_da = xr.DataArray(times, dims=["time"], coords={"time": times})
+
         split_preset_filepath = os.path.abspath(
             f"{base_dir}/../preset-dataset-splits/{dataset}/{split}.nc"
         )
         logger.info(f"Saving {split} times to {split_preset_filepath}")
         os.makedirs(os.path.dirname(split_preset_filepath), exist_ok=True)
-        ds.to_netcdf(split_preset_filepath)
+        time_da.to_netcdf(split_preset_filepath)
