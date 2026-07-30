@@ -19,6 +19,7 @@ from mlde_utils import (
 )
 
 from mlde_data import dataset as dataset_lib
+from mlde_data.dataset import validation as dataset_validation
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +117,7 @@ def report_issues(dataset, bad_splits):
 def validate(dataset_name: str):
     sys.stdout.write("\033[K")
     print(f"Checking {dataset_name}", end="\r")
-    bad_splits = dataset_lib.validate(dataset_name)
+    bad_splits = dataset_validation.validate(dataset_name)
     # report findings
     report_issues(dataset_name, bad_splits)
 
