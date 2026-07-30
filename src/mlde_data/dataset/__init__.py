@@ -125,6 +125,7 @@ def create(config: dict, input_base_dir: Path) -> dict:
             data_vars="minimal",
         )
 
+        logger.info(f"Splitting data for {var_type}...")
         for split, split_times in split_sets.items():
             split_ds = var_type_ds.sel(
                 time=var_type_ds["time"].dt.floor("D").isin(split_times)
@@ -181,5 +182,4 @@ def _split(
     else:
         raise RuntimeError(f"Unknown split scheme {scheme}")
 
-    logger.info(f"Splitting data...")
     return splitter(**splitter_kwargs).run(time_da)
