@@ -145,19 +145,21 @@ def _single_variable(
     em: str, var_name, input_base_dir: Path, **var_config: dict
 ) -> xr.Dataset:
     """
-    Combine predictor and predictand variables for a given ensemble into a single dataset
+    Combine files for a given ensemble member and variable into single xarray.Dataset
     """
 
     dsmeta = VariableMetadata(
         input_base_dir, ensemble_member=em, variable=var_name, **var_config
     )
 
+    # basically just concat along time dimension but want to preserve order
     variable_ds = xr.open_mfdataset(
         dsmeta.existing_filepaths(),
         data_vars="minimal",
         combine="by_coords",
         compat="no_conflicts",
         combine_attrs="drop_conflicts",
+        join="outer",
     )
     variable_ds[dsmeta.variable] = variable_ds[dsmeta.variable].expand_dims(
         dict(ensemble_member=[em])
