@@ -97,7 +97,7 @@ def create(
                         # remove existing chunking info to avoid conflict
                         del split_ds[var_name].encoding["chunks"]
                     split_ds[var_name] = split_ds[var_name].chunk(new_chunks)
-            split_ds.to_zarr(
+            split_ds.drop_vars("time_bnds").to_zarr(
                 os.path.join(output_dir, split_name, f"{var_type}.zarr"), mode="w-"
             )
             split_stats[var_type][split_name].to_zarr(
