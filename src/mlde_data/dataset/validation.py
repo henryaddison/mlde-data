@@ -158,8 +158,6 @@ def check_grid_vars(ds, dataset, split, var_type, ds_config):
         meta_vars.extend(
             ["projection_x_coordinate_bnds", "projection_y_coordinate_bnds"]
         )
-    if grid_mapping == "latitude_longitude":
-        meta_vars.extend(["latitude_bnds", "longitude_bnds"])
 
     return all(
         [
