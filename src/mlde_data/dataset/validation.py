@@ -151,7 +151,7 @@ def check_grid_vars(ds, dataset, split, var_type, ds_config):
 
 
 def check_time_bnds(ds, dataset, split, var_type, ds_config):
-    return "ensemble_member" not in ds["time_bnds"].dims
+    return "time_bnds" in ds and "ensemble_member" not in ds["time_bnds"].dims
 
 
 def check_forecast_encoding(ds, dataset, split, var_type, ds_config):
@@ -204,7 +204,10 @@ def check_nans(ds, dataset, split, var_type, ds_config):
 
 
 def check_time_encoding(ds, dataset, split, var_type, ds_config):
-    for enc in [ds.time.encoding, ds.time_bnds.encoding]:
+    time_encodings = [ds.time.encoding]
+    if "time_bnds" in ds:
+        time_encodings.append(ds.time_bnds.encoding)
+    for enc in time_encodings:
         if enc["units"] not in [
             "hours since 1970-01-01",
             "microseconds since 1970-01-01",
