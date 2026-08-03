@@ -94,6 +94,13 @@ def check_dims(ds, dataset, split, var_type, ds_config):
             "grid_latitude",
             "grid_longitude",
         ]
+    elif grid_mapping == "transverse_mercator":
+        return list(ds[example_var].dims) == [
+            "ensemble_member",
+            "time",
+            "projection_y_coordinate",
+            "projection_x_coordinate",
+        ]
     elif grid_mapping == "latitude_longitude":
         return list(ds[example_var].dims) == [
             "ensemble_member",
@@ -111,8 +118,14 @@ def check_shape(ds, dataset, split, var_type, ds_config):
     grid_mapping = ds[example_var].attrs["grid_mapping"]
     if grid_mapping == "rotated_latitude_longitude":
         size = 64
+    elif grid_mapping == "transverse_mercator":
+        size = 128
     elif grid_mapping == "latitude_longitude":
-        size = 9
+        domain = ds.attrs.get("domain")
+        if domain == "engwales":
+            size = 13
+        elif domain == "engwales-5km":
+            size = 14
     else:
         raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
 
@@ -141,6 +154,12 @@ def check_grid_vars(ds, dataset, split, var_type, ds_config):
     ]
     if grid_mapping == "rotated_latitude_longitude":
         meta_vars.extend(["grid_latitude_bnds", "grid_longitude_bnds"])
+    if grid_mapping == "transverse_mercator":
+        meta_vars.extend(
+            ["projection_x_coordinate_bnds", "projection_y_coordinate_bnds"]
+        )
+    if grid_mapping == "latitude_longitude":
+        meta_vars.extend(["latitude_bnds", "longitude_bnds"])
 
     return all(
         [
