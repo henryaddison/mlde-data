@@ -218,30 +218,18 @@ def _process(
     config: dict,
 ) -> xr.Dataset:
     for job_spec in config["spec"]:
-        if job_spec["action"] in [
-            "sum",
-            "diff",
-            "query",
-            "shift_lon_break",
-            "vorticity",
-            "coarsen",
-            "select-subdomain",
-            "resample",
-            "rename",
-            "drop-variables",
-        ]:
-            typer.echo(f"Doing {job_spec['action']}...")
-            ds = get_action(job_spec["action"])(**job_spec.get("parameters", {}))(ds)
-        elif job_spec["action"] == "regrid_to_target":
+        if job_spec["action"] == "regrid_to_target":
             # this assumes mapping to a target grid of higher resolution than resolution of the data
             ds = get_action(job_spec["action"])(
                 variables=[config["variable"]], **job_spec.get("parameters", {})
             )(ds)
         else:
-            raise RuntimeError(f"Unknown action {job_spec['action']}")
+            typer.echo(f"Doing {job_spec['action']}...")
+            ds = get_action(job_spec["action"])(**job_spec.get("parameters", {}))(ds)
 
     # assign any attributes from config file
-    ds[config["variable"]] = ds[config["variable"]].assign_attrs(config["attrs"])
+    if "attrs" in config:
+        ds[config["variable"]] = ds[config["variable"]].assign_attrs(config["attrs"])
 
     return ds
 
@@ -340,8 +328,8 @@ def create(
             src_ds,
             config,
         )
-        # # remove pressure related dims and encoding data that we don't need
-        # ds = remove_pressure(ds)
+        # remove pressure related dims and encoding data that we don't need
+        ds = remove_pressure(ds)
 
         if validate:
             _validate(ds, config)

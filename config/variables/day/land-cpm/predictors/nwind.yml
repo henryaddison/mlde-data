@@ -1,12 +1,12 @@
-variable: spechum${theta}
+variable: nwind${theta}
 attrs:
-  units: 1
-  standard_name: specific_humidity
+  units: ms-1
+  standard_name: northward_wind
 sources:
   type: moose
   collection: land-cpm
-  frequency: day
   resolution: 2.2km
+  frequency: day
   variables:
     # assumes already extracted and converted to nc
     - name: mlqtw
@@ -14,21 +14,25 @@ spec:
   - action: drop-variables
     parameters:
       variables:
-        - x_wind
-        - y_wind
         - air_temperature
+        - specific_humidity
   - action: query
     parameters:
       query:
         pressure: ${theta}
-  - action: rename
-    parameters:
-      mapping:
-        specific_humidity: spechum${theta}
+  - action: rotate-winds
   - action: coarsen
     parameters:
       scale_factor: ${scale_factor}
       grid_type: vorticity850
+  - action: rename
+    parameters:
+      mapping:
+        y_wind: meridwind
+  - action: drop-variables
+    parameters:
+      variables:
+        - x_wind
   - action: select-subdomain
     parameters:
       domain: ${domain}

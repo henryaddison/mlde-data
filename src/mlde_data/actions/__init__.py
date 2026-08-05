@@ -6,9 +6,11 @@ from . import regrid  # noqa: F401
 from . import remapcon  # noqa: F401
 from . import rename  # noqa: F401
 from . import resample  # noqa: F401
+from . import rotate_winds  # noqa: F401
 from . import select_domain  # noqa: F401
 from . import shift_lon_break  # noqa: F401
 from . import split_by_year  # noqa: F401
 from . import sum  # noqa: F401
 from . import vorticity  # noqa: F401
+from . import vort_v2  # noqa: F401
 from .actions_registry import get_action  # noqa: F401

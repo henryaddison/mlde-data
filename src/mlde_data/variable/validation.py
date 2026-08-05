@@ -68,22 +68,51 @@ DOMAIN_RES_VARS = {
                     "vorticity500",
                     "vorticity700",
                     "vorticity850",
-                    "vorticity925",
+                    "vort250",
+                    "vort500",
+                    "vort700",
+                    "vort850",
                     "spechum250",
                     "spechum500",
                     "spechum700",
                     "spechum850",
-                    "spechum925",
                     "temp250",
                     "temp500",
                     "temp700",
                     "temp850",
-                    "temp925",
+                ],
+            },
+            {
+                "domain": "engwales-5km",
+                "resolution": "2.2km-coarsened-gcm",
+                "frequency": "day",
+                "variables": [
+                    "psl",
+                    "vort250",
+                    "vort500",
+                    "vort700",
+                    "vort850",
+                    "spechum250",
+                    "spechum500",
+                    "spechum700",
+                    "spechum850",
+                    "temp250",
+                    "temp500",
+                    "temp700",
+                    "temp850",
                 ],
             },
             {
                 "domain": "engwales",
                 "resolution": "2.2km-coarsened-4x",
+                "frequency": "1hr",
+                "variables": [
+                    "pr",
+                ],
+            },
+            {
+                "domain": "engwales-5km",
+                "resolution": "5km",
                 "frequency": "1hr",
                 "variables": [
                     "pr",
@@ -95,7 +124,9 @@ DOMAIN_RES_VARS = {
 
 YEARS = {
     "moose": list(range(1981, 2001))
+    + list(range(2001, 2021))
     + list(range(2021, 2041))
+    + list(range(2041, 2061))
     + list(range(2061, 2081)),
     "canari-le-sprint": list(range(1981, 1990)) + list(range(2071, 2080)),
 }
@@ -135,6 +166,12 @@ def check_dims(ds: xr.Dataset, var: VariableMetadata) -> bool:
             "time",
             "latitude",
             "longitude",
+        ]
+    elif grid_mapping == "transverse_mercator":
+        return list(ds[var.variable].dims) == [
+            "time",
+            "projection_y_coordinate",
+            "projection_x_coordinate",
         ]
     else:
         raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")

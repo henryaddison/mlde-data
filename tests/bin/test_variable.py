@@ -1,6 +1,7 @@
 from importlib.resources import files
 import os
 from pathlib import Path
+import pytest
 from typer.testing import CliRunner
 import xarray as xr
 
@@ -10,7 +11,8 @@ from mlde_data.bin import app
 runner = CliRunner()
 
 
-def test_create_predictors(tmp_path):
+@pytest.mark.parametrize("var_types", [["temp", "vort"], ["temp", "vorticity"]])
+def test_create_predictors(tmp_path, var_types):
     input_base_dir = Path(
         os.path.dirname(__file__),
         "..",
@@ -24,7 +26,6 @@ def test_create_predictors(tmp_path):
 
     collection = "land-cpm"
     frequency = "day"
-    var_types = ["temp", "vorticity"]
     config_paths = [
         files("mlde_data").joinpath(
             f"../../config/variables/{frequency}/{collection}/predictors/{var_type}.yml"
@@ -180,6 +181,75 @@ def test_create_4x_engwales_target(tmp_path):
     scenario = "rcp85"
     scale_factor = 4
     target_resolution = "2.2km-coarsened-4x"
+
+    result = runner.invoke(
+        app,
+        [
+            "variable",
+            "create",
+            "--config-paths",
+            str(config_path),
+            "--scenario",
+            scenario,
+            "--ensemble-member",
+            ensemble_member,
+            "--year",
+            str(year),
+            "--domain",
+            domain,
+            "--scale-factor",
+            scale_factor,
+            "--target-resolution",
+            target_resolution,
+            "--input-base-dir",
+            str(input_base_dir),
+            "--output-base-dir",
+            str(output_base_dir),
+            "--no-validate",
+        ],
+    )
+    assert result.exit_code == 0
+
+    output_filepath = VariableMetadata(
+        base_dir=output_base_dir,
+        collection=collection,
+        scenario=scenario,
+        ensemble_member=ensemble_member,
+        variable="pr",
+        frequency=frequency,
+        resolution=target_resolution,
+        domain=domain,
+    ).filepath(year)
+
+    xr.open_dataset(output_filepath)  # will raise error if file is invalid
+
+
+def test_create_5km_engwales_target(tmp_path):
+    input_base_dir = Path(
+        os.path.dirname(__file__),
+        "..",
+        "fixtures",
+        "files",
+        "variables",
+        "raw",
+        "ceda",
+        "badc",
+        "ukcp18",
+        "data",
+    )
+    output_base_dir = tmp_path
+
+    collection = "land-cpm"
+    frequency = "1hr"
+    config_path = files("mlde_data").joinpath(
+        f"../../config/variables/{frequency}/{collection}/targets/5km/pr.yml"
+    )
+    year = 1981
+    ensemble_member = "r001i1p00000"
+    domain = "engwales-5km"
+    scenario = "rcp85"
+    scale_factor = 1
+    target_resolution = "5km"
 
     result = runner.invoke(
         app,

@@ -5,6 +5,7 @@ attrs:
 sources:
   type: moose
   collection: land-cpm
+  resolution: 2.2km
   frequency: day
   variables:
     # assumes already extracted and converted to nc

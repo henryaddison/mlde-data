@@ -1,5 +1,4 @@
 import glob
-from importlib.resources import files
 import logging
 import numpy as np
 import os
@@ -14,11 +13,13 @@ import yaml
 from mlde_utils import (
     TIME_PERIODS,
     DatasetMetadata,
+    FurflexDatasetMetadata,
     DATASETS_PATH,
     DERIVED_VARIABLES_PATH,
 )
 
 from mlde_data import dataset as dataset_lib
+from mlde_data.dataset import validation as dataset_validation
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +97,7 @@ def create(
                         # remove existing chunking info to avoid conflict
                         del split_ds[var_name].encoding["chunks"]
                     split_ds[var_name] = split_ds[var_name].chunk(new_chunks)
-            split_ds.to_zarr(
+            split_ds.drop_vars("time_bnds").to_zarr(
                 os.path.join(output_dir, split_name, f"{var_type}.zarr"), mode="w-"
             )
             split_stats[var_type][split_name].to_zarr(
@@ -113,27 +114,12 @@ def report_issues(dataset, bad_splits):
 
 
 @app.command()
-def validate(dataset_name: str = typer.Argument("all")):
-    datasets = list(
-        map(
-            lambda f: f.stem,
-            files("mlde_data.config").joinpath("datasets").glob("*.yml"),
-        )
-    )
-
-    if dataset_name != "all":
-        if dataset_name not in datasets:
-            logger.warning(
-                f"Dataset {dataset_name} not found in standard list. Continuing but may not be valid."  # noqa: E713
-            )
-        datasets = [dataset_name]
-
-    for dataset in datasets:
-        sys.stdout.write("\033[K")
-        print(f"Checking {dataset}", end="\r")
-        bad_splits = dataset_lib.validate(dataset)
-        # report findings
-        report_issues(dataset, bad_splits)
+def validate(dataset_name: str):
+    sys.stdout.write("\033[K")
+    print(f"Checking {dataset_name}", end="\r")
+    bad_splits = dataset_validation.validate(dataset_name)
+    # report findings
+    report_issues(dataset_name, bad_splits)
 
 
 @app.command()
@@ -234,3 +220,26 @@ def quantile(
     split_ds = xr.open_dataset(os.path.join(input_dir, f"{split}.nc"))
     Q_p = split_ds[variable].quantile(p)
     typer.echo(Q_p.values.item())
+
+
+@app.command()
+def save_preset(
+    dataset: str,
+    base_dir: Path = typer.Argument(DATASETS_PATH),
+):
+    input_dataset = FurflexDatasetMetadata(dataset, base_dir=base_dir)
+    var_type = "predictands"
+
+    for split in input_dataset.splits():
+        ds = xr.open_dataset(input_dataset.split_path(split) / f"{var_type}.zarr")[
+            "time"
+        ]
+        times = np.unique(ds["time"].dt.floor("D"))
+        time_da = xr.DataArray(times, dims=["time"], coords={"time": times})
+
+        split_preset_filepath = os.path.abspath(
+            f"{base_dir}/../preset-dataset-splits/{dataset}/{split}.nc"
+        )
+        logger.info(f"Saving {split} times to {split_preset_filepath}")
+        os.makedirs(os.path.dirname(split_preset_filepath), exist_ok=True)
+        time_da.to_netcdf(split_preset_filepath)

@@ -22,7 +22,7 @@ dependencies = [
   "compliance-checker~=5.3.0",
   "scitools-iris~=3.12.2",
   "metpy~=1.7.0",
-  "mlde-utils~=0.3.0",
+  "mlde-utils==0.3.4",
   "pint~=0.25",
   "python-dotenv~=1.1",
   "typer~=0.16.0",
@@ -79,6 +79,9 @@ black = { version = "==25.1.0" }
 
 [tool.pixi.feature.dev.tasks]
 test = "pytest"
+
+[tool.pixi.feature.dev.dependencies]
+ipykernel = ">=7.3.0,<8"
 
 [tool.pixi.feature.lint.tasks]
 lint = "black .; flake8 ."

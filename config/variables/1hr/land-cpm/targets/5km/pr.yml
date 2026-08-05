@@ -3,7 +3,7 @@ sources:
   type: ceda
   collection: land-cpm
   frequency: 1hr
-  resolution: 2.2km
+  resolution: 5km
   variables:
     - name: pr
 spec:
@@ -13,13 +13,6 @@ spec:
         - month_number
         - year
         - yyyymmddhh
-  - action: coarsen
-    parameters:
-      scale_factor: ${scale_factor}
-      grid_type: pr
-  # - action: regrid_to_target
-  #   parameters:
-  #     target_grid_resolution: ${target_resolution}
   - action: select-subdomain
     parameters:
       domain: $domain
