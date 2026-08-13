@@ -22,7 +22,7 @@ app.add_typer(variable.app, name="variable")
 
 
 @app.command()
-def sample(file: Path, output_file: Path, dim: str = "time"):
+def sample(file: Path, output_file: Path, dim: str = "time", force: bool = False):
     logger.info(f"Sampling {file}")
     ds = xr.open_dataset(file)
 
@@ -53,12 +53,21 @@ def sample(file: Path, output_file: Path, dim: str = "time"):
     os.makedirs(output_file.parent, exist_ok=True)
 
     logger.info(f"Saving {output_file}")
+    if os.path.exists(output_file):
+        logger.warning(f"Output file {output_file} already exists.")
+        if not force:
+            logger.warning("Skipping save. Use --force to overwrite existing file.")
+            return
+
     if output_file.suffix == ".nc":
         if output_file.exists():
             raise FileExistsError(f"Output file {output_file} already exists.")
         sampled_ds.to_netcdf(str(output_file))
     elif output_file.suffix == ".zarr":
-        sampled_ds.to_zarr(str(output_file), mode="w-")
+        mode = "w-"
+        if force:
+            mode = "w"
+        sampled_ds.to_zarr(str(output_file), mode=mode)
     else:
         raise ValueError(f"Unsupported output file format: {output_file.suffix}")
     logger.info(f"Saved {output_file}")
