@@ -12,4 +12,4 @@ echo "Adding templates to the 60y 8.8km cCPM dataset..."
 pixi run mlde-data dataset add-template engwales_ccpm-4x-cpmgem_12em_1hr_pr_preset_v2
 
 echo "Adding templates to the 60y 8.8km GCM dataset..."
-pixi run mlde-data dataset add-template engwales_gmc-4x-cpmgem_12em_1hr_pr_preset_v2 engwales_ccpm-4x-cpmgem_12em_1hr_pr_preset_v2
+pixi run mlde-data dataset add-template engwales_gcm-4x-cpmgem_12em_1hr_pr_preset_v2 engwales_ccpm-4x-cpmgem_12em_1hr_pr_preset_v2
