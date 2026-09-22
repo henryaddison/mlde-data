@@ -243,3 +243,44 @@ def save_preset(
         logger.info(f"Saving {split} times to {split_preset_filepath}")
         os.makedirs(os.path.dirname(split_preset_filepath), exist_ok=True)
         time_da.to_netcdf(split_preset_filepath)
+
+
+@app.command()
+def add_template(
+    dataset: str = typer.Argument(
+        ..., help="Name of the dataset to create a template for."
+    ),
+    src_dataset: str = typer.Argument(
+        None, help="Name of the source dataset to use for creating the template."
+    ),
+    src_split: str = typer.Argument(
+        "train", help="Split of the source dataset to use for creating the template."
+    ),
+    base_dir: Path = typer.Argument(DATASETS_PATH),
+):
+    """
+    Create a template NetCDF file for the specified dataset.
+
+    Used for adding approapriate metadata for predictions.
+    """
+
+    # If source dataset is not specified, use the target dataset as the source.
+    if src_dataset is None:
+        src_dataset = dataset
+
+    dsmeta = FurflexDatasetMetadata(dataset, base_dir=base_dir)
+    src_dsmeta = FurflexDatasetMetadata(src_dataset, base_dir=base_dir)
+
+    logger.info(f"Creating template for {dataset} using {src_dataset} ({src_split})...")
+
+    template_ds = (
+        xr.open_dataset(src_dsmeta.predictands_split_path(src_split))
+        .isel(time=[0], ensemble_member=[0])
+        .load()
+    )
+    # Ensure ensemble_member is a string type rather than StringDType to avoid issues saving to NetCDF
+    template_ds["ensemble_member"] = template_ds["ensemble_member"].astype("str")
+
+    template_filepath = dsmeta.path() / "template.nc"
+    logger.info(f"Saving to {template_filepath}")
+    template_ds.to_netcdf(template_filepath, mode="w")
