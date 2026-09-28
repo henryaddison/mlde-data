@@ -1,0 +1,109 @@
+#! /bin/bash
+# Queuable script for extracting GCM predictor variables from mass archive
+
+#SBATCH --partition=mass
+#SBATCH --qos=mass
+#SBATCH --account=mass
+#SBATCH --time=24:00:00
+#SBATCH --mem=16G
+#SBATCH --mail-type=FAIL
+
+set -uo pipefail
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+for rip_code in "$@"; do
+  for suite_id in u-an398 u-ap977 u-ar095 u-au084; do
+
+    case $suite_id in
+      u-an398)
+        tp="1897-1970"
+        years=$(seq 1981 1970)
+        ;;
+      u-ap977)
+        tp="1971-2005"
+        years=$(seq 2071 2005)
+        ;;
+      u-ar095)
+        tp="2006-2076"
+        years=$(seq 2006 2076)
+        ;;
+      u-au084)
+        tp="2077-2099"
+        years=$(seq 2077 2099)
+        ;;
+      *)
+        echo "unknown suite id ${suite_id}"
+        exit 1
+        ;;
+    esac
+
+    echo ${suite_id} ${tp};
+
+    for variable in psl mlqtw; do
+      echo "Processing ${suite_id} ${variable}"
+      case $variable in
+        psl)
+          stream="apd"
+          ;;
+        mlqtw)
+          stream="ape"
+          ;;
+        *)
+          echo "unknown variable ${variable}"
+          exit 1
+          ;;
+      esac
+
+      output_base_dir="/gws/ssde/j25a/furflex/henrya/projects/furflex/data/mass-extracts"
+      output_dir="${output_base_dir}/${suite_id}/${variable}/data"
+      mkdir -p ${output_dir}
+
+      searchfile_path="${SCRIPT_DIR}/${tp}/${variable}/searchfile"
+
+      case $variable in
+        psl)
+          cat > ${output_dir}/searchfile << EOF
+begin
+  stash=16222
+end
+EOF
+          ;;
+        mlqtw)
+          cat > ${output_dir}/searchfile << EOF
+begin
+  stash=(30201, 30202, 30204, 30205)
+  lblev=(250, 500, 700, 850)
+end
+EOF
+          ;;
+        *)
+          echo "unknown variable ${variable}"
+          exit 1
+          ;;
+      esac
+
+      cat ${output_dir}/searchfile
+
+      set -x
+      time moo select -I ${output_dir}/searchfile moose:ens/${suite_id}/${rip_code}/${stream}.pp ${output_dir}
+      s=$?
+      set +x
+
+      if [ $s -eq 0 ] || [ $s -eq 17 ]; then
+        echo "DONE ${stream}: ${s}";
+      else
+        echo "FAILED ${stream}: ${s}"
+        exit $s
+      fi
+
+
+    echo "DONE ${suite_id} ${variable}"
+    done
+
+    echo "DONE ${suite_id}"
+  done
+  echo "DONE ${rip_code}"
+done
+
+echo "DONE"
