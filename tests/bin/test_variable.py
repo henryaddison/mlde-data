@@ -11,8 +11,15 @@ from mlde_data.bin import app
 runner = CliRunner()
 
 
-@pytest.mark.parametrize("var_types", [["temp", "vort"], ["temp", "vorticity"]])
-def test_create_predictors(tmp_path, var_types):
+@pytest.mark.parametrize(
+    "var_types,domain",
+    [
+        (["temp", "vort"], "engwales-5km"),
+        (["temp", "vort"], "uk"),
+        (["temp", "vorticity"], "engwales"),
+    ],
+)
+def test_create_predictors(tmp_path, var_types, domain):
     input_base_dir = Path(
         os.path.dirname(__file__),
         "..",
@@ -35,7 +42,6 @@ def test_create_predictors(tmp_path, var_types):
     thetas = ["250", "850"]
     year = 1982
     ensemble_member = "r001i1p00000"
-    domain = "engwales"
     scenario = "rcp85"
     scale_factor = "gcm"
 
