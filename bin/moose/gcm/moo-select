@@ -56,7 +56,7 @@ for rip_code in "$@"; do
       esac
 
       output_base_dir="/gws/ssde/j25a/furflex/henrya/projects/furflex/data/mass-extracts"
-      output_dir="${output_base_dir}/${suite_id}/${variable}/data"
+      output_dir="${output_base_dir}/${suite_id}/${rip_code}/${variable}/data"
       mkdir -p ${output_dir}
 
       searchfile_path="${SCRIPT_DIR}/${tp}/${variable}/searchfile"
