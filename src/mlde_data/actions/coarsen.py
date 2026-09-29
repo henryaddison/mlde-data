@@ -29,6 +29,7 @@ class Coarsen:
             ds = ds.assign_attrs(
                 {
                     "resolution": f"{ds.attrs['resolution']}-coarsened-gcm",
+                    "domain": "global",
                 }
             )
         else:
