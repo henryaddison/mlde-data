@@ -1,3 +1,4 @@
+import calendar
 from iris.time import PartialDateTime
 import iris
 from ncdata.iris_xarray import cubes_to_xarray
@@ -86,16 +87,31 @@ class MooseExtractVariableAdapter:
 
     @property
     def _dirpath(self) -> Path:
-        suite_id = SUITE_IDS[self.collection][self.ensemble_member][self.year]
-        return self.base_dir / suite_id / self.variable / "data"
+        if self.collection == CollectionOption.cpm:
+            suite_id = SUITE_IDS[self.collection][self.ensemble_member][self.year]
+            return self.base_dir / suite_id / self.variable / "data"
+        elif self.collection == "land-gcm":
+            suite_id = SUITE_IDS[self.collection][self.year]
+            return (
+                self.base_dir / suite_id / self.ensemble_member / self.variable / "data"
+            )
+        else:
+            raise ValueError(f"Unknown collection: {self.collection}")
 
     @property
-    def _filenames(self) -> list[str]:
-        return [f"*{self.year-1}12*.pp", f"*{self.year}*.pp"]
+    def _filename_patterns(self) -> list[str]:
+        if self.collection == CollectionOption.cpm:
+            return [f"*{self.year-1}12*.pp", f"*{self.year}*.pp"]
+        elif self.collection == CollectionOption.gcm:
+            return [f"*{self.year-1}dec.pp"] + [
+                f"*{self.year}{mon.lower()}.pp" for mon in calendar.month_abbr[1:12]
+            ]
+        else:
+            raise ValueError(f"Unknown collection: {self.collection}")
 
     @property
     def _filepaths(self) -> list[Path]:
-        return [self._dirpath / fn for fn in self._filenames]
+        return [p for fn in self._filename_patterns for p in self._dirpath.glob(fn)]
 
     def open(self) -> xr.Dataset:
         pdt1 = PartialDateTime(year=self.year - 1, month=12, day=1)

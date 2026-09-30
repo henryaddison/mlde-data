@@ -19,7 +19,7 @@ runner = CliRunner()
         (["temp", "vorticity"], "engwales"),
     ],
 )
-def test_create_predictors(tmp_path, var_types, domain):
+def test_create_ccpm_predictors(tmp_path, var_types, domain):
     input_base_dir = Path(
         os.path.dirname(__file__),
         "..",
@@ -91,6 +91,86 @@ def test_create_predictors(tmp_path, var_types, domain):
             ).filepath(year)
 
             xr.open_dataset(output_filepath)  # will raise error if file is invalid
+
+
+@pytest.mark.parametrize(
+    "var_types,domain",
+    [
+        (["psl"], "uk"),
+    ],
+)
+def test_create_gcm_predictors(tmp_path, var_types, domain):
+    input_base_dir = Path(
+        os.path.dirname(__file__),
+        "..",
+        "fixtures",
+        "files",
+        "variables",
+        "raw",
+        "moose",
+    )
+    output_base_dir = tmp_path
+
+    collection = "land-gcm"
+    frequency = "day"
+    config_paths = [
+        files("mlde_data").joinpath(
+            f"../../config/variables/{frequency}/{collection}/predictors/{var_type}.yml"
+        )
+        for var_type in var_types
+    ]
+    year = 1981
+    ensemble_member = "r001i1p00000"
+    scenario = "rcp85"
+    scale_factor = 1
+
+    result = runner.invoke(
+        app,
+        [
+            "variable",
+            "create",
+            "--config-paths",
+            str(config_paths[0]),
+            "--scenario",
+            scenario,
+            "--ensemble-member",
+            ensemble_member,
+            "--year",
+            str(year),
+            "--domain",
+            domain,
+            "--scale-factor",
+            scale_factor,
+            "--input-base-dir",
+            str(input_base_dir),
+            "--output-base-dir",
+            str(output_base_dir),
+            "--no-validate",
+        ],
+    )
+    assert result.exit_code == 0
+
+    for var_type in var_types:
+        variable = var_type
+        output_filepath = VariableMetadata(
+            base_dir=output_base_dir,
+            collection=collection,
+            scenario=scenario,
+            ensemble_member=ensemble_member,
+            variable=variable,
+            frequency=frequency,
+            resolution="60km",
+            domain=domain,
+        ).filepath(year)
+
+        ds = xr.open_dataset(output_filepath)  # will raise error if file is invalid
+
+        # NB only 2 months of data for 1981 in test fixtures
+        assert len(ds["time"]) == 60
+        assert len(ds["latitude"]) == 21
+        assert len(ds["longitude"]) == 21
+        assert ds[variable].size == 60 * 21 * 21
+        assert ds[variable].isnull().sum() == 0
 
 
 def test_create_target(tmp_path):
