@@ -46,6 +46,9 @@ case $variable in
   mlqtw)
     stream="ape"
     ;;
+  pr)
+    stream="apa"
+    ;;
   *)
     echo "unknown variable ${variable}"
     exit 1
@@ -73,6 +76,13 @@ EOF
 begin
 stash=(30201, 30202, 30204, 30205)
 lblev=(250, 500, 700, 850)
+end
+EOF
+    ;;
+  pr)
+    cat > ${searchfile_path} << EOF
+begin
+stash=5216
 end
 EOF
     ;;
