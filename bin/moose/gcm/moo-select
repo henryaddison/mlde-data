@@ -19,7 +19,7 @@ variable=$3
 case $suite_id in
   u-an398)
     tp="1897-1970"
-    years=$(seq 1981 1970)
+    years=$(seq 1897 1970)
     ;;
   u-ap977)
     tp="1971-2005"
