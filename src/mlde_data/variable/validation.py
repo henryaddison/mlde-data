@@ -104,6 +104,26 @@ DOMAIN_RES_VARS = {
                 ],
             },
             {
+                "domain": "uk",
+                "resolution": "2.2km-coarsened-gcm",
+                "frequency": "day",
+                "variables": [
+                    "psl",
+                    "vort250",
+                    "vort500",
+                    "vort700",
+                    "vort850",
+                    "spechum250",
+                    "spechum500",
+                    "spechum700",
+                    "spechum850",
+                    "temp250",
+                    "temp500",
+                    "temp700",
+                    "temp850",
+                ],
+            },
+            {
                 "domain": "engwales",
                 "resolution": "2.2km-coarsened-4x",
                 "frequency": "1hr",
@@ -113,6 +133,14 @@ DOMAIN_RES_VARS = {
             },
             {
                 "domain": "engwales-5km",
+                "resolution": "5km",
+                "frequency": "1hr",
+                "variables": [
+                    "pr",
+                ],
+            },
+            {
+                "domain": "uk",
                 "resolution": "5km",
                 "frequency": "1hr",
                 "variables": [
