@@ -153,7 +153,7 @@ class CedaVariableAdapter:
             compat="equals",
         ).squeeze("ensemble_member", drop=True)
         # remove unwanted global attributes from CEDA files
-        for k in ["contact, institution", "institution_id", "references"]:
+        for k in ["contact", "institution", "institution_id", "references"]:
             if k in ds.attrs:
                 del ds.attrs[k]
 
