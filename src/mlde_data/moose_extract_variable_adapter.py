@@ -7,7 +7,6 @@ from pathlib import Path
 import xarray as xr
 
 from mlde_data.moose import SUITE_IDS, load_cubes
-from mlde_data.variable import SourceVariableConfig
 from mlde_data.options import CollectionOption
 
 
@@ -23,7 +22,7 @@ class MooseExtractVariableAdapter:
     @classmethod
     def from_variable_defn(
         cls,
-        defn: SourceVariableConfig,
+        defn: "SourceVariableConfig",  # noqa: F821
         ensemble_member: str,
         scenario: str,
         year: int,

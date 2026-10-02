@@ -2,8 +2,6 @@ import logging
 from pathlib import Path
 import xarray as xr
 
-from mlde_data.variable import SourceVariableConfig
-
 
 class CedaVariableAdapter:
     """
@@ -34,7 +32,7 @@ class CedaVariableAdapter:
     @classmethod
     def from_variable_defn(
         cls,
-        defn: SourceVariableConfig,
+        defn: "SourceVariableConfig",  # noqa: F821
         ensemble_member: str,
         scenario: str,
         year: int,
