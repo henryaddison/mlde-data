@@ -60,8 +60,6 @@ def sample(file: Path, output_file: Path, dim: str = "time", force: bool = False
             return
 
     if output_file.suffix == ".nc":
-        if output_file.exists():
-            raise FileExistsError(f"Output file {output_file} already exists.")
         sampled_ds.to_netcdf(str(output_file))
     elif output_file.suffix == ".zarr":
         mode = "w-"
