@@ -36,7 +36,7 @@ def variable_gcmx(tmp_path):
     ensemble_member = "r001i1p00000"
     theta = "850"
     scale_factor = "gcm"
-    var_type = "temp"
+    var_type = "vort"
     scenario = "rcp85"
 
     config_path = files("mlde_data").joinpath(

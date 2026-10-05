@@ -363,15 +363,18 @@ def check_variable_attrs(ds: xr.Dataset, var: VariableMetadata) -> bool:
         "vort700",
         "vort850",
     ]:
-        expected_attrs = {"units": "s-1", "standard_name": "relative_vorticity"}
+        expected_attrs = {
+            "units": "s-1",
+            "standard_name": "atmosphere_upward_relative_vorticity",
+        }
     else:
         raise RuntimeError(f"Unknown variable {var.variable}")
 
     expected_attrs["grid_mapping"] = expected_grid_mapping
 
-    return {
-        k: ds[var.variable].attrs[k] for k in expected_attrs.keys()
-    } == expected_attrs
+    actual_attrs = {k: ds[var.variable].attrs[k] for k in expected_attrs.keys()}
+
+    return actual_attrs == expected_attrs
 
 
 def check_coord_attrs(ds: xr.Dataset, var: VariableMetadata) -> bool:
@@ -434,7 +437,9 @@ def check_coord_attrs(ds: xr.Dataset, var: VariableMetadata) -> bool:
     else:
         raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
 
-    actual_attrs = {k: ds[k].attrs for k in expected_attrs.keys()}
+    actual_attrs = {
+        ck: {k: ds[ck].attrs[k] for k in ca.keys()} for ck, ca in expected_attrs.items()
+    }
 
     return actual_attrs == expected_attrs
 
