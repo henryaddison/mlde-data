@@ -352,7 +352,7 @@ def check_variable_attrs(ds: xr.Dataset, var: VariableMetadata) -> bool:
         expected_attrs = {"units": "K", "standard_name": "air_temperature"}
 
     elif var.variable in ["spechum250", "spechum500", "spechum700", "spechum850"]:
-        expected_attrs = {"units": "1", "standard_name": "specific_humidity"}
+        expected_attrs = {"units": 1, "standard_name": "specific_humidity"}
     elif var.variable in [
         "vorticity250",
         "vorticity500",
