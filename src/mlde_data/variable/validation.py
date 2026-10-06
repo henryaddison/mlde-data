@@ -372,7 +372,11 @@ def check_variable_attrs(ds: xr.Dataset, var: VariableMetadata) -> bool:
 
     expected_attrs["grid_mapping"] = expected_grid_mapping
 
-    actual_attrs = {k: ds[var.variable].attrs[k] for k in expected_attrs.keys()}
+    actual_attrs = {
+        k: ds[var.variable].attrs[k]
+        for k in expected_attrs.keys()
+        if k in ds[var.variable].attrs
+    }
 
     return actual_attrs == expected_attrs
 
@@ -438,7 +442,9 @@ def check_coord_attrs(ds: xr.Dataset, var: VariableMetadata) -> bool:
         raise RuntimeError(f"Unknown grid_mapping {grid_mapping}")
 
     actual_attrs = {
-        ck: {k: ds[ck].attrs[k] for k in ca.keys()} for ck, ca in expected_attrs.items()
+        ck: {k: ds[ck].attrs[k] for k in ca.keys() if k in ds[ck].attrs}
+        for ck, ca in expected_attrs.items()
+        if ck in ds.variables
     }
 
     return actual_attrs == expected_attrs
@@ -450,7 +456,7 @@ def check_ds_attrs(ds: xr.Dataset, var: VariableMetadata) -> bool:
         "resolution": var.resolution,
         "frequency": var.frequency,
     }
-    actual_attrs = {k: ds.attrs[k] for k in expected_attrs.keys()}
+    actual_attrs = {k: ds.attrs[k] for k in expected_attrs.keys() if k in ds.attrs}
 
     return expected_attrs == actual_attrs
 
