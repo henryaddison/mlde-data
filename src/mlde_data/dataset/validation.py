@@ -20,6 +20,31 @@ def validate(dataset: str) -> defaultdict:
         bad_splits["no config"].update(splits)
         return bad_splits
 
+    try:
+        ds_template = xr.open_dataset(dataset_metadata.path() / "template.nc")
+    except FileNotFoundError:
+        bad_splits["no template"].update(splits)
+
+    checks = {
+        "bad grid mapping": check_grid_mapping,
+        # check dims
+        "bad dimensions": check_dims,
+        # check grid and time
+        "bad grid vars": check_grid_vars,
+        "bad time_bnds": check_time_bnds,
+        "bad time encodings": check_time_encoding,
+        # check shape
+        "bad shape": check_shape,
+        # check no forecast related metadata (should have been stripped)
+        "forecast_encoding": check_forecast_encoding,
+        "forecast_vars": check_forecast_variables,
+        # check no pressure related metadata (should have been stripped)
+        "pressure_encoding": check_pressure_encoding,
+        "pressure_vars": check_pressure_variables,
+        # check no NaNs
+        "NaNs": check_nans,
+    }
+
     for split in dataset_metadata.splits():
         for var_type in ["predictors", "predictands"]:
             try:
@@ -30,40 +55,12 @@ def validate(dataset: str) -> defaultdict:
                 bad_splits["no file"].add(split)
                 continue
 
-            if not check_grid_mapping(ds, dataset, split, var_type, ds_config):
-                bad_splits["bad grid mapping"].add(split)
+            for checks_name, check_func in checks.items():
+                if not check_func(ds, dataset, split, var_type, ds_config):
+                    bad_splits[checks_name].add(split)
 
-            # check dims
-            if not check_dims(ds, dataset, split, var_type, ds_config):
-                bad_splits["bad dimensions"].add(split)
-
-            # check grid and time
-            if not check_grid_vars(ds, dataset, split, var_type, ds_config):
-                bad_splits["bad grid vars"].add(split)
-            if not check_time_bnds(ds, dataset, split, var_type, ds_config):
-                bad_splits["bad time_bnds"].add(split)
-            if not check_time_encoding(ds, dataset, split, var_type, ds_config):
-                bad_splits["bad time encodings"].add(split)
-
-            # check shape
-            if not check_shape(ds, dataset, split, var_type, ds_config):
-                bad_splits["bad shape"].add(split)
-
-            # check for forecast related metadata (should have been stripped)
-            if not check_forecast_encoding(ds, dataset, split, var_type, ds_config):
-                bad_splits["forecast_encoding"].add(split)
-            if not check_forecast_variables(ds, dataset, split, var_type, ds_config):
-                bad_splits["forecast_vars"].add(split)
-
-            # check for pressure related metadata (should have been stripped)
-            if not check_pressure_encoding(ds, dataset, split, var_type, ds_config):
-                bad_splits["pressure_encoding"].add(split)
-            if not check_pressure_variables(ds, dataset, split, var_type, ds_config):
-                bad_splits["pressure_vars"].add(split)
-
-            # check for NaNs
-            if not check_nans(ds, dataset, split, var_type, ds_config):
-                bad_splits["NaNs"].add(split)
+            if not check_template(ds, ds_template):
+                bad_splits["template mismatch"].add(split)
 
     return bad_splits
 
@@ -232,5 +229,20 @@ def check_time_encoding(ds, dataset, split, var_type, ds_config):
             return False
         if enc["calendar"] != "360_day":
             return False
+
+    return True
+
+
+def check_template(ds, ds_template):
+    """
+    Check that the coords of template dataset matches the dataset
+    """
+    if ds_template is None:
+        return False
+
+    if ds.cf.coords["X"] != ds_template.cf.coords["X"]:
+        return False
+    if ds.cf.coords["Y"] != ds_template.cf.coords["Y"]:
+        return False
 
     return True
