@@ -70,8 +70,9 @@ def create(
     output_dir = output_dataset_meta.path()
     os.makedirs(output_dir, exist_ok=False)
 
-    split_times = None
+    split_times = None  # split times will be generated from the first variable processed, and then reused for all subsequent variables including for different ensemble members
     for em in config["ensemble_members"]:
+        logger.info(f"Processing ensemble member {em}...")
         split_sets, split_times = dataset_lib.create(
             config, input_base_dir, ensemble_member=em, split_times=split_times
         )
