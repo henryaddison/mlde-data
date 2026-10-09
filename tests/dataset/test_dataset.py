@@ -20,6 +20,7 @@ def config():
             "resolution": "2.2km",
             "frequency": "1hr",
             "variables": ["output1", "output2"],
+            "spec": [{"action": "trim-domain", "parameters": {"patch_size": 8}}],
         },
         "predictors": {
             "collection": "land-gcm",
@@ -173,16 +174,21 @@ def test_create(variable_files, config):
 
     for var_type in ["predictors", "predictands"]:
 
+        if var_type == "predictors":
+            trimmed_grid_size = 10
+        else:
+            trimmed_grid_size = 8
+
         ds = result[var_type]["train"]
 
         assert ds.sizes == {
             "ensemble_member": 1,
             "time": 6 * 360 / 10,
-            "grid_longitude": 10,
-            "grid_latitude": 10,
+            "grid_longitude": trimmed_grid_size,
+            "grid_latitude": trimmed_grid_size,
         }
         for var_name in config[var_type]["variables"]:
-            assert ds[var_name].shape == (1, 216, 10, 10)
+            assert ds[var_name].shape == (1, 216, trimmed_grid_size, trimmed_grid_size)
 
 
 def test_create_statistics(variable_files, config):

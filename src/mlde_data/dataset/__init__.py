@@ -5,6 +5,7 @@ from mlde_utils import VariableMetadata
 from pathlib import Path
 import xarray as xr
 
+from mlde_data.actions.actions_registry import get_action
 from .preset_split import PresetSplit
 from .random_split import RandomSplit
 from .random_season_split import RandomSeasonSplit
@@ -116,6 +117,7 @@ def create(config: dict, input_base_dir: Path) -> dict:
             if split_sets is None:
                 logger.info(f"Generating times for split sets...")
                 split_sets = _split(multi_em_ds["time"], **config["split"])
+
         logger.info(f"Combining variables for {var_type}...")
         var_type_ds = xr.combine_by_coords(
             single_var_datasets,
@@ -124,6 +126,8 @@ def create(config: dict, input_base_dir: Path) -> dict:
             join="exact",
             data_vars="minimal",
         )
+
+        var_type_ds = _process(var_type_ds, var_type_config)
 
         logger.info(f"Splitting data for {var_type}...")
         for split, split_times in split_sets.items():
@@ -139,6 +143,23 @@ def create(config: dict, input_base_dir: Path) -> dict:
             )
 
     return var_type_datasets, var_type_statistics
+
+
+def _process(
+    ds: xr.Dataset,
+    config: dict,
+) -> xr.Dataset:
+    if "spec" not in config:
+        logger.info("No processing spec provided, skipping")
+        return ds
+
+    for job_spec in config["spec"]:
+        logger.info(f"Doing {job_spec['action']}...")
+
+        action = get_action(job_spec["action"])(**job_spec.get("parameters", {}))
+        ds = action(ds)
+
+    return ds
 
 
 def _single_variable(
