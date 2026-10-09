@@ -43,7 +43,7 @@ def patch_stats(dataset_name: str, base_dir: Path = typer.Argument(DATASETS_PATH
         ):
             logger.info(f"Adding stats for {split_filepath}...")
             split_ds = xr.open_dataset(split_filepath)
-            patched_ds = dataset_lib._calculate_statistics(
+            patched_ds = dataset_lib.calculate_statistics(
                 split_ds,
                 variables,
                 **config[var_type].get("stats", {"time_aggregation_factors": [1]}),
@@ -66,45 +66,82 @@ def create(
     dataset_name = config.stem
     with open(config, "r") as f:
         config = yaml.safe_load(f)
-
-    split_sets, split_stats = dataset_lib.create(config, input_base_dir)
-
-    output_dir = DatasetMetadata(dataset_name, base_dir=output_base_dir).path()
-
+    output_dataset_meta = FurflexDatasetMetadata(dataset_name, base_dir=output_base_dir)
+    output_dir = output_dataset_meta.path()
     os.makedirs(output_dir, exist_ok=False)
 
-    logger.info(f"Saving data to {output_dir}...")
-    with open(
-        DatasetMetadata(dataset_name, base_dir=output_base_dir).config_path(), "w"
-    ) as f:
-        yaml.dump(config, f)
-    for var_type, var_type_splits in split_sets.items():
-        for split_name, split_ds in var_type_splits.items():
-            # rechunk to avoid issues with saving to zarr
-            times_per_day = 24 if var_type == "predictands" else 1
-            # 90 days (a season) per chunk, 10 results in too many files
-            time_chunk_size = times_per_day * 90
-            for var_name in split_ds.data_vars:
-                # ML suitable chunking: 1 day per chunk
-                new_chunks = {
-                    "ensemble_member": 1,
-                    "time": time_chunk_size,
-                    split_ds.cf["X"].name: split_ds.cf["X"].size,
-                    split_ds.cf["Y"].name: split_ds.cf["Y"].size,
-                }
-                if set(new_chunks.keys()) == set(split_ds[var_name].dims):
-                    if "chunks" in split_ds[var_name].encoding:
-                        # remove existing chunking info to avoid conflict
-                        del split_ds[var_name].encoding["chunks"]
-                    split_ds[var_name] = split_ds[var_name].chunk(new_chunks)
-            split_ds.drop_vars("time_bnds").to_zarr(
-                os.path.join(output_dir, split_name, f"{var_type}.zarr"), mode="w-"
-            )
-            split_stats[var_type][split_name].to_zarr(
-                os.path.join(output_dir, split_name, f"{var_type}_stats.zarr"),
-                mode="w-",
-            )
-            logger.info(f"{var_type} {split_name} done")
+    split_times = None
+    for em in config["ensemble_members"]:
+        split_sets, split_times = dataset_lib.create(
+            config, input_base_dir, ensemble_member=em, split_times=split_times
+        )
+
+        logger.info(f"Saving {em} data to {output_dir}...")
+        with open(output_dataset_meta.config_path(), "w") as f:
+            yaml.dump(config, f)
+        for var_type, var_type_splits in split_sets.items():
+            for split_name, split_ds in var_type_splits.items():
+                # rechunk to avoid issues with saving to zarr
+                times_per_day = 24 if var_type == "predictands" else 1
+                # 90 days (a season) per chunk, 10 results in too many files
+                time_chunk_size = times_per_day * 90
+                for var_name in split_ds.data_vars:
+                    # ML suitable chunking: 1 day per chunk
+                    new_chunks = {
+                        "ensemble_member": 1,
+                        "time": time_chunk_size,
+                        split_ds.cf["X"].name: split_ds.cf["X"].size,
+                        split_ds.cf["Y"].name: split_ds.cf["Y"].size,
+                    }
+                    if set(new_chunks.keys()) == set(split_ds[var_name].dims):
+                        if "chunks" in split_ds[var_name].encoding:
+                            # remove existing chunking info to avoid conflict
+                            del split_ds[var_name].encoding["chunks"]
+                        split_ds[var_name] = split_ds[var_name].chunk(new_chunks)
+
+                output_zarr_path = (
+                    output_dataset_meta.split_path(split_name) / f"{var_type}.zarr"
+                )
+                if output_zarr_path.exists():
+                    logger.info(f"Appending {em} data to {output_zarr_path}...")
+                    split_ds.drop_vars("time_bnds").to_zarr(
+                        output_zarr_path,
+                        mode="a-",
+                        append_dim="ensemble_member",
+                    )
+                else:
+                    logger.info(f"Saving {em} data to {output_zarr_path}...")
+                    split_ds.drop_vars("time_bnds").to_zarr(
+                        output_zarr_path,
+                        mode="w-",
+                    )
+
+                logger.info(f"{var_type} {split_name} done")
+
+    for split_name in output_dataset_meta.splits():
+        predictands_split_path = output_dataset_meta.predictands_split_path(split_name)
+        var_type_config = config["predictands"]
+        split_ds = xr.open_dataset(predictands_split_path, chunks={})
+        dataset_lib.calculate_statistics(
+            split_ds,
+            var_type_config["variables"],
+            **var_type_config.get("stats", {"time_aggregation_factors": [1]}),
+        ).to_zarr(
+            os.path.join(output_dir, split_name, f"predictands_stats.zarr"),
+            mode="w-",
+        )
+
+        predictors_split_path = output_dataset_meta.predictors_split_path(split_name)
+        var_type_config = config["predictors"]
+        split_ds = xr.open_dataset(predictors_split_path, chunks={})
+        dataset_lib.calculate_statistics(
+            split_ds,
+            var_type_config["variables"],
+            **var_type_config.get("stats", {"time_aggregation_factors": [1]}),
+        ).to_zarr(
+            os.path.join(output_dir, split_name, f"predictors_stats.zarr"),
+            mode="w-",
+        )
 
 
 def report_issues(dataset, bad_splits):

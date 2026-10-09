@@ -1,5 +1,4 @@
 import cf_xarray  # noqa: F401
-import gc
 import logging
 from mlde_utils import VariableMetadata
 from pathlib import Path
@@ -13,7 +12,7 @@ from .random_season_split import RandomSeasonSplit
 logger = logging.getLogger(__name__)
 
 
-def _calculate_statistics(
+def calculate_statistics(
     split_ds: xr.Dataset, variables: list[str], time_aggregation_factors: list[int]
 ) -> xr.Dataset:
     """
@@ -68,55 +67,46 @@ def _calculate_statistics(
     )
 
 
-def create(config: dict, input_base_dir: Path) -> dict:
+def create(
+    config: dict,
+    input_base_dir: Path,
+    ensemble_member: str,
+    split_times: dict[str, list] = None,
+) -> dict:
     """
     Create a dataset
     """
     scenario = config["scenario"]
 
     var_type_datasets = {}
-    var_type_statistics = {}
-    split_sets = None
+
+    split_times = None
     for var_type in ["predictands", "predictors"]:
         logger.info(f"Processing {var_type}...")
 
         var_type_datasets[var_type] = {}
-        var_type_statistics[var_type] = {}
+
         var_type_config = config[var_type]
         single_var_datasets = []
         for var_name in var_type_config["variables"]:
             logger.info(f"Processing {var_name}...")
-            single_em_var_datasets = []
-            for em in config["ensemble_members"]:
-                single_em_var_datasets.append(
-                    _single_variable(
-                        em,
-                        var_name,
-                        input_base_dir=input_base_dir,
-                        resolution=var_type_config["resolution"],
-                        collection=var_type_config["collection"],
-                        frequency=var_type_config["frequency"],
-                        domain=var_type_config["domain"],
-                        scenario=scenario,
-                    )
+
+            single_var_datasets.append(
+                _single_variable(
+                    ensemble_member,
+                    var_name,
+                    input_base_dir=input_base_dir,
+                    resolution=var_type_config["resolution"],
+                    collection=var_type_config["collection"],
+                    frequency=var_type_config["frequency"],
+                    domain=var_type_config["domain"],
+                    scenario=scenario,
                 )
-            logger.info(f"Combining ensemble members for {var_name}...")
-            multi_em_ds = xr.concat(
-                single_em_var_datasets,
-                dim="ensemble_member",
-                compat="no_conflicts",
-                combine_attrs="drop_conflicts",
-                join="exact",
-                data_vars="minimal",
             )
-            single_var_datasets.append(multi_em_ds)
 
-            del single_em_var_datasets
-            gc.collect()
-
-            if split_sets is None:
+            if split_times is None:
                 logger.info(f"Generating times for split sets...")
-                split_sets = _split(multi_em_ds["time"], **config["split"])
+                split_times = _split(single_var_datasets[0]["time"], **config["split"])
 
         logger.info(f"Combining variables for {var_type}...")
         var_type_ds = xr.combine_by_coords(
@@ -130,19 +120,13 @@ def create(config: dict, input_base_dir: Path) -> dict:
         var_type_ds = _process(var_type_ds, var_type_config)
 
         logger.info(f"Splitting data for {var_type}...")
-        for split, split_times in split_sets.items():
+        for split_name, stimes in split_times.items():
             split_ds = var_type_ds.sel(
-                time=var_type_ds["time"].dt.floor("D").isin(split_times)
+                time=var_type_ds["time"].dt.floor("D").isin(stimes)
             )
-            var_type_datasets[var_type][split] = split_ds
+            var_type_datasets[var_type][split_name] = split_ds
 
-            var_type_statistics[var_type][split] = _calculate_statistics(
-                split_ds,
-                var_type_config["variables"],
-                **config[var_type].get("stats", {"time_aggregation_factors": [1]}),
-            )
-
-    return var_type_datasets, var_type_statistics
+    return var_type_datasets, split_times
 
 
 def _process(

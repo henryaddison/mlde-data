@@ -168,7 +168,9 @@ def test_single_variable(variable_files, config):
 def test_create(variable_files, config):
     input_base_dir = variable_files
 
-    result, _ = dataset.create(config, input_base_dir)
+    result, _ = dataset.create(
+        config, input_base_dir, ensemble_member=config["ensemble_members"][0]
+    )
 
     assert set(result.keys()) == {"predictors", "predictands"}
 
@@ -191,54 +193,51 @@ def test_create(variable_files, config):
             assert ds[var_name].shape == (1, 216, trimmed_grid_size, trimmed_grid_size)
 
 
-def test_create_statistics(variable_files, config):
+def test_calculate_statistics(variable_files, config):
     input_base_dir = variable_files
 
-    splits, stats = dataset.create(config, input_base_dir)
-
-    assert set(stats.keys()) == {"predictors", "predictands"}
+    splits, _ = dataset.create(
+        config, input_base_dir, ensemble_member=config["ensemble_members"][0]
+    )
 
     for var_type in ["predictors", "predictands"]:
         split = "train"
+        stats_ds = dataset.calculate_statistics(
+            splits[var_type][split],
+            config[var_type]["variables"],
+            config[var_type].get("stats", {"time_aggregation_factors": [1]})[
+                "time_aggregation_factors"
+            ],
+        )
         for var_name in config[var_type]["variables"]:
             expected = np.mean(splits[var_type][split][var_name].values)
-            actual = (
-                stats[var_type]["train"]
-                .sel(variable=var_name, time_aggregation_factor=1)["mean"]
-                .values
-            )
+            actual = stats_ds.sel(variable=var_name, time_aggregation_factor=1)[
+                "mean"
+            ].values
             npt.assert_equal(actual, expected)
 
             expected = np.std(splits[var_type][split][var_name].values)
-            actual = (
-                stats[var_type]["train"]
-                .sel(variable=var_name, time_aggregation_factor=1)["std"]
-                .values
-            )
+            actual = stats_ds.sel(variable=var_name, time_aggregation_factor=1)[
+                "std"
+            ].values
             npt.assert_equal(actual, expected)
 
             expected = np.size(splits[var_type][split][var_name].values)
-            actual = (
-                stats[var_type]["train"]
-                .sel(variable=var_name, time_aggregation_factor=1)["count"]
-                .values
-            )
+            actual = stats_ds.sel(variable=var_name, time_aggregation_factor=1)[
+                "count"
+            ].values
             npt.assert_equal(actual, expected)
 
             expected = np.max(splits[var_type][split][var_name].values)
-            actual = (
-                stats[var_type]["train"]
-                .sel(variable=var_name, time_aggregation_factor=1)["max"]
-                .values
-            )
+            actual = stats_ds.sel(variable=var_name, time_aggregation_factor=1)[
+                "max"
+            ].values
             npt.assert_equal(actual, expected)
 
             expected = np.min(splits[var_type][split][var_name].values)
-            actual = (
-                stats[var_type]["train"]
-                .sel(variable=var_name, time_aggregation_factor=1)["min"]
-                .values
-            )
+            actual = stats_ds.sel(variable=var_name, time_aggregation_factor=1)[
+                "min"
+            ].values
             npt.assert_equal(actual, expected)
 
 
@@ -247,12 +246,21 @@ def test_create_time_aggregated_statistics(hourly_predictands_variable_files, co
     time_factors = [1, 3, 6, 24]
     config["predictands"]["stats"] = {"time_aggregation_factors": time_factors}
 
-    splits, stats = dataset.create(config, input_base_dir)
+    splits, split_times = dataset.create(
+        config, input_base_dir, ensemble_member=config["ensemble_members"][0]
+    )
 
-    assert set(stats.keys()) == {"predictors", "predictands"}
+    assert set(splits.keys()) == {"predictors", "predictands"}
 
     for var_type in ["predictors", "predictands"]:
         split = "train"
+        stats_ds = dataset.calculate_statistics(
+            splits[var_type][split],
+            config[var_type]["variables"],
+            config[var_type].get("stats", {"time_aggregation_factors": [1]})[
+                "time_aggregation_factors"
+            ],
+        )
         for var_name in config[var_type]["variables"]:
             for time_factor in config[var_type].get(
                 "stats", {"time_aggregation_factors": [1]}
@@ -275,11 +283,7 @@ def test_create_time_aggregated_statistics(hourly_predictands_variable_files, co
                             .sum()
                             .values
                         )
-                    actual = (
-                        stats[var_type]["train"]
-                        .sel(variable=var_name, time_aggregation_factor=time_factor)[
-                            metric_name
-                        ]
-                        .values
-                    )
+                    actual = stats_ds.sel(
+                        variable=var_name, time_aggregation_factor=time_factor
+                    )[metric_name].values
                     npt.assert_equal(actual, expected)
