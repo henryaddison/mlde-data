@@ -80,7 +80,6 @@ def create(
 
     var_type_datasets = {}
 
-    split_times = None
     for var_type in ["predictands", "predictors"]:
         logger.info(f"Processing {var_type}...")
 
