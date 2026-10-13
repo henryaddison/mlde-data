@@ -164,6 +164,7 @@ def _single_variable(
         compat="no_conflicts",
         combine_attrs="drop_conflicts",
         join="outer",
+        engine="netcdf4",
     )
     variable_ds[dsmeta.variable] = variable_ds[dsmeta.variable].expand_dims(
         dict(ensemble_member=[em])
