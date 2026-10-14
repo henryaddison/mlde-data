@@ -119,30 +119,7 @@ def create(
 
                 logger.info(f"{var_type} {split_name} done")
 
-    for split_name in output_dataset_meta.splits():
-        predictands_split_path = output_dataset_meta.predictands_split_path(split_name)
-        var_type_config = config["predictands"]
-        split_ds = xr.open_dataset(predictands_split_path, chunks={})
-        dataset_lib.calculate_statistics(
-            split_ds,
-            var_type_config["variables"],
-            **var_type_config.get("stats", {"time_aggregation_factors": [1]}),
-        ).to_zarr(
-            os.path.join(output_dir, split_name, f"predictands_stats.zarr"),
-            mode="w-",
-        )
-
-        predictors_split_path = output_dataset_meta.predictors_split_path(split_name)
-        var_type_config = config["predictors"]
-        split_ds = xr.open_dataset(predictors_split_path, chunks={})
-        dataset_lib.calculate_statistics(
-            split_ds,
-            var_type_config["variables"],
-            **var_type_config.get("stats", {"time_aggregation_factors": [1]}),
-        ).to_zarr(
-            os.path.join(output_dir, split_name, f"predictors_stats.zarr"),
-            mode="w-",
-        )
+    patch_stats(dataset_name, base_dir=output_base_dir)
 
 
 def report_issues(dataset, bad_splits):
