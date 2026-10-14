@@ -42,7 +42,7 @@ def patch_stats(dataset_name: str, base_dir: Path = typer.Argument(DATASETS_PATH
             os.path.join(dataset_dir, f"*/{var_type}.zarr")
         ):
             logger.info(f"Adding stats for {split_filepath}...")
-            split_ds = xr.open_dataset(split_filepath)
+            split_ds = xr.open_dataset(split_filepath, engine="zarr", chunks={})
             patched_ds = dataset_lib.calculate_statistics(
                 split_ds,
                 variables,
